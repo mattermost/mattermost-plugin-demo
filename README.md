@@ -1,8 +1,8 @@
 # Demo Plugin
 
-This plugin serves as a reference guide for best practices, build scripts and demos when writing Mattermost plugins. It also doubles as a testbed for verifying plugin functionality during release testing. See [server/README.md](server/README.md) and [webapp/README.md](webapp/README.md) for more details.
+This plugin demonstrates the capabilities of a Mattermost plugin. It includes the same build scripts as [mattermost-plugin-sample](https://github.com/mattermost/mattermost-plugin-sample), but implements all supported server-side hooks and registers a component for each supported client-side integration point. See [server/README.md](server/README.md) and [webapp/README.md](webapp/README.md) for more details. The plugin also doubles as a testbed for verifying plugin functionality during release testing.
 
-The example implementations are primarily meant as illustrations to assist with developing your plugin. Feel free to base your own plugin off this repository, removing or modifying components as needed.
+Feel free to base your own plugin off this repository, removing or modifying components as needed. If you're already familiar with what plugins can do, consider starting from [mattermost-plugin-sample](https://github.com/mattermost/mattermost-plugin-sample) instead, which includes the same build framework but omits the demo implementations.
 
 ## Getting Started
 Shallow clone the repository to a directory matching your plugin name:
@@ -50,5 +50,4 @@ Simply delete the `server` or `webapp` folders and remove the corresponding sect
 
 ### How do I remove unwanted hooks from the server?
 
-Simply delete the corresponding implementations (or files). The Mattermost server automatically
-identifies which hooks have been implemented when the plugin is started.
+Simply delete the corresponding implementations (or files). The Mattermost server automatically identifies which hooks have been implemented when the plugin is started.

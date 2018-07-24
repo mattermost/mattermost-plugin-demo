@@ -1,7 +1,7 @@
 {
     "id": "com.mattermost.demo-plugin",
     "name": "Demo Plugin",
-    "description": "This plugin serves as a reference guide for best practices and build scripts when writing Mattermost plugins.",
+    "description": "This plugin demonstrates the capabilities of a Mattermost plugin.",
     "version": "0.0.1",
     "server": {
         "executables": {
