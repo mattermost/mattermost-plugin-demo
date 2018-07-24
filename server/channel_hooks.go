@@ -9,15 +9,15 @@ import (
 
 // ChannelHasBeenCreated is invoked after the channel has been committed to the database.
 //
-// This sample implementation logs a message to the sample channel whenever a channel is created.
+// This demo implementation logs a message to the demo channel whenever a channel is created.
 func (p *Plugin) ChannelHasBeenCreated(c *plugin.Context, channel *model.Channel) {
 	if p.disabled {
 		return
 	}
 
 	if _, err := p.API.CreatePost(&model.Post{
-		UserId:    p.sampleUserId,
-		ChannelId: p.sampleChannelIds[channel.TeamId],
+		UserId:    p.demoUserId,
+		ChannelId: p.demoChannelIds[channel.TeamId],
 		Message:   fmt.Sprintf("ChannelHasBeenCreated: ~%s", channel.Name),
 	}); err != nil {
 		p.API.LogError(
@@ -31,7 +31,7 @@ func (p *Plugin) ChannelHasBeenCreated(c *plugin.Context, channel *model.Channel
 // UserHasJoinedChannel is invoked after the membership has been committed to the database. If
 // actor is not nil, the user was invited to the channel by the actor.
 //
-// This sample implementation logs a message to the sample channel whenever a user joins a channel.
+// This demo implementation logs a message to the demo channel whenever a user joins a channel.
 func (p *Plugin) UserHasJoinedChannel(c *plugin.Context, channelMember *model.ChannelMember, actor *model.User) {
 	if p.disabled {
 		return
@@ -50,8 +50,8 @@ func (p *Plugin) UserHasJoinedChannel(c *plugin.Context, channelMember *model.Ch
 	}
 
 	if _, err = p.API.CreatePost(&model.Post{
-		UserId:    p.sampleUserId,
-		ChannelId: p.sampleChannelIds[channel.TeamId],
+		UserId:    p.demoUserId,
+		ChannelId: p.demoChannelIds[channel.TeamId],
 		Message:   fmt.Sprintf("UserHasJoinedChannel: @%s, ~%s", user.Username, channel.Name),
 	}); err != nil {
 		p.API.LogError(
@@ -65,7 +65,7 @@ func (p *Plugin) UserHasJoinedChannel(c *plugin.Context, channelMember *model.Ch
 // UserHasLeftChannel is invoked after the membership has been removed from the database. If
 // actor is not nil, the user was removed from the channel by the actor.
 //
-// This sample implementation logs a message to the sample channel whenever a user leaves a
+// This demo implementation logs a message to the demo channel whenever a user leaves a
 // channel.
 func (p *Plugin) UserHasLeftChannel(c *plugin.Context, channelMember *model.ChannelMember, actor *model.User) {
 	if p.disabled {
@@ -85,8 +85,8 @@ func (p *Plugin) UserHasLeftChannel(c *plugin.Context, channelMember *model.Chan
 	}
 
 	if _, err = p.API.CreatePost(&model.Post{
-		UserId:    p.sampleUserId,
-		ChannelId: p.sampleChannelIds[channel.TeamId],
+		UserId:    p.demoUserId,
+		ChannelId: p.demoChannelIds[channel.TeamId],
 		Message:   fmt.Sprintf("UserHasLeftChannel: @%s, ~%s", user.Username, channel.Name),
 	}); err != nil {
 		p.API.LogError(

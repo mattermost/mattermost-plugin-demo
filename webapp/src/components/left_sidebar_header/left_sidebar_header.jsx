@@ -25,7 +25,7 @@ export default class LeftSidebarHeader extends React.PureComponent {
                     className='icon fa fa-plug'
                     style={iconStyle}
                 />
-                {'Sample Plugin: '} {this.props.enabled ? <span>{ 'Enabled' }</span> : <span>{ 'Disabled' }</span>}
+                {'Demo Plugin: '} {this.props.enabled ? <span>{ 'Enabled' }</span> : <span>{ 'Disabled' }</span>}
             </div>
         );
     }

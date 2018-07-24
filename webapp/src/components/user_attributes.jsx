@@ -3,7 +3,7 @@ import React from 'react';
 export default class UserAttributes extends React.PureComponent {
     render() {
         return (
-            <div>{'Sample Plugin: User Attributes'}</div>
+            <div>{'Demo Plugin: User Attributes'}</div>
         );
     }
 }

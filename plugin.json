@@ -1,6 +1,6 @@
 {
-    "id": "com.mattermost.sample-plugin",
-    "name": "Sample Plugin",
+    "id": "com.mattermost.demo-plugin",
+    "name": "Demo Plugin",
     "description": "This plugin serves as a reference guide for best practices and build scripts when writing Mattermost plugins.",
     "version": "0.0.1",
     "server": {
@@ -21,16 +21,16 @@
             "key": "ChannelName",
             "display_name": "Channel Name",
             "type": "text",
-            "help_text": "The channel to use as part of the sample plugin, created for each team automatically if it does not exist.",
-            "placeholder": "sample_plugin",
-            "default": "sample_plugin"
+            "help_text": "The channel to use as part of the demo plugin, created for each team automatically if it does not exist.",
+            "placeholder": "demo_plugin",
+            "default": "demo_plugin"
         }, {
             "key": "Username",
             "display_name": "Username",
             "type": "text",
-            "help_text": "The user to use as part of the sample plugin, created automatically if it does not exist.",
-            "placeholder": "sample_plugin",
-            "default": "sample_plugin"
+            "help_text": "The user to use as part of the demo plugin, created automatically if it does not exist.",
+            "placeholder": "demo_plugin",
+            "default": "demo_plugin"
         }]
     }
 }

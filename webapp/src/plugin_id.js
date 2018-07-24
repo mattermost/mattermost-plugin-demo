@@ -1,1 +1,1 @@
-export default 'com.mattermost.sample-plugin';
+export default 'com.mattermost.demo-plugin';

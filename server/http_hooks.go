@@ -13,7 +13,7 @@ import (
 // The Mattermost-User-Id header will be present if (and only if) the request is by an
 // authenticated user.
 //
-// This sample implementation sends back whether or not the plugin hooks are currently enabled. It
+// This demo implementation sends back whether or not the plugin hooks are currently enabled. It
 // is used by the web app to recover from a network reconnection and synchronize the state of the
 // plugin's hooks.
 func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {

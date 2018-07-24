@@ -8,7 +8,7 @@ import (
 	"github.com/mattermost/mattermost-server/plugin"
 )
 
-const CommandTrigger = "sample_plugin"
+const CommandTrigger = "demo_plugin"
 
 func (p *Plugin) registerCommand(teamId string) error {
 	if err := p.API.RegisterCommand(&model.Command{
@@ -16,9 +16,9 @@ func (p *Plugin) registerCommand(teamId string) error {
 		Trigger:          CommandTrigger,
 		AutoComplete:     true,
 		AutoCompleteHint: "(true|false)",
-		AutoCompleteDesc: "Enables or disables the sample plugin hooks.",
-		DisplayName:      "Sample Plugin Command",
-		Description:      "A command used to enable or disable the sample plugin hooks.",
+		AutoCompleteDesc: "Enables or disables the demo plugin hooks.",
+		DisplayName:      "Demo Plugin Command",
+		Description:      "A command used to enable or disable the demo plugin hooks.",
 	}); err != nil {
 		p.API.LogError(
 			"failed to register command",
@@ -38,8 +38,8 @@ func (p *Plugin) emitStatusChange() {
 // ExecuteCommand executes a command that has been previously registered via the RegisterCommand
 // API.
 //
-// This sample implementation responds to a /sample_plugin command, allowing the user to enable
-// or disable the sample plugin's hooks functionality (but leave the command and webapp enabled).
+// This demo implementation responds to a /demo_plugin command, allowing the user to enable
+// or disable the demo plugin's hooks functionality (but leave the command and webapp enabled).
 func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	if !strings.HasPrefix(args.Command, "/"+CommandTrigger) {
 		return &model.CommandResponse{
@@ -52,7 +52,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		if !p.disabled {
 			return &model.CommandResponse{
 				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-				Text:         "The sample plugin hooks are already enabled.",
+				Text:         "The demo plugin hooks are already enabled.",
 			}, nil
 		}
 
@@ -61,14 +61,14 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			Text:         "Enabled sample plugin hooks.",
+			Text:         "Enabled demo plugin hooks.",
 		}, nil
 
 	} else if strings.HasSuffix(args.Command, "false") {
 		if p.disabled {
 			return &model.CommandResponse{
 				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-				Text:         "The sample plugin hooks are already disabled.",
+				Text:         "The demo plugin hooks are already disabled.",
 			}, nil
 		}
 
@@ -77,7 +77,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			Text:         "Disabled sample plugin hooks.",
+			Text:         "Disabled demo plugin hooks.",
 		}, nil
 	}
 

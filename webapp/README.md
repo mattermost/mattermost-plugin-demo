@@ -1,6 +1,6 @@
-# Sample Plugin: Web App
+# Demo Plugin: Web App
 
-The web app component of this sample plugin is written in Javascript, and leverages [React](https://reactjs.org/) and [Redux](https://redux.js.org/). It registers a component type for all of the supported registration calls, parses a custom webhook to detect when the server plugin's hooks status changes, and pings the server on network reconnect to synchronize state.
+The web app component of this demo plugin is written in Javascript, and leverages [React](https://reactjs.org/) and [Redux](https://redux.js.org/). It registers a component type for all of the supported registration calls, parses a custom webhook to detect when the server plugin's hooks status changes, and pings the server on network reconnect to synchronize state.
 
 Each of the included files or folders is outlined below.
 

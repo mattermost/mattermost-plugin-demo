@@ -20,7 +20,7 @@ import {
 } from './actions';
 import reducer from './reducer';
 
-export default class SamplePlugin {
+export default class DemoPlugin {
     initialize(registry, store) {
         registry.registerRootComponent(Root);
         registry.registerPopoverUserAttributesComponent(UserAttributes);
@@ -33,13 +33,13 @@ export default class SamplePlugin {
         registry.registerChannelHeaderButtonAction(
             <ChannelHeaderButtonIcon/>,
             () => store.dispatch(channelHeaderButtonAction()),
-            'Sample Plugin',
+            'Demo Plugin',
         );
 
-        registry.registerPostTypeComponent('custom_sample_plugin', PostType);
+        registry.registerPostTypeComponent('custom_demo_plugin', PostType);
 
         registry.registerMainMenuAction(
-            'Sample Plugin',
+            'Demo Plugin',
             () => store.dispatch(mainMenuAction()),
             <MainMenuMobileIcon/>,
         );

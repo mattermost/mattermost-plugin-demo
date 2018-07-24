@@ -14,7 +14,7 @@ const Root = ({visible, close, theme}) => {
             onClick={close}
         >
             <div style={style.modal}>
-                { 'You have triggered the root component of the sample plugin.' }
+                { 'You have triggered the root component of the demo plugin.' }
                 <br/>
                 <br/>
                 { 'Click anywhere to close.' }

@@ -1,4 +1,4 @@
-module com.mattermost.sample-plugin
+module com.mattermost.demo-plugin
 
 require (
 	github.com/golang/protobuf v1.1.0 // indirect

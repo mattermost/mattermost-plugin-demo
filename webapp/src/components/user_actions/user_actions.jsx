@@ -16,7 +16,7 @@ export default class UserActionsComponent extends React.PureComponent {
 
         return (
             <div>
-                { 'Sample Plugin: '}
+                { 'Demo Plugin: '}
                 <button
                     style={style.button}
                     onClick={this.onClick}

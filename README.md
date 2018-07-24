@@ -1,13 +1,13 @@
-# Sample Plugin
+# Demo Plugin
 
-This plugin serves as a reference guide for best practices, build scripts and samples when writing Mattermost plugins. It also doubles as a testbed for verifying plugin functionality during release testing. See [server/README.md](server/README.md) and [webapp/README.md](webapp/README.md) for more details.
+This plugin serves as a reference guide for best practices, build scripts and demos when writing Mattermost plugins. It also doubles as a testbed for verifying plugin functionality during release testing. See [server/README.md](server/README.md) and [webapp/README.md](webapp/README.md) for more details.
 
 The example implementations are primarily meant as illustrations to assist with developing your plugin. Feel free to base your own plugin off this repository, removing or modifying components as needed.
 
 ## Getting Started
 Shallow clone the repository to a directory matching your plugin name:
 ```
-git clone --depth 1 https://github.com/mattermost/mattermost-plugin-sample com.example.my-plugin
+git clone --depth 1 https://github.com/mattermost/mattermost-plugin-demo com.example.my-plugin
 ```
 
 Edit `plugin.json` with your `id`, `name`, and `description`:

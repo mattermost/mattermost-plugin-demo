@@ -8,7 +8,7 @@ import (
 
 // OnConfigurationChange is invoked when configuration changes may have been made.
 //
-// This sample implementation ensures the configured sample user and channel are created for use
+// This demo implementation ensures the configured demo user and channel are created for use
 // by the plugin.
 func (p *Plugin) OnConfigurationChange() error {
 	// Leverage the default implementation on the embedded plugin.Mattermost. This
@@ -21,12 +21,12 @@ func (p *Plugin) OnConfigurationChange() error {
 		return err
 	}
 
-	if err := p.ensureSampleUser(); err != nil {
+	if err := p.ensureDemoUser(); err != nil {
 		p.API.LogError(err.Error())
 		return err
 	}
 
-	if err := p.ensureSampleChannels(); err != nil {
+	if err := p.ensureDemoChannels(); err != nil {
 		p.API.LogError(err.Error())
 		return err
 	}
@@ -34,7 +34,7 @@ func (p *Plugin) OnConfigurationChange() error {
 	return nil
 }
 
-func (p *Plugin) ensureSampleUser() *model.AppError {
+func (p *Plugin) ensureDemoUser() *model.AppError {
 	var err *model.AppError
 
 	// Check for the configured user. Ignore any error, since it's hard to distinguish runtime
@@ -45,12 +45,12 @@ func (p *Plugin) ensureSampleUser() *model.AppError {
 	if user == nil {
 		user, err = p.API.CreateUser(&model.User{
 			Username: p.Username,
-			Password: "sample",
+			Password: "password",
 			// AuthData           *string   `json:"auth_data,omitempty"`
 			// AuthService        string    `json:"auth_service"`
 			Email:     fmt.Sprintf("%s@example.com", p.Username),
-			Nickname:  "Sam",
-			FirstName: "Sample",
+			Nickname:  "Demo Day",
+			FirstName: "Demo",
 			LastName:  "Plugin User",
 			Position:  "Bot",
 		})
@@ -67,22 +67,22 @@ func (p *Plugin) ensureSampleUser() *model.AppError {
 
 	for _, team := range teams {
 		// Ignore any error.
-		p.API.CreateTeamMember(team.Id, p.sampleUserId)
+		p.API.CreateTeamMember(team.Id, p.demoUserId)
 	}
 
 	// Save the id for later use.
-	p.sampleUserId = user.Id
+	p.demoUserId = user.Id
 
 	return nil
 }
 
-func (p *Plugin) ensureSampleChannels() *model.AppError {
+func (p *Plugin) ensureDemoChannels() *model.AppError {
 	teams, err := p.API.GetTeams()
 	if err != nil {
 		return err
 	}
 
-	p.sampleChannelIds = make(map[string]string)
+	p.demoChannelIds = make(map[string]string)
 	for _, team := range teams {
 		// Check for the configured channel. Ignore any error, since it's hard to
 		// distinguish runtime errors from a channel simply not existing.
@@ -93,9 +93,9 @@ func (p *Plugin) ensureSampleChannels() *model.AppError {
 			channel, err = p.API.CreateChannel(&model.Channel{
 				TeamId:      team.Id,
 				Type:        model.CHANNEL_OPEN,
-				DisplayName: "Sample Plugin",
+				DisplayName: "Demo Plugin",
 				Name:        p.ChannelName,
-				Header:      "The channel used by the sample plugin.",
+				Header:      "The channel used by the demo plugin.",
 				Purpose:     "This channel was created by a plugin for testing.",
 			})
 
@@ -105,7 +105,7 @@ func (p *Plugin) ensureSampleChannels() *model.AppError {
 		}
 
 		// Save the ids for later use.
-		p.sampleChannelIds[team.Id] = channel.Id
+		p.demoChannelIds[team.Id] = channel.Id
 	}
 
 	return nil

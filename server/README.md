@@ -1,6 +1,6 @@
-# Sample Plugin: Server
+# Demo Plugin: Server
 
-The server component of this sample plugin is written in Go and [net/rpc](https://golang.org/pkg/net/rpc/). It relies on a configured `ChannelName` and `Username` in [plugin.json](../plugin.json) to implement each of the supported hooks. 
+The server component of this demo plugin is written in Go and [net/rpc](https://golang.org/pkg/net/rpc/). It relies on a configured `ChannelName` and `Username` in [plugin.json](../plugin.json) to implement each of the supported hooks. 
 
 Each of the included files or folders is outlined below.
 
@@ -24,45 +24,45 @@ This file defines the `Plugin` struct, embedding [plugin.MattermostPlugin](https
 
 ### OnActivate
 
-This sample implementation logs a message to the sample channel whenever the plugin is activated.
+This demo implementation logs a message to the demo channel whenever the plugin is activated.
 
 ### OnDeactivate
 
-This sample implementation logs a debug message to the server logs whenever the plugin is activated.
+This demo implementation logs a debug message to the server logs whenever the plugin is activated.
 
 ## [configuration.go](configuration.go)
 
 ### OnConfigurationChange
 
-This sample implementation ensures the configured sample user and channel are created for use
+This demo implementation ensures the configured demo user and channel are created for use
 by the plugin.
 
 ## [channel\_hooks.go](channel_hooks.go)
 
 ### ChannelHasBeenCreated
 
-This sample implementation logs a message to the sample channel whenever a channel is created.
+This demo implementation logs a message to the demo channel whenever a channel is created.
 
 ### UserHasJoinedChannel
 
-This sample implementation logs a message to the sample channel whenever a user joins a channel.
+This demo implementation logs a message to the demo channel whenever a user joins a channel.
 
 ### UserHasLeftChannel
 
-This sample implementation logs a message to the sample channel whenever a user leaves a channel.
+This demo implementation logs a message to the demo channel whenever a user leaves a channel.
 
 ## [command\_hooks.go](command_hooks.go)
 
 ### ExecuteCommand
 
-This sample implementation responds to a `/sample_plugin` command, allowing the user to enable
-or disable the sample plugin's hooks functionality (but leave the command and webapp enabled).
+This demo implementation responds to a `/demo_plugin` command, allowing the user to enable
+or disable the demo plugin's hooks functionality (but leave the command and webapp enabled).
 
 ## [http\_hooks.go](http_hooks.go)
 
 ### ServeHTTP
 
-This sample implementation sends back whether or not the plugin hooks are currently enabled. It
+This demo implementation sends back whether or not the plugin hooks are currently enabled. It
 is used by the web app to recover from a network reconnection and synchronize the state of the
 plugin's hooks.
 
@@ -70,31 +70,31 @@ plugin's hooks.
 
 ### MessageWillBePosted
 
-This sample implementation rejects posts in the sample channel, as well as posts that @-mention
-the sample plugin user.
+This demo implementation rejects posts in the demo channel, as well as posts that @-mention
+the demo plugin user.
 
 ### MessageWillBeUpdated
 
-This sample implementation rejects posts that @-mention the sample plugin user.
+This demo implementation rejects posts that @-mention the demo plugin user.
 
 ### MessageHasBeenPosted
 
-This sample implementation logs a message to the sample channel whenever a message is posted,
-unless by the sample plugin user itself.
+This demo implementation logs a message to the demo channel whenever a message is posted,
+unless by the demo plugin user itself.
 
 ### MessageHasBeenUpdated
 
-This sample implementation logs a message to the sample channel whenever a message is updated,
-unless by the sample plugin user itself.
+This demo implementation logs a message to the demo channel whenever a message is updated,
+unless by the demo plugin user itself.
 
 ## [team\_hooks.go](team.go)
 
 ### UserHasJoinedTeam
 
-This sample implementation logs a message to the sample channel in the team whenever a user
+This demo implementation logs a message to the demo channel in the team whenever a user
 joins the team.
 
 ### UserHasLeftTeam
 
-This sample implementation logs a message to the sample channel in the team whenever a user
+This demo implementation logs a message to the demo channel in the team whenever a user
 leaves the team.

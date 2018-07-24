@@ -16,40 +16,40 @@ import (
 //
 // Note that this method will be called for posts created by plugins, including the plugin that created the post.
 //
-// This sample implementation rejects posts in the sample channel, as well as posts that @-mention
-// the sample plugin user.
+// This demo implementation rejects posts in the demo channel, as well as posts that @-mention
+// the demo plugin user.
 func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*model.Post, string) {
 	if p.disabled {
 		return post, ""
 	}
 
-	// Always allow posts by the sample plugin user.
-	if post.UserId == p.sampleUserId {
+	// Always allow posts by the demo plugin user.
+	if post.UserId == p.demoUserId {
 		return post, ""
 	}
 
-	// Reject posts by other users in the sample channels, effectively making it read-only.
-	for _, channelId := range p.sampleChannelIds {
+	// Reject posts by other users in the demo channels, effectively making it read-only.
+	for _, channelId := range p.demoChannelIds {
 		if channelId == post.ChannelId {
 			p.API.SendEphemeralPost(post.UserId, &model.Post{
-				UserId:    p.sampleUserId,
+				UserId:    p.demoUserId,
 				ChannelId: channelId,
 				Message:   "Posting is not allowed in this channel.",
 			})
 
-			return nil, "disallowing post in sample channel"
+			return nil, "disallowing post in demo channel"
 		}
 	}
 
-	// Reject posts mentioning the sample plugin user.
+	// Reject posts mentioning the demo plugin user.
 	if strings.Contains(post.Message, fmt.Sprintf("@%s", p.Username)) {
 		p.API.SendEphemeralPost(post.UserId, &model.Post{
-			UserId:    p.sampleUserId,
+			UserId:    p.demoUserId,
 			ChannelId: post.ChannelId,
-			Message:   "You must not talk about the sample plugin user.",
+			Message:   "You must not talk about the demo plugin user.",
 		})
 
-		return nil, "disallowing mention of sample plugin user"
+		return nil, "disallowing mention of demo plugin user"
 	}
 
 	// Otherwise, allow the post through.
@@ -66,21 +66,21 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 // Note that this method will be called for posts updated by plugins, including the plugin that
 // updated the post.
 //
-// This sample implementation rejects posts that @-mention the sample plugin user.
+// This demo implementation rejects posts that @-mention the demo plugin user.
 func (p *Plugin) MessageWillBeUpdated(c *plugin.Context, newPost, oldPost *model.Post) (*model.Post, string) {
 	if p.disabled {
 		return newPost, ""
 	}
 
-	// Reject posts mentioning the sample plugin user.
+	// Reject posts mentioning the demo plugin user.
 	if strings.Contains(newPost.Message, fmt.Sprintf("@%s", p.Username)) {
 		p.API.SendEphemeralPost(newPost.UserId, &model.Post{
-			UserId:    p.sampleUserId,
+			UserId:    p.demoUserId,
 			ChannelId: newPost.ChannelId,
-			Message:   "You must not talk about the sample plugin user.",
+			Message:   "You must not talk about the demo plugin user.",
 		})
 
-		return nil, "disallowing mention of sample plugin user"
+		return nil, "disallowing mention of demo plugin user"
 	}
 
 	// Otherwise, allow the post through.
@@ -91,15 +91,15 @@ func (p *Plugin) MessageWillBeUpdated(c *plugin.Context, newPost, oldPost *model
 // need to modify or reject the post, see MessageWillBePosted Note that this method will be called
 // for posts created by plugins, including the plugin that created the post.
 //
-// This sample implementation logs a message to the sample channel whenever a message is posted,
-// unless by the sample plugin user itself.
+// This demo implementation logs a message to the demo channel whenever a message is posted,
+// unless by the demo plugin user itself.
 func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 	if p.disabled {
 		return
 	}
 
-	// Ignore posts by the sample plugin user.
-	if post.UserId == p.sampleUserId {
+	// Ignore posts by the demo plugin user.
+	if post.UserId == p.demoUserId {
 		return
 	}
 
@@ -116,8 +116,8 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 	}
 
 	if _, err := p.API.CreatePost(&model.Post{
-		UserId:    p.sampleUserId,
-		ChannelId: p.sampleChannelIds[channel.TeamId],
+		UserId:    p.demoUserId,
+		ChannelId: p.demoChannelIds[channel.TeamId],
 		Message: fmt.Sprintf(
 			"MessageHasBeenPosted in ~%s by @%s",
 			channel.Name,
@@ -137,15 +137,15 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 // database. If you need to modify or reject the post, see MessageWillBeUpdated Note that this
 // method will be called for posts created by plugins, including the plugin that created the post.
 //
-// This sample implementation logs a message to the sample channel whenever a message is updated,
-// unless by the sample plugin user itself.
+// This demo implementation logs a message to the demo channel whenever a message is updated,
+// unless by the demo plugin user itself.
 func (p *Plugin) MessageHasBeenUpdated(c *plugin.Context, newPost, oldPost *model.Post) {
 	if p.disabled {
 		return
 	}
 
-	// Ignore updates by the sample plugin user.
-	if newPost.UserId == p.sampleUserId {
+	// Ignore updates by the demo plugin user.
+	if newPost.UserId == p.demoUserId {
 		return
 	}
 
@@ -162,8 +162,8 @@ func (p *Plugin) MessageHasBeenUpdated(c *plugin.Context, newPost, oldPost *mode
 	}
 
 	if _, err := p.API.CreatePost(&model.Post{
-		UserId:    p.sampleUserId,
-		ChannelId: p.sampleChannelIds[channel.TeamId],
+		UserId:    p.demoUserId,
+		ChannelId: p.demoChannelIds[channel.TeamId],
 		Message: fmt.Sprintf(
 			"MessageHasBeenUpdated in ~%s by @%s",
 			channel.Name,

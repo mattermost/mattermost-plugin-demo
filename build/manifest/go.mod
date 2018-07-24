@@ -1,4 +1,4 @@
-module github.com/mattermost/mattermost-plugin-sample/build/manifest
+module github.com/mattermost/mattermost-plugin-demo/build/manifest
 
 require (
 	github.com/gorilla/websocket v1.2.0 // indirect
