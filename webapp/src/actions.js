@@ -1,3 +1,5 @@
+import {getConfig} from 'mattermost-redux/selectors/entities/general';
+
 import PluginId from './plugin_id';
 import {STATUS_CHANGE, OPEN_ROOT_MODAL, CLOSE_ROOT_MODAL} from './action_types';
 
@@ -16,8 +18,20 @@ export const closeRootModal = () => (dispatch) => {
 export const mainMenuAction = openRootModal;
 export const channelHeaderButtonAction = openRootModal;
 
-export const getStatus = () => (dispatch) => {
-    fetch('/plugins/' + PluginId + '/').then((r) => r.json()).then((r) => {
+// TODO: Move this into mattermost-redux or mattermost-webapp.
+export const getPluginServerRoute = (state) => {
+    const config = getConfig(state);
+
+    let basePath = '/';
+    if (config && config.SiteURL) {
+        basePath = new URL(config.SiteURL).pathname;
+    }
+
+    return basePath + '/plugins/' + PluginId;
+};
+
+export const getStatus = () => async (dispatch, getState) => {
+    fetch(getPluginServerRoute(getState()) + '/status').then((r) => r.json()).then((r) => {
         dispatch({
             type: STATUS_CHANGE,
             data: r.enabled,

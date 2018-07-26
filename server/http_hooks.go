@@ -17,6 +17,17 @@ import (
 // is used by the web app to recover from a network reconnection and synchronize the state of the
 // plugin's hooks.
 func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
+	switch r.URL.Path {
+	case "/status":
+		p.handleStatus(w, r)
+	case "/hello":
+		p.handleHello(w, r)
+	default:
+		http.NotFound(w, r)
+	}
+}
+
+func (p *Plugin) handleStatus(w http.ResponseWriter, r *http.Request) {
 	var response = struct {
 		Enabled bool `json:"enabled"`
 	}{
@@ -25,5 +36,10 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 
 	responseJSON, _ := json.Marshal(response)
 
+	w.Header().Set("Content-Type", "application/json")
 	w.Write(responseJSON)
+}
+
+func (p *Plugin) handleHello(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Hello World!"))
 }
