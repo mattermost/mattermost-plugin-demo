@@ -7,3 +7,7 @@ export const MainMenuMobileIcon = () => (
 export const ChannelHeaderButtonIcon = () => (
     <i className='icon fa fa-plug'/>
 );
+
+export const FileUploadMethodIcon = () => (
+    <i className='icon fa fa-rmb'/>
+);

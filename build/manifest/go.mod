@@ -3,7 +3,7 @@ module github.com/mattermost/mattermost-plugin-demo/build/manifest
 require (
 	github.com/gorilla/websocket v1.2.0 // indirect
 	github.com/hashicorp/go-hclog v0.0.0-20180402200405-69ff559dc25f // indirect
-	github.com/mattermost/mattermost-server v0.0.0-20180718195328-2edc5d4fe051
+	github.com/mattermost/mattermost-server v5.1.0-rc1.0.20180727213543-6ac82d517176+incompatible
 	github.com/nicksnyder/go-i18n v1.10.0 // indirect
 	github.com/pborman/uuid v0.0.0-20180122190007-c65b2f87fee3 // indirect
 	github.com/pelletier/go-toml v1.2.0 // indirect

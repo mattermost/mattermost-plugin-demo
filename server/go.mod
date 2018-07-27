@@ -6,7 +6,7 @@ require (
 	github.com/hashicorp/go-hclog v0.0.0-20180402200405-69ff559dc25f // indirect
 	github.com/hashicorp/go-plugin v0.0.0-20180331002553-e8d22c780116 // indirect
 	github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb // indirect
-	github.com/mattermost/mattermost-server v0.0.0-20180719183001-d599a74f2cc6
+	github.com/mattermost/mattermost-server v5.1.0-rc1.0.20180727213543-6ac82d517176+incompatible
 	github.com/mitchellh/go-testing-interface v0.0.0-20171004221916-a61a99592b77 // indirect
 	github.com/nicksnyder/go-i18n v1.10.0 // indirect
 	github.com/oklog/run v1.0.0 // indirect

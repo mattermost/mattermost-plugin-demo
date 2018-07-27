@@ -11,10 +11,12 @@ import PostType from './components/post_type';
 import {
     MainMenuMobileIcon,
     ChannelHeaderButtonIcon,
+    FileUploadMethodIcon,
 } from './components/icons';
 import {
     mainMenuAction,
     channelHeaderButtonAction,
+    fileUploadMethodAction,
     websocketStatusChange,
     getStatus,
 } from './actions';
@@ -60,6 +62,12 @@ export default class DemoPlugin {
         registry.registerReconnectHandler(() => {
             store.dispatch(getStatus());
         });
+
+        registry.registerFileUploadMethod(
+            <FileUploadMethodIcon/>,
+            () => store.dispatch(fileUploadMethodAction()),
+            'Upload using Demo Plugin',
+        );
     }
 
     uninitialize() {
