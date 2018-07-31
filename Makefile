@@ -1,38 +1,29 @@
-GO=env CGO_ENABLED=0 $(shell go env GOPATH)/bin/vgo
+GO ?= env CGO_ENABLED=0 $(shell command -v go 2> /dev/null)
+DEP ?= $(shell command -v dep 2> /dev/null)
+NPM ?= $(shell command -v npm 2> /dev/null)
+MANIFEST_FILE ?= plugin.json
 
-# Check that vgo is installed. This won't be necessary once Go 1.11 is released, but it will still
-# be necessary to assert the Go version.
-ifeq ($(GO),)
-    echo go get -u github.com/golang/vgo; \
-    go get -u github.com/golang/vgo;
-endif
+# Verify environment, and define PLUGIN_ID, HAS_SERVER and HAS_WEBAPP as needed.
+include build/setup.mk
 
-# Ensure that the build tools are compiled. Go's caching makes this quick.
-$(shell cd build/manifest && $(GO) build -o ../bin/manifest)
-
-# Extract the plugin id from the manifest.
-PLUGIN_ID=$(shell build/bin/manifest plugin_id)
-ifeq ($(PLUGIN_ID),)
-    $(error Cannot parse id from plugin.json)
-endif
-
-# Determine if a server is defined in plugin.json
-HAS_SERVER=$(shell build/bin/manifest has_server)
-
-# Determine if a webapp is defined in plugin.json
-HAS_WEBAPP=$(shell build/bin/manifest has_webapp)
-
-# all, the default target, builds and bundle the plugin.
-all: dist
+# all, the default target, tests, builds and bundles the plugin.
+all: test dist
 
 # apply propagates the plugin id into the server/ and webapp/ folders as required.
 .PHONY: apply
 apply:
 	./build/bin/manifest apply
 
+# server/.depensure ensures the server dependencies are installed
+server/.depensure:
+ifneq ($(HAS_SERVER),)
+	cd server && $(DEP) ensure
+	touch $@
+endif
+
 # server builds the server, if it exists, including support for multiple architectures
 .PHONY: server
-server: 
+server: server/.depensure
 ifneq ($(HAS_SERVER),)
 	mkdir -p server/dist;
 	cd server && env GOOS=linux GOARCH=amd64 $(GO) build -o dist/plugin-linux-amd64;
@@ -43,7 +34,7 @@ endif
 # webapp/.npminstall ensures NPM dependencies are installed without having to run this all the time
 webapp/.npminstall:
 ifneq ($(HAS_WEBAPP),)
-	cd webapp && npm install
+	cd webapp && $(NPM) install
 	touch $@
 endif
 
@@ -51,8 +42,7 @@ endif
 .PHONY: webapp
 webapp: webapp/.npminstall
 ifneq ($(HAS_WEBAPP),)
-	cd webapp && npm run fix;
-	cd webapp && npm run build;
+	cd webapp && $(NPM) run build;
 endif
 
 # bundle generates a tar bundle of the plugin for install
@@ -60,7 +50,7 @@ endif
 bundle:
 	rm -rf dist/
 	mkdir -p dist/$(PLUGIN_ID)
-	cp plugin.json dist/$(PLUGIN_ID)/
+	cp $(MANIFEST_FILE) dist/$(PLUGIN_ID)/
 ifneq ($(HAS_SERVER),)
 	mkdir -p dist/$(PLUGIN_ID)/server/dist;
 	cp -r server/dist/* dist/$(PLUGIN_ID)/server/dist/;
@@ -69,7 +59,7 @@ ifneq ($(HAS_WEBAPP),)
 	mkdir -p dist/$(PLUGIN_ID)/webapp/dist;
 	cp -r webapp/dist/* dist/$(PLUGIN_ID)/webapp/dist/;
 endif
-	cd dist/$(PLUGIN_ID) && tar -zcvf ../$(PLUGIN_ID).tar.gz *
+	cd dist && tar -cvzf $(PLUGIN_ID).tar.gz $(PLUGIN_ID)
 
 	@echo plugin built at: dist/$(PLUGIN_ID).tar.gz
 
@@ -95,18 +85,33 @@ ifneq ($(and $(MM_SERVICESETTINGS_SITEURL),$(MM_ADMIN_USERNAME),$(MM_ADMIN_PASSW
 	    http --print b POST $(MM_SERVICESETTINGS_SITEURL)/api/v4/plugins/$(PLUGIN_ID)/enable
 else ifneq ($(wildcard ../mattermost-server/.*),)
 	@echo "Installing plugin via filesystem. Server restart and manual plugin enabling required"
-	mkdir -p ../mattermost-server/plugins/$(PLUGIN_ID)
-	tar -C ../mattermost-server/plugins/$(PLUGIN_ID) -zxvf dist/$(PLUGIN_ID).tar.gz
+	mkdir -p ../mattermost-server/plugins
+	tar -C ../mattermost-server/plugins -zxvf dist/$(PLUGIN_ID).tar.gz
 else
 	@echo "No supported deployment method available. Install plugin manually."
+endif
+
+# test runs any lints and unit tests defined for the server and webapp, if they exist
+.PHONY: test
+test: server/.depensure webapp/.npminstall
+ifneq ($(HAS_SERVER),)
+	cd server && $(GO) test -v -coverprofile=coverage.txt ./...
+endif
+ifneq ($(HAS_WEBAPP),)
+	cd webapp && $(NPM) run fix;
 endif
 
 # clean removes all build artifacts
 .PHONY: clean
 clean:
 	rm -fr dist/
+ifneq ($(HAS_SERVER),)
 	rm -fr server/dist
+	rm -fr server/.depensure
+endif
+ifneq ($(HAS_WEBAPP),)
 	rm -fr webapp/.npminstall
 	rm -fr webapp/dist
 	rm -fr webapp/node_modules
+endif
 	rm -fr build/bin/
