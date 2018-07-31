@@ -86,7 +86,7 @@ func (p *Plugin) ensureDemoChannels() *model.AppError {
 	for _, team := range teams {
 		// Check for the configured channel. Ignore any error, since it's hard to
 		// distinguish runtime errors from a channel simply not existing.
-		channel, _ := p.API.GetChannelByNameForTeamName(team.Name, p.ChannelName)
+		channel, _ := p.API.GetChannelByNameForTeamName(team.Name, p.ChannelName, false)
 
 		// Ensure the configured channel exists.
 		if channel == nil {

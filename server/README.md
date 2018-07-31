@@ -87,7 +87,7 @@ unless by the demo plugin user itself.
 This demo implementation logs a message to the demo channel whenever a message is updated,
 unless by the demo plugin user itself.
 
-## [team\_hooks.go](team.go)
+## [team\_hooks.go](team_hooks.go)
 
 ### UserHasJoinedTeam
 
@@ -98,3 +98,13 @@ joins the team.
 
 This demo implementation logs a message to the demo channel in the team whenever a user
 leaves the team.
+
+## [login\_hooks.go](login_hooks.go)
+
+### UserWillLogIn
+
+This demo implementation rejects login attempts by the demo user.
+
+### UserHasLoggedIn
+
+This demo implementation logs a message to the demo channel whenever a user logs in.
