@@ -17,6 +17,7 @@ export const closeRootModal = () => (dispatch) => {
 
 export const mainMenuAction = openRootModal;
 export const channelHeaderButtonAction = openRootModal;
+export const fileUploadMethodAction = openRootModal;
 
 // TODO: Move this into mattermost-redux or mattermost-webapp.
 export const getPluginServerRoute = (state) => {

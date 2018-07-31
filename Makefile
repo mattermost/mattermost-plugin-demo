@@ -1,4 +1,4 @@
-GO=$(shell go env GOPATH)/bin/vgo
+GO=env CGO_ENABLED=0 $(shell go env GOPATH)/bin/vgo
 
 # Check that vgo is installed. This won't be necessary once Go 1.11 is released, but it will still
 # be necessary to assert the Go version.
@@ -83,7 +83,7 @@ dist: apply \
 # deploy installs the plugin to a (development) server, using the API if appropriate environment
 # variables are defined, or copying the files directly to a sibling mattermost-server directory
 .PHONY: deploy
-deploy:
+deploy: dist
 ifneq ($(and $(MM_SERVICESETTINGS_SITEURL),$(MM_ADMIN_USERNAME),$(MM_ADMIN_PASSWORD)),)
 	@echo "Installing plugin via API"
 	http --print b --check-status $(MM_SERVICESETTINGS_SITEURL)/api/v4/users/me || ( \
