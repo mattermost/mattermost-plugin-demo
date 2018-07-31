@@ -109,3 +109,9 @@ This plugin registers a main menu action that, when clicked, triggers the root c
 This plugin registers a post dropdown action that, when clicked, triggers the root component:
 
 ![post dropdown](docs/post_dropdown.png)
+
+## File Upload
+
+This plugin registers a file upload action that, when clicked, triggers the root component:
+
+![file upload](docs/file_upload.png)

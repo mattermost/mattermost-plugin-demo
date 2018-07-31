@@ -12,5 +12,5 @@ export const ChannelHeaderButtonIcon = () => (
 );
 
 export const FileUploadMethodIcon = () => (
-    <i className='icon fa fa-rmb'/>
+    <i className='icon fa fa-plug'/>
 );
