@@ -92,14 +92,26 @@ This plugin registers a channel header button action displaying a plugin icon th
 
 ![channel header button](docs/channel_header_button.png)
 
+# Post Type
+
+This plugin renders a custom post type as part of handling the `OnActivate` hook in the server, dumping the current plugin configuration:
+
+![post type](docs/post_type.png)
+
 ## Main Menu Action
 
 This plugin registers a main menu action that, when clicked, triggers the root component:
 
 ![main menu](docs/main_menu.png)
 
-# Post Type
+## Post Dropdown
 
-This plugin renders a custom post type as part of handling the `OnActivate` hook in the server, dumping the current plugin configuration:
+This plugin registers a post dropdown action that, when clicked, triggers the root component:
 
-![post type](docs/post_type.png)
+![post dropdown](docs/post_dropdown.png)
+
+## File Upload
+
+This plugin registers a file upload action that, when clicked, triggers the root component:
+
+![file upload](docs/file_upload.png)

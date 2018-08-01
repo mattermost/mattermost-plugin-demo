@@ -17,6 +17,7 @@ import {
     mainMenuAction,
     channelHeaderButtonAction,
     fileUploadMethodAction,
+    postDropdownMenuAction,
     websocketStatusChange,
     getStatus,
 } from './actions';
@@ -46,6 +47,17 @@ export default class DemoPlugin {
             <MainMenuMobileIcon/>,
         );
 
+        registry.registerPostDropdownMenuAction(
+            'Demo Plugin',
+            () => store.dispatch(postDropdownMenuAction()),
+        );
+
+        registry.registerFileUploadMethod(
+            <FileUploadMethodIcon/>,
+            () => store.dispatch(fileUploadMethodAction()),
+            'Upload using Demo Plugin',
+        );
+
         registry.registerWebSocketEventHandler(
             'custom_' + PluginId + '_status_change',
             (message) => {
@@ -62,12 +74,6 @@ export default class DemoPlugin {
         registry.registerReconnectHandler(() => {
             store.dispatch(getStatus());
         });
-
-        registry.registerFileUploadMethod(
-            <FileUploadMethodIcon/>,
-            () => store.dispatch(fileUploadMethodAction()),
-            'Upload using Demo Plugin',
-        );
     }
 
     uninitialize() {

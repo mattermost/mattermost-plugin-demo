@@ -5,9 +5,12 @@ export const MainMenuMobileIcon = () => (
 );
 
 export const ChannelHeaderButtonIcon = () => (
-    <i className='icon fa fa-plug' style={{fontSize: '15px', position: 'relative', top: '-1px'}}/>
+    <i
+        className='icon fa fa-plug'
+        style={{fontSize: '15px', position: 'relative', top: '-1px'}}
+    />
 );
 
 export const FileUploadMethodIcon = () => (
-    <i className='icon fa fa-rmb'/>
+    <i className='icon fa fa-plug'/>
 );
