@@ -28,7 +28,7 @@ This demo implementation logs a message to the demo channel whenever the plugin 
 
 ### OnDeactivate
 
-This demo implementation logs a debug message to the server logs whenever the plugin is activated.
+This demo implementation logs a message to the demo channel whenever the plugin is deactivated.
 
 ## [configuration.go](configuration.go)
 

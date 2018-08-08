@@ -44,10 +44,8 @@ func (p *Plugin) ensureDemoUser() *model.AppError {
 	// Ensure the configured user exists.
 	if user == nil {
 		user, err = p.API.CreateUser(&model.User{
-			Username: p.Username,
-			Password: "password",
-			// AuthData           *string   `json:"auth_data,omitempty"`
-			// AuthService        string    `json:"auth_service"`
+			Username:  p.Username,
+			Password:  "password",
 			Email:     fmt.Sprintf("%s@example.com", p.Username),
 			Nickname:  "Demo Day",
 			FirstName: "Demo",
