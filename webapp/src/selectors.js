@@ -1,6 +1,6 @@
-import PluginId from './plugin_id';
+import Manifest from './manifest';
 
-const getPluginState = (state) => state['plugins-' + PluginId] || {};
+const getPluginState = (state) => state['plugins-' + Manifest.PluginId] || {};
 
 export const isEnabled = (state) => getPluginState(state).enabled;
 
