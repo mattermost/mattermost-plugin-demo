@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Manifest from './manifest';
+import {id as pluginId} from './manifest';
 
 import Root from './components/root';
 import BottomTeamSidebar from './components/bottom_team_sidebar';
@@ -59,7 +59,7 @@ export default class DemoPlugin {
         );
 
         registry.registerWebSocketEventHandler(
-            'custom_' + Manifest.PluginId + '_status_change',
+            'custom_' + pluginId + '_status_change',
             (message) => {
                 store.dispatch(websocketStatusChange(message));
             },
@@ -78,6 +78,6 @@ export default class DemoPlugin {
 
     uninitialize() {
         //eslint-disable-next-line no-console
-        console.log(Manifest.PluginId + '::uninitialize()');
+        console.log(pluginId + '::uninitialize()');
     }
 }
