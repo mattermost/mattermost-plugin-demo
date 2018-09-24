@@ -1,4 +1,4 @@
 import Plugin from './plugin';
-import PluginId from './plugin_id';
+import {id as pluginId} from './manifest';
 
-window.registerPlugin(PluginId, new Plugin());
+window.registerPlugin(pluginId, new Plugin());

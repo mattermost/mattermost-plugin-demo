@@ -23,7 +23,7 @@ func (p *Plugin) OnActivate() error {
 			UserId:    p.demoUserId,
 			ChannelId: p.demoChannelIds[team.Id],
 			Message: fmt.Sprintf(
-				"OnActivate: %s", PluginId,
+				"OnActivate: %s", manifest.Id,
 			),
 			Type: "custom_demo_plugin",
 			Props: map[string]interface{}{
@@ -66,7 +66,7 @@ func (p *Plugin) OnDeactivate() error {
 			UserId:    p.demoUserId,
 			ChannelId: p.demoChannelIds[team.Id],
 			Message: fmt.Sprintf(
-				"OnDeactivate: %s", PluginId,
+				"OnDeactivate: %s", manifest.Id,
 			),
 			Type: "custom_demo_plugin",
 			Props: map[string]interface{}{
