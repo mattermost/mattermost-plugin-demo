@@ -20,9 +20,15 @@ func (p *Plugin) OnActivate() error {
 	}
 
 	for _, team := range teams {
+		demoChannelId, ok := configuration.demoChannelIds[team.Id]
+		if !ok {
+			p.API.LogWarn("No demo channel id for team", "team", team.Id)
+			continue
+		}
+
 		if _, err := p.API.CreatePost(&model.Post{
 			UserId:    configuration.demoUserId,
-			ChannelId: configuration.demoChannelIds[team.Id],
+			ChannelId: demoChannelId,
 			Message: fmt.Sprintf(
 				"OnActivate: %s", manifest.Id,
 			),
@@ -56,9 +62,15 @@ func (p *Plugin) OnDeactivate() error {
 	}
 
 	for _, team := range teams {
+		demoChannelId, ok := configuration.demoChannelIds[team.Id]
+		if !ok {
+			p.API.LogWarn("No demo channel id for team", "team", team.Id)
+			continue
+		}
+
 		if _, err := p.API.CreatePost(&model.Post{
 			UserId:    configuration.demoUserId,
-			ChannelId: configuration.demoChannelIds[team.Id],
+			ChannelId: demoChannelId,
 			Message: fmt.Sprintf(
 				"OnDeactivate: %s", manifest.Id,
 			),
