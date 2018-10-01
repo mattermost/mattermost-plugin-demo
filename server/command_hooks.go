@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/pkg/errors"
+
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin"
 )
@@ -20,18 +22,17 @@ func (p *Plugin) registerCommand(teamId string) error {
 		DisplayName:      "Demo Plugin Command",
 		Description:      "A command used to enable or disable the demo plugin hooks.",
 	}); err != nil {
-		p.API.LogError(
-			"failed to register command",
-			"error", err.Error(),
-		)
+		return errors.Wrap(err, "failed to register command")
 	}
 
 	return nil
 }
 
 func (p *Plugin) emitStatusChange() {
+	configuration := p.getConfiguration()
+
 	p.API.PublishWebSocketEvent("status_change", map[string]interface{}{
-		"enabled": !p.disabled,
+		"enabled": !configuration.disabled,
 	}, &model.WebsocketBroadcast{})
 }
 
@@ -41,6 +42,8 @@ func (p *Plugin) emitStatusChange() {
 // This demo implementation responds to a /demo_plugin command, allowing the user to enable
 // or disable the demo plugin's hooks functionality (but leave the command and webapp enabled).
 func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
+	configuration := p.getConfiguration()
+
 	if !strings.HasPrefix(args.Command, "/"+CommandTrigger) {
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
@@ -49,14 +52,14 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 	}
 
 	if strings.HasSuffix(args.Command, "true") {
-		if !p.disabled {
+		if !configuration.disabled {
 			return &model.CommandResponse{
 				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 				Text:         "The demo plugin hooks are already enabled.",
 			}, nil
 		}
 
-		p.disabled = false
+		configuration.disabled = false
 		p.emitStatusChange()
 
 		return &model.CommandResponse{
@@ -65,14 +68,14 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		}, nil
 
 	} else if strings.HasSuffix(args.Command, "false") {
-		if p.disabled {
+		if configuration.disabled {
 			return &model.CommandResponse{
 				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 				Text:         "The demo plugin hooks are already disabled.",
 			}, nil
 		}
 
-		p.disabled = true
+		configuration.disabled = true
 		p.emitStatusChange()
 
 		return &model.CommandResponse{

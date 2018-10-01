@@ -28,10 +28,12 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 }
 
 func (p *Plugin) handleStatus(w http.ResponseWriter, r *http.Request) {
+	configuration := p.getConfiguration()
+
 	var response = struct {
 		Enabled bool `json:"enabled"`
 	}{
-		Enabled: !p.disabled,
+		Enabled: !configuration.disabled,
 	}
 
 	responseJSON, _ := json.Marshal(response)

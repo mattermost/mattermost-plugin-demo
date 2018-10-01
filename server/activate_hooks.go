@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 
+	"github.com/pkg/errors"
+
 	"github.com/mattermost/mattermost-server/model"
 )
 
@@ -10,38 +12,31 @@ import (
 //
 // This demo implementation logs a message to the demo channel whenever the plugin is activated.
 func (p *Plugin) OnActivate() error {
+	configuration := p.getConfiguration()
+
 	teams, err := p.API.GetTeams()
 	if err != nil {
-		p.API.LogError(
-			"failed to query teams OnActivate",
-			"error", err.Error(),
-		)
+		return errors.Wrap(err, "failed to query teams OnActivate")
 	}
 
 	for _, team := range teams {
 		if _, err := p.API.CreatePost(&model.Post{
-			UserId:    p.demoUserId,
-			ChannelId: p.demoChannelIds[team.Id],
+			UserId:    configuration.demoUserId,
+			ChannelId: configuration.demoChannelIds[team.Id],
 			Message: fmt.Sprintf(
 				"OnActivate: %s", manifest.Id,
 			),
 			Type: "custom_demo_plugin",
 			Props: map[string]interface{}{
-				"username":     p.Username,
-				"channel_name": p.ChannelName,
+				"username":     configuration.Username,
+				"channel_name": configuration.ChannelName,
 			},
 		}); err != nil {
-			p.API.LogError(
-				"failed to post OnActivate message",
-				"error", err.Error(),
-			)
+			return errors.Wrap(err, "failed to post OnActivate message")
 		}
 
 		if err := p.registerCommand(team.Id); err != nil {
-			p.API.LogError(
-				"failed to register command",
-				"error", err.Error(),
-			)
+			return errors.Wrap(err, "failed to register command")
 		}
 	}
 
@@ -53,38 +48,31 @@ func (p *Plugin) OnActivate() error {
 //
 // This demo implementation logs a message to the demo channel whenever the plugin is deactivated.
 func (p *Plugin) OnDeactivate() error {
+	configuration := p.getConfiguration()
+
 	teams, err := p.API.GetTeams()
 	if err != nil {
-		p.API.LogError(
-			"failed to query teams OnDeactivate",
-			"error", err.Error(),
-		)
+		return errors.Wrap(err, "failed to query teams OnDeactivate")
 	}
 
 	for _, team := range teams {
 		if _, err := p.API.CreatePost(&model.Post{
-			UserId:    p.demoUserId,
-			ChannelId: p.demoChannelIds[team.Id],
+			UserId:    configuration.demoUserId,
+			ChannelId: configuration.demoChannelIds[team.Id],
 			Message: fmt.Sprintf(
 				"OnDeactivate: %s", manifest.Id,
 			),
 			Type: "custom_demo_plugin",
 			Props: map[string]interface{}{
-				"username":     p.Username,
-				"channel_name": p.ChannelName,
+				"username":     configuration.Username,
+				"channel_name": configuration.ChannelName,
 			},
 		}); err != nil {
-			p.API.LogError(
-				"failed to post OnDeactivate message",
-				"error", err.Error(),
-			)
+			return errors.Wrap(err, "failed to post OnDeactivate message")
 		}
 
 		if err := p.registerCommand(team.Id); err != nil {
-			p.API.LogError(
-				"failed to register command",
-				"error", err.Error(),
-			)
+			return errors.Wrap(err, "failed to register command")
 		}
 	}
 
