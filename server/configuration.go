@@ -36,10 +36,6 @@ type configuration struct {
 // Clone deep copies the configuration. Your implementation may only require a shallow copy if
 // your configuration has no reference types.
 func (c *configuration) Clone() *configuration {
-	if c == nil {
-		return &configuration{}
-	}
-
 	// Deep copy demoChannelIds, a reference type.
 	demoChannelIds := make(map[string]string)
 	for key, value := range c.demoChannelIds {
