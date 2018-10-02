@@ -75,7 +75,6 @@ func (p *Plugin) getConfiguration() *configuration {
 // certainly means that the configuration was modified without being cloned and may result in
 // an unsafe access.
 func (p *Plugin) setConfiguration(configuration *configuration) {
-	// Replace the active configuration under lock.
 	p.configurationLock.Lock()
 	defer p.configurationLock.Unlock()
 
