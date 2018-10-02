@@ -13,7 +13,7 @@ const minimumServerVersion = "5.4.0"
 //
 // This demo implementation logs a message to the demo channel whenever the plugin is activated.
 func (p *Plugin) OnActivate() error {
-	v, err := semver.Parse(p.API.GetServerVersion())
+	serverVersion, err := semver.Parse(p.API.GetServerVersion())
 	if err != nil {
 		p.API.LogError(
 			"failed to parse server version",
@@ -22,21 +22,21 @@ func (p *Plugin) OnActivate() error {
 		return err
 	}
 	r := semver.MustParseRange(">=" + minimumServerVersion)
-	if !r(v) {
-		return fmt.Errorf("current Mattermost version is to low. Please update your Mattermost Server to a least v%s.", minimumServerVersion)
+	if !r(serverVersion) {
+		return fmt.Errorf("current Mattermost version is too low. Please update your Mattermost Server to at least v%s.", minimumServerVersion)
 	}
 
-	teams, appErr := p.API.GetTeams()
-	if appErr != nil {
+	teams, appError := p.API.GetTeams()
+	if appError != nil {
 		p.API.LogError(
 			"failed to query teams OnActivate",
-			"error", appErr.Error(),
+			"error", appError.Error(),
 		)
-		return appErr
+		return appError
 	}
 
 	for _, team := range teams {
-		_, appErr := p.API.CreatePost(&model.Post{
+		if _, appError := p.API.CreatePost(&model.Post{
 			UserId:    p.demoUserId,
 			ChannelId: p.demoChannelIds[team.Id],
 			Message: fmt.Sprintf(
@@ -47,15 +47,14 @@ func (p *Plugin) OnActivate() error {
 				"username":     p.Username,
 				"channel_name": p.ChannelName,
 			},
-		})
-		if appErr != nil {
+		}); appError != nil {
 			p.API.LogError(
 				"failed to post OnActivate message",
-				"error", appErr.Error(),
+				"error", appError.Error(),
 			)
 		}
-		err := p.registerCommand(team.Id)
-		if err != nil {
+
+		if err := p.registerCommand(team.Id); err != nil {
 			p.API.LogError(
 				"failed to register command",
 				"error", err.Error(),
