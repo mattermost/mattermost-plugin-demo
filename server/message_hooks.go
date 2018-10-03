@@ -19,20 +19,22 @@ import (
 // This demo implementation rejects posts in the demo channel, as well as posts that @-mention
 // the demo plugin user.
 func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*model.Post, string) {
-	if p.disabled {
+	configuration := p.getConfiguration()
+
+	if configuration.disabled {
 		return post, ""
 	}
 
 	// Always allow posts by the demo plugin user.
-	if post.UserId == p.demoUserId {
+	if post.UserId == configuration.demoUserId {
 		return post, ""
 	}
 
 	// Reject posts by other users in the demo channels, effectively making it read-only.
-	for _, channelId := range p.demoChannelIds {
+	for _, channelId := range configuration.demoChannelIds {
 		if channelId == post.ChannelId {
 			p.API.SendEphemeralPost(post.UserId, &model.Post{
-				UserId:    p.demoUserId,
+				UserId:    configuration.demoUserId,
 				ChannelId: channelId,
 				Message:   "Posting is not allowed in this channel.",
 			})
@@ -42,9 +44,9 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 	}
 
 	// Reject posts mentioning the demo plugin user.
-	if strings.Contains(post.Message, fmt.Sprintf("@%s", p.Username)) {
+	if strings.Contains(post.Message, fmt.Sprintf("@%s", configuration.Username)) {
 		p.API.SendEphemeralPost(post.UserId, &model.Post{
-			UserId:    p.demoUserId,
+			UserId:    configuration.demoUserId,
 			ChannelId: post.ChannelId,
 			Message:   "You must not talk about the demo plugin user.",
 		})
@@ -68,14 +70,16 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 //
 // This demo implementation rejects posts that @-mention the demo plugin user.
 func (p *Plugin) MessageWillBeUpdated(c *plugin.Context, newPost, oldPost *model.Post) (*model.Post, string) {
-	if p.disabled {
+	configuration := p.getConfiguration()
+
+	if configuration.disabled {
 		return newPost, ""
 	}
 
 	// Reject posts mentioning the demo plugin user.
-	if strings.Contains(newPost.Message, fmt.Sprintf("@%s", p.Username)) {
+	if strings.Contains(newPost.Message, fmt.Sprintf("@%s", configuration.Username)) {
 		p.API.SendEphemeralPost(newPost.UserId, &model.Post{
-			UserId:    p.demoUserId,
+			UserId:    configuration.demoUserId,
 			ChannelId: newPost.ChannelId,
 			Message:   "You must not talk about the demo plugin user.",
 		})
@@ -94,12 +98,14 @@ func (p *Plugin) MessageWillBeUpdated(c *plugin.Context, newPost, oldPost *model
 // This demo implementation logs a message to the demo channel whenever a message is posted,
 // unless by the demo plugin user itself.
 func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
-	if p.disabled {
+	configuration := p.getConfiguration()
+
+	if configuration.disabled {
 		return
 	}
 
 	// Ignore posts by the demo plugin user.
-	if post.UserId == p.demoUserId {
+	if post.UserId == configuration.demoUserId {
 		return
 	}
 
@@ -116,8 +122,8 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 	}
 
 	if _, err := p.API.CreatePost(&model.Post{
-		UserId:    p.demoUserId,
-		ChannelId: p.demoChannelIds[channel.TeamId],
+		UserId:    configuration.demoUserId,
+		ChannelId: configuration.demoChannelIds[channel.TeamId],
 		Message: fmt.Sprintf(
 			"MessageHasBeenPosted in ~%s by @%s",
 			channel.Name,
@@ -140,12 +146,14 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 // This demo implementation logs a message to the demo channel whenever a message is updated,
 // unless by the demo plugin user itself.
 func (p *Plugin) MessageHasBeenUpdated(c *plugin.Context, newPost, oldPost *model.Post) {
-	if p.disabled {
+	configuration := p.getConfiguration()
+
+	if configuration.disabled {
 		return
 	}
 
 	// Ignore updates by the demo plugin user.
-	if newPost.UserId == p.demoUserId {
+	if newPost.UserId == configuration.demoUserId {
 		return
 	}
 
@@ -162,8 +170,8 @@ func (p *Plugin) MessageHasBeenUpdated(c *plugin.Context, newPost, oldPost *mode
 	}
 
 	if _, err := p.API.CreatePost(&model.Post{
-		UserId:    p.demoUserId,
-		ChannelId: p.demoChannelIds[channel.TeamId],
+		UserId:    configuration.demoUserId,
+		ChannelId: configuration.demoChannelIds[channel.TeamId],
 		Message: fmt.Sprintf(
 			"MessageHasBeenUpdated in ~%s by @%s",
 			channel.Name,

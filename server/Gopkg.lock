@@ -123,11 +123,11 @@
 
 [[projects]]
   branch = "mattermost"
-  digest = "1:2fe4ce644afe513a2d2455f5d14a79e57345c658a1a1b9214d3f1769bacbdef8"
+  digest = "1:434763e90d03c0a2ae33048c7764f5f0298fdd1c889f8c6d7c798460a6f283dd"
   name = "github.com/mattermost/viper"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "1b00ce64485c7a2449f239de3cbc9040a9c46aa0"
+  revision = "362ff1e71044349d56d37d8b75cd317bff8369b9"
   source = "https://github.com/mattermost/viper"
 
 [[projects]]
@@ -411,6 +411,7 @@
     "github.com/mattermost/mattermost-server/model",
     "github.com/mattermost/mattermost-server/plugin",
     "github.com/mattermost/mattermost-server/plugin/plugintest",
+    "github.com/pkg/errors",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/mock",
   ]

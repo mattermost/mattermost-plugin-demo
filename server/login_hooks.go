@@ -12,7 +12,9 @@ import (
 //
 // This demo implementation rejects login attempts by the demo user.
 func (p *Plugin) UserWillLogIn(c *plugin.Context, user *model.User) string {
-	if user.Username == p.Username {
+	configuration := p.getConfiguration()
+
+	if user.Username == configuration.Username {
 		return "the demo user is not allowed to login"
 	}
 
@@ -23,6 +25,8 @@ func (p *Plugin) UserWillLogIn(c *plugin.Context, user *model.User) string {
 //
 // This demo implementation logs a message to the demo channel whenever a user logs in.
 func (p *Plugin) UserHasLoggedIn(c *plugin.Context, user *model.User) {
+	configuration := p.getConfiguration()
+
 	teams, err := p.API.GetTeams()
 	if err != nil {
 		p.API.LogError(
@@ -34,13 +38,13 @@ func (p *Plugin) UserHasLoggedIn(c *plugin.Context, user *model.User) {
 
 	for _, team := range teams {
 		if _, err := p.API.CreatePost(&model.Post{
-			UserId:    p.demoUserId,
-			ChannelId: p.demoChannelIds[team.Id],
+			UserId:    configuration.demoUserId,
+			ChannelId: configuration.demoChannelIds[team.Id],
 			Message:   fmt.Sprintf("User @%s has logged in", user.Username),
 		}); err != nil {
 			p.API.LogError(
 				"failed to post UserHasLoggedIn message",
-				"channel_id", p.demoChannelIds[team.Id],
+				"channel_id", configuration.demoChannelIds[team.Id],
 				"error", err.Error(),
 			)
 		}

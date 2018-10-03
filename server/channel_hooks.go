@@ -11,13 +11,15 @@ import (
 //
 // This demo implementation logs a message to the demo channel whenever a channel is created.
 func (p *Plugin) ChannelHasBeenCreated(c *plugin.Context, channel *model.Channel) {
-	if p.disabled {
+	configuration := p.getConfiguration()
+
+	if configuration.disabled {
 		return
 	}
 
 	if _, err := p.API.CreatePost(&model.Post{
-		UserId:    p.demoUserId,
-		ChannelId: p.demoChannelIds[channel.TeamId],
+		UserId:    configuration.demoUserId,
+		ChannelId: configuration.demoChannelIds[channel.TeamId],
 		Message:   fmt.Sprintf("ChannelHasBeenCreated: ~%s", channel.Name),
 	}); err != nil {
 		p.API.LogError(
@@ -33,7 +35,9 @@ func (p *Plugin) ChannelHasBeenCreated(c *plugin.Context, channel *model.Channel
 //
 // This demo implementation logs a message to the demo channel whenever a user joins a channel.
 func (p *Plugin) UserHasJoinedChannel(c *plugin.Context, channelMember *model.ChannelMember, actor *model.User) {
-	if p.disabled {
+	configuration := p.getConfiguration()
+
+	if configuration.disabled {
 		return
 	}
 
@@ -50,8 +54,8 @@ func (p *Plugin) UserHasJoinedChannel(c *plugin.Context, channelMember *model.Ch
 	}
 
 	if _, err = p.API.CreatePost(&model.Post{
-		UserId:    p.demoUserId,
-		ChannelId: p.demoChannelIds[channel.TeamId],
+		UserId:    configuration.demoUserId,
+		ChannelId: configuration.demoChannelIds[channel.TeamId],
 		Message:   fmt.Sprintf("UserHasJoinedChannel: @%s, ~%s", user.Username, channel.Name),
 	}); err != nil {
 		p.API.LogError(
@@ -68,7 +72,9 @@ func (p *Plugin) UserHasJoinedChannel(c *plugin.Context, channelMember *model.Ch
 // This demo implementation logs a message to the demo channel whenever a user leaves a
 // channel.
 func (p *Plugin) UserHasLeftChannel(c *plugin.Context, channelMember *model.ChannelMember, actor *model.User) {
-	if p.disabled {
+	configuration := p.getConfiguration()
+
+	if configuration.disabled {
 		return
 	}
 
@@ -85,8 +91,8 @@ func (p *Plugin) UserHasLeftChannel(c *plugin.Context, channelMember *model.Chan
 	}
 
 	if _, err = p.API.CreatePost(&model.Post{
-		UserId:    p.demoUserId,
-		ChannelId: p.demoChannelIds[channel.TeamId],
+		UserId:    configuration.demoUserId,
+		ChannelId: configuration.demoChannelIds[channel.TeamId],
 		Message:   fmt.Sprintf("UserHasLeftChannel: @%s, ~%s", user.Username, channel.Name),
 	}); err != nil {
 		p.API.LogError(
