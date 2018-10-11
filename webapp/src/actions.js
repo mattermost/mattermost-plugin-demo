@@ -1,7 +1,14 @@
 import {getConfig} from 'mattermost-redux/selectors/entities/general';
 
 import {id as pluginId} from './manifest';
-import {STATUS_CHANGE, OPEN_ROOT_MODAL, CLOSE_ROOT_MODAL} from './action_types';
+import {
+    STATUS_CHANGE,
+    OPEN_ROOT_MODAL,
+    CLOSE_ROOT_MODAL,
+    OPEN_SYSTEM_WIDE_SETTING_MODAL,
+    CLOSE_SYSTEM_WIDE_SETTING_MODAL,
+    SYSTEM_WIDE_SETTING_CHANGE,
+} from './action_types';
 
 export const openRootModal = () => (dispatch) => {
     dispatch({
@@ -49,3 +56,21 @@ export const websocketStatusChange = (message) => (dispatch) => dispatch({
     type: STATUS_CHANGE,
     data: message.data.enabled,
 });
+
+export const closeSystemWideSettingModal = () => (dispatch) => {
+    dispatch({
+        type: CLOSE_SYSTEM_WIDE_SETTING_MODAL,
+    });
+};
+
+export const systemWideSettingChange = (message) => (dispatch) => {
+    dispatch({
+        type: SYSTEM_WIDE_SETTING_CHANGE,
+        data: message.data.message,
+    });
+
+    dispatch({
+        type: OPEN_SYSTEM_WIDE_SETTING_MODAL,
+        data: true,
+    });
+};

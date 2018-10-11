@@ -5,6 +5,7 @@ import {id as pluginId} from './manifest';
 import Root from './components/root';
 import BottomTeamSidebar from './components/bottom_team_sidebar';
 import LeftSidebarHeader from './components/left_sidebar_header';
+import SystemWideSettingModal from './components/system_wide_setting_modal';
 import UserAttributes from './components/user_attributes';
 import UserActions from './components/user_actions';
 import PostType from './components/post_type';
@@ -20,12 +21,14 @@ import {
     postDropdownMenuAction,
     websocketStatusChange,
     getStatus,
+    systemWideSettingChange,
 } from './actions';
 import reducer from './reducer';
 
 export default class DemoPlugin {
     initialize(registry, store) {
         registry.registerRootComponent(Root);
+        registry.registerRootComponent(SystemWideSettingModal);
         registry.registerPopoverUserAttributesComponent(UserAttributes);
         registry.registerPopoverUserActionsComponent(UserActions);
         registry.registerLeftSidebarHeaderComponent(LeftSidebarHeader);
@@ -62,6 +65,15 @@ export default class DemoPlugin {
             'custom_' + pluginId + '_status_change',
             (message) => {
                 store.dispatch(websocketStatusChange(message));
+            },
+        );
+
+        // System-wide setting example implementation
+        //  handle custom WebSocket event emitted by server-side of plugin when setting changes
+        registry.registerWebSocketEventHandler(
+            'custom_' + pluginId + '_system_wide_setting_changed',
+            (message) => {
+                store.dispatch(systemWideSettingChange(message));
             },
         );
 
