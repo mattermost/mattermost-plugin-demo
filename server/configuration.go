@@ -23,6 +23,9 @@ type configuration struct {
 	// The channel to use as part of the demo plugin, created for each team automatically if it does not exist.
 	ChannelName string
 
+	// System wide setting example, a way for an admin to propagate a setting change to plugin frontend
+	SystemWideSetting string
+
 	// disabled tracks whether or not the plugin has been disabled after activation. It always starts enabled.
 	disabled bool
 
@@ -106,6 +109,18 @@ func (p *Plugin) OnConfigurationChange() error {
 	configuration.demoChannelIds, err = p.ensureDemoChannels(configuration)
 	if err != nil {
 		return errors.Wrap(err, "failed to ensure demo channels")
+	}
+
+	// System-wide setting example implementation
+	//  get the current configuration before updating it to a new one from Mattermost server
+	//  and emit a custom WebSocket event that can be handled by webapp-side of the plugin
+	currentConfiguration := p.getConfiguration()
+	if currentConfiguration.SystemWideSetting != configuration.SystemWideSetting {
+		p.API.PublishWebSocketEvent(
+			"system_wide_setting_changed",
+			map[string]interface{}{"message": configuration.SystemWideSetting},
+			&model.WebsocketBroadcast{},
+		)
 	}
 
 	p.setConfiguration(configuration)

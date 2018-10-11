@@ -31,6 +31,13 @@
             "help_text": "The user to use as part of the demo plugin, created automatically if it does not exist.",
             "placeholder": "demo_plugin",
             "default": "demo_plugin"
+        }, {
+            "key": "SystemWideSetting",
+            "display_name": "System wide setting",
+            "type": "text",
+            "help_text": "Frontend part of plugin will be notified by any changes to this setting.",
+            "placeholder": "System Wide Setting",
+            "default": "off"
         }]
     }
 }
