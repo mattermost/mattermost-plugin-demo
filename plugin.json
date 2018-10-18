@@ -2,7 +2,7 @@
     "id": "com.mattermost.demo-plugin",
     "name": "Demo Plugin",
     "description": "This plugin demonstrates the capabilities of a Mattermost plugin.",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "server": {
         "executables": {
             "linux-amd64": "server/dist/plugin-linux-amd64",
