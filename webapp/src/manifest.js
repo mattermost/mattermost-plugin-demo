@@ -1,2 +1,2 @@
 export const id = 'com.mattermost.demo-plugin';
-export const version = '0.0.4';
+export const version = '0.0.5';
