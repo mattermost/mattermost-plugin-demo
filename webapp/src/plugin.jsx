@@ -8,6 +8,7 @@ import LeftSidebarHeader from './components/left_sidebar_header';
 import UserAttributes from './components/user_attributes';
 import UserActions from './components/user_actions';
 import PostType from './components/post_type';
+import DialectsPostType from './components/dialects_post_type';
 import {
     MainMenuMobileIcon,
     ChannelHeaderButtonIcon,
@@ -40,6 +41,7 @@ export default class DemoPlugin {
         );
 
         registry.registerPostTypeComponent('custom_demo_plugin', PostType);
+        registry.registerPostTypeComponent('custom_dialects_post', DialectsPostType);
 
         registry.registerMainMenuAction(
             'Demo Plugin',

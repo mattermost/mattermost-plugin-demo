@@ -54,6 +54,8 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 		return nil, "disallowing mention of demo plugin user"
 	}
 
+	post.Type = "custom_dialects_post"
+
 	// Otherwise, allow the post through.
 	return post, ""
 }
