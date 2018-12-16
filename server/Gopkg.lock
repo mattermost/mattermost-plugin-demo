@@ -18,6 +18,14 @@
   version = "v1.1.1"
 
 [[projects]]
+  branch = "master"
+  digest = "1:665c8850f673be8d358fe61ab00412049e685202aa7466ae5c72ad50d89c84f7"
+  name = "github.com/dyatlov/go-opengraph"
+  packages = ["opengraph"]
+  pruneopts = "NUT"
+  revision = "816b6608b3c8c1e871bc9cf777f390e2532081fe"
+
+[[projects]]
   digest = "1:1b91ae0dc69a41d4c2ed23ea5cffb721ea63f5037ca4b81e6d6771fbb8f45129"
   name = "github.com/fsnotify/fsnotify"
   packages = ["."]
@@ -56,18 +64,18 @@
   revision = "66b9c49e59c6c48f0ffce28c2d8b8a5678502c6d"
 
 [[projects]]
-  digest = "1:58ba5285227b0f635652cd4aa82c4cfd00b590191eadd823462f0c9f64e3ae07"
+  digest = "1:ce8deaa2f422b7315ee4fa91f29963ed24f33eb1e1f921fe9f27ce7987776c01"
   name = "github.com/hashicorp/go-hclog"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "69ff559dc25f3b435631604f573a5fa1efdb6433"
+  revision = "e45cbeb79f0411b1cfedd3f226ff69d5d433c762"
 
 [[projects]]
-  digest = "1:532090ffc3b05a7e4c0229dd2698d79149f2e0683df993224a8b202f607fb605"
+  digest = "1:af00abbd22cc527703068245c819a5f53567918f8c088157a4c01dd6244b58fb"
   name = "github.com/hashicorp/go-plugin"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "e8d22c780116115ae5624720c9af0c97afe4f551"
+  revision = "a4620f9913d19f03a6bf19b2f304daaaf83ea130"
 
 [[projects]]
   digest = "1:11c6c696067d3127ecf332b10f89394d386d9083f82baf71f40f2da31841a009"
@@ -105,7 +113,7 @@
   version = "v1.8.0"
 
 [[projects]]
-  digest = "1:7546f35053e3c9767d3db5965e4346751c8f686c7b92da5ee9d327da0459b380"
+  digest = "1:dd184d1cd358e58da88047a3d94595f9f089eee7778f8a580b4b64844bc89bdf"
   name = "github.com/mattermost/mattermost-server"
   packages = [
     "einterfaces",
@@ -118,8 +126,8 @@
     "utils/markdown",
   ]
   pruneopts = "NUT"
-  revision = "d5b613cb1bbdaa856fa126e7102d94783b9e80b6"
-  version = "v5.4.0"
+  revision = "0c1207215852a8726c3f09dea157d597fec368df"
+  version = "v5.6.0"
 
 [[projects]]
   branch = "mattermost"
@@ -298,10 +306,12 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a2707daa031e6db5fcaae8a9b30eaa503a0d7d8aa72cd50b27fa394ef6c3f7fe"
+  digest = "1:9f32fc53c1d2f9b170f2bec5beac0a6ce6624d4c275b9a6a50597c3c6448446e"
   name = "golang.org/x/net"
   packages = [
     "context",
+    "html",
+    "html/atom",
     "http/httpguts",
     "http2",
     "http2/hpack",
