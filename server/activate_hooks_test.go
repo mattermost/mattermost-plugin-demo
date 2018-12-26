@@ -123,7 +123,7 @@ func TestOnDeactivate(t *testing.T) {
 				api := &plugintest.API{}
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
-				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
+				api.On("UnregisterCommand", mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
 
 				return api
 			},
@@ -153,7 +153,7 @@ func TestOnDeactivate(t *testing.T) {
 				api := &plugintest.API{}
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
-				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(&model.AppError{})
+				api.On("UnregisterCommand", mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(&model.AppError{})
 
 				return api
 			},
