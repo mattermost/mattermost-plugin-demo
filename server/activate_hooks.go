@@ -104,8 +104,8 @@ func (p *Plugin) OnDeactivate() error {
 			return errors.Wrap(err, "failed to post OnDeactivate message")
 		}
 
-		if err := p.registerCommand(team.Id); err != nil {
-			return errors.Wrap(err, "failed to register command")
+		if err := p.API.UnregisterCommand(team.Id, CommandTrigger); err != nil {
+			return errors.Wrap(err, "failed to unregister command")
 		}
 	}
 
