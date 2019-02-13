@@ -5,8 +5,6 @@ import (
 
 	"github.com/blang/semver"
 	"github.com/pkg/errors"
-
-	"github.com/mattermost/mattermost-server/model"
 )
 
 const minimumServerVersion = "5.4.0"
@@ -41,24 +39,14 @@ func (p *Plugin) OnActivate() error {
 	}
 
 	for _, team := range teams {
-		demoChannelId, ok := configuration.demoChannelIds[team.Id]
+		_, ok := configuration.demoChannelIds[team.Id]
 		if !ok {
 			p.API.LogWarn("No demo channel id for team", "team", team.Id)
 			continue
 		}
 
-		if _, err := p.API.CreatePost(&model.Post{
-			UserId:    configuration.demoUserId,
-			ChannelId: demoChannelId,
-			Message: fmt.Sprintf(
-				"OnActivate: %s", manifest.Id,
-			),
-			Type: "custom_demo_plugin",
-			Props: map[string]interface{}{
-				"username":     configuration.Username,
-				"channel_name": configuration.ChannelName,
-			},
-		}); err != nil {
+		msg := fmt.Sprintf("OnActivate: %s", manifest.Id)
+		if err := p.postPluginMessage(team.Id, msg); err != nil {
 			return errors.Wrap(err, "failed to post OnActivate message")
 		}
 
@@ -83,24 +71,14 @@ func (p *Plugin) OnDeactivate() error {
 	}
 
 	for _, team := range teams {
-		demoChannelId, ok := configuration.demoChannelIds[team.Id]
+		_, ok := configuration.demoChannelIds[team.Id]
 		if !ok {
 			p.API.LogWarn("No demo channel id for team", "team", team.Id)
 			continue
 		}
 
-		if _, err := p.API.CreatePost(&model.Post{
-			UserId:    configuration.demoUserId,
-			ChannelId: demoChannelId,
-			Message: fmt.Sprintf(
-				"OnDeactivate: %s", manifest.Id,
-			),
-			Type: "custom_demo_plugin",
-			Props: map[string]interface{}{
-				"username":     configuration.Username,
-				"channel_name": configuration.ChannelName,
-			},
-		}); err != nil {
+		msg := fmt.Sprintf("OnDeactivate: %s", manifest.Id)
+		if err := p.postPluginMessage(team.Id, msg); err != nil {
 			return errors.Wrap(err, "failed to post OnDeactivate message")
 		}
 

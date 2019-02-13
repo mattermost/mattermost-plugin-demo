@@ -29,6 +29,15 @@ func TestOnActivate(t *testing.T) {
 			},
 			ShouldError: true,
 		},
+		"below minimum supported version: 5.3.9": {
+			SetupAPI: func() *plugintest.API {
+				api := &plugintest.API{}
+				api.On("GetServerVersion").Return("5.3.9")
+
+				return api
+			},
+			ShouldError: true,
+		},
 		"minimum supported version: 5.4.0, but GetTeams fails": {
 			SetupAPI: func() *plugintest.API {
 				api := &plugintest.API{}

@@ -17,11 +17,8 @@ func (p *Plugin) ChannelHasBeenCreated(c *plugin.Context, channel *model.Channel
 		return
 	}
 
-	if _, err := p.API.CreatePost(&model.Post{
-		UserId:    configuration.demoUserId,
-		ChannelId: configuration.demoChannelIds[channel.TeamId],
-		Message:   fmt.Sprintf("ChannelHasBeenCreated: ~%s", channel.Name),
-	}); err != nil {
+	msg := fmt.Sprintf("ChannelHasBeenCreated: ~%s", channel.Name)
+	if err := p.postPluginMessage(channel.TeamId, msg); err != nil {
 		p.API.LogError(
 			"failed to post ChannelHasBeenCreated message",
 			"channel_id", channel.Id,
@@ -53,11 +50,8 @@ func (p *Plugin) UserHasJoinedChannel(c *plugin.Context, channelMember *model.Ch
 		return
 	}
 
-	if _, err = p.API.CreatePost(&model.Post{
-		UserId:    configuration.demoUserId,
-		ChannelId: configuration.demoChannelIds[channel.TeamId],
-		Message:   fmt.Sprintf("UserHasJoinedChannel: @%s, ~%s", user.Username, channel.Name),
-	}); err != nil {
+	msg := fmt.Sprintf("UserHasJoinedChannel: @%s, ~%s", user.Username, channel.Name)
+	if err := p.postPluginMessage(channel.TeamId, msg); err != nil {
 		p.API.LogError(
 			"failed to post UserHasJoinedChannel message",
 			"user_id", channelMember.UserId,
@@ -90,11 +84,8 @@ func (p *Plugin) UserHasLeftChannel(c *plugin.Context, channelMember *model.Chan
 		return
 	}
 
-	if _, err = p.API.CreatePost(&model.Post{
-		UserId:    configuration.demoUserId,
-		ChannelId: configuration.demoChannelIds[channel.TeamId],
-		Message:   fmt.Sprintf("UserHasLeftChannel: @%s, ~%s", user.Username, channel.Name),
-	}); err != nil {
+	msg := fmt.Sprintf("UserHasLeftChannel: @%s, ~%s", user.Username, channel.Name)
+	if err := p.postPluginMessage(channel.TeamId, msg); err != nil {
 		p.API.LogError(
 			"failed to post UserHasLeftChannel message",
 			"user_id", channelMember.UserId,
