@@ -115,3 +115,8 @@ This plugin registers a post dropdown action that, when clicked, triggers the ro
 This plugin registers a file upload action that, when clicked, triggers the root component:
 
 ![file upload](docs/file_upload.png)
+
+## Link Tooltip
+
+This plugin registers a link tooltip component, whose content is fully customizable. It is displayed when the mouse cursor hovers over a link in a post.
+![link tooltip](docs/link_tooltip.png)

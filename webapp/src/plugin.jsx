@@ -5,6 +5,7 @@ import {id as pluginId} from './manifest';
 import Root from './components/root';
 import BottomTeamSidebar from './components/bottom_team_sidebar';
 import LeftSidebarHeader from './components/left_sidebar_header';
+import LinkTooltip from './components/link_tooltip';
 import UserAttributes from './components/user_attributes';
 import UserActions from './components/user_actions';
 import PostType from './components/post_type';
@@ -29,6 +30,7 @@ export default class DemoPlugin {
         registry.registerPopoverUserAttributesComponent(UserAttributes);
         registry.registerPopoverUserActionsComponent(UserActions);
         registry.registerLeftSidebarHeaderComponent(LeftSidebarHeader);
+        registry.registerLinkTooltipComponent(LinkTooltip);
         registry.registerBottomTeamSidebarComponent(
             BottomTeamSidebar,
         );
