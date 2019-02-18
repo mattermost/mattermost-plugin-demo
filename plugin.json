@@ -52,7 +52,7 @@
             "display_name": "Text Style",
             "type": "dropdown",
             "help_text": "Change the text style of the messages posted by this plugin",
-            "default": "none",
+            "default": "",
             "options": [{
                 "display_name": "none",
                 "value": ""
