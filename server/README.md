@@ -110,45 +110,45 @@ This demo implementation rejects login attempts by the demo user.
 
 This demo implementation logs a message to the demo channel whenever a user logs in.
 
-# Plugin Settings
+## Plugin Settings
 
 The following settings are available in the demo plugin system console page to demonstrate what is available via the [Mattermost Plugin Settings Schema](https://developers.mattermost.com/extend/plugins/manifest-reference/#settings_schema).
 
 ![system-console-demo-settings](docs/demo-settings.png)
 
-## Channel Name
+### Channel Name
 
 A `text` setting type to define the channel that the demo plugin will create and use to post messages.
 
-## Username
+### Username
 
-A `text` setting type to define the username value that will be given to the demo user. This is set via 
+A `text` setting type to define the username value that will be given to the demo user.
 
-## Demo User Last Name
+### Demo User Last Name
 
 A `radio` setting type to define the last name value that will be given to the demo user.
 
-## Text Style
+### Text Style
 
 A `dropdown` setting type that changes the text style of messages posted by the demo plugin. Options include italics and bold.
 
 ##### Note: this setting doesn't apply to `OnConfigurationChange` log messages.
 
-## Random Secret
+### Random Secret
 
 A `generated` setting type for a random string that can be generated in the demo plugin settings page of the system console. The demo plugin will look for this value in any message posted and will paste the [secret message](#secret-message) to the demo channel when it is found.
 
-## Secret Message
+### Secret Message
 
 A `longtext` setting type to define the message that is posted to the demo channel when the [random secret](#random-secret) is posted.
 
-## Enable Mention User
+### Enable Mention User
 
 A `bool` setting type to control whether the [mention user](#mention-user) is tagged(@'ed) on all demo plugin messages.
 
 ##### Note: this setting doesn't apply to `OnConfigurationChange` log messages.
 
-## Mention User
+### Mention User
 
 A `username` setting type to define the user that will be tagged(@'ed) on all demo plugin messages.
 
