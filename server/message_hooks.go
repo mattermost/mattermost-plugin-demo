@@ -121,21 +121,29 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 		return
 	}
 
-	if _, err := p.API.CreatePost(&model.Post{
-		UserId:    configuration.demoUserId,
-		ChannelId: configuration.demoChannelIds[channel.TeamId],
-		Message: fmt.Sprintf(
-			"MessageHasBeenPosted in ~%s by @%s",
-			channel.Name,
-			user.Username,
-		),
-	}); err != nil {
+	msg := fmt.Sprintf("MessageHasBeenPosted: @%s, ~%s", user.Username, channel.Name)
+	if err := p.postPluginMessage(channel.TeamId, msg); err != nil {
 		p.API.LogError(
 			"failed to post MessageHasBeenPosted message",
 			"channel_id", channel.Id,
 			"user_id", user.Id,
 			"error", err.Error(),
 		)
+	}
+
+	// Check if the Random Secret was posted
+	if strings.Contains(post.Message, configuration.RandomSecret) {
+		msg = fmt.Sprintf("The random secret %q has been entered by @%s!\n%s",
+			configuration.RandomSecret, user.Username, configuration.SecretMessage,
+		)
+		if err := p.postPluginMessage(channel.TeamId, msg); err != nil {
+			p.API.LogError(
+				"failed to post random secret message",
+				"channel_id", channel.Id,
+				"user_id", user.Id,
+				"error", err.Error(),
+			)
+		}
 	}
 }
 
@@ -169,20 +177,28 @@ func (p *Plugin) MessageHasBeenUpdated(c *plugin.Context, newPost, oldPost *mode
 		return
 	}
 
-	if _, err := p.API.CreatePost(&model.Post{
-		UserId:    configuration.demoUserId,
-		ChannelId: configuration.demoChannelIds[channel.TeamId],
-		Message: fmt.Sprintf(
-			"MessageHasBeenUpdated in ~%s by @%s",
-			channel.Name,
-			user.Username,
-		),
-	}); err != nil {
+	msg := fmt.Sprintf("MessageHasBeenUpdated: @%s, ~%s", user.Username, channel.Name)
+	if err := p.postPluginMessage(channel.TeamId, msg); err != nil {
 		p.API.LogError(
 			"failed to post MessageHasBeenUpdated message",
 			"channel_id", channel.Id,
 			"user_id", user.Id,
 			"error", err.Error(),
 		)
+	}
+
+	// Check if the Random Secret was posted
+	if strings.Contains(newPost.Message, configuration.RandomSecret) {
+		msg = fmt.Sprintf("The random secret %q has been entered by @%s!\n%s",
+			configuration.RandomSecret, user.Username, configuration.SecretMessage,
+		)
+		if err := p.postPluginMessage(channel.TeamId, msg); err != nil {
+			p.API.LogError(
+				"failed to post random secret message",
+				"channel_id", channel.Id,
+				"user_id", user.Id,
+				"error", err.Error(),
+			)
+		}
 	}
 }

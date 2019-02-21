@@ -2,7 +2,7 @@
     "id": "com.mattermost.demo-plugin",
     "name": "Demo Plugin",
     "description": "This plugin demonstrates the capabilities of a Mattermost plugin.",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "server": {
         "executables": {
             "linux-amd64": "server/dist/plugin-linux-amd64",
@@ -15,8 +15,8 @@
         "bundle_path": "webapp/dist/main.js"
     },
     "settings_schema": {
-        "header": "",
-        "footer": "",
+        "header": "Header: Configure your demo plugin settings below",
+        "footer": "Footer: The code for this demo plugin can be found [here](https://github.com/mattermost/mattermost-plugin-demo)",
         "settings": [{
             "key": "ChannelName",
             "display_name": "Channel Name",
@@ -29,6 +29,64 @@
             "display_name": "Username",
             "type": "text",
             "help_text": "The user to use as part of the demo plugin, created automatically if it does not exist.",
+            "placeholder": "demo_plugin",
+            "default": "demo_plugin"
+        }, {
+            "key": "LastName",
+            "display_name": "Demo User Last Name",
+            "type": "radio",
+            "help_text": "Select the last name for the demo user",
+            "default": "Plugin User",
+            "options": [{
+                "display_name": "Plugin User",
+                "value": "Plugin User"
+            }, {
+                "display_name": "Demoson III",
+                "value": "Demoson III"
+            }, {
+                "display_name": "McDemo",
+                "value": "McDemo"               
+            }]
+        }, {
+            "key": "TextStyle",
+            "display_name": "Text Style",
+            "type": "dropdown",
+            "help_text": "Change the text style of the messages posted by this plugin",
+            "default": "",
+            "options": [{
+                "display_name": "none",
+                "value": ""
+            }, {
+                "display_name": "italics",
+                "value": "_"
+            }, {
+                "display_name": "bold",
+                "value": "**"
+            }]
+        }, {
+            "key": "RandomSecret",
+            "display_name": "Random Secret",
+            "type": "generated",
+            "help_text": "Generate a random string that the demo plugin will watch for. If the secret string is mentioned in any channel then the demo plugin will publish a special message.",
+            "regenerate_help_text": "Generate a new secret string.",
+            "default": "CFgcq9Hr9OKSevvqH_SH-mPlgVklmpUm"
+        }, {
+            "key": "SecretMessage",
+            "display_name": "Secret Message",
+            "type": "longtext",
+            "help_text": "The message posted by the demo plugin when the secret phrase is detected.",
+            "default": "Yay! The random secret string was posted!\n\nGo to the settings page for this plugin in the system console to generate a new random secret."
+        }, { 
+            "key": "EnableMentionUser",
+            "display_name": "Enable Mention User",
+            "type": "bool",
+            "help_text": "Enable or disable the demo plugin to tag a username on every message sent. The username value is set below.",
+            "default": false
+        }, {
+            "key": "MentionUser",
+            "display_name": "Mention User",
+            "type": "username",
+            "help_text": "Configure the username to be mentioned by the demo plugin. Must be enabled in the setting above.",
             "placeholder": "demo_plugin",
             "default": "demo_plugin"
         }]

@@ -94,7 +94,7 @@ This plugin registers a channel header button action displaying a plugin icon th
 
 # Post Type
 
-This plugin renders a custom post type as part of handling the `OnActivate` hook in the server, dumping the current plugin configuration:
+This plugin renders a custom post type as part of handling the `OnConfigurationChange` hook in the server, dumping the updated plugin configuration:
 
 ![post type](docs/post_type.png)
 

@@ -23,6 +23,24 @@ type configuration struct {
 	// The channel to use as part of the demo plugin, created for each team automatically if it does not exist.
 	ChannelName string
 
+	// LastName is the last name of the demo user.
+	LastName string
+
+	// TextStyle controls the text style of the messages posted by the demo user.
+	TextStyle string
+
+	// RandomSecret is a generated key that, when mentioned in a message by a user, will trigger the demo user to post the 'SecretMessage'.
+	RandomSecret string
+
+	// SecretMessage is the message posted to the demo channel when the 'RandomSecret' is pasted somewhere in the team.
+	SecretMessage string
+
+	// EnableMentionUser controls whether the 'MentionUser' is prepended to all demo messages or not.
+	EnableMentionUser bool
+
+	// MentionUser is the user that is prepended to demo messages when enabled.
+	MentionUser string
+
 	// disabled tracks whether or not the plugin has been disabled after activation. It always starts enabled.
 	disabled bool
 
@@ -43,11 +61,17 @@ func (c *configuration) Clone() *configuration {
 	}
 
 	return &configuration{
-		Username:       c.Username,
-		ChannelName:    c.ChannelName,
-		disabled:       c.disabled,
-		demoUserId:     c.demoUserId,
-		demoChannelIds: demoChannelIds,
+		Username:          c.Username,
+		ChannelName:       c.ChannelName,
+		LastName:          c.LastName,
+		TextStyle:         c.TextStyle,
+		RandomSecret:      c.RandomSecret,
+		SecretMessage:     c.SecretMessage,
+		EnableMentionUser: c.EnableMentionUser,
+		MentionUser:       c.MentionUser,
+		disabled:          c.disabled,
+		demoUserId:        c.demoUserId,
+		demoChannelIds:    demoChannelIds,
 	}
 }
 
@@ -85,6 +109,65 @@ func (p *Plugin) setConfiguration(configuration *configuration) {
 	p.configuration = configuration
 }
 
+func (p *Plugin) diffConfiguration(newConfiguration *configuration) {
+	oldConfiguration := p.getConfiguration()
+	configurationDiff := make(map[string]interface{})
+
+	if newConfiguration.Username != oldConfiguration.Username {
+		configurationDiff["username"] = newConfiguration.Username
+	}
+	if newConfiguration.ChannelName != oldConfiguration.ChannelName {
+		configurationDiff["channel_name"] = newConfiguration.ChannelName
+	}
+	if newConfiguration.LastName != oldConfiguration.LastName {
+		configurationDiff["lastname"] = newConfiguration.LastName
+	}
+	if newConfiguration.TextStyle != oldConfiguration.TextStyle {
+		configurationDiff["text_style"] = newConfiguration.ChannelName
+	}
+	if newConfiguration.RandomSecret != oldConfiguration.RandomSecret {
+		configurationDiff["random_secret"] = "<HIDDEN>"
+	}
+	if newConfiguration.SecretMessage != oldConfiguration.SecretMessage {
+		configurationDiff["secret_message"] = newConfiguration.SecretMessage
+	}
+	if newConfiguration.EnableMentionUser != oldConfiguration.EnableMentionUser {
+		configurationDiff["enable_mention_user"] = newConfiguration.EnableMentionUser
+	}
+	if newConfiguration.MentionUser != oldConfiguration.MentionUser {
+		configurationDiff["mention_user"] = newConfiguration.MentionUser
+	}
+
+	if len(configurationDiff) == 0 {
+		return
+	}
+
+	teams, err := p.API.GetTeams()
+	if err != nil {
+		p.API.LogWarn("failed to query teams OnConfigChange", "err", err)
+		return
+	}
+
+	for _, team := range teams {
+		demoChannelId, ok := newConfiguration.demoChannelIds[team.Id]
+		if !ok {
+			p.API.LogWarn("No demo channel id for team", "team", team.Id)
+			continue
+		}
+
+		if _, err := p.API.CreatePost(&model.Post{
+			UserId:    newConfiguration.demoUserId,
+			ChannelId: demoChannelId,
+			Message:   "OnConfigChange: loading new configuration",
+			Type:      "custom_demo_plugin",
+			Props:     configurationDiff,
+		}); err != nil {
+			p.API.LogWarn("failed to post OnConfigChange message", "err", err)
+			return
+		}
+	}
+}
+
 // OnConfigurationChange is invoked when configuration changes may have been made.
 //
 // This demo implementation ensures the configured demo user and channel are created for use
@@ -108,6 +191,8 @@ func (p *Plugin) OnConfigurationChange() error {
 		return errors.Wrap(err, "failed to ensure demo channels")
 	}
 
+	p.diffConfiguration(configuration)
+
 	p.setConfiguration(configuration)
 
 	return nil
@@ -128,9 +213,18 @@ func (p *Plugin) ensureDemoUser(configuration *configuration) (string, error) {
 			Email:     fmt.Sprintf("%s@example.com", configuration.Username),
 			Nickname:  "Demo Day",
 			FirstName: "Demo",
-			LastName:  "Plugin User",
+			LastName:  configuration.LastName,
 			Position:  "Bot",
 		})
+
+		if err != nil {
+			return "", err
+		}
+	}
+
+	if user.LastName != configuration.LastName {
+		user.LastName = configuration.LastName
+		user, err = p.API.UpdateUser(user)
 
 		if err != nil {
 			return "", err

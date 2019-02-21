@@ -25,11 +25,8 @@ func (p *Plugin) UserHasJoinedTeam(c *plugin.Context, teamMember *model.TeamMemb
 		return
 	}
 
-	if _, err = p.API.CreatePost(&model.Post{
-		UserId:    configuration.demoUserId,
-		ChannelId: configuration.demoChannelIds[teamMember.TeamId],
-		Message:   fmt.Sprintf("UserHasJoinedTeam: @%s", user.Username),
-	}); err != nil {
+	msg := fmt.Sprintf("UserHasJoinedTeam: @%s", user.Username)
+	if err := p.postPluginMessage(teamMember.TeamId, msg); err != nil {
 		p.API.LogError(
 			"failed to post UserHasJoinedTeam message",
 			"user_id", teamMember.UserId,
@@ -56,11 +53,8 @@ func (p *Plugin) UserHasLeftTeam(c *plugin.Context, teamMember *model.TeamMember
 		return
 	}
 
-	if _, err = p.API.CreatePost(&model.Post{
-		UserId:    configuration.demoUserId,
-		ChannelId: configuration.demoChannelIds[teamMember.TeamId],
-		Message:   fmt.Sprintf("UserHasLeftTeam: @%s", user.Username),
-	}); err != nil {
+	msg := fmt.Sprintf("UserHasLeftTeam: @%s", user.Username)
+	if err := p.postPluginMessage(teamMember.TeamId, msg); err != nil {
 		p.API.LogError(
 			"failed to post UserHasLeftTeam message",
 			"user_id", teamMember.UserId,
