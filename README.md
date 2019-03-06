@@ -1,4 +1,4 @@
-# Demo Plugin [![CircleCI](https://circleci.com/gh/mattermost/mattermost-plugin-demo.svg?style=svg)](https://circleci.com/gh/mattermost/mattermost-plugin-demo)
+# Demo Plugin ![CircleCI branch](https://img.shields.io/circleci/project/github/mattermost/mattermost-plugin-demo/master.svg)
 
 This plugin demonstrates the capabilities of a Mattermost plugin. It includes the same build scripts as [mattermost-plugin-sample](https://github.com/mattermost/mattermost-plugin-sample), but implements all supported server-side hooks and registers a component for each supported client-side integration point. See [server/README.md](server/README.md) and [webapp/README.md](webapp/README.md) for more details. The plugin also doubles as a testbed for verifying plugin functionality during release testing.
 
