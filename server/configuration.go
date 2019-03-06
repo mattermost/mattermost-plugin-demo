@@ -177,8 +177,8 @@ func (p *Plugin) OnConfigurationChange() error {
 	var err error
 
 	// Load the public configuration fields from the Mattermost server configuration.
-	if err := p.API.LoadPluginConfiguration(configuration); err != nil {
-		return errors.Wrap(err, "failed to load plugin configuration")
+	if loadConfigErr := p.API.LoadPluginConfiguration(configuration); loadConfigErr != nil {
+		return errors.Wrap(loadConfigErr, "failed to load plugin configuration")
 	}
 
 	configuration.demoUserId, err = p.ensureDemoUser(configuration)
