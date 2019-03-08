@@ -1,6 +1,6 @@
 # Demo Plugin: Server
 
-The server component of this demo plugin is written in Go and [net/rpc](https://golang.org/pkg/net/rpc/). It relies on [configuration](#plugin-settings) in [plugin.json](../plugin.json) to implement each of the supported hooks. 
+The server component of this demo plugin is written in Go and [net/rpc](https://golang.org/pkg/net/rpc/). It relies on [configuration](#plugin-settings) in [plugin.json](../plugin.json) to implement each of the supported hooks.
 
 Each of the included files or folders is outlined below.
 
@@ -109,6 +109,19 @@ This demo implementation rejects login attempts by the demo user.
 ### UserHasLoggedIn
 
 This demo implementation logs a message to the demo channel whenever a user logs in.
+
+## [user\_hooks.go](user_hooks.go)
+
+### UserHasBeenCreated
+
+This demo implementation logs a message to demo channel when a new user is created.
+
+## [file\_hooks.go](file_hooks.go)
+
+### FileWillBeUploaded
+
+This demo implementation logs a message to demo channel when a file is uploaded.
+
 
 ## Plugin Settings
 
