@@ -114,13 +114,13 @@ This demo implementation logs a message to the demo channel whenever a user logs
 
 ### UserHasBeenCreated
 
-This demo implementation logs a message to demo channel when a new user is created.
+This demo implementation logs a message to demo channel whenever a new user is created.
 
 ## [file\_hooks.go](file_hooks.go)
 
 ### FileWillBeUploaded
 
-This demo implementation logs a message to demo channel when a file is uploaded.
+This demo implementation logs a message to demo channel whenever a file is uploaded.
 
 
 ## Plugin Settings
