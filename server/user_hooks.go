@@ -37,6 +37,4 @@ func (p *Plugin) UserHasBeenCreated(c *plugin.Context, user *model.User) {
 			)
 		}
 	}
-
-	return
 }
