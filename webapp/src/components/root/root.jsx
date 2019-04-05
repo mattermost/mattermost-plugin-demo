@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import {FormattedMessage} from 'react-intl';
 
 const Root = ({visible, close, theme}) => {
     if (!visible) {
@@ -14,10 +15,22 @@ const Root = ({visible, close, theme}) => {
             onClick={close}
         >
             <div style={style.modal}>
-                { 'You have triggered the root component of the demo plugin.' }
+                <FormattedMessage
+                    id='root.triggered'
+                    defaultMessage='You have triggered the root component of the demo plugin.'
+                />
                 <br/>
                 <br/>
-                { 'Click anywhere to close.' }
+                <FormattedMessage
+                    id='root.clicktoclose'
+                    defaultMessage='Click anywhere to close.'
+                />
+                <br/>
+                <br/>
+                <FormattedMessage
+                    id='demo.testintl'
+                    defaultMessage='This is the default string'
+                />
             </div>
         </div>
     );

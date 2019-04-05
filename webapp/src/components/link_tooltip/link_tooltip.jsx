@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import {FormattedMessage} from 'react-intl';
 
 export default class LinkTooltip extends React.PureComponent {
     static propTypes = {
@@ -19,7 +20,10 @@ export default class LinkTooltip extends React.PureComponent {
                     style={iconStyles}
                     className='icon fa fa-plug'
                 />
-                {'This is a custom tooltip from the Demo Plugin'}
+                <FormattedMessage
+                    id='tooltip.message'
+                    defaultMessage='This is a custom tooltip from the Demo Plugin'
+                />
             </div>
         );
     }

@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import {FormattedMessage} from 'react-intl';
 
 export default class UserActionsComponent extends React.PureComponent {
     static propTypes = {
@@ -16,12 +17,18 @@ export default class UserActionsComponent extends React.PureComponent {
 
         return (
             <div>
-                { 'Demo Plugin: '}
+                <FormattedMessage
+                    id='useractions.demo'
+                    defaultMessage='Demo Plugin: '
+                />
                 <button
                     style={style.button}
                     onClick={this.onClick}
                 >
-                    {'Action'}
+                    <FormattedMessage
+                        id='useractions.action'
+                        defaultMessage='Action'
+                    />
                 </button>
             </div>
         );

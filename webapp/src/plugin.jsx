@@ -1,5 +1,11 @@
 import React from 'react';
 
+import {FormattedMessage} from 'react-intl';
+
+import en from 'i18n/en.json';
+
+import es from 'i18n/es.json';
+
 import {id as pluginId} from './manifest';
 
 import Root from './components/root';
@@ -24,6 +30,16 @@ import {
 } from './actions';
 import reducer from './reducer';
 
+function getLanguageTest(locale) {
+    switch (locale) {
+    case 'en':
+        return en;
+    case 'es':
+        return es;
+    }
+    return {};
+}
+
 export default class DemoPlugin {
     initialize(registry, store) {
         registry.registerRootComponent(Root);
@@ -38,26 +54,38 @@ export default class DemoPlugin {
         registry.registerChannelHeaderButtonAction(
             <ChannelHeaderButtonIcon/>,
             () => store.dispatch(channelHeaderButtonAction()),
-            'Demo Plugin',
+            <FormattedMessage
+                id='plugin.name'
+                defaultMessage='Demo Plugin'
+            />,
         );
 
         registry.registerPostTypeComponent('custom_demo_plugin', PostType);
 
         registry.registerMainMenuAction(
-            'Demo Plugin',
+            <FormattedMessage
+                id='plugin.name'
+                defaultMessage='Demo Plugin'
+            />,
             () => store.dispatch(mainMenuAction()),
             <MainMenuMobileIcon/>,
         );
 
         registry.registerPostDropdownMenuAction(
-            'Demo Plugin',
+            <FormattedMessage
+                id='plugin.name'
+                defaultMessage='Demo Plugin'
+            />,
             () => store.dispatch(postDropdownMenuAction()),
         );
 
         registry.registerFileUploadMethod(
             <FileUploadMethodIcon/>,
             () => store.dispatch(fileUploadMethodAction()),
-            'Upload using Demo Plugin',
+            <FormattedMessage
+                id='plugin.upload'
+                defaultMessage='Upload using Demo Plugin'
+            />,
         );
 
         registry.registerWebSocketEventHandler(
@@ -76,6 +104,8 @@ export default class DemoPlugin {
         registry.registerReconnectHandler(() => {
             store.dispatch(getStatus());
         });
+
+        registry.registerTranslations(getLanguageTest);
     }
 
     uninitialize() {
