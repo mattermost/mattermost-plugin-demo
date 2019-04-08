@@ -30,7 +30,7 @@ import {
 } from './actions';
 import reducer from './reducer';
 
-function getLanguageTest(locale) {
+function getTranslations(locale) {
     switch (locale) {
     case 'en':
         return en;
@@ -105,7 +105,7 @@ export default class DemoPlugin {
             store.dispatch(getStatus());
         });
 
-        registry.registerTranslations(getLanguageTest);
+        registry.registerTranslations(getTranslations);
     }
 
     uninitialize() {
