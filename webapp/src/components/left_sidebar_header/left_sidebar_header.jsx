@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import {FormattedMessage} from 'react-intl';
 
 // LeftSidebarHeader is a pure component, later connected to the Redux store so as to
 // show the plugin's enabled / disabled status.
@@ -25,7 +26,25 @@ export default class LeftSidebarHeader extends React.PureComponent {
                     className='icon fa fa-plug'
                     style={iconStyle}
                 />
-                {'Demo Plugin: '} {this.props.enabled ? <span>{ 'Enabled' }</span> : <span>{ 'Disabled' }</span>}
+                <FormattedMessage
+                    id='sidebar.demo'
+                    defaultMessage='Demo Plugin:'
+                />
+                {' '}
+                {this.props.enabled ?
+                    <span>
+                        <FormattedMessage
+                            id='sidebar.enabled'
+                            defaultMessage='Enabled'
+                        />
+                    </span> :
+                    <span>
+                        <FormattedMessage
+                            id='sidebar.disabled'
+                            defaultMessage='Disabled'
+                        />
+                    </span>
+                }
             </div>
         );
     }

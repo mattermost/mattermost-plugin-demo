@@ -4,6 +4,7 @@ NPM ?= $(shell command -v npm 2> /dev/null)
 HTTP ?= $(shell command -v http 2> /dev/null)
 CURL ?= $(shell command -v curl 2> /dev/null)
 MANIFEST_FILE ?= plugin.json
+MM_UTILITIES_DIR ?= ../mattermost-utilities
 
 # Verify environment, and define PLUGIN_ID, PLUGIN_VERSION, HAS_SERVER and HAS_WEBAPP as needed.
 include build/setup.mk
@@ -150,6 +151,13 @@ ifneq ($(HAS_SERVER),)
 endif
 ifneq ($(HAS_WEBAPP),)
 	cd webapp && $(NPM) run fix;
+endif
+
+.PHONY: i18n-extract
+i18n-extract: ## Extract strings for translation from the source code
+ifneq ($(HAS_WEBAPP),)
+	@[[ -d $(MM_UTILITIES_DIR) ]] || echo "You must clone github.com/mattermost/mattermost-utilities repo in .. to use this command"
+	@[[ -d $(MM_UTILITIES_DIR) ]] && cd $(MM_UTILITIES_DIR) && npm install && npm run babel && node mmjstool/build/index.js i18n extract-webapp --webapp-dir ../mattermost-plugin-demo/webapp
 endif
 
 # clean removes all build artifacts
