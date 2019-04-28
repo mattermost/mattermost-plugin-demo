@@ -3,10 +3,12 @@ package main
 import (
 	"testing"
 
+	"github.com/blang/semver"
 	"github.com/mattermost/mattermost-server/model"
 	"github.com/mattermost/mattermost-server/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func TestOnActivate(t *testing.T) {
@@ -17,41 +19,57 @@ func TestOnActivate(t *testing.T) {
 	}
 
 	for name, test := range map[string]struct {
-		SetupAPI    func() *plugintest.API
+		SetupAPI    func(*plugintest.API) *plugintest.API
 		ShouldError bool
 	}{
 		"GetServerVersion not implemented, returns empty string": {
-			SetupAPI: func() *plugintest.API {
-				api := &plugintest.API{}
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return("")
 
 				return api
 			},
 			ShouldError: true,
 		},
-		"below minimum supported version: 5.3.9": {
-			SetupAPI: func() *plugintest.API {
-				api := &plugintest.API{}
-				api.On("GetServerVersion").Return("5.3.9")
+		"lesser minor version than minimumServerVersion": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				v := semver.MustParse(minimumServerVersion)
+				if v.Minor == 0 {
+					v.Major--
+					v.Minor = 0
+					v.Patch = 0
+				} else {
+					v.Minor--
+					v.Patch = 0
+				}
+				api.On("GetServerVersion").Return(v.String())
 
 				return api
 			},
 			ShouldError: true,
 		},
-		"minimum supported version: 5.4.0, but GetTeams fails": {
-			SetupAPI: func() *plugintest.API {
-				api := &plugintest.API{}
-				api.On("GetServerVersion").Return("5.4.0")
+		"minimum supported version fullfiled, but RegisterCommand fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetServerVersion").Return(minimumServerVersion)
+				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(&model.AppError{})
+
+				return api
+			},
+			ShouldError: true,
+		},
+		"minimum supported version fullfiled, but GetTeams fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetServerVersion").Return(minimumServerVersion)
+				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 				api.On("GetTeams").Return(nil, &model.AppError{})
 
 				return api
 			},
 			ShouldError: true,
 		},
-		"minimum supported version: 5.4.0, but CreatePost fails": {
-			SetupAPI: func() *plugintest.API {
-				api := &plugintest.API{}
-				api.On("GetServerVersion").Return("5.4.0")
+		"minimum supported version fullfiled, but CreatePost fails": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetServerVersion").Return(minimumServerVersion)
+				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(nil, &model.AppError{})
 
@@ -59,34 +77,22 @@ func TestOnActivate(t *testing.T) {
 			},
 			ShouldError: true,
 		},
-		"minimum supported version: 5.4.0, but RegisterCommand fails": {
-			SetupAPI: func() *plugintest.API {
-				api := &plugintest.API{}
-				api.On("GetServerVersion").Return("5.4.0")
-				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
-				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
-				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(&model.AppError{})
-
-				return api
-			},
-			ShouldError: true,
-		},
-		"minimum supported version: 5.4.0": {
-			SetupAPI: func() *plugintest.API {
-				api := &plugintest.API{}
-				api.On("GetServerVersion").Return("5.4.0")
-				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
-				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
+		"minimum supported version fullfiled": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetServerVersion").Return(minimumServerVersion)
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
+				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
+				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
 
 				return api
 			},
 			ShouldError: false,
 		},
-		"newer supported version: 5.5.0": {
-			SetupAPI: func() *plugintest.API {
-				api := &plugintest.API{}
-				api.On("GetServerVersion").Return("5.5.0")
+		"greater minor version than minimumServerVersion": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				v := semver.MustParse(minimumServerVersion)
+				require.Nil(t, v.IncrementMinor())
+				api.On("GetServerVersion").Return(v.String())
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
@@ -97,7 +103,7 @@ func TestOnActivate(t *testing.T) {
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
-			api := test.SetupAPI()
+			api := test.SetupAPI(&plugintest.API{})
 			defer api.AssertExpectations(t)
 
 			p := Plugin{}
@@ -132,7 +138,6 @@ func TestOnDeactivate(t *testing.T) {
 				api := &plugintest.API{}
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
-				api.On("UnregisterCommand", mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
 
 				return api
 			},
@@ -152,17 +157,6 @@ func TestOnDeactivate(t *testing.T) {
 				api := &plugintest.API{}
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(nil, &model.AppError{})
-
-				return api
-			},
-			ShouldError: true,
-		},
-		"RegisterCommand fails": {
-			SetupAPI: func() *plugintest.API {
-				api := &plugintest.API{}
-				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
-				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
-				api.On("UnregisterCommand", mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(&model.AppError{})
 
 				return api
 			},

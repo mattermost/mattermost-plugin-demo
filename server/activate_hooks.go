@@ -7,7 +7,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-const minimumServerVersion = "5.4.0"
+const minimumServerVersion = "5.6.0"
 
 func (p *Plugin) checkServerVersion() error {
 	serverVersion, err := semver.Parse(p.API.GetServerVersion())
@@ -33,6 +33,10 @@ func (p *Plugin) OnActivate() error {
 
 	configuration := p.getConfiguration()
 
+	if err := p.registerCommands(); err != nil {
+		return errors.Wrap(err, "failed to register command")
+	}
+
 	teams, err := p.API.GetTeams()
 	if err != nil {
 		return errors.Wrap(err, "failed to query teams OnActivate")
@@ -50,9 +54,6 @@ func (p *Plugin) OnActivate() error {
 			return errors.Wrap(err, "failed to post OnActivate message")
 		}
 
-		if err := p.registerCommand(team.Id); err != nil {
-			return errors.Wrap(err, "failed to register command")
-		}
 	}
 
 	return nil
@@ -80,10 +81,6 @@ func (p *Plugin) OnDeactivate() error {
 		msg := fmt.Sprintf("OnDeactivate: %s", manifest.Id)
 		if err := p.postPluginMessage(team.Id, msg); err != nil {
 			return errors.Wrap(err, "failed to post OnDeactivate message")
-		}
-
-		if err := p.API.UnregisterCommand(team.Id, CommandTrigger); err != nil {
-			return errors.Wrap(err, "failed to unregister command")
 		}
 	}
 

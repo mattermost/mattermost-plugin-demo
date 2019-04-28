@@ -3,6 +3,7 @@
     "name": "Demo Plugin",
     "description": "This plugin demonstrates the capabilities of a Mattermost plugin.",
     "version": "0.0.6",
+    "min_server_version": "5.6.0",
     "server": {
         "executables": {
             "linux-amd64": "server/dist/plugin-linux-amd64",
