@@ -34,7 +34,7 @@ func (p *Plugin) registerCommands() error {
 		AutoComplete:     true,
 		AutoCompleteDesc: "Open an Interactive Dialog.",
 		DisplayName:      "Demo Plugin Command",
-		Description:      "A command open an Interactive Dialog.",
+		Description:      "A command to open an Interactive Dialog.",
 	}); err != nil {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerDialog)
 	}
@@ -126,10 +126,10 @@ func (p *Plugin) executeCommandDialog(c *plugin.Context, args *model.CommandArgs
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/2", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog: model.Dialog{
 				CallbackId:     "somecallbackid",
-				Title:          "Confirmation",
+				Title:          "Sample Confirmation Dialog",
 				IconURL:        "http://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
 				Elements:       nil,
-				SubmitLabel:    "Confirm something",
+				SubmitLabel:    "Confirm",
 				NotifyOnCancel: true,
 				State:          "somestate",
 			},
@@ -148,14 +148,14 @@ func (p *Plugin) executeCommandDialog(c *plugin.Context, args *model.CommandArgs
 					Type:        "text",
 					Default:     "default text",
 					Placeholder: "placeholder",
-					HelpText:    "This a test regular input in an interactive dialog triggered by a test integration.",
+					HelpText:    "This a regular input in an interactive dialog triggered by a test integration.",
 				}, {
 					DisplayName: "Email",
 					Name:        "someemail",
 					Type:        "text",
 					SubType:     "email",
 					Placeholder: "placeholder@bladekick.com",
-					HelpText:    "This a test regular email input in an interactive dialog triggered by a test integration.",
+					HelpText:    "This a regular email input in an interactive dialog triggered by a test integration.",
 				}, {
 					DisplayName: "Number",
 					Name:        dialogElementNameNumber,
@@ -194,7 +194,7 @@ func (p *Plugin) executeCommandDialog(c *plugin.Context, args *model.CommandArgs
 					Name:        "someoptionselector",
 					Type:        "select",
 					Placeholder: "Select an option...",
-					HelpText:    "Choose a option from the list.",
+					HelpText:    "Choose an option from the list.",
 					Options: []*model.PostActionOptions{{
 						Text:  "Option1",
 						Value: "opt1",
@@ -206,7 +206,7 @@ func (p *Plugin) executeCommandDialog(c *plugin.Context, args *model.CommandArgs
 						Value: "opt3",
 					}},
 				}},
-				SubmitLabel:    "Submit Test",
+				SubmitLabel:    "Submit",
 				NotifyOnCancel: true,
 				State:          "somestate",
 			},
