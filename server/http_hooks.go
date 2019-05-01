@@ -27,7 +27,7 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 	case "/dialog/1":
 		p.handleDialog1(w, r)
 	case "/dialog/2":
-		p.handleDialog1(w, r)
+		p.handleDialog2(w, r)
 	default:
 		http.NotFound(w, r)
 	}
@@ -45,11 +45,15 @@ func (p *Plugin) handleStatus(w http.ResponseWriter, r *http.Request) {
 	responseJSON, _ := json.Marshal(response)
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(responseJSON)
+	if _, err := w.Write(responseJSON); err != nil {
+		p.API.LogError("failed to write status", "err", err.Error())
+	}
 }
 
 func (p *Plugin) handleHello(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hello World!"))
+	if _, err := w.Write([]byte("Hello World!")); err != nil {
+		p.API.LogError("failed to write hello world", "err", err.Error())
+	}
 }
 
 func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
@@ -78,7 +82,6 @@ func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
 			}
 			p.writeSubmitDialogResponse(w, response)
 			return
-
 		}
 	}
 
@@ -100,7 +103,7 @@ func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
 		Message:   fmt.Sprintf(msg, user.Username),
 	})
 	if appErr != nil {
-		p.API.LogError("failed to post handleDialog1 message", "err", appErr)
+		p.API.LogError("failed to post handleDialog1 message", "err", appErr.Error())
 		return
 	}
 
@@ -113,7 +116,7 @@ func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
 			Type:      "custom_demo_plugin",
 			Props:     request.Submission,
 		}); appErr != nil {
-			p.API.LogError("failed to post handleDialog1 message", "err", appErr)
+			p.API.LogError("failed to post handleDialog1 message", "err", appErr.Error())
 			return
 		}
 	}
@@ -143,7 +146,7 @@ func (p *Plugin) handleDialog2(w http.ResponseWriter, r *http.Request) {
 		ChannelId: request.ChannelId,
 		Message:   fmt.Sprintf("@%v confirmed an Interactive Dialog", user.Username),
 	}); appErr != nil {
-		p.API.LogError("failed to post handleDialog1 message", "err", appErr)
+		p.API.LogError("failed to post handleDialog1 message", "err", appErr.Error())
 		return
 	}
 
@@ -154,6 +157,6 @@ func (p *Plugin) writeSubmitDialogResponse(w http.ResponseWriter, response *mode
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write(response.ToJson()); err != nil {
-		p.API.LogError("failed to write DialogResponse", "err", err)
+		p.API.LogError("failed to write DialogResponse", "err", err.Error())
 	}
 }

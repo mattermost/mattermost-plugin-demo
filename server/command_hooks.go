@@ -156,7 +156,7 @@ func (p *Plugin) executeCommandDialog(c *plugin.Context, args *model.CommandArgs
 
 	if err := p.API.OpenInteractiveDialog(dialogRequest); err != nil {
 		errorMessage := "Failed to open Interactive Dialog"
-		p.API.LogError(errorMessage, "err", err)
+		p.API.LogError(errorMessage, "err", err.Error())
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			Text:         errorMessage,
