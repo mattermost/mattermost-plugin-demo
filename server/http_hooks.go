@@ -136,7 +136,7 @@ func (p *Plugin) handleDialog2(w http.ResponseWriter, r *http.Request) {
 
 	user, appErr := p.API.GetUser(request.UserId)
 	if appErr != nil {
-		p.API.LogError("faild to get user for dialog", "err", appErr.Error())
+		p.API.LogError("failed to get user for dialog", "err", appErr.Error())
 		w.WriteHeader(http.StatusOK)
 		return
 	}
