@@ -34,7 +34,7 @@ func (p *Plugin) OnActivate() error {
 	configuration := p.getConfiguration()
 
 	if err := p.registerCommands(); err != nil {
-		return errors.Wrap(err, "failed to register command")
+		return errors.Wrap(err, "failed to register commands")
 	}
 
 	teams, err := p.API.GetTeams()
