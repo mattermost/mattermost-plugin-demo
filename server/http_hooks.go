@@ -108,6 +108,9 @@ func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !request.Cancelled {
+		// Don't post the email address publicly
+		request.Submission[dialogElementNameEmail] = "xxxxxxxxxxx"
+
 		if _, appErr = p.API.CreatePost(&model.Post{
 			UserId:    config.demoUserId,
 			ChannelId: request.ChannelId,

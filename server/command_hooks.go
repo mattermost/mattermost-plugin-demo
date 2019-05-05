@@ -15,6 +15,7 @@ const (
 	commandTriggerDialog = "dialog"
 
 	dialogElementNameNumber = "somenumber"
+	dialogElementNameEmail  = "someemail"
 
 	commandDialogHelp = "###### Interactive Dialog Slash Command Help\n" +
 		"- `/dialog` - Open an Interactive Dialog with a few elements\n" +
@@ -179,7 +180,7 @@ func getDialogWithSampleElements() model.Dialog {
 			HelpText:    "This a regular input in an interactive dialog triggered by a test integration.",
 		}, {
 			DisplayName: "Email",
-			Name:        "someemail",
+			Name:        dialogElementNameEmail,
 			Type:        "text",
 			SubType:     "email",
 			Placeholder: "placeholder@bladekick.com",
