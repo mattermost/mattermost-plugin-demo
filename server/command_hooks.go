@@ -16,7 +16,7 @@ const (
 
 	dialogElementNameNumber = "somenumber"
 
-	commandDialogHelp = "###### Open Dialog Slash Command Help\n" +
+	commandDialogHelp = "###### Interactive Dialog Slash Command Help\n" +
 		"- `/dialog` - Open an Interactive Dialog with a few elements\n" +
 		"- `/dialog no-elements` - Open an Interactive Dialog with no elements\n" +
 		"- `/dialog help` - Show this help text"
