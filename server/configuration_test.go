@@ -104,11 +104,16 @@ func TestOnConfigurationChange(t *testing.T) {
 			api := test.SetupAPI()
 			defer api.AssertExpectations(t)
 
+			helpers := &plugintest.Helpers{}
+			helpers.On("EnsureBot", mock.AnythingOfType("*model.Bot")).Return(model.NewId(), nil)
+			defer helpers.AssertExpectations(t)
+
 			p := Plugin{}
 			p.setConfiguration(&configuration{
 				demoChannelIds: demoChannelIds,
 			})
 			p.SetAPI(api)
+			p.SetHelpers(helpers)
 
 			// The configuration set here allows us to test calling the
 			// "OnConfigurationChange" hook from multiple states

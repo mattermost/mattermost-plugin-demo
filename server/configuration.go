@@ -156,7 +156,7 @@ func (p *Plugin) diffConfiguration(newConfiguration *configuration) {
 		}
 
 		if _, err := p.API.CreatePost(&model.Post{
-			UserId:    newConfiguration.demoUserId,
+			UserId:    p.botId,
 			ChannelId: demoChannelId,
 			Message:   "OnConfigChange: loading new configuration",
 			Type:      "custom_demo_plugin",
@@ -185,6 +185,17 @@ func (p *Plugin) OnConfigurationChange() error {
 	if err != nil {
 		return errors.Wrap(err, "failed to ensure demo user")
 	}
+
+	botId, ensureBotError := p.Helpers.EnsureBot(&model.Bot{
+		Username:    "demoplugin",
+		DisplayName: "Demo Plugin Bot",
+		Description: "A bot account created by the demo plugin.",
+	})
+	if ensureBotError != nil || botId == "" {
+		return errors.Wrap(err, "failed to ensure demo bot.")
+	}
+
+	p.botId = botId
 
 	configuration.demoChannelIds, err = p.ensureDemoChannels(configuration)
 	if err != nil {
