@@ -17,10 +17,10 @@ func (p *Plugin) registerCommand(teamId string) error {
 		TeamId:           teamId,
 		Trigger:          CommandTrigger,
 		AutoComplete:     true,
-		AutoCompleteHint: "(true|false)",
-		AutoCompleteDesc: "Enables or disables the demo plugin hooks.",
+		AutoCompleteHint: "(true|false|ephemeral)",
+		AutoCompleteDesc: "Enables or disables the demo plugin hooks, or demonstrates an ephemeral post capabilities.",
 		DisplayName:      "Demo Plugin Command",
-		Description:      "A command used to enable or disable the demo plugin hooks.",
+		Description:      "A command used to enable or disable the demo plugin hooks, or demonstrate ephemeral post capabilities.",
 	}); err != nil {
 		return errors.Wrap(err, "failed to register command")
 	}
@@ -82,6 +82,45 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			Text:         "Disabled demo plugin hooks.",
 		}, nil
+	} else if strings.HasSuffix(args.Command, "ephemeral") {
+
+		URL := fmt.Sprintf("%s", *p.API.GetConfig().ServiceSettings.SiteURL)
+
+		post := &model.Post{
+			ChannelId: args.ChannelId,
+			UserId:    args.UserId,
+			Message:   "test ephemeral actions",
+			Props: model.StringInterface{
+				"attachments": []*model.SlackAttachment{
+					{
+						Actions: []*model.PostAction{
+							{
+								Id: model.NewId(),
+								Integration: &model.PostActionIntegration{
+									Context: model.StringInterface{
+										"count": 0,
+									},
+									URL: fmt.Sprintf("%s/plugins/%s/ephemeral/update", URL, manifest.Id),
+								},
+								Type: model.POST_ACTION_TYPE_BUTTON,
+								Name: "Update",
+							},
+							{
+								Id: model.NewId(),
+								Integration: &model.PostActionIntegration{
+									Context: model.StringInterface{},
+									URL:     fmt.Sprintf("%s/plugins/%s/ephemeral/delete", URL, manifest.Id),
+								},
+								Type: model.POST_ACTION_TYPE_BUTTON,
+								Name: "Delete",
+							},
+						},
+					},
+				},
+			},
+		}
+		p.API.SendEphemeralPost(args.UserId, post)
+		return &model.CommandResponse{}, nil
 	}
 
 	return &model.CommandResponse{
