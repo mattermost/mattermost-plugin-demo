@@ -191,8 +191,8 @@ func (p *Plugin) OnConfigurationChange() error {
 		DisplayName: "Demo Plugin Bot",
 		Description: "A bot account created by the demo plugin.",
 	})
-	if ensureBotError != nil || botId == "" {
-		return errors.Wrap(err, "failed to ensure demo bot.")
+	if ensureBotError != nil {
+		return errors.Wrap(ensureBotError, "failed to ensure demo bot.")
 	}
 
 	p.botId = botId
