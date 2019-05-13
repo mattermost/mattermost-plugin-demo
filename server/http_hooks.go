@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/mattermost/mattermost-server/model"
@@ -53,13 +54,43 @@ func (p *Plugin) handleHello(w http.ResponseWriter, r *http.Request) {
 
 func (p *Plugin) handleEphemeralUpdate(w http.ResponseWriter, r *http.Request) {
 	request := model.PostActionIntegrationRequestFromJson(r.Body)
+	URL := fmt.Sprintf("%s", *p.API.GetConfig().ServiceSettings.SiteURL)
+
+	count := int(request.Context["count"].(float64)) + 1
 
 	post := &model.Post{
 		Id:        request.PostId,
 		ChannelId: request.ChannelId,
 		UserId:    request.UserId,
-		Message:   "updated ephemeral action",
-		Props:     model.StringInterface{},
+		Message:   fmt.Sprintf("updated ephemeral action %d", count),
+		Props: model.StringInterface{
+			"attachments": []*model.SlackAttachment{
+				{
+					Actions: []*model.PostAction{
+						{
+							Id: model.NewId(),
+							Integration: &model.PostActionIntegration{
+								Context: model.StringInterface{
+									"count": count,
+								},
+								URL: fmt.Sprintf("%s/plugins/%s/ephemeral/update", URL, manifest.Id),
+							},
+							Type: model.POST_ACTION_TYPE_BUTTON,
+							Name: "Update",
+						},
+						{
+							Id: model.NewId(),
+							Integration: &model.PostActionIntegration{
+								Context: model.StringInterface{},
+								URL:     fmt.Sprintf("%s/plugins/%s/ephemeral/delete", URL, manifest.Id),
+							},
+							Type: model.POST_ACTION_TYPE_BUTTON,
+							Name: "Delete",
+						},
+					},
+				},
+			},
+		},
 	}
 	p.API.UpdateEphemeralPost(request.UserId, post)
 
