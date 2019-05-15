@@ -56,7 +56,7 @@ func (p *Plugin) handleEphemeralUpdate(w http.ResponseWriter, r *http.Request) {
 	request := model.PostActionIntegrationRequestFromJson(r.Body)
 	URL := fmt.Sprintf("%s", *p.API.GetConfig().ServiceSettings.SiteURL)
 
-	count := int(request.Context["count"].(float64)) + 1
+	count := request.Context["count"].(float64) + 1
 
 	post := &model.Post{
 		Id:        request.PostId,
@@ -75,7 +75,7 @@ func (p *Plugin) handleEphemeralUpdate(w http.ResponseWriter, r *http.Request) {
 								URL: fmt.Sprintf("%s/plugins/%s/ephemeral/update", URL, manifest.Id),
 							},
 							Type: model.POST_ACTION_TYPE_BUTTON,
-							Name: fmt.Sprintf("Update %d", count),
+							Name: fmt.Sprintf("Update %d", int(count)),
 						},
 						{
 							Integration: &model.PostActionIntegration{
