@@ -62,13 +62,12 @@ func (p *Plugin) handleEphemeralUpdate(w http.ResponseWriter, r *http.Request) {
 		Id:        request.PostId,
 		ChannelId: request.ChannelId,
 		UserId:    request.UserId,
-		Message:   fmt.Sprintf("updated ephemeral action %d", count),
+		Message:   "updated ephemeral action",
 		Props: model.StringInterface{
 			"attachments": []*model.SlackAttachment{
 				{
 					Actions: []*model.PostAction{
 						{
-							Id: model.NewId(),
 							Integration: &model.PostActionIntegration{
 								Context: model.StringInterface{
 									"count": count,
@@ -76,10 +75,9 @@ func (p *Plugin) handleEphemeralUpdate(w http.ResponseWriter, r *http.Request) {
 								URL: fmt.Sprintf("%s/plugins/%s/ephemeral/update", URL, manifest.Id),
 							},
 							Type: model.POST_ACTION_TYPE_BUTTON,
-							Name: "Update",
+							Name: fmt.Sprintf("Update %d", count),
 						},
 						{
-							Id: model.NewId(),
 							Integration: &model.PostActionIntegration{
 								Context: model.StringInterface{},
 								URL:     fmt.Sprintf("%s/plugins/%s/ephemeral/delete", URL, manifest.Id),
@@ -95,7 +93,6 @@ func (p *Plugin) handleEphemeralUpdate(w http.ResponseWriter, r *http.Request) {
 	p.API.UpdateEphemeralPost(request.UserId, post)
 
 	resp := &model.PostActionIntegrationResponse{}
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(resp.ToJson())
 
@@ -110,7 +107,6 @@ func (p *Plugin) handleEphemeralDelete(w http.ResponseWriter, r *http.Request) {
 	p.API.DeleteEphemeralPost(request.UserId, post)
 
 	resp := &model.PostActionIntegrationResponse{}
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(resp.ToJson())
 }
