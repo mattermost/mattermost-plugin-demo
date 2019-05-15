@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/mattermost/mattermost-server/model"
@@ -67,6 +68,7 @@ func TestOnConfigurationChange(t *testing.T) {
 
 	for name, test := range map[string]struct {
 		SetupAPI         func() *plugintest.API
+		SetupHelpers     func() *plugintest.Helpers
 		preConfiguration *configuration
 		ShouldError      bool
 	}{
@@ -80,6 +82,11 @@ func TestOnConfigurationChange(t *testing.T) {
 				api.On("GetChannelByNameForTeamName", "", "", false).Return(&model.Channel{}, nil)
 
 				return api
+			},
+			SetupHelpers: func() *plugintest.Helpers {
+				helpers := &plugintest.Helpers{}
+				helpers.On("EnsureBot", mock.AnythingOfType("*model.Bot")).Return(model.NewId(), nil)
+				return helpers
 			},
 			preConfiguration: apiConfiguration,
 			ShouldError:      false,
@@ -96,19 +103,46 @@ func TestOnConfigurationChange(t *testing.T) {
 
 				return api
 			},
+			SetupHelpers: func() *plugintest.Helpers {
+				helpers := &plugintest.Helpers{}
+				helpers.On("EnsureBot", mock.AnythingOfType("*model.Bot")).Return(model.NewId(), nil)
+				return helpers
+			},
 			preConfiguration: &configuration{EnableMentionUser: true},
 			ShouldError:      false,
+		},
+		"failure to ensure bot": {
+			SetupAPI: func() *plugintest.API {
+				api := &plugintest.API{}
+				api.On("LoadPluginConfiguration", apiConfiguration).Return(nil)
+				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
+				api.On("GetUserByUsername", mock.AnythingOfType("string")).Return(user, nil)
+				api.On("CreateTeamMember", teamId, "").Return(&model.TeamMember{}, nil)
+
+				return api
+			},
+			SetupHelpers: func() *plugintest.Helpers {
+				helpers := &plugintest.Helpers{}
+				helpers.On("EnsureBot", mock.AnythingOfType("*model.Bot")).Return("", errors.New("some error"))
+				return helpers
+			},
+			preConfiguration: &configuration{EnableMentionUser: true},
+			ShouldError:      true,
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			api := test.SetupAPI()
 			defer api.AssertExpectations(t)
 
+			helpers := test.SetupHelpers()
+			defer helpers.AssertExpectations(t)
+
 			p := Plugin{}
 			p.setConfiguration(&configuration{
 				demoChannelIds: demoChannelIds,
 			})
 			p.SetAPI(api)
+			p.SetHelpers(helpers)
 
 			// The configuration set here allows us to test calling the
 			// "OnConfigurationChange" hook from multiple states
