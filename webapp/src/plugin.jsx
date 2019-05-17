@@ -14,6 +14,8 @@ import LeftSidebarHeader from './components/left_sidebar_header';
 import LinkTooltip from './components/link_tooltip';
 import UserAttributes from './components/user_attributes';
 import UserActions from './components/user_actions';
+import RHSView from './components/right_hand_sidebar';
+
 import PostType from './components/post_type';
 import {
     MainMenuMobileIcon,
@@ -22,13 +24,14 @@ import {
 } from './components/icons';
 import {
     mainMenuAction,
-    channelHeaderButtonAction,
     fileUploadMethodAction,
     postDropdownMenuAction,
     websocketStatusChange,
     getStatus,
 } from './actions';
 import reducer from './reducer';
+
+const showPluginRHS = window.rhsPluginAction.showPluginRHS;
 
 function getTranslations(locale) {
     switch (locale) {
@@ -50,10 +53,11 @@ export default class DemoPlugin {
         registry.registerBottomTeamSidebarComponent(
             BottomTeamSidebar,
         );
+        registry.registerRightHandSidebarComponent(RHSView);
 
         registry.registerChannelHeaderButtonAction(
             <ChannelHeaderButtonIcon/>,
-            () => store.dispatch(channelHeaderButtonAction()),
+            () => showPluginRHS(),
             <FormattedMessage
                 id='plugin.name'
                 defaultMessage='Demo Plugin'
