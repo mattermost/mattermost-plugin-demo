@@ -21,9 +21,6 @@ workflows:
             - plugin-ci/build
       - plugin-ci/deploy-release:
           filters:
-            branches:
-              only:
-                - master
             tags:
               only:
                 - /^v.*/
