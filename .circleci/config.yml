@@ -6,9 +6,18 @@ orbs:
 workflows:
   ci-build:
     jobs:
-      - plugin-ci/lint
-      - plugin-ci/test
-      - plugin-ci/build
+      - plugin-ci/lint:
+          filters:
+            tags:
+              only: /^v.*/
+      - plugin-ci/test:
+          filters:
+            tags:
+              only: /^v.*/
+      - plugin-ci/build:
+          filters:
+            tags:
+              only: /^v.*/
       - plugin-ci/deploy-ci:
           filters:
             branches:
