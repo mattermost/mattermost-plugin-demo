@@ -57,44 +57,45 @@ func (p *Plugin) emitStatusChange() {
 func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	configuration := p.getConfiguration()
 
-	if !strings.HasPrefix(args.Command, "/"+CommandTrigger) {
-		return &model.CommandResponse{
-			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			Text:         fmt.Sprintf("Unknown command: " + args.Command),
-		}, nil
-	}
+	if strings.HasPrefix(args.Command, "/"+CommandTrigger) {
 
-	if strings.HasSuffix(args.Command, "true") {
-		if !configuration.disabled {
+		if strings.HasSuffix(args.Command, "true") {
+			if !configuration.disabled {
+				return &model.CommandResponse{
+					ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+					Text:         "The demo plugin hooks are already enabled.",
+				}, nil
+			}
+
+			configuration.disabled = false
+			p.emitStatusChange()
+
 			return &model.CommandResponse{
 				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-				Text:         "The demo plugin hooks are already enabled.",
+				Text:         "Enabled demo plugin hooks.",
 			}, nil
-		}
 
-		configuration.disabled = false
-		p.emitStatusChange()
+		} else if strings.HasSuffix(args.Command, "false") {
+			if configuration.disabled {
+				return &model.CommandResponse{
+					ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+					Text:         "The demo plugin hooks are already disabled.",
+				}, nil
+			}
 
-		return &model.CommandResponse{
-			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			Text:         "Enabled demo plugin hooks.",
-		}, nil
+			configuration.disabled = true
+			p.emitStatusChange()
 
-	} else if strings.HasSuffix(args.Command, "false") {
-		if configuration.disabled {
 			return &model.CommandResponse{
 				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-				Text:         "The demo plugin hooks are already disabled.",
+				Text:         "Disabled demo plugin hooks.",
 			}, nil
 		}
-
-		configuration.disabled = true
-		p.emitStatusChange()
-
-		return &model.CommandResponse{
-			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			Text:         "Disabled demo plugin hooks.",
-		}, nil
+	} else if strings.HasPrefix(args.Command, "/"+CommandTriggerCrash) {
+		y := 0
+		x := 5 / y
+		p.API.LogError("{}", x)
+		return &model.CommandResponse{}, nil
 	}
 
 	return &model.CommandResponse{
