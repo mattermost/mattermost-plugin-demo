@@ -5,6 +5,7 @@ go 1.12
 require (
 	github.com/Masterminds/squirrel v1.1.0 // indirect
 	github.com/blang/semver v3.5.1+incompatible
+<<<<<<< HEAD
 	github.com/dyatlov/go-opengraph v0.0.0-20180429202543-816b6608b3c8 // indirect
 	github.com/go-gorp/gorp v2.0.0+incompatible // indirect
 	github.com/go-ldap/ldap v3.0.3+incompatible // indirect
@@ -42,6 +43,25 @@ require (
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
+=======
+	github.com/go-ldap/ldap v3.0.3+incompatible // indirect
+	github.com/hashicorp/go-hclog v0.9.0 // indirect
+	github.com/lib/pq v1.1.1 // indirect
+	github.com/mattermost/go-i18n v1.10.0 // indirect
+	github.com/mattermost/mattermost-server v0.0.0-20190508185452-66cb36f5dc35
+	github.com/nicksnyder/go-i18n v1.10.0 // indirect
+	github.com/pelletier/go-toml v1.4.0 // indirect
+	github.com/pkg/errors v0.8.1
+	github.com/stretchr/objx v0.2.0 // indirect
+	github.com/stretchr/testify v1.3.0
+	go.uber.org/atomic v1.4.0 // indirect
+	go.uber.org/zap v1.10.0 // indirect
+	golang.org/x/crypto v0.0.0-20190506204251-e1dfcc566284 // indirect
+	golang.org/x/net v0.0.0-20190503192946-f4e77d36d62c // indirect
+	golang.org/x/sys v0.0.0-20190508100423-12bbe5a7a520 // indirect
+	google.golang.org/genproto v0.0.0-20190508193815-b515fa19cec8 // indirect
+	google.golang.org/grpc v1.20.1 // indirect
+>>>>>>> master
 )
 
 // Workaround for https://github.com/golang/go/issues/30831 and fallout.
