@@ -88,7 +88,7 @@ This plugin registers a bottom team sidebar component displaying a plugin icon:
 
 ## Channel Header Button Action
 
-This plugin registers a channel header button action displaying a plugin icon that, when clicked, triggers the root component:
+This plugin registers a channel header button action displaying a plugin icon that, when clicked, triggers the right-hand sidebar component:
 
 ![channel header button](docs/channel_header_button.png)
 
@@ -120,3 +120,9 @@ This plugin registers a file upload action that, when clicked, triggers the root
 
 This plugin registers a link tooltip component, whose content is fully customizable. It is displayed when the mouse cursor hovers over a link in a post.
 ![link tooltip](docs/link_tooltip.png)
+
+## Righ-Hand Sidebar
+
+This plugin registers a right-hand sidebar component, whose content is fully customizable and it is triggered by calling an action where required. In this demo plugin, it is triggered by the Channel Header Action Button.
+
+![right-hand sidebar](docs/right_hand_sidebar.png)
