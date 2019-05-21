@@ -53,11 +53,16 @@ export default class DemoPlugin {
         registry.registerBottomTeamSidebarComponent(
             BottomTeamSidebar,
         );
-        registry.registerRightHandSidebarComponent(RHSView);
+        registry.registerRightHandSidebarComponent(
+            RHSView,
+            <FormattedMessage
+                id='plugin.name'
+                defaultMessage='Demo Plugin'
+            />);
 
         registry.registerChannelHeaderButtonAction(
             <ChannelHeaderButtonIcon/>,
-            () => showPluginRHS(),
+            () => showPluginRHS(pluginId),
             <FormattedMessage
                 id='plugin.name'
                 defaultMessage='Demo Plugin'
