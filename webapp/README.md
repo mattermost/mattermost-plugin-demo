@@ -121,7 +121,7 @@ This plugin registers a file upload action that, when clicked, triggers the root
 This plugin registers a link tooltip component, whose content is fully customizable. It is displayed when the mouse cursor hovers over a link in a post.
 ![link tooltip](docs/link_tooltip.png)
 
-## Righ-Hand Sidebar
+## Right-Hand Sidebar
 
 This plugin registers a right-hand sidebar component, whose content is fully customizable and it is triggered by calling an action where required. In this demo plugin, it is triggered by the Channel Header Action Button.
 
