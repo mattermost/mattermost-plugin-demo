@@ -86,6 +86,10 @@ func (p *Plugin) OnDeactivate() error {
 		if err := p.API.UnregisterCommand(team.Id, CommandTrigger); err != nil {
 			return errors.Wrap(err, "failed to unregister command")
 		}
+
+		if err := p.API.UnregisterCommand(team.Id, CommandTriggerCrash); err != nil {
+			return errors.Wrap(err, "failed to unregister command")
+		}
 	}
 
 	return nil

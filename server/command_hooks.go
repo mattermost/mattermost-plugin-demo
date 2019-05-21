@@ -11,6 +11,7 @@ import (
 )
 
 const CommandTrigger = "demo_plugin"
+const CommandTriggerCrash = "crash"
 
 func (p *Plugin) registerCommand(teamId string) error {
 	if err := p.API.RegisterCommand(&model.Command{
@@ -21,6 +22,18 @@ func (p *Plugin) registerCommand(teamId string) error {
 		AutoCompleteDesc: "Enables or disables the demo plugin hooks.",
 		DisplayName:      "Demo Plugin Command",
 		Description:      "A command used to enable or disable the demo plugin hooks.",
+	}); err != nil {
+		return errors.Wrap(err, "failed to register command")
+	}
+
+	if err := p.API.RegisterCommand(&model.Command{
+		TeamId:           teamId,
+		Trigger:          CommandTriggerCrash,
+		AutoComplete:     true,
+		AutoCompleteHint: "",
+		AutoCompleteDesc: "Crashes plugin.",
+		DisplayName:      "Crashes plugin",
+		Description:      "A command used to crash the plugin.",
 	}); err != nil {
 		return errors.Wrap(err, "failed to register command")
 	}
