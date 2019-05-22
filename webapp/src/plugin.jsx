@@ -32,8 +32,6 @@ import {
 } from './actions';
 import reducer from './reducer';
 
-const showRHSPlug = window.showRHSPlugAction;
-
 function getTranslations(locale) {
     switch (locale) {
     case 'en':
@@ -54,7 +52,7 @@ export default class DemoPlugin {
         registry.registerBottomTeamSidebarComponent(
             BottomTeamSidebar,
         );
-        registry.registerRightHandSidebarComponent(
+        const {showRHSPlug} = registry.registerRightHandSidebarComponent(
             RHSView,
             <FormattedMessage
                 id='plugin.name'
