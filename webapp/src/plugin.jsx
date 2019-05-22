@@ -1,4 +1,5 @@
 import React from 'react';
+import {bindActionCreators} from 'redux';
 
 import {FormattedMessage} from 'react-intl';
 
@@ -31,7 +32,7 @@ import {
 } from './actions';
 import reducer from './reducer';
 
-const showPluginRHS = window.rhsPluginAction.showPluginRHS;
+const showRHSPlug = window.showRHSPlugAction;
 
 function getTranslations(locale) {
     switch (locale) {
@@ -60,9 +61,11 @@ export default class DemoPlugin {
                 defaultMessage='Demo Plugin'
             />);
 
+        const rhsAction = bindActionCreators({showRHSPlug}, store.dispatch);
+
         registry.registerChannelHeaderButtonAction(
             <ChannelHeaderButtonIcon/>,
-            () => showPluginRHS(pluginId),
+            () => rhsAction.showRHSPlug(pluginId),
             <FormattedMessage
                 id='plugin.name'
                 defaultMessage='Demo Plugin'
