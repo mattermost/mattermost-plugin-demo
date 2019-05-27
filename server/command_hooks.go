@@ -29,7 +29,7 @@ func (p *Plugin) registerCommand(teamId string) error {
 		Trigger:          CommandTriggerCrash,
 		AutoComplete:     true,
 		AutoCompleteHint: "",
-		AutoCompleteDesc: "Crashes plugin.",
+		AutoCompleteDesc: "Crashes Demo Plugin",
 	}); err != nil {
 		return errors.Wrap(err, "failed to register command")
 	}
