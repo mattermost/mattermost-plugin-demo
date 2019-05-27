@@ -61,8 +61,7 @@ func (p *Plugin) handleEphemeralUpdate(w http.ResponseWriter, r *http.Request) {
 	post := &model.Post{
 		Id:        request.PostId,
 		ChannelId: request.ChannelId,
-		UserId:    request.UserId,
-		Message:   "updated ephemeral action",
+		Message: "updated ephemeral action",
 		Props: model.StringInterface{
 			"attachments": []*model.SlackAttachment{
 				{

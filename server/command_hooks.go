@@ -11,7 +11,7 @@ import (
 )
 
 const CommandTriggerPlugin = "demo_plugin"
-const CommandTriggerEphemeral = "demo_ephemeral"
+const CommandTriggerEphemeral = "ephemeral"
 
 func (p *Plugin) registerCommand(teamId string) error {
 	if err := p.API.RegisterCommand(&model.Command{
@@ -96,8 +96,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 
 		post := &model.Post{
 			ChannelId: args.ChannelId,
-			UserId:    args.UserId,
-			Message:   "test ephemeral actions",
+			Message: "test ephemeral actions",
 			Props: model.StringInterface{
 				"attachments": []*model.SlackAttachment{
 					{
