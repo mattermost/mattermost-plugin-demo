@@ -31,7 +31,7 @@ func (p *Plugin) registerCommand(teamId string) error {
 		Trigger:          CommandTriggerCrash,
 		AutoComplete:     true,
 		AutoCompleteHint: "",
-		AutoCompleteDesc: "Crashes plugin.",
+		AutoCompleteDesc: "Crashes Demo Plugin",
 		DisplayName:      "Crashes plugin",
 		Description:      "A command used to crash the plugin.",
 	}); err != nil {
