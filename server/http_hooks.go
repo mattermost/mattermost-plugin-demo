@@ -54,6 +54,11 @@ func (p *Plugin) handleHello(w http.ResponseWriter, r *http.Request) {
 
 func (p *Plugin) handleEphemeralUpdate(w http.ResponseWriter, r *http.Request) {
 	request := model.PostActionIntegrationRequestFromJson(r.Body)
+
+	if request == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 	siteURL := *p.API.GetConfig().ServiceSettings.SiteURL
 
 	count := request.Context["count"].(float64) + 1
@@ -71,7 +76,7 @@ func (p *Plugin) handleEphemeralUpdate(w http.ResponseWriter, r *http.Request) {
 								Context: model.StringInterface{
 									"count": count,
 								},
-								URL: fmt.Sprintf("%s/plugins/%s/ephemeral/update", URL, manifest.Id),
+								URL: fmt.Sprintf("%s/plugins/%s/ephemeral/update", siteURL, manifest.Id),
 							},
 							Type: model.POST_ACTION_TYPE_BUTTON,
 							Name: fmt.Sprintf("Update %d", int(count)),
@@ -100,6 +105,11 @@ func (p *Plugin) handleEphemeralUpdate(w http.ResponseWriter, r *http.Request) {
 func (p *Plugin) handleEphemeralDelete(w http.ResponseWriter, r *http.Request) {
 	request := model.PostActionIntegrationRequestFromJson(r.Body)
 
+	if request == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	
 	post := &model.Post{
 		Id: request.PostId,
 	}
