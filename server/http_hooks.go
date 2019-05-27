@@ -57,8 +57,6 @@ func (p *Plugin) handleHello(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
-	config := p.getConfiguration()
-
 	request := model.SubmitDialogRequestFromJson(r.Body)
 	if request == nil {
 		p.API.LogError("failed to decode SubmitDialogRequest")
@@ -98,7 +96,7 @@ func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rootPost, appErr := p.API.CreatePost(&model.Post{
-		UserId:    config.demoUserId,
+		UserId:    p.botId,
 		ChannelId: request.ChannelId,
 		Message:   fmt.Sprintf(msg, user.Username),
 	})
@@ -112,7 +110,7 @@ func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
 		request.Submission[dialogElementNameEmail] = "xxxxxxxxxxx"
 
 		if _, appErr = p.API.CreatePost(&model.Post{
-			UserId:    config.demoUserId,
+			UserId:    p.botId,
 			ChannelId: request.ChannelId,
 			RootId:    rootPost.Id,
 			Message:   "Data:",
@@ -128,8 +126,6 @@ func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Plugin) handleDialog2(w http.ResponseWriter, r *http.Request) {
-	config := p.getConfiguration()
-
 	request := model.SubmitDialogRequestFromJson(r.Body)
 	if request == nil {
 		p.API.LogError("failed to decode SubmitDialogRequest")
@@ -145,7 +141,7 @@ func (p *Plugin) handleDialog2(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, appErr = p.API.CreatePost(&model.Post{
-		UserId:    config.demoUserId,
+		UserId:    p.botId,
 		ChannelId: request.ChannelId,
 		Message:   fmt.Sprintf("@%v confirmed an Interactive Dialog", user.Username),
 	}); appErr != nil {
