@@ -15,4 +15,7 @@ type Plugin struct {
 	// configuration is the active plugin configuration. Consult getConfiguration and
 	// setConfiguration for usage.
 	configuration *configuration
+
+	// BotId of the created bot account.
+	botId string
 }
