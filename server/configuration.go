@@ -220,7 +220,7 @@ func (p *Plugin) ensureDemoUser(configuration *configuration) (string, error) {
 	if user == nil {
 		user, err = p.API.CreateUser(&model.User{
 			Username:  configuration.Username,
-			Password:  "P@ssw0rd!!",
+			Password:  "password",
 			Email:     fmt.Sprintf("%s@example.com", configuration.Username),
 			Nickname:  "Demo Day",
 			FirstName: "Demo",

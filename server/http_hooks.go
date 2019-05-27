@@ -107,10 +107,7 @@ func (p *Plugin) handleEphemeralDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	post := &model.Post{
-		Id: request.PostId,
-	}
-	p.API.DeleteEphemeralPost(request.UserId, post)
+	p.API.DeleteEphemeralPost(request.UserId, request.PostId)
 
 	resp := &model.PostActionIntegrationResponse{}
 	w.WriteHeader(http.StatusOK)
