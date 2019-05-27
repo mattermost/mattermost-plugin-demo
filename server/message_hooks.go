@@ -36,7 +36,7 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 			p.API.SendEphemeralPost(post.UserId, &model.Post{
 				UserId:    configuration.demoUserId,
 				ChannelId: channelId,
-				Message:   "Posting is not allowed in this channel.",
+				Message:   p.Helpers.TContext(c, "message.posting_not_allowed"),
 			})
 
 			return nil, "disallowing post in demo channel"
@@ -48,7 +48,7 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 		p.API.SendEphemeralPost(post.UserId, &model.Post{
 			UserId:    configuration.demoUserId,
 			ChannelId: post.ChannelId,
-			Message:   "You must not talk about the demo plugin user.",
+			Message:   p.Helpers.TContext(c, "message.shhh"),
 		})
 
 		return nil, "disallowing mention of demo plugin user"
@@ -81,7 +81,7 @@ func (p *Plugin) MessageWillBeUpdated(c *plugin.Context, newPost, oldPost *model
 		p.API.SendEphemeralPost(newPost.UserId, &model.Post{
 			UserId:    configuration.demoUserId,
 			ChannelId: newPost.ChannelId,
-			Message:   "You must not talk about the demo plugin user.",
+			Message:   p.Helpers.TContext(c, "message.shhh"),
 		})
 
 		return nil, "disallowing mention of demo plugin user"
@@ -121,7 +121,7 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 		return
 	}
 
-	msg := fmt.Sprintf("MessageHasBeenPosted: @%s, ~%s", user.Username, channel.Name)
+	msg := p.Helpers.TServer("messagehasbeenposted", map[string]interface{}{"Username": user.Username, "ChannelName": channel.Name})
 	if err := p.postPluginMessage(channel.TeamId, msg); err != nil {
 		p.API.LogError(
 			"failed to post MessageHasBeenPosted message",
@@ -177,7 +177,7 @@ func (p *Plugin) MessageHasBeenUpdated(c *plugin.Context, newPost, oldPost *mode
 		return
 	}
 
-	msg := fmt.Sprintf("MessageHasBeenUpdated: @%s, ~%s", user.Username, channel.Name)
+	msg := p.Helpers.TServer("messagehasbeenupdated", map[string]interface{}{"Username": user.Username, "ChannelName": channel.Name})
 	if err := p.postPluginMessage(channel.TeamId, msg); err != nil {
 		p.API.LogError(
 			"failed to post MessageHasBeenUpdated message",

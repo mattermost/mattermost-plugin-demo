@@ -181,6 +181,12 @@ func (p *Plugin) OnConfigurationChange() error {
 		return errors.Wrap(loadConfigErr, "failed to load plugin configuration")
 	}
 
+	// Setup translations
+	config := p.API.GetConfig()
+	if locError := p.Helpers.SetLocalization(&config.LocalizationSettings, "plugins/"+manifest.Id+"/assets"); err != nil {
+		return errors.Wrap(locError, "failed to set localization")
+	}
+
 	configuration.demoUserId, err = p.ensureDemoUser(configuration)
 	if err != nil {
 		return errors.Wrap(err, "failed to ensure demo user")

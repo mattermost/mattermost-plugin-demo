@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -47,7 +46,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 	if !strings.HasPrefix(args.Command, "/"+CommandTrigger) {
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			Text:         fmt.Sprintf("Unknown command: " + args.Command),
+			Text:         p.Helpers.TContext(c, "command.unknown_command", map[string]interface{}{"Command": args.Command}),
 		}, nil
 	}
 
@@ -55,7 +54,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		if !configuration.disabled {
 			return &model.CommandResponse{
 				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-				Text:         "The demo plugin hooks are already enabled.",
+				Text:         p.Helpers.TContext(c, "command.already_enabled"),
 			}, nil
 		}
 
@@ -64,14 +63,14 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			Text:         "Enabled demo plugin hooks.",
+			Text:         p.Helpers.TContext(c, "command.enabled"),
 		}, nil
 
 	} else if strings.HasSuffix(args.Command, "false") {
 		if configuration.disabled {
 			return &model.CommandResponse{
 				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-				Text:         "The demo plugin hooks are already disabled.",
+				Text:         p.Helpers.TContext(c, "command.already_disabled"),
 			}, nil
 		}
 
@@ -80,12 +79,12 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			Text:         "Disabled demo plugin hooks.",
+			Text:         p.Helpers.TContext(c, "command.disabled"),
 		}, nil
 	}
 
 	return &model.CommandResponse{
 		ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-		Text:         fmt.Sprintf("Unknown command action: " + args.Command),
+		Text:         p.Helpers.TContext(c, "command.unknown_command", map[string]interface{}{"Command": args.Command}),
 	}, nil
 }

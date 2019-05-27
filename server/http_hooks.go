@@ -43,5 +43,5 @@ func (p *Plugin) handleStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Plugin) handleHello(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hello World!"))
+	w.Write([]byte(p.Helpers.TServer("helloworld")))
 }

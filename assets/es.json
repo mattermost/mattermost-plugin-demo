@@ -1,0 +1,50 @@
+[
+    {
+        "id": "command.already_enabled",
+        "translation": "Los ganchos del complemento de demostración ya están habilitados."
+    },
+    {
+        "id": "command.enabled",
+        "translation": "Habilitado enganches de complementos de demostración."
+    },
+    {
+        "id": "command.already_disabled",
+        "translation": "Los ganchos del complemento de demostración ya están deshabilitados."
+    },
+    {
+        "id": "command.disabled",
+        "translation": "Deshabilitado el complemento plugin de ganchos."
+    },
+    {
+        "id": "command.unknown_command",
+        "translation": "Acción de comando desconocido {{.Command}}"
+    },
+    {
+        "id": "onactivate",
+        "translation": "Activar: {{.ManifestId}}"
+    },
+    {
+        "id": "ondeactivate",
+        "translation": "En Desactivar: {{.ManifestId}}"
+    },
+    {
+        "id": "message.posting_not_allowed",
+        "translation": "La publicación no está permitida en este canal."
+    },
+    {
+        "id": "message.shhh",
+        "translation": "No debes hablar del usuario del plugin demo."
+    },
+    {
+        "id": "messagehasbeenposted",
+        "translation": "El mensaje ha sido publicado: @{{.Username}}, ~{{.ChannelName}}"
+    },
+    {
+        "id": "messagehasbeenupdated",
+        "translation": "Mensaje ha sido actualizado: @{{.Username}}, ~{{.ChannelName}}"
+    },
+    {
+        "id": "helloworld",
+        "translation": "Hola Mundo!"
+    }
+]

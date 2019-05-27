@@ -46,7 +46,7 @@ func (p *Plugin) OnActivate() error {
 			continue
 		}
 
-		msg := fmt.Sprintf("OnActivate: %s", manifest.Id)
+		msg := p.Helpers.TServer("onactivate", map[string]interface{}{"ManifestId": manifest.Id})
 		if err := p.postPluginMessage(team.Id, msg); err != nil {
 			return errors.Wrap(err, "failed to post OnActivate message")
 		}
@@ -78,7 +78,7 @@ func (p *Plugin) OnDeactivate() error {
 			continue
 		}
 
-		msg := fmt.Sprintf("OnDeactivate: %s", manifest.Id)
+		msg := p.Helpers.TServer("ondeactivate", map[string]interface{}{"ManifestId": manifest.Id})
 		if err := p.postPluginMessage(team.Id, msg); err != nil {
 			return errors.Wrap(err, "failed to post OnDeactivate message")
 		}

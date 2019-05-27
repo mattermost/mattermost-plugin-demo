@@ -1,0 +1,50 @@
+[
+    {
+        "id": "command.already_enabled",
+        "translation": "The demo plugin hooks are already enabled."
+    },
+    {
+        "id": "command.enabled",
+        "translation": "Enabled demo plugin hooks."
+    },
+    {
+        "id": "command.already_disabled",
+        "translation": "The demo plugin hooks are already disabled."
+    },
+    {
+        "id": "command.disabled",
+        "translation": "Disabled demo plugin hooks."
+    },
+    {
+        "id": "command.unknown_command",
+        "translation": "Unknown command action {{.Command}}"
+    },
+    {
+        "id": "onactivate",
+        "translation": "OnActivate: {{.ManifestId}}"
+    },
+    {
+        "id": "ondeactivate",
+        "translation": "OnDeactivate: {{.ManifestId}}"
+    },
+    {
+        "id": "message.posting_not_allowed",
+        "translation": "Posting is not allowed in this channel."
+    },
+    {
+        "id": "message.shhh",
+        "translation": "You must not talk about the demo plugin user."
+    },
+    {
+        "id": "messagehasbeenposted",
+        "translation": "MessageHasBeenPosted: @{{.Username}}, ~{{.ChannelName}}"
+    },
+    {
+        "id": "messagehasbeenupdated",
+        "translation": "MessageHasBeenUpdated: @{{.Username}}, ~{{.ChannelName}}"
+    },
+    {
+        "id": "helloworld",
+        "translation": "Hello World!"
+    }
+]
