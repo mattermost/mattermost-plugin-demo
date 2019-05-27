@@ -92,36 +92,33 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		}
 	} else if strings.HasPrefix(args.Command, "/"+CommandTriggerEphemeral) {
 
-		URL := fmt.Sprintf("%s", *p.API.GetConfig().ServiceSettings.SiteURL)
+		siteURL := *p.API.GetConfig().ServiceSettings.SiteURL
 
 		post := &model.Post{
 			ChannelId: args.ChannelId,
-			Message: "test ephemeral actions",
+			Message:   "test ephemeral actions",
 			Props: model.StringInterface{
-				"attachments": []*model.SlackAttachment{
-					{
-						Actions: []*model.PostAction{
-							{
-								Integration: &model.PostActionIntegration{
-									Context: model.StringInterface{
-										"count": 0,
-									},
-									URL: fmt.Sprintf("%s/plugins/%s/ephemeral/update", URL, manifest.Id),
+				"attachments": []*model.SlackAttachment{{
+					Actions: []*model.PostAction{
+						{
+							Integration: &model.PostActionIntegration{
+								Context: model.StringInterface{
+									"count": 0,
 								},
-								Type: model.POST_ACTION_TYPE_BUTTON,
-								Name: "Update",
+								URL: fmt.Sprintf("%s/plugins/%s/ephemeral/update", siteURL, manifest.Id),
 							},
-							{
-								Integration: &model.PostActionIntegration{
-									Context: model.StringInterface{},
-									URL:     fmt.Sprintf("%s/plugins/%s/ephemeral/delete", URL, manifest.Id),
-								},
-								Type: model.POST_ACTION_TYPE_BUTTON,
-								Name: "Delete",
+							Type: model.POST_ACTION_TYPE_BUTTON,
+							Name: "Update",
+						},
+						{
+							Integration: &model.PostActionIntegration{
+								URL: fmt.Sprintf("%s/plugins/%s/ephemeral/delete", siteURL, manifest.Id),
 							},
+							Type: model.POST_ACTION_TYPE_BUTTON,
+							Name: "Delete",
 						},
 					},
-				},
+				}},
 			},
 		}
 		p.API.SendEphemeralPost(args.UserId, post)

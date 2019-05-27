@@ -66,32 +66,29 @@ func (p *Plugin) handleEphemeralUpdate(w http.ResponseWriter, r *http.Request) {
 	post := &model.Post{
 		Id:        request.PostId,
 		ChannelId: request.ChannelId,
-		Message: "updated ephemeral action",
+		Message:   "updated ephemeral action",
 		Props: model.StringInterface{
-   			"attachments": []*model.SlackAttachment{{
-				{
-					Actions: []*model.PostAction{
-						{
-							Integration: &model.PostActionIntegration{
-								Context: model.StringInterface{
-									"count": count,
-								},
-								URL: fmt.Sprintf("%s/plugins/%s/ephemeral/update", siteURL, manifest.Id),
+			"attachments": []*model.SlackAttachment{{
+				Actions: []*model.PostAction{
+					{
+						Integration: &model.PostActionIntegration{
+							Context: model.StringInterface{
+								"count": count,
 							},
-							Type: model.POST_ACTION_TYPE_BUTTON,
-							Name: fmt.Sprintf("Update %d", int(count)),
+							URL: fmt.Sprintf("%s/plugins/%s/ephemeral/update", siteURL, manifest.Id),
 						},
-						{
-							Integration: &model.PostActionIntegration{
-								Context: model.StringInterface{},
-								URL:     fmt.Sprintf("%s/plugins/%s/ephemeral/delete", URL, manifest.Id),
-							},
-							Type: model.POST_ACTION_TYPE_BUTTON,
-							Name: "Delete",
+						Type: model.POST_ACTION_TYPE_BUTTON,
+						Name: fmt.Sprintf("Update %d", int(count)),
+					},
+					{
+						Integration: &model.PostActionIntegration{
+							URL: fmt.Sprintf("%s/plugins/%s/ephemeral/delete", siteURL, manifest.Id),
 						},
+						Type: model.POST_ACTION_TYPE_BUTTON,
+						Name: "Delete",
 					},
 				},
-			},
+			}},
 		},
 	}
 	p.API.UpdateEphemeralPost(request.UserId, post)
@@ -109,7 +106,7 @@ func (p *Plugin) handleEphemeralDelete(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	
+
 	post := &model.Post{
 		Id: request.PostId,
 	}
