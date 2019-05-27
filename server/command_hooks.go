@@ -91,6 +91,11 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 				Text:         "Disabled demo plugin hooks.",
 			}, nil
 		}
+		
+		return &model.CommandResponse{
+			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			Text:         fmt.Sprintf("Unknown command: " + args.Command),
+		}, nil
 	} else if strings.HasPrefix(args.Command, "/"+CommandTriggerCrash) {
 		y := 0
 		x := 5 / y
