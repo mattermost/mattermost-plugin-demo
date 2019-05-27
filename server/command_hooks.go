@@ -20,8 +20,6 @@ func (p *Plugin) registerCommand(teamId string) error {
 		AutoComplete:     true,
 		AutoCompleteHint: "(true|false)",
 		AutoCompleteDesc: "Enables or disables the demo plugin hooks.",
-		DisplayName:      "Demo Plugin Command",
-		Description:      "A command used to enable or disable the demo plugin hooks.",
 	}); err != nil {
 		return errors.Wrap(err, "failed to register command")
 	}
@@ -32,8 +30,6 @@ func (p *Plugin) registerCommand(teamId string) error {
 		AutoComplete:     true,
 		AutoCompleteHint: "",
 		AutoCompleteDesc: "Crashes plugin.",
-		DisplayName:      "Crashes plugin",
-		Description:      "A command used to crash the plugin.",
 	}); err != nil {
 		return errors.Wrap(err, "failed to register command")
 	}
