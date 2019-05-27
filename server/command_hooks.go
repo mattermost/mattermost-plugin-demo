@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 
@@ -87,20 +88,29 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 				Text:         "Disabled demo plugin hooks.",
 			}, nil
 		}
-		
+
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			Text:         fmt.Sprintf("Unknown command: " + args.Command),
 		}, nil
 	} else if strings.HasPrefix(args.Command, "/"+CommandTriggerCrash) {
-		y := 0
-		x := 5 / y
-		p.API.LogError("{}", x)
-		return &model.CommandResponse{}, nil
+		p.crash()
+		return &model.CommandResponse{
+			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			Text:         fmt.Sprintf("Crashing plugin"),
+		}, nil
 	}
 
 	return &model.CommandResponse{
 		ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 		Text:         fmt.Sprintf("Unknown command: " + args.Command),
 	}, nil
+}
+
+func (p *Plugin) crash() {
+	go func() {
+		<-time.NewTimer(time.Second).C
+		y := 0
+		y = 1 / y
+	}()
 }
