@@ -59,6 +59,26 @@ This demo implementation logs a message to the demo channel whenever a user leav
 This demo implementation responds to a `/demo_plugin` command, allowing the user to enable
 or disable the demo plugin's hooks functionality (but leave the command and webapp enabled).
 
+It also registers a `/dialog` command. It allows allows the user to create an [Interactive Dialog](https://docs.mattermost.com/developer/interactive-dialogs.html).
+
+#### `/dialog`:
+![Interactive Dialog](docs/dialog.png)
+
+##### When entering an invalid number:
+![Interactive Dialog with invalid number](docs/dialog-validation-failed.png)
+
+##### After confirming the dialog:
+![Interactive Dialog confirm](docs/dialog-confirm.png)
+
+#### `/dialog no-elements`:
+![Interactive Dialog with no elements](docs/dialog-no-elements.png)
+
+##### After confirming the dialog:
+![Interactive Dialog with no elements confirm](docs/dialog-no-elements-confirm.png)
+
+#### Canceling a dialog:
+![Canceling an Interactive Dialog](docs/dialog-cancel.png)
+
 ## [http\_hooks.go](http_hooks.go)
 
 ### ServeHTTP
