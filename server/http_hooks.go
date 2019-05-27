@@ -54,7 +54,7 @@ func (p *Plugin) handleHello(w http.ResponseWriter, r *http.Request) {
 
 func (p *Plugin) handleEphemeralUpdate(w http.ResponseWriter, r *http.Request) {
 	request := model.PostActionIntegrationRequestFromJson(r.Body)
-	URL := fmt.Sprintf("%s", *p.API.GetConfig().ServiceSettings.SiteURL)
+	siteURL := *p.API.GetConfig().ServiceSettings.SiteURL
 
 	count := request.Context["count"].(float64) + 1
 
