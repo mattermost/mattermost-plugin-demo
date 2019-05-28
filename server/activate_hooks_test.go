@@ -29,7 +29,7 @@ func TestOnActivate(t *testing.T) {
 				return api
 			},
 			ShouldError: true,
-		},
+		},                
 		"lesser minor version than minimumServerVersion": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				v := semver.MustParse(minimumServerVersion)
@@ -93,9 +93,9 @@ func TestOnActivate(t *testing.T) {
 				v := semver.MustParse(minimumServerVersion)
 				require.Nil(t, v.IncrementMinor())
 				api.On("GetServerVersion").Return(v.String())
+				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
-				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 
 				return api
 			},

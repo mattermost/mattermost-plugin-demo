@@ -54,10 +54,16 @@ This demo implementation logs a message to the demo channel whenever a user leav
 
 ## [command\_hooks.go](command_hooks.go)
 
+
 ### ExecuteCommand
 
 This demo implementation responds to a `/demo_plugin` command, allowing the user to enable
 or disable the demo plugin's hooks functionality (but leave the command and webapp enabled).
+
+The `/ephemeral` command demonstrates ephemeral interactive usage of SendEphemeralPost, 
+UpdateEphemeralPost, and DeleteEphemeralPost.
+
+The `/crash` command demonstrates crashing the plugin (and the server recovering/restarting the plugin).
 
 It also registers a `/dialog` command. It allows allows the user to create an [Interactive Dialog](https://docs.mattermost.com/developer/interactive-dialogs.html).
 
@@ -78,6 +84,7 @@ It also registers a `/dialog` command. It allows allows the user to create an [I
 
 #### Canceling a dialog:
 ![Canceling an Interactive Dialog](docs/dialog-cancel.png)
+
 
 ## [http\_hooks.go](http_hooks.go)
 

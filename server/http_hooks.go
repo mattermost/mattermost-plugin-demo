@@ -28,6 +28,10 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 		p.handleDialog1(w, r)
 	case "/dialog/2":
 		p.handleDialog2(w, r)
+	case "/ephemeral/update":
+		p.handleEphemeralUpdate(w, r)
+	case "/ephemeral/delete":
+		p.handleEphemeralDelete(w, r)
 	default:
 		http.NotFound(w, r)
 	}
@@ -150,6 +154,64 @@ func (p *Plugin) handleDialog2(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func (p *Plugin) handleEphemeralUpdate(w http.ResponseWriter, r *http.Request) {
+	request := model.PostActionIntegrationRequestFromJson(r.Body)
+
+	if request == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	siteURL := *p.API.GetConfig().ServiceSettings.SiteURL
+	count := request.Context["count"].(float64) + 1
+
+	post := &model.Post{
+		Id:        request.PostId,
+		ChannelId: request.ChannelId,
+		Message:   "updated ephemeral action",
+		Props: model.StringInterface{
+			"attachments": []*model.SlackAttachment{{
+				Actions: []*model.PostAction{{
+					Integration: &model.PostActionIntegration{
+						Context: model.StringInterface{
+							"count": count,
+						},
+						URL: fmt.Sprintf("%s/plugins/%s/ephemeral/update", siteURL, manifest.Id),
+					},
+					Type: model.POST_ACTION_TYPE_BUTTON,
+					Name: fmt.Sprintf("Update %d", int(count)),
+				}, {
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/ephemeral/delete", siteURL, manifest.Id),
+					},
+					Type: model.POST_ACTION_TYPE_BUTTON,
+					Name: "Delete",
+				}},
+			}},
+		},
+	}
+	p.API.UpdateEphemeralPost(request.UserId, post)
+
+	resp := &model.PostActionIntegrationResponse{}
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(resp.ToJson())
+
+}
+
+func (p *Plugin) handleEphemeralDelete(w http.ResponseWriter, r *http.Request) {
+	request := model.PostActionIntegrationRequestFromJson(r.Body)
+
+	if request == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	p.API.DeleteEphemeralPost(request.UserId, request.PostId)
+
+	resp := &model.PostActionIntegrationResponse{}
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(resp.ToJson())
 }
 
 func (p *Plugin) writeSubmitDialogResponse(w http.ResponseWriter, response *model.SubmitDialogResponse) {

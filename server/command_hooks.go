@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 
@@ -11,8 +12,10 @@ import (
 )
 
 const (
-	commandTriggerHooks  = "demo_plugin"
-	commandTriggerDialog = "dialog"
+	commandTriggerCrash     = "crash"
+	commandTriggerHooks     = "demo_plugin"
+	commandTriggerDialog    = "dialog"
+	commandTriggerEphemeral = "ephemeral"
 
 	dialogElementNameNumber = "somenumber"
 	dialogElementNameEmail  = "someemail"
@@ -25,14 +28,31 @@ const (
 
 func (p *Plugin) registerCommands() error {
 	if err := p.API.RegisterCommand(&model.Command{
+
 		Trigger:          commandTriggerHooks,
 		AutoComplete:     true,
 		AutoCompleteHint: "(true|false)",
 		AutoCompleteDesc: "Enables or disables the demo plugin hooks.",
-		DisplayName:      "Demo Plugin Hooks Command",
-		Description:      "A command used to enable or disable the demo plugin hooks.",
 	}); err != nil {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerHooks)
+	}
+
+	if err := p.API.RegisterCommand(&model.Command{
+		Trigger:          commandTriggerCrash,
+		AutoComplete:     true,
+		AutoCompleteHint: "",
+		AutoCompleteDesc: "Crashes Demo Plugin",
+	}); err != nil {
+		return errors.Wrapf(err, "failed to register %s command", commandTriggerCrash)
+	}
+
+	if err := p.API.RegisterCommand(&model.Command{
+		Trigger:          commandTriggerEphemeral,
+		AutoComplete:     true,
+		AutoCompleteHint: "",
+		AutoCompleteDesc: "Demonstrates an ephemeral post capabilities.",
+	}); err != nil {
+		return errors.Wrapf(err, "failed to register %s command", commandTriggerEphemeral)
 	}
 
 	if err := p.API.RegisterCommand(&model.Command{
@@ -40,7 +60,6 @@ func (p *Plugin) registerCommands() error {
 		AutoComplete:     true,
 		AutoCompleteDesc: "Open an Interactive Dialog.",
 		DisplayName:      "Demo Plugin Command",
-		Description:      "A command to open an Interactive Dialog.",
 	}); err != nil {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerDialog)
 	}
@@ -64,10 +83,15 @@ func (p *Plugin) emitStatusChange() {
 func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	trigger := strings.TrimPrefix(strings.Fields(args.Command)[0], "/")
 	switch trigger {
+	case commandTriggerCrash:
+		return p.executeCommandCrash(), nil
 	case commandTriggerHooks:
-		return p.executeCommandHooks(c, args)
+		return p.executeCommandHooks(args), nil
+	case commandTriggerEphemeral:
+		return p.executeCommandEphemeral(args), nil
 	case commandTriggerDialog:
-		return p.executeCommandDialog(c, args)
+		return p.executeCommandDialog(args), nil
+
 	default:
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
@@ -76,7 +100,15 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 	}
 }
 
-func (p *Plugin) executeCommandHooks(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executeCommandCrash() *model.CommandResponse {
+	go p.crash()
+	return &model.CommandResponse{
+		ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+		Text:         "Crashing plugin",
+	}
+}
+
+func (p *Plugin) executeCommandHooks(args *model.CommandArgs) *model.CommandResponse {
 	configuration := p.getConfiguration()
 
 	if strings.HasSuffix(args.Command, "true") {
@@ -84,7 +116,7 @@ func (p *Plugin) executeCommandHooks(c *plugin.Context, args *model.CommandArgs)
 			return &model.CommandResponse{
 				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 				Text:         "The demo plugin hooks are already enabled.",
-			}, nil
+			}
 		}
 
 		configuration.disabled = false
@@ -93,7 +125,7 @@ func (p *Plugin) executeCommandHooks(c *plugin.Context, args *model.CommandArgs)
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			Text:         "Enabled demo plugin hooks.",
-		}, nil
+		}
 
 	}
 
@@ -102,7 +134,7 @@ func (p *Plugin) executeCommandHooks(c *plugin.Context, args *model.CommandArgs)
 			return &model.CommandResponse{
 				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 				Text:         "The demo plugin hooks are already disabled.",
-			}, nil
+			}
 		}
 
 		configuration.disabled = true
@@ -111,16 +143,47 @@ func (p *Plugin) executeCommandHooks(c *plugin.Context, args *model.CommandArgs)
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			Text:         "Disabled demo plugin hooks.",
-		}, nil
+		}
 	}
 
 	return &model.CommandResponse{
 		ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 		Text:         fmt.Sprintf("Unknown command action: " + args.Command),
-	}, nil
+	}
 }
 
-func (p *Plugin) executeCommandDialog(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
+func (p *Plugin) executeCommandEphemeral(args *model.CommandArgs) *model.CommandResponse {
+	siteURL := *p.API.GetConfig().ServiceSettings.SiteURL
+
+	post := &model.Post{
+		ChannelId: args.ChannelId,
+		Message:   "test ephemeral actions",
+		Props: model.StringInterface{
+			"attachments": []*model.SlackAttachment{{
+				Actions: []*model.PostAction{{
+					Integration: &model.PostActionIntegration{
+						Context: model.StringInterface{
+							"count": 0,
+						},
+						URL: fmt.Sprintf("%s/plugins/%s/ephemeral/update", siteURL, manifest.Id),
+					},
+					Type: model.POST_ACTION_TYPE_BUTTON,
+					Name: "Update",
+				}, {
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/ephemeral/delete", siteURL, manifest.Id),
+					},
+					Type: model.POST_ACTION_TYPE_BUTTON,
+					Name: "Delete",
+				}},
+			}},
+		},
+	}
+	_ = p.API.SendEphemeralPost(args.UserId, post)
+	return &model.CommandResponse{}
+}
+
+func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandResponse {
 	serverConfig := p.API.GetConfig()
 
 	var dialogRequest model.OpenDialogRequest
@@ -135,7 +198,7 @@ func (p *Plugin) executeCommandDialog(c *plugin.Context, args *model.CommandArgs
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			Text:         commandDialogHelp,
-		}, nil
+		}
 	case "":
 		dialogRequest = model.OpenDialogRequest{
 			TriggerId: args.TriggerId,
@@ -152,7 +215,7 @@ func (p *Plugin) executeCommandDialog(c *plugin.Context, args *model.CommandArgs
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			Text:         fmt.Sprintf("Unknown command: " + command),
-		}, nil
+		}
 	}
 
 	if err := p.API.OpenInteractiveDialog(dialogRequest); err != nil {
@@ -161,9 +224,9 @@ func (p *Plugin) executeCommandDialog(c *plugin.Context, args *model.CommandArgs
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			Text:         errorMessage,
-		}, nil
+		}
 	}
-	return &model.CommandResponse{}, nil
+	return &model.CommandResponse{}
 }
 
 func getDialogWithSampleElements() model.Dialog {
@@ -251,4 +314,10 @@ func getDialogWithoutElements() model.Dialog {
 		NotifyOnCancel: true,
 		State:          "somestate",
 	}
+}
+
+func (p *Plugin) crash() {
+	<-time.NewTimer(time.Second).C
+	y := 0
+	_ = 1 / y
 }
