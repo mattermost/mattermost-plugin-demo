@@ -59,6 +59,11 @@ This demo implementation logs a message to the demo channel whenever a user leav
 This demo implementation responds to a `/demo_plugin` command, allowing the user to enable
 or disable the demo plugin's hooks functionality (but leave the command and webapp enabled).
 
+The `/ephemeral` command demonstrates ephemeral interactive usage of SendEphemeralPost, 
+UpdateEphemeralPost, and DeleteEphemeralPost.
+
+The `/crash` command demonstrates crashing the plugin (and the server recovering/restarting the plugin).
+
 ## [http\_hooks.go](http_hooks.go)
 
 ### ServeHTTP

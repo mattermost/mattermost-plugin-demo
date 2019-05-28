@@ -29,29 +29,29 @@ func TestOnActivate(t *testing.T) {
 			},
 			ShouldError: true,
 		},
-		"below minimum supported version: 5.3.9": {
+		"below minimum supported version: 5.10.9": {
 			SetupAPI: func() *plugintest.API {
 				api := &plugintest.API{}
-				api.On("GetServerVersion").Return("5.3.9")
+				api.On("GetServerVersion").Return("5.10.9")
 
 				return api
 			},
 			ShouldError: true,
 		},
-		"minimum supported version: 5.4.0, but GetTeams fails": {
+		"minimum supported version: 5.11.0, but GetTeams fails": {
 			SetupAPI: func() *plugintest.API {
 				api := &plugintest.API{}
-				api.On("GetServerVersion").Return("5.4.0")
+				api.On("GetServerVersion").Return("5.11.0")
 				api.On("GetTeams").Return(nil, &model.AppError{})
 
 				return api
 			},
 			ShouldError: true,
 		},
-		"minimum supported version: 5.4.0, but CreatePost fails": {
+		"minimum supported version: 5.11.0, but CreatePost fails": {
 			SetupAPI: func() *plugintest.API {
 				api := &plugintest.API{}
-				api.On("GetServerVersion").Return("5.4.0")
+				api.On("GetServerVersion").Return("5.11.0")
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(nil, &model.AppError{})
 
@@ -59,10 +59,10 @@ func TestOnActivate(t *testing.T) {
 			},
 			ShouldError: true,
 		},
-		"minimum supported version: 5.4.0, but RegisterCommand fails": {
+		"minimum supported version: 5.11.0, but RegisterCommand fails": {
 			SetupAPI: func() *plugintest.API {
 				api := &plugintest.API{}
-				api.On("GetServerVersion").Return("5.4.0")
+				api.On("GetServerVersion").Return("5.11.0")
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(&model.AppError{})
@@ -71,10 +71,10 @@ func TestOnActivate(t *testing.T) {
 			},
 			ShouldError: true,
 		},
-		"minimum supported version: 5.4.0": {
+		"minimum supported version: 5.11.0": {
 			SetupAPI: func() *plugintest.API {
 				api := &plugintest.API{}
-				api.On("GetServerVersion").Return("5.4.0")
+				api.On("GetServerVersion").Return("5.11.0")
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
@@ -83,10 +83,10 @@ func TestOnActivate(t *testing.T) {
 			},
 			ShouldError: false,
 		},
-		"newer supported version: 5.5.0": {
+		"newer supported version: 5.13.0": {
 			SetupAPI: func() *plugintest.API {
 				api := &plugintest.API{}
-				api.On("GetServerVersion").Return("5.5.0")
+				api.On("GetServerVersion").Return("5.13.0")
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)

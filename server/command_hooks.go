@@ -11,13 +11,14 @@ import (
 	"github.com/mattermost/mattermost-server/plugin"
 )
 
-const CommandTrigger = "demo_plugin"
+const CommandTriggerPlugin = "demo_plugin"
 const CommandTriggerCrash = "crash"
+const CommandTriggerEphemeral = "ephemeral"
 
 func (p *Plugin) registerCommand(teamId string) error {
 	if err := p.API.RegisterCommand(&model.Command{
 		TeamId:           teamId,
-		Trigger:          CommandTrigger,
+		Trigger:          CommandTriggerPlugin,
 		AutoComplete:     true,
 		AutoCompleteHint: "(true|false)",
 		AutoCompleteDesc: "Enables or disables the demo plugin hooks.",
@@ -31,6 +32,16 @@ func (p *Plugin) registerCommand(teamId string) error {
 		AutoComplete:     true,
 		AutoCompleteHint: "",
 		AutoCompleteDesc: "Crashes Demo Plugin",
+	}); err != nil {
+		return errors.Wrap(err, "failed to register command")
+	}
+
+	if err := p.API.RegisterCommand(&model.Command{
+		TeamId:           teamId,
+		Trigger:          CommandTriggerEphemeral,
+		AutoComplete:     true,
+		AutoCompleteHint: "",
+		AutoCompleteDesc: "Demonstrates an ephemeral post capabilities.",
 	}); err != nil {
 		return errors.Wrap(err, "failed to register command")
 	}
@@ -54,7 +65,7 @@ func (p *Plugin) emitStatusChange() {
 func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	configuration := p.getConfiguration()
 
-	if strings.HasPrefix(args.Command, "/"+CommandTrigger) {
+	if strings.HasPrefix(args.Command, "/"+CommandTriggerPlugin) {
 
 		if strings.HasSuffix(args.Command, "true") {
 			if !configuration.disabled {
@@ -93,12 +104,47 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			Text:         fmt.Sprintf("Unknown command: " + args.Command),
 		}, nil
+
 	} else if strings.HasPrefix(args.Command, "/"+CommandTriggerCrash) {
 		p.crash()
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			Text:         fmt.Sprintf("Crashing plugin"),
 		}, nil
+
+	} else if strings.HasPrefix(args.Command, "/"+CommandTriggerEphemeral) {
+
+		siteURL := *p.API.GetConfig().ServiceSettings.SiteURL
+
+		post := &model.Post{
+			ChannelId: args.ChannelId,
+			Message:   "test ephemeral actions",
+			Props: model.StringInterface{
+				"attachments": []*model.SlackAttachment{{
+					Actions: []*model.PostAction{
+						{
+							Integration: &model.PostActionIntegration{
+								Context: model.StringInterface{
+									"count": 0,
+								},
+								URL: fmt.Sprintf("%s/plugins/%s/ephemeral/update", siteURL, manifest.Id),
+							},
+							Type: model.POST_ACTION_TYPE_BUTTON,
+							Name: "Update",
+						},
+						{
+							Integration: &model.PostActionIntegration{
+								URL: fmt.Sprintf("%s/plugins/%s/ephemeral/delete", siteURL, manifest.Id),
+							},
+							Type: model.POST_ACTION_TYPE_BUTTON,
+							Name: "Delete",
+						},
+					},
+				}},
+			},
+		}
+		p.API.SendEphemeralPost(args.UserId, post)
+		return &model.CommandResponse{}, nil
 	}
 
 	return &model.CommandResponse{
