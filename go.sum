@@ -176,11 +176,8 @@ github.com/mattermost/go-i18n v1.10.0 h1:/XLkcSqKrsToZYPaLX4+8Cp0uxy7FwQHfFpHOwz
 github.com/mattermost/go-i18n v1.10.0/go.mod h1:PJDb1RYh9YwRjuuCGicQy3lbx5QyEpoF8cBd3/cVeko=
 github.com/mattermost/gorp v2.0.1-0.20190301154413-3b31e9a39d05+incompatible h1:FN4zK2wNig7MVVsOsGEZ+LeIq0gUcudn3LEGgbodMq8=
 github.com/mattermost/gorp v2.0.1-0.20190301154413-3b31e9a39d05+incompatible/go.mod h1:0kX1qa3DOpaPJyOdMLeo7TcBN0QmUszj9a/VygOhDe0=
-github.com/mattermost/mattermost-server v0.0.0-20190508185452-66cb36f5dc35 h1:HLdWHTfDl0zrPWSlDHbni3E7CzXT0wLlOuQ3UY83/JU=
-github.com/mattermost/mattermost-server v0.0.0-20190508185452-66cb36f5dc35/go.mod h1:Ec2Hlp4UnFHCltBVGLo/VkLoHEFrcIAXE/zTnksDzTM=
 github.com/mattermost/mattermost-server v0.0.0-20190516103213-2d3e41783398 h1:jYHDyFZvfyJ7T/KTFZ48l6s1mXMoR6scFO58zMsqlj8=
 github.com/mattermost/mattermost-server v0.0.0-20190516103213-2d3e41783398/go.mod h1:Ec2Hlp4UnFHCltBVGLo/VkLoHEFrcIAXE/zTnksDzTM=
-github.com/mattermost/mattermost-server v5.11.0+incompatible h1:2/vIgLjL8bSZvQLuFnxYXYzUh7XLxyVHh14nS8yLzoE=
 github.com/mattermost/rsc v0.0.0-20160330161541-bbaefb05eaa0/go.mod h1:nV5bfVpT//+B1RPD2JvRnxbkLmJEYXmRaaVl15fsXjs=
 github.com/mattermost/viper v1.0.4/go.mod h1:uc5hKG9lv4/KRwPOt2c1omOyirS/UnuA2TytiZQSFHM=
 github.com/mattn/go-colorable v0.0.9/go.mod h1:9vuHe8Xs5qXnSaW/c/ABM9alt+Vo+STaOChaDxuIBZU=
