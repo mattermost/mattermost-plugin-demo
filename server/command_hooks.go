@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 
@@ -11,6 +12,7 @@ import (
 )
 
 const CommandTriggerPlugin = "demo_plugin"
+const CommandTriggerCrash = "crash"
 const CommandTriggerEphemeral = "ephemeral"
 
 func (p *Plugin) registerCommand(teamId string) error {
@@ -20,19 +22,26 @@ func (p *Plugin) registerCommand(teamId string) error {
 		AutoComplete:     true,
 		AutoCompleteHint: "(true|false)",
 		AutoCompleteDesc: "Enables or disables the demo plugin hooks.",
-		DisplayName:      "Demo Plugin Command",
-		Description:      "A command used to enable or disable the demo plugin hooks.",
 	}); err != nil {
 		return errors.Wrap(err, "failed to register command")
 	}
+
+	if err := p.API.RegisterCommand(&model.Command{
+		TeamId:           teamId,
+		Trigger:          CommandTriggerCrash,
+		AutoComplete:     true,
+		AutoCompleteHint: "",
+		AutoCompleteDesc: "Crashes Demo Plugin",
+	}); err != nil {
+		return errors.Wrap(err, "failed to register command")
+	}
+
 	if err := p.API.RegisterCommand(&model.Command{
 		TeamId:           teamId,
 		Trigger:          CommandTriggerEphemeral,
 		AutoComplete:     true,
 		AutoCompleteHint: "",
 		AutoCompleteDesc: "Demonstrates an ephemeral post capabilities.",
-		DisplayName:      "Demo Plugin Ephemeral Command",
-		Description:      "A command used to demonstrate ephemeral post capabilities.",
 	}); err != nil {
 		return errors.Wrap(err, "failed to register command")
 	}
@@ -90,6 +99,19 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 				Text:         "Disabled demo plugin hooks.",
 			}, nil
 		}
+
+		return &model.CommandResponse{
+			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			Text:         fmt.Sprintf("Unknown command: " + args.Command),
+		}, nil
+
+	} else if strings.HasPrefix(args.Command, "/"+CommandTriggerCrash) {
+		p.crash()
+		return &model.CommandResponse{
+			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			Text:         fmt.Sprintf("Crashing plugin"),
+		}, nil
+
 	} else if strings.HasPrefix(args.Command, "/"+CommandTriggerEphemeral) {
 
 		siteURL := *p.API.GetConfig().ServiceSettings.SiteURL
@@ -127,6 +149,14 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 
 	return &model.CommandResponse{
 		ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-		Text:         fmt.Sprintf("Unknown command action: " + args.Command),
+		Text:         fmt.Sprintf("Unknown command: " + args.Command),
 	}, nil
+}
+
+func (p *Plugin) crash() {
+	go func() {
+		<-time.NewTimer(time.Second).C
+		y := 0
+		y = 1 / y
+	}()
 }
