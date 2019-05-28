@@ -4,6 +4,6 @@ This plugin demonstrates the capabilities of a Mattermost plugin. It includes th
 
 Feel free to base your own plugin off this repository, removing or modifying components as needed. If you're already familiar with what plugins can do, consider starting from [mattermost-plugin-sample](https://github.com/mattermost/mattermost-plugin-sample) instead, which includes the same build framework but omits the demo implementations.
 
-Note that this plugin is authored for Mattermost 5.2 and later, and is not compatible with earlier releases of Mattermost.
+This plugin is compatible with Mattermost server version 5.10 and later. For Mattermost versions 5.2 - 5.9, you may download [v0.0.5 of the Demo Plugin](https://github.com/mattermost/mattermost-plugin-demo/releases/tag/v0.0.5).
 
 For details on getting started, see [mattermost-plugin-sample](https://github.com/mattermost/mattermost-plugin-sample).
