@@ -65,7 +65,7 @@ UpdateEphemeralPost, and DeleteEphemeralPost.
 
 The `/crash` command demonstrates crashing the plugin (and the server recovering/restarting the plugin).
 
-It also registers a `/dialog` command. It allows allows the user to create an [Interactive Dialog](https://docs.mattermost.com/developer/interactive-dialogs.html).
+The `/dialog` command demonstrates [Interactive Dialogs](https://docs.mattermost.com/developer/interactive-dialogs.html). Use `/dialog help` for its usage in this demo plugin.
 
 #### `/dialog`:
 ![Interactive Dialog](docs/dialog.png)
