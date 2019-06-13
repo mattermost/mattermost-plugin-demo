@@ -17,5 +17,5 @@ The `/dialog` command demonstrates [Interactive Dialogs](https://docs.mattermost
 ##### After confirming the dialog:
 ![Interactive Dialog with no elements confirm](images/dialog-no-elements-confirm.png)
 
-#### Canceling a dialog:
+#### After cancelling the dialog:
 ![Canceling an Interactive Dialog](images/dialog-cancel.png)
