@@ -67,25 +67,6 @@ The `/crash` command demonstrates crashing the plugin (and the server recovering
 
 The `/dialog` command demonstrates [Interactive Dialogs](https://docs.mattermost.com/developer/interactive-dialogs.html). Use `/dialog help` for its usage in this demo plugin.
 
-#### `/dialog`:
-![Interactive Dialog](docs/dialog.png)
-
-##### When entering an invalid number:
-![Interactive Dialog with invalid number](docs/dialog-validation-failed.png)
-
-##### After confirming the dialog:
-![Interactive Dialog confirm](docs/dialog-confirm.png)
-
-#### `/dialog no-elements`:
-![Interactive Dialog with no elements](docs/dialog-no-elements.png)
-
-##### After confirming the dialog:
-![Interactive Dialog with no elements confirm](docs/dialog-no-elements-confirm.png)
-
-#### Canceling a dialog:
-![Canceling an Interactive Dialog](docs/dialog-cancel.png)
-
-
 ## [http\_hooks.go](http_hooks.go)
 
 ### ServeHTTP
