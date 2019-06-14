@@ -7,7 +7,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-const minimumServerVersion = "5.11.0"
+const minimumServerVersion = "5.12.0"
 
 func (p *Plugin) checkServerVersion() error {
 	serverVersion, err := semver.Parse(p.API.GetServerVersion())
