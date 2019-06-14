@@ -146,7 +146,7 @@ endif
 
 ## Creates a coverage report for the server code.
 .PHONY: coverage
-coverage: server/.depensure webapp/.npminstall
+coverage: webapp/.npminstall
 ifneq ($(HAS_SERVER),)
 	$(GO) test -race -coverprofile=server/coverage.txt ./server/...
 	$(GO) tool cover -html=server/coverage.txt
@@ -154,10 +154,13 @@ endif
 
 ## Extract strings for translation from the source code.
 .PHONY: i18n-extract
-i18n-extract: 
+i18n-extract:
 ifneq ($(HAS_WEBAPP),)
-	@[[ -d $(MM_UTILITIES_DIR) ]] || echo "You must clone github.com/mattermost/mattermost-utilities repo in .. to use this command"
-	@[[ -d $(MM_UTILITIES_DIR) ]] && cd $(MM_UTILITIES_DIR) && npm install && npm run babel && node mmjstool/build/index.js i18n extract-webapp --webapp-dir ../mattermost-plugin-demo/webapp
+ifeq ($(HAS_MM_UTILITIES),)
+	@echo "You must clone github.com/mattermost/mattermost-utilities repo in .. to use this command"
+else
+	cd $(MM_UTILITIES_DIR) && npm install && npm run babel && node mmjstool/build/index.js i18n extract-webapp --webapp-dir $(PWD)/webapp
+endif
 endif
 
 ## Clean removes all build artifacts.
