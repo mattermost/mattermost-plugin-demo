@@ -7,7 +7,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-const minimumServerVersion = "5.4.0"
+const minimumServerVersion = "5.11.0"
 
 func (p *Plugin) checkServerVersion() error {
 	serverVersion, err := semver.Parse(p.API.GetServerVersion())
@@ -83,7 +83,14 @@ func (p *Plugin) OnDeactivate() error {
 			return errors.Wrap(err, "failed to post OnDeactivate message")
 		}
 
-		if err := p.API.UnregisterCommand(team.Id, CommandTrigger); err != nil {
+		if err := p.API.UnregisterCommand(team.Id, CommandTriggerPlugin); err != nil {
+			return errors.Wrap(err, "failed to unregister command")
+		}
+		if err := p.API.UnregisterCommand(team.Id, CommandTriggerEphemeral); err != nil {
+			return errors.Wrap(err, "failed to unregister command")
+		}
+
+		if err := p.API.UnregisterCommand(team.Id, CommandTriggerCrash); err != nil {
 			return errors.Wrap(err, "failed to unregister command")
 		}
 	}
