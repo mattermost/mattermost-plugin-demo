@@ -1,5 +1,4 @@
 import React from 'react';
-import {bindActionCreators} from 'redux';
 
 import {FormattedMessage} from 'react-intl';
 
