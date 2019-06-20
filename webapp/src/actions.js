@@ -16,7 +16,6 @@ export const closeRootModal = () => (dispatch) => {
 };
 
 export const mainMenuAction = openRootModal;
-export const channelHeaderButtonAction = openRootModal;
 export const fileUploadMethodAction = openRootModal;
 export const postDropdownMenuAction = openRootModal;
 

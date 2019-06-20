@@ -4,6 +4,7 @@
   "plugin.upload": "Subir usando el plugin demo",
   "root.clicktoclose": "Haga clic en cualquier lugar para cerrar.",
   "root.triggered": "Has activado el componente raíz del complemento de demostración.",
+  "rhs.triggered": "Has activado el componente del panel derecho del complemento de demostración",
   "sidebar.demo": "Complemento de Demostración:",
   "sidebar.disabled": "Discapacitado",
   "sidebar.enabled": "Habilitado",

@@ -4,6 +4,7 @@
   "plugin.upload": "Upload using Demo Plugin",
   "root.clicktoclose": "Click anywhere to close.",
   "root.triggered": "You have triggered the root component of the demo plugin.",
+  "rhs.triggered": "You have triggered the right-hand sidebar component of the demo plugin.",
   "sidebar.demo": "Demo Plugin:",
   "sidebar.disabled": "Disabled",
   "sidebar.enabled": "Enabled",
