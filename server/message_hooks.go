@@ -25,8 +25,8 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 		return post, ""
 	}
 
-	// Always allow posts by the demo plugin user.
-	if post.UserId == configuration.demoUserId {
+	// Always allow posts by the demo plugin user and demo plugin bot.
+	if post.UserId == p.botId || post.UserId == configuration.demoUserId {
 		return post, ""
 	}
 
@@ -104,8 +104,8 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 		return
 	}
 
-	// Ignore posts by the demo plugin user.
-	if post.UserId == configuration.demoUserId {
+	// Ignore posts by the demo plugin user and demo plugin bot.
+	if post.UserId == p.botId || post.UserId == configuration.demoUserId {
 		return
 	}
 

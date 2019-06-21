@@ -14,6 +14,8 @@ import LeftSidebarHeader from './components/left_sidebar_header';
 import LinkTooltip from './components/link_tooltip';
 import UserAttributes from './components/user_attributes';
 import UserActions from './components/user_actions';
+import RHSView from './components/right_hand_sidebar';
+
 import PostType from './components/post_type';
 import {
     MainMenuMobileIcon,
@@ -22,7 +24,6 @@ import {
 } from './components/icons';
 import {
     mainMenuAction,
-    channelHeaderButtonAction,
     fileUploadMethodAction,
     postDropdownMenuAction,
     websocketStatusChange,
@@ -50,10 +51,16 @@ export default class DemoPlugin {
         registry.registerBottomTeamSidebarComponent(
             BottomTeamSidebar,
         );
+        const {showRHSPlugin} = registry.registerRightHandSidebarComponent(
+            RHSView,
+            <FormattedMessage
+                id='plugin.name'
+                defaultMessage='Demo Plugin'
+            />);
 
         registry.registerChannelHeaderButtonAction(
             <ChannelHeaderButtonIcon/>,
-            () => store.dispatch(channelHeaderButtonAction()),
+            () => store.dispatch(showRHSPlugin),
             <FormattedMessage
                 id='plugin.name'
                 defaultMessage='Demo Plugin'
