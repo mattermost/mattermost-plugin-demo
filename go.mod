@@ -3,7 +3,7 @@ module github.com/mattermost/mattermost-plugin-demo
 go 1.12
 
 require (
-	github.com/blang/semver v3.5.1+incompatible
+	github.com/blang/semver v3.6.1+incompatible
 	github.com/go-ldap/ldap v3.0.3+incompatible // indirect
 	github.com/hashicorp/go-hclog v0.9.0 // indirect
 	github.com/lib/pq v1.1.1 // indirect

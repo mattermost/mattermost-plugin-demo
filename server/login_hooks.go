@@ -46,6 +46,4 @@ func (p *Plugin) UserHasLoggedIn(c *plugin.Context, user *model.User) {
 			)
 		}
 	}
-
-	return
 }

@@ -54,6 +54,7 @@ This demo implementation logs a message to the demo channel whenever a user leav
 
 ## [command\_hooks.go](command_hooks.go)
 
+
 ### ExecuteCommand
 
 This demo implementation responds to a `/demo_plugin` command, allowing the user to enable
@@ -63,6 +64,8 @@ The `/ephemeral` command demonstrates ephemeral interactive usage of SendEphemer
 UpdateEphemeralPost, and DeleteEphemeralPost.
 
 The `/crash` command demonstrates crashing the plugin (and the server recovering/restarting the plugin).
+
+The `/dialog` command demonstrates [Interactive Dialogs](https://docs.mattermost.com/developer/interactive-dialogs.html). Use `/dialog help` for its usage in this demo plugin.
 
 ## [http\_hooks.go](http_hooks.go)
 

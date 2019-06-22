@@ -7,7 +7,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-const minimumServerVersion = "5.11.0"
+const minimumServerVersion = "5.12.0"
 
 func (p *Plugin) checkServerVersion() error {
 	serverVersion, err := semver.Parse(p.API.GetServerVersion())
@@ -34,6 +34,10 @@ func (p *Plugin) OnActivate() error {
 
 	configuration := p.getConfiguration()
 
+	if err := p.registerCommands(); err != nil {
+		return errors.Wrap(err, "failed to register commands")
+	}
+
 	teams, err := p.API.GetTeams()
 	if err != nil {
 		return errors.Wrap(err, "failed to query teams OnActivate")
@@ -49,10 +53,6 @@ func (p *Plugin) OnActivate() error {
 		msg := fmt.Sprintf("OnActivate: %s", manifest.Id)
 		if err := p.postPluginMessage(team.Id, msg); err != nil {
 			return errors.Wrap(err, "failed to post OnActivate message")
-		}
-
-		if err := p.registerCommand(team.Id); err != nil {
-			return errors.Wrap(err, "failed to register command")
 		}
 	}
 
@@ -81,17 +81,6 @@ func (p *Plugin) OnDeactivate() error {
 		msg := fmt.Sprintf("OnDeactivate: %s", manifest.Id)
 		if err := p.postPluginMessage(team.Id, msg); err != nil {
 			return errors.Wrap(err, "failed to post OnDeactivate message")
-		}
-
-		if err := p.API.UnregisterCommand(team.Id, CommandTriggerPlugin); err != nil {
-			return errors.Wrap(err, "failed to unregister command")
-		}
-		if err := p.API.UnregisterCommand(team.Id, CommandTriggerEphemeral); err != nil {
-			return errors.Wrap(err, "failed to unregister command")
-		}
-
-		if err := p.API.UnregisterCommand(team.Id, CommandTriggerCrash); err != nil {
-			return errors.Wrap(err, "failed to unregister command")
 		}
 	}
 
