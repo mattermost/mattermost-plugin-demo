@@ -12,10 +12,11 @@ import (
 )
 
 const (
-	commandTriggerCrash     = "crash"
-	commandTriggerHooks     = "demo_plugin"
-	commandTriggerDialog    = "dialog"
-	commandTriggerEphemeral = "ephemeral"
+	commandTriggerCrash             = "crash"
+	commandTriggerHooks             = "demo_plugin"
+	commandTriggerDialog            = "dialog"
+	commandTriggerEphemeral         = "ephemeral"
+	commandTriggerEphemeralOverride = "ephemeral_override"
 
 	dialogElementNameNumber = "somenumber"
 	dialogElementNameEmail  = "someemail"
@@ -56,6 +57,15 @@ func (p *Plugin) registerCommands() error {
 	}
 
 	if err := p.API.RegisterCommand(&model.Command{
+		Trigger:          commandTriggerEphemeralOverride,
+		AutoComplete:     true,
+		AutoCompleteHint: "",
+		AutoCompleteDesc: "Demonstrates an ephemeral post overriden in the webapp.",
+	}); err != nil {
+		return errors.Wrapf(err, "failed to register %s command", commandTriggerEphemeralOverride)
+	}
+
+	if err := p.API.RegisterCommand(&model.Command{
 		Trigger:          commandTriggerDialog,
 		AutoComplete:     true,
 		AutoCompleteDesc: "Open an Interactive Dialog.",
@@ -89,6 +99,8 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		return p.executeCommandHooks(args), nil
 	case commandTriggerEphemeral:
 		return p.executeCommandEphemeral(args), nil
+	case commandTriggerEphemeralOverride:
+		return p.executeCommandEphemeralOverride(args), nil
 	case commandTriggerDialog:
 		return p.executeCommandDialog(args), nil
 
@@ -180,6 +192,17 @@ func (p *Plugin) executeCommandEphemeral(args *model.CommandArgs) *model.Command
 		},
 	}
 	_ = p.API.SendEphemeralPost(args.UserId, post)
+	return &model.CommandResponse{}
+}
+
+func (p *Plugin) executeCommandEphemeralOverride(args *model.CommandArgs) *model.CommandResponse {
+	_ = p.API.SendEphemeralPost(args.UserId, &model.Post{
+		ChannelId: args.ChannelId,
+		Message:   "test ephemeral override",
+		Props: model.StringInterface{
+			"type": "custom_demo_plugin",
+		},
+	})
 	return &model.CommandResponse{}
 }
 
