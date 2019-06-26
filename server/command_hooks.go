@@ -198,9 +198,9 @@ func (p *Plugin) executeCommandEphemeral(args *model.CommandArgs) *model.Command
 func (p *Plugin) executeCommandEphemeralOverride(args *model.CommandArgs) *model.CommandResponse {
 	_ = p.API.SendEphemeralPost(args.UserId, &model.Post{
 		ChannelId: args.ChannelId,
-		Message:   "test ephemeral override",
+		Message:   "This is a demo of overriding an ephemeral post.",
 		Props: model.StringInterface{
-			"type": "custom_demo_plugin",
+			"type": "custom_demo_plugin_ephemeral",
 		},
 	})
 	return &model.CommandResponse{}

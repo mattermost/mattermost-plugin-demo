@@ -17,6 +17,7 @@ import UserActions from './components/user_actions';
 import RHSView from './components/right_hand_sidebar';
 
 import PostType from './components/post_type';
+import EphemeralPostType from './components/ephemeral_post_type';
 import {
     MainMenuMobileIcon,
     ChannelHeaderButtonIcon,
@@ -68,6 +69,7 @@ export default class DemoPlugin {
         );
 
         registry.registerPostTypeComponent('custom_demo_plugin', PostType);
+        registry.registerPostTypeComponent('custom_demo_plugin_ephemeral', EphemeralPostType);
 
         registry.registerMainMenuAction(
             <FormattedMessage
