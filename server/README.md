@@ -63,6 +63,8 @@ or disable the demo plugin's hooks functionality (but leave the command and weba
 The `/ephemeral` command demonstrates ephemeral interactive usage of SendEphemeralPost, 
 UpdateEphemeralPost, and DeleteEphemeralPost.
 
+The `/ephemeral_override` command demonstrates override of ephemeral posts in the webapp.
+
 The `/crash` command demonstrates crashing the plugin (and the server recovering/restarting the plugin).
 
 The `/dialog` command demonstrates [Interactive Dialogs](https://docs.mattermost.com/developer/interactive-dialogs.html). Use `/dialog help` for its usage in this demo plugin.
