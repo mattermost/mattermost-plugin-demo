@@ -9,6 +9,7 @@ import es from 'i18n/es.json';
 import {id as pluginId} from './manifest';
 
 import Root from './components/root';
+import AdminSettings from './components/admin_settings';
 import BottomTeamSidebar from './components/bottom_team_sidebar';
 import LeftSidebarHeader from './components/left_sidebar_header';
 import LinkTooltip from './components/link_tooltip';
@@ -42,6 +43,38 @@ function getTranslations(locale) {
     return {};
 }
 
+// eslint-disable-next-line no-unused-vars
+function addToAdminConsole(registry) {
+    registry.registerAdminConsolePlugin((adminDefinition) => {
+        // the settings will appear on the authentication section
+        const demoConfig = {
+            url: 'plugins/demo',
+            icon: 'fa-rocket',
+            title: 'com.mattermost.demo-plugin.title',
+            title_default: 'Demo plugin admin',
+            isHidden: () => false,
+            schema: {
+                id: 'DemoPlugin',
+                component: AdminSettings,
+            },
+        };
+
+        // this is not required - demoConfig could be embedded elsewhere
+        adminDefinition.pluginsExtra = {
+            icon: 'fa fa-plug',
+            id: 'plugins-extra',
+            sectionTitle: 'com.mattermost.demo-plugin.sectionTitle',
+            sectionTitleDefault: 'Plugins (extra)',
+            demo: demoConfig,
+        };
+
+        // or
+        // adminDefinition.authentication.demo = demoConfig;
+
+        return adminDefinition;
+    });
+}
+
 export default class DemoPlugin {
     initialize(registry, store) {
         registry.registerRootComponent(Root);
@@ -52,6 +85,9 @@ export default class DemoPlugin {
         registry.registerBottomTeamSidebarComponent(
             BottomTeamSidebar,
         );
+
+        addToAdminConsole(registry);
+
         const {showRHSPlugin} = registry.registerRightHandSidebarComponent(
             RHSView,
             <FormattedMessage
