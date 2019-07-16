@@ -8,6 +8,6 @@ This plugin demonstrates the capabilities of a Mattermost plugin. It includes th
 
 Feel free to base your own plugin off this repository, removing or modifying components as needed. If you're already familiar with what plugins can do, consider starting from [mattermost-plugin-starter-template](https://github.com/mattermost/mattermost-plugin-starter-template) instead, which includes the same build framework but omits the demo implementations.
 
-Note that this plugin is authored for the Mattermost version indicated in the `min_server_version` within [plugin.json](https://github.com/mattermost/mattermost-plugin-demo/blob/2461499b06453b7a37d9ca4aedd4d23d24089047/plugin.json#L6), and is not compatible with earlier releases of Mattermost.
+Note that this plugin is authored for the Mattermost version indicated in the `min_server_version` within [plugin.json](https://github.com/mattermost/mattermost-plugin-demo/blob/master/plugin.json), and is not compatible with earlier releases of Mattermost.
 
 For details on getting started, see [mattermost-plugin-starter-template](https://github.com/mattermost/mattermost-plugin-starter-template).
