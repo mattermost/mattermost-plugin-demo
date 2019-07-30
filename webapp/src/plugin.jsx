@@ -18,6 +18,7 @@ import RHSView from './components/right_hand_sidebar';
 
 import PostType from './components/post_type';
 import EphemeralPostType from './components/ephemeral_post_type';
+import ChannelSubHeader from './components/channel_sub_header';
 import {
     MainMenuMobileIcon,
     ChannelHeaderButtonIcon,
@@ -49,6 +50,7 @@ export default class DemoPlugin {
         registry.registerPopoverUserActionsComponent(UserActions);
         registry.registerLeftSidebarHeaderComponent(LeftSidebarHeader);
         registry.registerLinkTooltipComponent(LinkTooltip);
+        registry.registerChannelSubHeaderComponent(ChannelSubHeader);
         registry.registerBottomTeamSidebarComponent(
             BottomTeamSidebar,
         );
