@@ -88,6 +88,39 @@ export default class DemoPlugin {
             () => store.dispatch(postDropdownMenuAction()),
         );
 
+        const menu = (
+            <FormattedMessage
+                id='submenu.menu'
+                defaultMessage='Submenu Example'
+            />
+        );
+        const subMenu = [
+            (
+                <FormattedMessage
+                    id='submenu.first'
+                    key='submenu.first'
+                    defaultMessage='First Item'
+                />
+            ),
+            (
+                <FormattedMessage
+                    id='submenu.second'
+                    key='submenu.second'
+                    defaultMessage='Second Item'
+                />
+            ),
+            (
+                <FormattedMessage
+                    id='submenu.third'
+                    key='submenu.third'
+                    defaultMessage='Third Item'
+                />
+            ),
+        ];
+        registry.registerPostDropdownMenuAction({menu, subMenu},
+            () => store.dispatch(postDropdownMenuAction()),
+        );
+
         registry.registerFileUploadMethod(
             <FileUploadMethodIcon/>,
             () => store.dispatch(fileUploadMethodAction()),
