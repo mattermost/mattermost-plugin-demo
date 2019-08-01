@@ -24,7 +24,7 @@ const (
 	commandDialogHelp = "###### Interactive Dialog Slash Command Help\n" +
 		"- `/dialog` - pen an Interactive Dialog. Once submitted, user-entered input is posted back into a channel.\n" +
 		"- `/dialog no-elements` - Open an Interactive Dialog with no elements. Once submitted, user's action is posted back into a channel.\n" +
-		"- `/dialog relative-callback-url` - Open an Interactive Dialog with relative allback URL. Once submitted, user's action is posted back into a channel.\n" +
+		"- `/dialog relative-callback-url` - Open an Interactive Dialog with relative callback URL. Once submitted, user's action is posted back into a channel.\n" +
 		"- `/dialog help` - Show this help text"
 )
 
