@@ -144,12 +144,17 @@ func (p *Plugin) handleDialog2(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	suffix := ""
+	if request.State == "relative-callback-url" {
+		suffix = "from relative callback URL"
+	}
+
 	if _, appErr = p.API.CreatePost(&model.Post{
 		UserId:    p.botId,
 		ChannelId: request.ChannelId,
-		Message:   fmt.Sprintf("@%v confirmed an Interactive Dialog", user.Username),
+		Message:   fmt.Sprintf("@%v confirmed an Interactive Dialog %v", user.Username, suffix),
 	}); appErr != nil {
-		p.API.LogError("failed to post handleDialog1 message", "err", appErr.Error())
+		p.API.LogError("failed to post handleDialog2 message", "err", appErr.Error())
 		return
 	}
 

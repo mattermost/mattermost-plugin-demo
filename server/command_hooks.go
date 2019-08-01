@@ -24,6 +24,7 @@ const (
 	commandDialogHelp = "###### Interactive Dialog Slash Command Help\n" +
 		"- `/dialog` - pen an Interactive Dialog. Once submitted, user-entered input is posted back into a channel.\n" +
 		"- `/dialog no-elements` - Open an Interactive Dialog with no elements. Once submitted, user's action is posted back into a channel.\n" +
+		"- `/dialog relative-callback-url` - Open an Interactive Dialog with relative allback URL. Once submitted, user's action is posted back into a channel.\n" +
 		"- `/dialog help` - Show this help text"
 )
 
@@ -232,7 +233,13 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 		dialogRequest = model.OpenDialogRequest{
 			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/2", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
-			Dialog:    getDialogWithoutElements(),
+			Dialog:    getDialogWithoutElements("somestate"),
+		}
+	case "relative-callback-url":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("/plugins/%s/dialog/2", manifest.Id),
+			Dialog:    getDialogWithoutElements("relative-callback-url"),
 		}
 	default:
 		return &model.CommandResponse{
@@ -327,7 +334,7 @@ func getDialogWithSampleElements() model.Dialog {
 	}
 }
 
-func getDialogWithoutElements() model.Dialog {
+func getDialogWithoutElements(state string) model.Dialog {
 	return model.Dialog{
 		CallbackId:     "somecallbackid",
 		Title:          "Sample Confirmation Dialog",
@@ -335,7 +342,7 @@ func getDialogWithoutElements() model.Dialog {
 		Elements:       nil,
 		SubmitLabel:    "Confirm",
 		NotifyOnCancel: true,
-		State:          "somestate",
+		State:          state,
 	}
 }
 
