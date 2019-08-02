@@ -145,7 +145,7 @@ func (p *Plugin) handleDialog2(w http.ResponseWriter, r *http.Request) {
 	}
 
 	suffix := ""
-	if request.State == "relative-callback-url" {
+	if request.State == dialogStateRelativeCallbackURL {
 		suffix = "from relative callback URL"
 	}
 
