@@ -52,7 +52,7 @@ This exports constants used by the Redux [actions](https://redux.js.org/basics/a
 
 This exports Redux [actions](https://redux.js.org/basics/actions) for triggering the root component, as well as querying the server for the current plugin hooks status and responding to websocket events emitted by the server for the plugin.
 
-## [components](components)
+## [src/components](src/components)
 
 This folder exports a number of components illustrating plugin functionality.
 
