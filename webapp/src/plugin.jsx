@@ -88,37 +88,55 @@ export default class DemoPlugin {
             () => store.dispatch(postDropdownMenuAction()),
         );
 
-        const menu = (
-            <FormattedMessage
-                id='submenu.menu'
-                defaultMessage='Submenu Example'
-            />
-        );
-        const subMenu = [
-            (
+        const menu = {
+            id: 'primary',
+            text: (
                 <FormattedMessage
-                    id='submenu.first'
-                    key='submenu.first'
-                    defaultMessage='First Item'
+                    id='submenu.menu'
+                    defaultMessage='Submenu Example'
                 />
             ),
-            (
-                <FormattedMessage
-                    id='submenu.second'
-                    key='submenu.second'
-                    defaultMessage='Second Item'
-                />
-            ),
-            (
-                <FormattedMessage
-                    id='submenu.third'
-                    key='submenu.third'
-                    defaultMessage='Third Item'
-                />
-            ),
-        ];
-        registry.registerPostDropdownMenuAction({menu, subMenu},
-            () => store.dispatch(postDropdownMenuAction()),
+            subMenu: [
+                {
+                    id: 'secondary.first',
+                    text: (
+                        <FormattedMessage
+                            id='submenu.first'
+                            key='submenu.first'
+                            defaultMessage='First Item'
+                        />
+                    ),
+                    subMenu: [
+                        {
+                            id: 'tertiary.first',
+                            text: (
+                                <FormattedMessage
+                                    id='submenu.second'
+                                    key='submenu.second'
+                                    defaultMessage='Second Item'
+                                />
+                            ),
+                        },
+                    ],
+                },
+                {
+                    id: 'secondary.second',
+                    text: (
+                        <FormattedMessage
+                            id='submenu.third'
+                            key='submenu.third'
+                            defaultMessage='Third Item'
+                        />
+                    ),
+                },
+            ],
+        };
+
+        registry.registerPostDropdownMenuAction(menu,
+            (postId, menuId) => {
+                console.log(postId, menuId); // eslint-disable-line no-console
+                store.dispatch(postDropdownMenuAction());
+            },
         );
 
         registry.registerFileUploadMethod(
