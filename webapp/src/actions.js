@@ -9,6 +9,16 @@ export const openRootModal = () => (dispatch) => {
     });
 };
 
+export const openRootModalWithId = (id) => (dispatch) => {
+    dispatch({
+        type: 'SUBMENU_ID',
+        subMenuId: id,
+    });
+    dispatch({
+        type: OPEN_ROOT_MODAL,
+    });
+};
+
 export const closeRootModal = () => (dispatch) => {
     dispatch({
         type: CLOSE_ROOT_MODAL,
@@ -18,6 +28,7 @@ export const closeRootModal = () => (dispatch) => {
 export const mainMenuAction = openRootModal;
 export const fileUploadMethodAction = openRootModal;
 export const postDropdownMenuAction = openRootModal;
+export const postDropdownSubMenuAction = openRootModalWithId;
 
 // TODO: Move this into mattermost-redux or mattermost-webapp.
 export const getPluginServerRoute = (state) => {

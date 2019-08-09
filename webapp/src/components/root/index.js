@@ -2,12 +2,13 @@ import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 
 import {closeRootModal} from 'actions';
-import {isRootModalVisible} from 'selectors';
+import {isRootModalVisible, subMenuId} from 'selectors';
 
 import Root from './root';
 
 const mapStateToProps = (state) => ({
     visible: isRootModalVisible(state),
+    subMenuId: subMenuId(state),
 });
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({

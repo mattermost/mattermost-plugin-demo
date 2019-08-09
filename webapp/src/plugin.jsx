@@ -27,10 +27,12 @@ import {
     mainMenuAction,
     fileUploadMethodAction,
     postDropdownMenuAction,
+    postDropdownSubMenuAction,
     websocketStatusChange,
     getStatus,
 } from './actions';
 import reducer from './reducer';
+import {menu} from './sub_menu';
 
 function getTranslations(locale) {
     switch (locale) {
@@ -88,54 +90,9 @@ export default class DemoPlugin {
             () => store.dispatch(postDropdownMenuAction()),
         );
 
-        const menu = {
-            id: 'primary',
-            text: (
-                <FormattedMessage
-                    id='submenu.menu'
-                    defaultMessage='Submenu Example'
-                />
-            ),
-            subMenu: [
-                {
-                    id: 'secondary.first',
-                    text: (
-                        <FormattedMessage
-                            id='submenu.first'
-                            key='submenu.first'
-                            defaultMessage='First Item'
-                        />
-                    ),
-                    subMenu: [
-                        {
-                            id: 'tertiary.first',
-                            text: (
-                                <FormattedMessage
-                                    id='submenu.second'
-                                    key='submenu.second'
-                                    defaultMessage='Second Item'
-                                />
-                            ),
-                        },
-                    ],
-                },
-                {
-                    id: 'secondary.second',
-                    text: (
-                        <FormattedMessage
-                            id='submenu.third'
-                            key='submenu.third'
-                            defaultMessage='Third Item'
-                        />
-                    ),
-                },
-            ],
-        };
-
         registry.registerPostDropdownMenuAction(menu,
             (postId, menuId) => {
-                console.log(postId, menuId); // eslint-disable-line no-console
-                store.dispatch(postDropdownMenuAction());
+                store.dispatch(postDropdownSubMenuAction(menuId));
             },
         );
 

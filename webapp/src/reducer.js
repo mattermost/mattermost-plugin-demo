@@ -23,8 +23,19 @@ const rootModalVisible = (state = false, action) => {
     }
 };
 
+const subMenuId = (state = false, action) => {
+    switch (action.type) {
+    case 'SUBMENU_ID':
+        return action.subMenuId;
+
+    default:
+        return state;
+    }
+};
+
 export default combineReducers({
     enabled,
     rootModalVisible,
+    subMenuId,
 });
 

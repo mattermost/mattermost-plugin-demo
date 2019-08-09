@@ -2,9 +2,30 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {FormattedMessage} from 'react-intl';
 
-const Root = ({visible, close, theme}) => {
+import {menu} from '../../sub_menu';
+
+const Root = ({visible, close, theme, subMenuId}) => {
     if (!visible) {
         return null;
+    }
+
+    let extraContent = '';
+    if (subMenuId) {
+        if (subMenuId === menu.id) {
+            extraContent = menu.text;
+        } else {
+            let menuSearch = menu.subMenu.find((s) => s.id === subMenuId);
+            if (menuSearch) {
+                extraContent = menuSearch.text;
+            } else {
+                menu.subMenu.forEach((sm) => {
+                    menuSearch = sm.subMenu.find((s) => s.id === subMenuId);
+                    if (menuSearch) {
+                        extraContent = menuSearch.text;
+                    }
+                });
+            }
+        }
     }
 
     const style = getStyle(theme);
@@ -31,6 +52,9 @@ const Root = ({visible, close, theme}) => {
                     id='demo.testintl'
                     defaultMessage='This is the default string'
                 />
+                <br/>
+                <br/>
+                {extraContent}
             </div>
         </div>
     );
@@ -40,6 +64,7 @@ Root.propTypes = {
     visible: PropTypes.bool.isRequired,
     close: PropTypes.func.isRequired,
     theme: PropTypes.object.isRequired,
+    subMenuId: PropTypes.string,
 };
 
 const getStyle = (theme) => ({
