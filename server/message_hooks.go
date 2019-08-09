@@ -48,10 +48,10 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 		p.API.SendEphemeralPost(post.UserId, &model.Post{
 			UserId:    configuration.demoUserId,
 			ChannelId: post.ChannelId,
-			Message:   "You must not talk about the demo plugin user.",
+			Message:   "Shh! You must not talk about the demo plugin user.",
 		})
 
-		return nil, "disallowing mention of demo plugin user"
+		return nil, plugin.DismissPostError
 	}
 
 	// Otherwise, allow the post through.
