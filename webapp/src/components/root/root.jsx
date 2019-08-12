@@ -19,7 +19,7 @@ const Root = ({visible, close, theme, subMenuId}) => {
                 extraContent = menuSearch.text;
             } else {
                 menu.subMenu.forEach((sm) => {
-                    menuSearch = sm.subMenu.find((s) => s.id === subMenuId);
+                    menuSearch = sm.subMenu ? sm.subMenu.find((s) => s.id === subMenuId) : '';
                     if (menuSearch) {
                         extraContent = menuSearch.text;
                     }
