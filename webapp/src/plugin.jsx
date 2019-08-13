@@ -95,7 +95,7 @@ export default class DemoPlugin {
                         submit_label: 'Confirm',
                         notify_on_cancel: true,
                         state: 'somestate',
-                    }
+                    },
                 });
             },
             <MainMenuMobileIcon/>,
