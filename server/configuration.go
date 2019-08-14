@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/pkg/errors"
@@ -155,12 +156,25 @@ func (p *Plugin) diffConfiguration(newConfiguration *configuration) {
 			continue
 		}
 
+		newConfigurationData, jsonErr := json.Marshal(newConfiguration)
+		if jsonErr != nil {
+			p.API.LogWarn("failed to marshal new configuration", "err", err)
+			return
+		}
+
+		fileInfo, err := p.API.UploadFile(newConfigurationData, demoChannelId, "configuration.json")
+		if err != nil {
+			p.API.LogWarn("failed to attach new configuration", "err", err)
+			return
+		}
+
 		if _, err := p.API.CreatePost(&model.Post{
 			UserId:    p.botId,
 			ChannelId: demoChannelId,
 			Message:   "OnConfigChange: loading new configuration",
 			Type:      "custom_demo_plugin",
 			Props:     configurationDiff,
+			FileIds:   model.StringArray{fileInfo.Id},
 		}); err != nil {
 			p.API.LogWarn("failed to post OnConfigChange message", "err", err)
 			return

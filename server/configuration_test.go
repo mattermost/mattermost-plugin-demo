@@ -98,7 +98,11 @@ func TestOnConfigurationChange(t *testing.T) {
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("GetUserByUsername", mock.AnythingOfType("string")).Return(user, nil)
 				api.On("CreateTeamMember", teamId, "").Return(&model.TeamMember{}, nil)
-				api.On("GetChannelByNameForTeamName", "", "", false).Return(&model.Channel{}, nil)
+				channel := &model.Channel{
+					Id: model.NewId(),
+				}
+				api.On("GetChannelByNameForTeamName", "", "", false).Return(channel, nil)
+				api.On("UploadFile", mock.AnythingOfType("[]uint8"), channel.Id, "configuration.json").Return(&model.FileInfo{}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
 
 				return api
