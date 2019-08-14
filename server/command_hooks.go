@@ -330,6 +330,12 @@ func getDialogWithSampleElements() model.Dialog {
 				Text:  "Option3",
 				Value: "opt3",
 			}},
+		}, {
+			DisplayName: "Boolean Selector",
+			Name:        "someboolean",
+			Type:        "bool",
+			Placeholder: "Choice:",
+			HelpText:    "Pick a choice",
 		}},
 		SubmitLabel:    "Submit",
 		NotifyOnCancel: true,
