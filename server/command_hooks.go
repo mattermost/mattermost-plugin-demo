@@ -17,6 +17,7 @@ const (
 	commandTriggerDialog            = "dialog"
 	commandTriggerEphemeral         = "ephemeral"
 	commandTriggerEphemeralOverride = "ephemeral_override"
+	commandTestCallback             = "test_callback"
 
 	dialogElementNameNumber = "somenumber"
 	dialogElementNameEmail  = "someemail"
@@ -78,6 +79,18 @@ func (p *Plugin) registerCommands() error {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerDialog)
 	}
 
+	testCallback := func(args *plugin.CommandArgs, originalArgs *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
+		return p.testCallback(args)
+	}
+	if err := p.Helpers.RegisterCommand(&model.Command{
+		Trigger:          commandTestCallback,
+		AutoComplete:     true,
+		AutoCompleteDesc: "Test Callback command.",
+		DisplayName:      "Demo Plugin Command",
+	}, testCallback); err != nil {
+		return errors.Wrapf(err, "failed to register %s command", commandTriggerDialog)
+	}
+
 	return nil
 }
 
@@ -107,6 +120,8 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		return p.executeCommandEphemeralOverride(args), nil
 	case commandTriggerDialog:
 		return p.executeCommandDialog(args), nil
+	case commandTestCallback:
+		return p.Helpers.ExecuteCommand(c, args)
 
 	default:
 		return &model.CommandResponse{
@@ -122,6 +137,19 @@ func (p *Plugin) executeCommandCrash() *model.CommandResponse {
 		ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 		Text:         "Crashing plugin",
 	}
+}
+
+func (p *Plugin) testCallback(args *plugin.CommandArgs) (*model.CommandResponse, *model.AppError) {
+	var text string
+	if len(args.Args) > 1 {
+		text = fmt.Sprintf("Testing callback with args: %v", args)
+	} else {
+		text = fmt.Sprintf("Testing callback without args")
+	}
+	return &model.CommandResponse{
+		ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+		Text:         text,
+	}, nil
 }
 
 func (p *Plugin) executeCommandHooks(args *model.CommandArgs) *model.CommandResponse {
