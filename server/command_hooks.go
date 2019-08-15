@@ -33,61 +33,58 @@ const (
 )
 
 func (p *Plugin) registerCommands() error {
-	if err := p.API.RegisterCommand(&model.Command{
-
+	if err := p.Helpers.RegisterCommand(&model.Command{
 		Trigger:          commandTriggerHooks,
 		AutoComplete:     true,
 		AutoCompleteHint: "(true|false)",
 		AutoCompleteDesc: "Enables or disables the demo plugin hooks.",
+	}, func(c *plugin.Context, args *plugin.CommandArgs) (*model.CommandResponse, *model.AppError) {
+		return p.executeCommandHooks(args), nil
 	}); err != nil {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerHooks)
 	}
 
-	if err := p.API.RegisterCommand(&model.Command{
+	if err := p.Helpers.RegisterCommand(&model.Command{
 		Trigger:          commandTriggerCrash,
 		AutoComplete:     true,
 		AutoCompleteHint: "",
 		AutoCompleteDesc: "Crashes Demo Plugin",
+	}, func(c *plugin.Context, args *plugin.CommandArgs) (*model.CommandResponse, *model.AppError) {
+		return p.executeCommandCrash(), nil
 	}); err != nil {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerCrash)
 	}
 
-	if err := p.API.RegisterCommand(&model.Command{
+	if err := p.Helpers.RegisterCommand(&model.Command{
 		Trigger:          commandTriggerEphemeral,
 		AutoComplete:     true,
 		AutoCompleteHint: "",
 		AutoCompleteDesc: "Demonstrates an ephemeral post capabilities.",
+	}, func(c *plugin.Context, args *plugin.CommandArgs) (*model.CommandResponse, *model.AppError) {
+		return p.executeCommandEphemeral(args), nil
 	}); err != nil {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerEphemeral)
 	}
 
-	if err := p.API.RegisterCommand(&model.Command{
+	if err := p.Helpers.RegisterCommand(&model.Command{
 		Trigger:          commandTriggerEphemeralOverride,
 		AutoComplete:     true,
 		AutoCompleteHint: "",
 		AutoCompleteDesc: "Demonstrates an ephemeral post overriden in the webapp.",
+	}, func(c *plugin.Context, args *plugin.CommandArgs) (*model.CommandResponse, *model.AppError) {
+		return p.executeCommandEphemeralOverride(args), nil
 	}); err != nil {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerEphemeralOverride)
 	}
 
-	if err := p.API.RegisterCommand(&model.Command{
+	if err := p.Helpers.RegisterCommand(&model.Command{
 		Trigger:          commandTriggerDialog,
 		AutoComplete:     true,
 		AutoCompleteDesc: "Open an Interactive Dialog.",
 		DisplayName:      "Demo Plugin Command",
+	}, func(c *plugin.Context, args *plugin.CommandArgs) (*model.CommandResponse, *model.AppError) {
+		return p.executeCommandDialog(args), nil
 	}); err != nil {
-		return errors.Wrapf(err, "failed to register %s command", commandTriggerDialog)
-	}
-
-	testCallback := func(args *plugin.CommandArgs, originalArgs *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
-		return p.testCallback(args)
-	}
-	if err := p.Helpers.RegisterCommand(&model.Command{
-		Trigger:          commandTestCallback,
-		AutoComplete:     true,
-		AutoCompleteDesc: "Test Callback command.",
-		DisplayName:      "Demo Plugin Command",
-	}, testCallback); err != nil {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerDialog)
 	}
 
@@ -108,27 +105,7 @@ func (p *Plugin) emitStatusChange() {
 // This demo implementation responds to a /demo_plugin command, allowing the user to enable
 // or disable the demo plugin's hooks functionality (but leave the command and webapp enabled).
 func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
-	trigger := strings.TrimPrefix(strings.Fields(args.Command)[0], "/")
-	switch trigger {
-	case commandTriggerCrash:
-		return p.executeCommandCrash(), nil
-	case commandTriggerHooks:
-		return p.executeCommandHooks(args), nil
-	case commandTriggerEphemeral:
-		return p.executeCommandEphemeral(args), nil
-	case commandTriggerEphemeralOverride:
-		return p.executeCommandEphemeralOverride(args), nil
-	case commandTriggerDialog:
-		return p.executeCommandDialog(args), nil
-	case commandTestCallback:
-		return p.Helpers.ExecuteCommand(c, args)
-
-	default:
-		return &model.CommandResponse{
-			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			Text:         fmt.Sprintf("Unknown command: " + args.Command),
-		}, nil
-	}
+	return p.Helpers.ExecuteCommand(c, args)
 }
 
 func (p *Plugin) executeCommandCrash() *model.CommandResponse {
@@ -139,23 +116,10 @@ func (p *Plugin) executeCommandCrash() *model.CommandResponse {
 	}
 }
 
-func (p *Plugin) testCallback(args *plugin.CommandArgs) (*model.CommandResponse, *model.AppError) {
-	var text string
-	if len(args.Args) > 1 {
-		text = fmt.Sprintf("Testing callback with args: %v", args)
-	} else {
-		text = fmt.Sprintf("Testing callback without args")
-	}
-	return &model.CommandResponse{
-		ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-		Text:         text,
-	}, nil
-}
-
-func (p *Plugin) executeCommandHooks(args *model.CommandArgs) *model.CommandResponse {
+func (p *Plugin) executeCommandHooks(args *plugin.CommandArgs) *model.CommandResponse {
 	configuration := p.getConfiguration()
 
-	if strings.HasSuffix(args.Command, "true") {
+	if strings.HasSuffix(args.Args[0], "true") {
 		if !configuration.disabled {
 			return &model.CommandResponse{
 				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
@@ -173,7 +137,7 @@ func (p *Plugin) executeCommandHooks(args *model.CommandArgs) *model.CommandResp
 
 	}
 
-	if strings.HasSuffix(args.Command, "false") {
+	if strings.HasSuffix(args.Args[0], "false") {
 		if configuration.disabled {
 			return &model.CommandResponse{
 				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
@@ -192,15 +156,15 @@ func (p *Plugin) executeCommandHooks(args *model.CommandArgs) *model.CommandResp
 
 	return &model.CommandResponse{
 		ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-		Text:         fmt.Sprintf("Unknown command action: " + args.Command),
+		Text:         fmt.Sprintf("Unknown command action: " + args.Trigger),
 	}
 }
 
-func (p *Plugin) executeCommandEphemeral(args *model.CommandArgs) *model.CommandResponse {
+func (p *Plugin) executeCommandEphemeral(args *plugin.CommandArgs) *model.CommandResponse {
 	siteURL := *p.API.GetConfig().ServiceSettings.SiteURL
 
 	post := &model.Post{
-		ChannelId: args.ChannelId,
+		ChannelId: args.OriginalArgs.ChannelId,
 		Message:   "test ephemeral actions",
 		Props: model.StringInterface{
 			"attachments": []*model.SlackAttachment{{
@@ -223,13 +187,14 @@ func (p *Plugin) executeCommandEphemeral(args *model.CommandArgs) *model.Command
 			}},
 		},
 	}
-	_ = p.API.SendEphemeralPost(args.UserId, post)
+
+	_ = p.API.SendEphemeralPost(args.OriginalArgs.UserId, post)
 	return &model.CommandResponse{}
 }
 
-func (p *Plugin) executeCommandEphemeralOverride(args *model.CommandArgs) *model.CommandResponse {
-	_ = p.API.SendEphemeralPost(args.UserId, &model.Post{
-		ChannelId: args.ChannelId,
+func (p *Plugin) executeCommandEphemeralOverride(args *plugin.CommandArgs) *model.CommandResponse {
+	_ = p.API.SendEphemeralPost(args.OriginalArgs.UserId, &model.Post{
+		ChannelId: args.OriginalArgs.ChannelId,
 		Message:   "This is a demo of overriding an ephemeral post.",
 		Props: model.StringInterface{
 			"type": "custom_demo_plugin_ephemeral",
@@ -238,14 +203,13 @@ func (p *Plugin) executeCommandEphemeralOverride(args *model.CommandArgs) *model
 	return &model.CommandResponse{}
 }
 
-func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandResponse {
+func (p *Plugin) executeCommandDialog(args *plugin.CommandArgs) *model.CommandResponse {
 	serverConfig := p.API.GetConfig()
 
 	var dialogRequest model.OpenDialogRequest
-	fields := strings.Fields(args.Command)
 	command := ""
-	if len(fields) == 2 {
-		command = fields[1]
+	if len(args.Args) == 2 {
+		command = args.Args[1]
 	}
 
 	switch command {
@@ -256,19 +220,19 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 		}
 	case "":
 		dialogRequest = model.OpenDialogRequest{
-			TriggerId: args.TriggerId,
+			TriggerId: args.OriginalArgs.TriggerId,
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/1", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog:    getDialogWithSampleElements(),
 		}
 	case "no-elements":
 		dialogRequest = model.OpenDialogRequest{
-			TriggerId: args.TriggerId,
+			TriggerId: args.OriginalArgs.TriggerId,
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/2", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog:    getDialogWithoutElements(dialogStateSome),
 		}
 	case "relative-callback-url":
 		dialogRequest = model.OpenDialogRequest{
-			TriggerId: args.TriggerId,
+			TriggerId: args.OriginalArgs.TriggerId,
 			URL:       fmt.Sprintf("/plugins/%s/dialog/2", manifest.Id),
 			Dialog:    getDialogWithoutElements(dialogStateRelativeCallbackURL),
 		}
