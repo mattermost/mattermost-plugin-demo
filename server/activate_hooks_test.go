@@ -57,11 +57,11 @@ func TestOnActivate(t *testing.T) {
 		"minimum supported version fullfiled, but RegisterCommand fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return(minimumServerVersion)
-				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(&model.AppError{})
 
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
+				helpers.On("RegisterCommand", mock.AnythingOfType("*model.Command"), mock.AnythingOfType("plugin.CommandCallback")).Return(&model.AppError{})
 				return helpers
 			},
 			ShouldError: true,
@@ -69,7 +69,6 @@ func TestOnActivate(t *testing.T) {
 		"minimum supported version fullfiled, but GetTeams fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return(minimumServerVersion)
-				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 				api.On("GetTeams").Return(nil, &model.AppError{})
 
 				return api
@@ -83,7 +82,6 @@ func TestOnActivate(t *testing.T) {
 		"minimum supported version fullfiled, but CreatePost fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return(minimumServerVersion)
-				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(nil, &model.AppError{})
 
@@ -98,7 +96,6 @@ func TestOnActivate(t *testing.T) {
 		"minimum supported version fullfiled": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return(minimumServerVersion)
-				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
 
@@ -115,7 +112,6 @@ func TestOnActivate(t *testing.T) {
 				v := semver.MustParse(minimumServerVersion)
 				require.Nil(t, v.IncrementMinor())
 				api.On("GetServerVersion").Return(v.String())
-				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
 
