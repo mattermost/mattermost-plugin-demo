@@ -19,8 +19,9 @@ func TestOnActivate(t *testing.T) {
 	}
 
 	for name, test := range map[string]struct {
-		SetupAPI    func(*plugintest.API) *plugintest.API
-		ShouldError bool
+		SetupAPI     func(*plugintest.API) *plugintest.API
+		SetupHelpers func(*plugintest.Helpers) *plugintest.Helpers
+		ShouldError  bool
 	}{
 		"GetServerVersion not implemented, returns empty string": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
@@ -28,8 +29,11 @@ func TestOnActivate(t *testing.T) {
 
 				return api
 			},
+			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
+				return helpers
+			},
 			ShouldError: true,
-		},                
+		},
 		"lesser minor version than minimumServerVersion": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				v := semver.MustParse(minimumServerVersion)
@@ -45,6 +49,9 @@ func TestOnActivate(t *testing.T) {
 
 				return api
 			},
+			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
+				return helpers
+			},
 			ShouldError: true,
 		},
 		"minimum supported version fullfiled, but RegisterCommand fails": {
@@ -53,6 +60,9 @@ func TestOnActivate(t *testing.T) {
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(&model.AppError{})
 
 				return api
+			},
+			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
+				return helpers
 			},
 			ShouldError: true,
 		},
@@ -63,6 +73,10 @@ func TestOnActivate(t *testing.T) {
 				api.On("GetTeams").Return(nil, &model.AppError{})
 
 				return api
+			},
+			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
+				helpers.On("RegisterCommand", mock.AnythingOfType("*model.Command"), mock.AnythingOfType("plugin.CommandCallback")).Return(nil)
+				return helpers
 			},
 			ShouldError: true,
 		},
@@ -75,6 +89,10 @@ func TestOnActivate(t *testing.T) {
 
 				return api
 			},
+			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
+				helpers.On("RegisterCommand", mock.AnythingOfType("*model.Command"), mock.AnythingOfType("plugin.CommandCallback")).Return(nil)
+				return helpers
+			},
 			ShouldError: true,
 		},
 		"minimum supported version fullfiled": {
@@ -85,6 +103,10 @@ func TestOnActivate(t *testing.T) {
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
 
 				return api
+			},
+			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
+				helpers.On("RegisterCommand", mock.AnythingOfType("*model.Command"), mock.AnythingOfType("plugin.CommandCallback")).Return(nil)
+				return helpers
 			},
 			ShouldError: false,
 		},
@@ -99,6 +121,10 @@ func TestOnActivate(t *testing.T) {
 
 				return api
 			},
+			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
+				helpers.On("RegisterCommand", mock.AnythingOfType("*model.Command"), mock.AnythingOfType("plugin.CommandCallback")).Return(nil)
+				return helpers
+			},
 			ShouldError: false,
 		},
 	} {
@@ -106,11 +132,15 @@ func TestOnActivate(t *testing.T) {
 			api := test.SetupAPI(&plugintest.API{})
 			defer api.AssertExpectations(t)
 
+			helpers := test.SetupHelpers(&plugintest.Helpers{})
+			defer helpers.AssertExpectations(t)
+
 			p := Plugin{}
 			p.setConfiguration(&configuration{
 				demoChannelIds: demoChannelIds,
 			})
 			p.SetAPI(api)
+			p.SetHelpers(helpers)
 			err := p.OnActivate()
 
 			if test.ShouldError {
