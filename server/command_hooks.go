@@ -164,7 +164,7 @@ func (p *Plugin) executeCommandEphemeral(args *plugin.CommandArgs) *model.Comman
 	siteURL := *p.API.GetConfig().ServiceSettings.SiteURL
 
 	post := &model.Post{
-		ChannelId: args.OriginalArgs.ChannelId,
+		ChannelId: args.ChannelId,
 		Message:   "test ephemeral actions",
 		Props: model.StringInterface{
 			"attachments": []*model.SlackAttachment{{
@@ -188,13 +188,13 @@ func (p *Plugin) executeCommandEphemeral(args *plugin.CommandArgs) *model.Comman
 		},
 	}
 
-	_ = p.API.SendEphemeralPost(args.OriginalArgs.UserId, post)
+	_ = p.API.SendEphemeralPost(args.UserId, post)
 	return &model.CommandResponse{}
 }
 
 func (p *Plugin) executeCommandEphemeralOverride(args *plugin.CommandArgs) *model.CommandResponse {
-	_ = p.API.SendEphemeralPost(args.OriginalArgs.UserId, &model.Post{
-		ChannelId: args.OriginalArgs.ChannelId,
+	_ = p.API.SendEphemeralPost(args.UserId, &model.Post{
+		ChannelId: args.ChannelId,
 		Message:   "This is a demo of overriding an ephemeral post.",
 		Props: model.StringInterface{
 			"type": "custom_demo_plugin_ephemeral",
@@ -220,19 +220,19 @@ func (p *Plugin) executeCommandDialog(args *plugin.CommandArgs) *model.CommandRe
 		}
 	case "":
 		dialogRequest = model.OpenDialogRequest{
-			TriggerId: args.OriginalArgs.TriggerId,
+			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/1", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog:    getDialogWithSampleElements(),
 		}
 	case "no-elements":
 		dialogRequest = model.OpenDialogRequest{
-			TriggerId: args.OriginalArgs.TriggerId,
+			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/2", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog:    getDialogWithoutElements(dialogStateSome),
 		}
 	case "relative-callback-url":
 		dialogRequest = model.OpenDialogRequest{
-			TriggerId: args.OriginalArgs.TriggerId,
+			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("/plugins/%s/dialog/2", manifest.Id),
 			Dialog:    getDialogWithoutElements(dialogStateRelativeCallbackURL),
 		}
