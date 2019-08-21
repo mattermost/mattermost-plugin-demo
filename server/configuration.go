@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 
 	"github.com/pkg/errors"
 
@@ -209,7 +210,18 @@ func (p *Plugin) OnConfigurationChange() error {
 		return errors.Wrap(ensureBotError, "failed to ensure demo bot.")
 	}
 
+	config := p.API.GetConfig()
+	data, err := ioutil.ReadFile(*config.PluginSettings.Directory + "/com.mattermost.demo-plugin/assets/github.svg")
+	if err != nil {
+		return errors.Wrap(err, "failed to read bot image")
+	}
+
 	p.botId = botId
+
+	AppError := p.API.SetBotIconImage(botId, data)
+	if AppError != nil {
+		return errors.Wrap(AppError, "failed to set bot icon")
+	}
 
 	configuration.demoChannelIds, err = p.ensureDemoChannels(configuration)
 	if err != nil {
