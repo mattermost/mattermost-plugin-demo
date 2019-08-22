@@ -2,7 +2,7 @@
     "id": "com.mattermost.demo-plugin",
     "name": "Demo Plugin",
     "description": "This plugin demonstrates the capabilities of a Mattermost plugin.",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "min_server_version": "5.14.0",
     "server": {
         "executables": {
