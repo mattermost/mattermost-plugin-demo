@@ -210,8 +210,13 @@ func (p *Plugin) OnConfigurationChange() error {
 		return errors.Wrap(ensureBotError, "failed to ensure demo bot.")
 	}
 
-	config := p.API.GetConfig()
-	data, err := ioutil.ReadFile(*config.PluginSettings.Directory + "/com.mattermost.demo-plugin/assets/github.svg")
+	path, err := p.API.GetBundlePath()
+	if err != nil {
+		return errors.Wrap(err, "failed to get bundle path")
+	}
+
+	path = path + "/assets/github.svg"
+	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		return errors.Wrap(err, "failed to read bot image")
 	}
