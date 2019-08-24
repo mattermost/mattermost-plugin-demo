@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 
 	"github.com/pkg/errors"
 
@@ -223,9 +224,17 @@ func (p *Plugin) OnConfigurationChange() error {
 
 	p.botId = botId
 
-	AppError := p.API.SetBotIconImage(botId, data)
-	if AppError != nil {
-		return errors.Wrap(AppError, "failed to set bot icon")
+	_, appErr := p.API.GetBotIconImage(p.botId)
+	if appErr != nil {
+		if appErr.StatusCode != http.StatusNotFound {
+			return errors.Wrap(appErr, "failed to get bot icon image")
+		}
+
+		appErr = p.API.SetBotIconImage(botId, data)
+		if appErr != nil {
+			return errors.Wrap(appErr, "failed to set bot icon")
+		}
+
 	}
 
 	configuration.demoChannelIds, err = p.ensureDemoChannels(configuration)
