@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"net/http"
 	"testing"
 
 	"github.com/mattermost/mattermost-server/model"
@@ -81,6 +82,10 @@ func TestOnConfigurationChange(t *testing.T) {
 				api.On("CreateTeamMember", teamId, "").Return(&model.TeamMember{}, nil)
 				api.On("GetChannelByNameForTeamName", "", "", false).Return(&model.Channel{}, nil)
 
+				api.On("GetBundlePath").Return("..", nil)
+				api.On("GetBotIconImage", mock.Anything).Return(nil, model.NewAppError("", "", nil, "", http.StatusNotFound))
+				api.On("SetBotIconImage", mock.Anything, mock.Anything).Return(nil)
+
 				return api
 			},
 			SetupHelpers: func() *plugintest.Helpers {
@@ -104,6 +109,10 @@ func TestOnConfigurationChange(t *testing.T) {
 				api.On("GetChannelByNameForTeamName", "", "", false).Return(channel, nil)
 				api.On("UploadFile", mock.AnythingOfType("[]uint8"), channel.Id, "configuration.json").Return(&model.FileInfo{}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
+
+				api.On("GetBundlePath").Return("..", nil)
+				api.On("GetBotIconImage", mock.Anything).Return(nil, model.NewAppError("", "", nil, "", http.StatusNotFound))
+				api.On("SetBotIconImage", mock.Anything, mock.Anything).Return(nil)
 
 				return api
 			},
