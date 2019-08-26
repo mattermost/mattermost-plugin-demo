@@ -82,6 +82,27 @@ export default class DemoPlugin {
             <MainMenuMobileIcon/>,
         );
 
+        registry.registerMainMenuAction(
+            <FormattedMessage
+                id='sample.confirmation.dialog'
+                defaultMessage='Sample Confirmation Dialog'
+            />,
+            () => {
+                window.openInteractiveDialog({
+                    dialog: {
+                        callback_id: 'somecallbackid',
+                        url: '/plugins/' + pluginId + '/dialog/2',
+                        title: 'Sample Confirmation Dialog',
+                        elements: [],
+                        submit_label: 'Confirm',
+                        notify_on_cancel: true,
+                        state: 'somestate',
+                    },
+                });
+            },
+            <MainMenuMobileIcon/>,
+        );
+
         registry.registerPostDropdownMenuAction(
             <FormattedMessage
                 id='plugin.name'

@@ -21,9 +21,13 @@ const (
 	dialogElementNameNumber = "somenumber"
 	dialogElementNameEmail  = "someemail"
 
+	dialogStateSome                = "somestate"
+	dialogStateRelativeCallbackURL = "relativecallbackstate"
+
 	commandDialogHelp = "###### Interactive Dialog Slash Command Help\n" +
 		"- `/dialog` - pen an Interactive Dialog. Once submitted, user-entered input is posted back into a channel.\n" +
 		"- `/dialog no-elements` - Open an Interactive Dialog with no elements. Once submitted, user's action is posted back into a channel.\n" +
+		"- `/dialog relative-callback-url` - Open an Interactive Dialog with relative callback URL. Once submitted, user's action is posted back into a channel.\n" +
 		"- `/dialog help` - Show this help text"
 )
 
@@ -232,7 +236,13 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 		dialogRequest = model.OpenDialogRequest{
 			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/2", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
-			Dialog:    getDialogWithoutElements(),
+			Dialog:    getDialogWithoutElements(dialogStateSome),
+		}
+	case "relative-callback-url":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("/plugins/%s/dialog/2", manifest.Id),
+			Dialog:    getDialogWithoutElements(dialogStateRelativeCallbackURL),
 		}
 	default:
 		return &model.CommandResponse{
@@ -320,14 +330,20 @@ func getDialogWithSampleElements() model.Dialog {
 				Text:  "Option3",
 				Value: "opt3",
 			}},
+		}, {
+			DisplayName: "Boolean Selector",
+			Name:        "someboolean",
+			Type:        "bool",
+			Placeholder: "Choice:",
+			HelpText:    "Pick a choice",
 		}},
 		SubmitLabel:    "Submit",
 		NotifyOnCancel: true,
-		State:          "somestate",
+		State:          dialogStateSome,
 	}
 }
 
-func getDialogWithoutElements() model.Dialog {
+func getDialogWithoutElements(state string) model.Dialog {
 	return model.Dialog{
 		CallbackId:     "somecallbackid",
 		Title:          "Sample Confirmation Dialog",
@@ -335,7 +351,7 @@ func getDialogWithoutElements() model.Dialog {
 		Elements:       nil,
 		SubmitLabel:    "Confirm",
 		NotifyOnCancel: true,
-		State:          "somestate",
+		State:          state,
 	}
 }
 
