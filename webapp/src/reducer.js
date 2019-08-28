@@ -23,7 +23,7 @@ const rootModalVisible = (state = false, action) => {
     }
 };
 
-const subMenuId = (state = false, action) => {
+const subMenuId = (state = '', action) => {
     switch (action.type) {
     case 'SUBMENU_ID':
         return action.subMenuId;
