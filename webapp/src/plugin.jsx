@@ -52,20 +52,16 @@ export default class DemoPlugin {
         registry.registerBottomTeamSidebarComponent(
             BottomTeamSidebar,
         );
-        const {showRHSPlugin, hideRHSPlugin} = registry.registerRightHandSidebarComponent(
+        const {toggleRHSPlugin} = registry.registerRightHandSidebarComponent(
             RHSView,
             <FormattedMessage
                 id='plugin.name'
                 defaultMessage='Demo Plugin'
             />);
 
-        let actionButtonIsActive = false;
         registry.registerChannelHeaderButtonAction(
             <ChannelHeaderButtonIcon/>,
-            () => {
-                store.dispatch(actionButtonIsActive ? hideRHSPlugin : showRHSPlugin);
-                actionButtonIsActive = !actionButtonIsActive;
-            },
+            () => store.dispatch(toggleRHSPlugin),
             <FormattedMessage
                 id='plugin.name'
                 defaultMessage='Demo Plugin'
