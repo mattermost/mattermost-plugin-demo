@@ -6,10 +6,12 @@ export default class UserActionsComponent extends React.PureComponent {
     static propTypes = {
         openRootModal: PropTypes.func.isRequired,
         theme: PropTypes.object.isRequired,
+        hide: PropTypes.func.isRequired,
     }
 
     onClick = () => {
         this.props.openRootModal();
+        this.props.hide();
     }
 
     render() {
