@@ -10,22 +10,20 @@ const Root = ({visible, close, theme, subMenuId}) => {
     }
 
     let extraContent = '';
+    let extraContentTitle = '';
     if (subMenuId) {
-        if (subMenuId === menu.id) {
-            extraContent = menu.text;
-        } else {
-            let menuSearch = menu.subMenu.find((s) => s.id === subMenuId);
-            if (menuSearch) {
-                extraContent = menuSearch.text;
-            } else {
-                menu.subMenu.forEach((sm) => {
-                    menuSearch = sm.subMenu ? sm.subMenu.find((s) => s.id === subMenuId) : '';
-                    if (menuSearch) {
-                        extraContent = menuSearch.text;
-                    }
-                });
-            }
-        }
+        extraContentTitle = (
+            <FormattedMessage
+                id='demo.triggeredby'
+                defaultMessage='Element clicked in the menu: '
+            />
+        );
+        const items = [];
+        items.push(menu);
+        items.push(menu.subMenu);
+        menu.subMenu.forEach((i) => items.push(i.subMenu));
+        extraContent = items.flat().find((i) => i.id === subMenuId).text;
+
     }
 
     const style = getStyle(theme);
@@ -54,6 +52,7 @@ const Root = ({visible, close, theme, subMenuId}) => {
                 />
                 <br/>
                 <br/>
+                {extraContentTitle}
                 {extraContent}
             </div>
         </div>

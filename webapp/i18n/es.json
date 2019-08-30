@@ -12,7 +12,9 @@
   "useractions.action": "Acción",
   "useractions.demo": "Complemento de Demostración: ",
   "submenu.menu": "Ejemplo de submenú",
-  "submenu.first": "Primer iteam",
-  "submenu.second": "Segundo iteam",
-  "submenu.third": "Tercer iteam"
+  "submenu.first": "Primer item",
+  "submenu.second": "Segundo item",
+  "submenu.third": "Tercer item",
+  "demo.triggeredby": "Elemento hecho clic en el menú: "
+
 }

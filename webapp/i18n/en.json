@@ -15,5 +15,6 @@
   "submenu.menu": "Submenu Example",
   "submenu.first": "First Item",
   "submenu.second": "Second Item",
-  "submenu.third": "Third Item"
+  "submenu.third": "Third Item",
+  "demo.triggeredby": "Element clicked in the menu: "
 }

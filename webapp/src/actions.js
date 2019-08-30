@@ -5,6 +5,10 @@ import {STATUS_CHANGE, OPEN_ROOT_MODAL, CLOSE_ROOT_MODAL} from './action_types';
 
 export const openRootModal = () => (dispatch) => {
     dispatch({
+        type: 'SUBMENU_ID',
+        subMenuId: '',
+    });
+    dispatch({
         type: OPEN_ROOT_MODAL,
     });
 };
