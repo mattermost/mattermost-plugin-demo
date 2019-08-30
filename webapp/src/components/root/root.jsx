@@ -23,7 +23,6 @@ const Root = ({visible, close, theme, subMenuId}) => {
         items.push(menu.subMenu);
         menu.subMenu.forEach((i) => items.push(i.subMenu));
         extraContent = items.flat().find((i) => i.id === subMenuId).text;
-
     }
 
     const style = getStyle(theme);
