@@ -23,11 +23,13 @@ const (
 
 	dialogStateSome                = "somestate"
 	dialogStateRelativeCallbackURL = "relativecallbackstate"
+	dialogIntroductionText         = "**Some** _introductory_ paragraph in Markdown formatted text with [link](https://mattermost.com)"
 
 	commandDialogHelp = "###### Interactive Dialog Slash Command Help\n" +
 		"- `/dialog` - pen an Interactive Dialog. Once submitted, user-entered input is posted back into a channel.\n" +
 		"- `/dialog no-elements` - Open an Interactive Dialog with no elements. Once submitted, user's action is posted back into a channel.\n" +
 		"- `/dialog relative-callback-url` - Open an Interactive Dialog with relative callback URL. Once submitted, user's action is posted back into a channel.\n" +
+		"- `/dialog introduction-text` - Open an Interactive Dialog with optional introduction text. Once submitted, user's action is posted back into a channel.\n" +
 		"- `/dialog help` - Show this help text"
 )
 
@@ -244,6 +246,12 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			URL:       fmt.Sprintf("/plugins/%s/dialog/2", manifest.Id),
 			Dialog:    getDialogWithoutElements(dialogStateRelativeCallbackURL),
 		}
+	case "introduction-text":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/1", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogWithIntroductionText(dialogIntroductionText),
+		}
 	default:
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
@@ -353,6 +361,12 @@ func getDialogWithoutElements(state string) model.Dialog {
 		NotifyOnCancel: true,
 		State:          state,
 	}
+}
+
+func getDialogWithIntroductionText(introductionText string) model.Dialog {
+	dialog := getDialogWithSampleElements()
+	dialog.IntroductionText = introductionText
+	return dialog
 }
 
 func (p *Plugin) crash() {
