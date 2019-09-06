@@ -1,6 +1,6 @@
 import {combineReducers} from 'redux';
 
-import {STATUS_CHANGE, OPEN_ROOT_MODAL, CLOSE_ROOT_MODAL} from './action_types';
+import {STATUS_CHANGE, OPEN_ROOT_MODAL, CLOSE_ROOT_MODAL, SUBMENU} from './action_types';
 
 const enabled = (state = false, action) => {
     switch (action.type) {
@@ -23,10 +23,10 @@ const rootModalVisible = (state = false, action) => {
     }
 };
 
-const subMenuId = (state = '', action) => {
+const subMenu = (state = '', action) => {
     switch (action.type) {
-    case 'SUBMENU_ID':
-        return action.subMenuId;
+    case SUBMENU:
+        return action.subMenu;
 
     default:
         return state;
@@ -36,6 +36,6 @@ const subMenuId = (state = '', action) => {
 export default combineReducers({
     enabled,
     rootModalVisible,
-    subMenuId,
+    subMenu,
 });
 

@@ -6,4 +6,4 @@ export const isEnabled = (state) => getPluginState(state).enabled;
 
 export const isRootModalVisible = (state) => getPluginState(state).rootModalVisible;
 
-export const subMenuId = (state) => getPluginState(state).subMenuId;
+export const subMenu = (state) => getPluginState(state).subMenu;

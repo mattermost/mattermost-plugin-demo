@@ -2,27 +2,21 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {FormattedMessage} from 'react-intl';
 
-import {menu} from '../../sub_menu';
-
-const Root = ({visible, close, theme, subMenuId}) => {
+const Root = ({visible, close, theme, subMenu}) => {
     if (!visible) {
         return null;
     }
 
     let extraContent = '';
     let extraContentTitle = '';
-    if (subMenuId) {
+    if (subMenu) {
         extraContentTitle = (
             <FormattedMessage
                 id='demo.triggeredby'
                 defaultMessage='Element clicked in the menu: '
             />
         );
-        const items = [];
-        items.push(menu);
-        items.push(menu.subMenu);
-        menu.subMenu.forEach((i) => items.push(i.subMenu));
-        extraContent = items.flat().find((i) => i.id === subMenuId).text;
+        extraContent = subMenu;
     }
 
     const style = getStyle(theme);
@@ -62,7 +56,7 @@ Root.propTypes = {
     visible: PropTypes.bool.isRequired,
     close: PropTypes.func.isRequired,
     theme: PropTypes.object.isRequired,
-    subMenuId: PropTypes.string,
+    subMenu: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
 };
 
 const getStyle = (theme) => ({

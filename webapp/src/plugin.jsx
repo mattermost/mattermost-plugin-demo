@@ -32,7 +32,6 @@ import {
     getStatus,
 } from './actions';
 import reducer from './reducer';
-import {menu} from './sub_menu';
 
 function getTranslations(locale) {
     switch (locale) {
@@ -111,10 +110,53 @@ export default class DemoPlugin {
             () => store.dispatch(postDropdownMenuAction()),
         );
 
-        registry.registerPostDropdownMenuAction(menu,
-            (postId, menuId) => {
-                store.dispatch(postDropdownSubMenuAction(menuId));
-            },
+        const rootRegisterMenuItem = registry.registerPostDropdownMenuItem(
+            <FormattedMessage
+                id='submenu.menu'
+                defaultMessage='Submenu Example'
+            />
+        );
+
+        const firstItem = (
+            <FormattedMessage
+                id='submenu.first'
+                key='submenu.first'
+                defaultMessage='First Item'
+            />
+        );
+        const sub1RegisterMenuItem = rootRegisterMenuItem(
+            firstItem,
+            () => {
+                store.dispatch(postDropdownSubMenuAction(firstItem));
+            }
+        );
+
+        const secondItem = (
+            <FormattedMessage
+                id='submenu.second'
+                key='submenu.second'
+                defaultMessage='Second Item'
+            />
+        );
+        sub1RegisterMenuItem(
+            secondItem,
+            () => {
+                store.dispatch(postDropdownSubMenuAction(secondItem));
+            }
+        );
+
+        const thirdItem = (
+            <FormattedMessage
+                id='submenu.third'
+                key='submenu.third'
+                defaultMessage='Third Item'
+            />
+        );
+        rootRegisterMenuItem(
+            thirdItem,
+            () => {
+                store.dispatch(postDropdownSubMenuAction(thirdItem));
+            }
         );
 
         registry.registerFileUploadMethod(
