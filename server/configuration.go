@@ -224,17 +224,13 @@ func (p *Plugin) OnConfigurationChange() error {
 
 	p.botId = botId
 
-	_, appErr := p.API.GetBotIconImage(p.botId)
-	if appErr != nil {
-		if appErr.StatusCode != http.StatusNotFound {
-			return errors.Wrap(appErr, "failed to get bot icon image")
-		}
-
+	if _, appErr := p.API.GetBotIconImage(p.botId); appErr != nil && appErr.StatusCode != http.StatusNotFound {
+		return errors.Wrap(appErr, "failed to get bot icon image")
+	} else if appErr != nil && appErr.StatusCode == http.StatusNotFound {
 		appErr = p.API.SetBotIconImage(botId, data)
 		if appErr != nil {
 			return errors.Wrap(appErr, "failed to set bot icon")
 		}
-
 	}
 
 	configuration.demoChannelIds, err = p.ensureDemoChannels(configuration)
