@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"path/filepath"
 
 	"github.com/pkg/errors"
 
@@ -216,8 +217,7 @@ func (p *Plugin) OnConfigurationChange() error {
 		return errors.Wrap(err, "failed to get bundle path")
 	}
 
-	path = path + "/assets/github.svg"
-	data, err := ioutil.ReadFile(path)
+	data, err := ioutil.ReadFile(filepath.Join(path, "/assets/github.svg"))
 	if err != nil {
 		return errors.Wrap(err, "failed to read bot image")
 	}

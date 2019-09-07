@@ -142,6 +142,32 @@ func TestOnConfigurationChange(t *testing.T) {
 			preConfiguration: &configuration{EnableMentionUser: true},
 			ShouldError:      true,
 		},
+		"bot icon exists": {
+			SetupAPI: func() *plugintest.API {
+				api := &plugintest.API{}
+				api.On("LoadPluginConfiguration", apiConfiguration).Return(nil)
+				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
+				api.On("GetUserByUsername", mock.AnythingOfType("string")).Return(user, nil)
+				api.On("CreateTeamMember", teamId, "").Return(&model.TeamMember{}, nil)
+				channel := &model.Channel{
+					Id: model.NewId(),
+				}
+				api.On("GetChannelByNameForTeamName", "", "", false).Return(channel, nil)
+				api.On("UploadFile", mock.AnythingOfType("[]uint8"), channel.Id, "configuration.json").Return(&model.FileInfo{}, nil)
+				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
+				api.On("GetBundlePath").Return("..", nil)
+				api.On("GetBotIconImage", mock.Anything).Return(nil, nil)
+				api.AssertNotCalled(t, "SetBotIconImage", mock.Anything, mock.Anything)
+				return api
+			},
+			SetupHelpers: func() *plugintest.Helpers {
+				helpers := &plugintest.Helpers{}
+				helpers.On("EnsureBot", mock.AnythingOfType("*model.Bot")).Return(model.NewId(), nil)
+				return helpers
+			},
+			preConfiguration: &configuration{EnableMentionUser: true},
+			ShouldError:      false,
+		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			api := test.SetupAPI()
