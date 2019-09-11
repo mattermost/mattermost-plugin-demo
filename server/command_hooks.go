@@ -282,6 +282,13 @@ func getDialogWithSampleElements() model.Dialog {
 			Placeholder: "placeholder@bladekick.com",
 			HelpText:    "This a regular email input in an interactive dialog triggered by a test integration.",
 		}, {
+			DisplayName: "Password",
+			Name:        "somepassword",
+			Type:        "text",
+			SubType:     "password",
+			Placeholder: "Password",
+			HelpText:    "This a password input in an interactive dialog triggered by a test integration.",
+		}, {
 			DisplayName: "Number",
 			Name:        dialogElementNameNumber,
 			Type:        "text",

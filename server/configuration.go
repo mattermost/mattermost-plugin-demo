@@ -3,6 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"path/filepath"
 
 	"github.com/pkg/errors"
 
@@ -209,7 +212,26 @@ func (p *Plugin) OnConfigurationChange() error {
 		return errors.Wrap(ensureBotError, "failed to ensure demo bot.")
 	}
 
+	path, err := p.API.GetBundlePath()
+	if err != nil {
+		return errors.Wrap(err, "failed to get bundle path")
+	}
+
+	data, err := ioutil.ReadFile(filepath.Join(path, "/assets/github.svg"))
+	if err != nil {
+		return errors.Wrap(err, "failed to read bot image")
+	}
+
 	p.botId = botId
+
+	if _, appErr := p.API.GetBotIconImage(p.botId); appErr != nil && appErr.StatusCode != http.StatusNotFound {
+		return errors.Wrap(appErr, "failed to get bot icon image")
+	} else if appErr != nil && appErr.StatusCode == http.StatusNotFound {
+		appErr = p.API.SetBotIconImage(botId, data)
+		if appErr != nil {
+			return errors.Wrap(appErr, "failed to set bot icon")
+		}
+	}
 
 	configuration.demoChannelIds, err = p.ensureDemoChannels(configuration)
 	if err != nil {
