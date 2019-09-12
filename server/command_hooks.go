@@ -31,6 +31,7 @@ const (
 		"- `/dialog relative-callback-url` - Open an Interactive Dialog with relative callback URL. Once submitted, user's action is posted back into a channel.\n" +
 		"- `/dialog introduction-text` - Open an Interactive Dialog with optional introduction text. Once submitted, user's action is posted back into a channel.\n" +
 		"- `/dialog error` - Open an Interactive Dialog which always returns an general error.\n" +
+		"- `/dialog error-no-elements` - Open an Interactive Dialog with no elements which always returns an general error.\n" +
 		"- `/dialog help` - Show this help text"
 )
 
@@ -257,7 +258,13 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 		dialogRequest = model.OpenDialogRequest{
 			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("/plugins/%s/dialog/error", manifest.Id),
-			Dialog:    getDialogWithoutElements(""),
+			Dialog:    getDialogWithSampleElements(),
+		}
+	case "error-no-elements":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("/plugins/%s/dialog/error", manifest.Id),
+			Dialog:    getDialogWithoutElements(dialogStateSome),
 		}
 	default:
 		return &model.CommandResponse{
