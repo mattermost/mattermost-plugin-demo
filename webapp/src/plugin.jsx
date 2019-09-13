@@ -44,6 +44,7 @@ function getTranslations(locale) {
 
 export default class DemoPlugin {
     initialize(registry, store) {
+        registry.registerTranslations(getTranslations);
         registry.registerRootComponent(Root);
         registry.registerPopoverUserAttributesComponent(UserAttributes);
         registry.registerPopoverUserActionsComponent(UserActions);
@@ -134,8 +135,6 @@ export default class DemoPlugin {
         registry.registerReconnectHandler(() => {
             store.dispatch(getStatus());
         });
-
-        registry.registerTranslations(getTranslations);
     }
 
     uninitialize() {
