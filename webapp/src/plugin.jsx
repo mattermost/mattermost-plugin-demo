@@ -110,7 +110,7 @@ export default class DemoPlugin {
             () => store.dispatch(postDropdownMenuAction()),
         );
 
-        const rootRegisterMenuItem = registry.registerPostDropdownMenuItem(
+        const rootRegisterSubMenuItem = registry.registerPostDropdownSubMenuItem(
             <FormattedMessage
                 id='submenu.menu'
                 defaultMessage='Submenu Example'
@@ -124,7 +124,7 @@ export default class DemoPlugin {
                 defaultMessage='First Item'
             />
         );
-        const sub1RegisterMenuItem = rootRegisterMenuItem(
+        const sub1RegisterMenuItem = rootRegisterSubMenuItem(
             firstItem,
             () => {
                 store.dispatch(postDropdownSubMenuAction(firstItem));
@@ -152,7 +152,7 @@ export default class DemoPlugin {
                 defaultMessage='Third Item'
             />
         );
-        rootRegisterMenuItem(
+        rootRegisterSubMenuItem(
             thirdItem,
             () => {
                 store.dispatch(postDropdownSubMenuAction(thirdItem));
