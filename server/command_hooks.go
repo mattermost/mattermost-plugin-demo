@@ -351,6 +351,21 @@ func getDialogWithSampleElements() model.Dialog {
 			Type:        "bool",
 			Placeholder: "Choice:",
 			HelpText:    "Pick a choice",
+		}, {
+			DisplayName: "Radio Option Selector",
+			Name:        "someradiooptionselector",
+			Type:        "radio",
+			HelpText:    "Choose an option from the list.",
+			Options: []*model.PostActionOptions{{
+				Text:  "Option1",
+				Value: "opt1",
+			}, {
+				Text:  "Option2",
+				Value: "opt2",
+			}, {
+				Text:  "Option3",
+				Value: "opt3",
+			}},
 		}},
 		SubmitLabel:    "Submit",
 		NotifyOnCancel: true,
