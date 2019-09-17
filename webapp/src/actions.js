@@ -3,18 +3,10 @@ import {getConfig} from 'mattermost-redux/selectors/entities/general';
 import {id as pluginId} from './manifest';
 import {STATUS_CHANGE, OPEN_ROOT_MODAL, CLOSE_ROOT_MODAL, SUBMENU} from './action_types';
 
-export const openRootModal = () => (dispatch) => {
-    export const openRootModal = (subMenuText = '') => (dispatch) => {
+export const openRootModal = (subMenuText = '') => (dispatch) => {
     dispatch({
         type: SUBMENU,
         subMenu: subMenuText,
-    });
-    dispatch({
-        type: OPEN_ROOT_MODAL,
-    });
-};
-        type: SUBMENU,
-        subMenu: '',
     });
     dispatch({
         type: OPEN_ROOT_MODAL,
