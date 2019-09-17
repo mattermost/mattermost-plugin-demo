@@ -164,7 +164,7 @@ func (p *Plugin) handleDialog2(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Plugin) handleDialogWithError(w http.ResponseWriter, r *http.Request) {
-	// Allways return an error
+	// Always return an error
 	response := &model.SubmitDialogResponse{
 		Error: "some error",
 	}
