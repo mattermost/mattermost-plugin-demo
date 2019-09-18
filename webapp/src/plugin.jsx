@@ -110,7 +110,7 @@ export default class DemoPlugin {
             () => store.dispatch(postDropdownMenuAction()),
         );
 
-        const rootRegisterSubMenuItem = registry.registerPostDropdownSubMenuItem(
+        const rootRegisterSubMenuItem = registry.registerPostDropdownSubMenuAction(
             <FormattedMessage
                 id='submenu.menu'
                 defaultMessage='Submenu Example'
