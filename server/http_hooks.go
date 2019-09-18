@@ -28,6 +28,8 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 		p.handleDialog1(w, r)
 	case "/dialog/2":
 		p.handleDialog2(w, r)
+	case "/dialog/error":
+		p.handleDialogWithError(w, r)
 	case "/ephemeral/update":
 		p.handleEphemeralUpdate(w, r)
 	case "/ephemeral/delete":
@@ -159,6 +161,14 @@ func (p *Plugin) handleDialog2(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func (p *Plugin) handleDialogWithError(w http.ResponseWriter, r *http.Request) {
+	// Always return an error
+	response := &model.SubmitDialogResponse{
+		Error: "some error",
+	}
+	p.writeSubmitDialogResponse(w, response)
 }
 
 func (p *Plugin) handleEphemeralUpdate(w http.ResponseWriter, r *http.Request) {
