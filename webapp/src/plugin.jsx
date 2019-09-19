@@ -110,9 +110,11 @@ export default class DemoPlugin {
             () => store.dispatch(postDropdownMenuAction()),
         );
 
-        const rootRegisterSubMenuItem = registry.registerPostDropdownSubMenuAction(
+        // eslint-disable-next-line no-unused-vars
+        const {id, rootRegisterMenuItem} = registry.registerPostDropdownSubMenuAction(
             <FormattedMessage
                 id='submenu.menu'
+                key='submenu.menu'
                 defaultMessage='Submenu Example'
             />
         );
@@ -124,7 +126,7 @@ export default class DemoPlugin {
                 defaultMessage='First Item'
             />
         );
-        const sub1RegisterMenuItem = rootRegisterSubMenuItem(
+        const sub1RegisterMenuItem = rootRegisterMenuItem(
             firstItem,
             () => {
                 store.dispatch(postDropdownSubMenuAction(firstItem));
@@ -152,7 +154,7 @@ export default class DemoPlugin {
                 defaultMessage='Third Item'
             />
         );
-        rootRegisterSubMenuItem(
+        rootRegisterMenuItem(
             thirdItem,
             () => {
                 store.dispatch(postDropdownSubMenuAction(thirdItem));
