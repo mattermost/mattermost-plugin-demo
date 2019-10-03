@@ -5,5 +5,5 @@ var manifest = struct {
 	Version string
 }{
 	Id:      "com.mattermost.demo-plugin",
-	Version: "0.2.0",
+	Version: "0.3.0",
 }
