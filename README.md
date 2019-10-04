@@ -14,4 +14,4 @@ For details on getting started, see [mattermost-plugin-starter-template](https:/
 
 ## Releasing this plugin
 
-A new minor version of this plugin is released with every feature release of Mattermost. The new version should be cut until Code complete.
+A new minor version of this plugin is released with every feature release of Mattermost. The new version should be cut until [Code complete](https://docs.mattermost.com/process/feature-release.html#f-t-minus-14-working-days-code-complete).
