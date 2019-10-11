@@ -10,7 +10,6 @@ export default class SecretMessageSetting extends React.PureComponent {
         value: PropTypes.any,
         disabled: PropTypes.bool.isRequired,
         config: PropTypes.object.isRequired,
-        currentState: PropTypes.object.isRequired,
         license: PropTypes.object.isRequired,
         setByEnv: PropTypes.bool.isRequired,
         onChange: PropTypes.func.isRequired,
@@ -50,7 +49,9 @@ export default class SecretMessageSetting extends React.PureComponent {
         });
     }
 
-    toggleSecretMessage = () => {
+    toggleSecretMessage = (e) => {
+        e.preventDefault();
+
         this.setState({
             showSecretMessage: !this.state.showSecretMessage,
         });
@@ -62,28 +63,29 @@ export default class SecretMessageSetting extends React.PureComponent {
 
     render() {
         return (
-            <Setting
-                label={this.props.label}
-                inputId={this.props.id}
-                helpText={this.props.helpText}
-                setByEnv={this.props.setByEnv}
-            >
-                {this.state.showSecretMessage &&
-                    <textarea
-                        className="form-control"
-                        rows={5}
-                        value={this.props.value}
-                        disabled={this.props.disabled || this.props.setByEnv}
-                        onChange={this.handleChange}
-                    />
-                }
-                <div className="help-text">
-                    <button className="btn btn-default" onClick={this.toggleSecretMessage}>
-                        {this.state.showSecretMessage && "Hide Secret Message"}
-                        {!this.state.showSecretMessage && "Show Secret Message"}
-                    </button>
-                </div>
-            </Setting>
-        );
+                <React.Fragment>
+                    {this.state.showSecretMessage &&
+                        <textarea
+                            className="form-control input"
+                            rows={5}
+                            value={this.props.value}
+                            disabled={this.props.disabled || this.props.setByEnv}
+                            onInput={this.handleChange}
+                        />
+                    }
+                    <div>
+                        <button className="btn btn-default" onClick={this.toggleSecretMessage}>
+                            {this.state.showSecretMessage && "Hide Secret Message"}
+                            {!this.state.showSecretMessage && "Show Secret Message"}
+                        </button>
+                    </div>
+                </React.Fragment>
+            );
     }
 }
+
+const style = {
+    input: {
+        marginBottom: '5px',
+    }
+};

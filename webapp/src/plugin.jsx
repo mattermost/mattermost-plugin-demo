@@ -15,7 +15,9 @@ import LinkTooltip from './components/link_tooltip';
 import UserAttributes from './components/user_attributes';
 import UserActions from './components/user_actions';
 import RHSView from './components/right_hand_sidebar';
-import SecretMessageSetting from './components/secret_message_setting';
+import SecretMessageSetting from './components/admin_settings/secret_message_setting';
+import CustomSetting from './components/admin_settings/custom_setting';
+
 
 import PostType from './components/post_type';
 import EphemeralPostType from './components/ephemeral_post_type';
@@ -126,7 +128,8 @@ export default class DemoPlugin {
             },
         );
 
-        registry.registerAdminConsoleCustomComponent('SecretMessage', SecretMessageSetting);
+        registry.registerAdminConsoleCustomSetting('SecretMessage', SecretMessageSetting, 'Secret Message');
+        registry.registerAdminConsoleCustomSetting('CustomSetting', CustomSetting);
 
         registry.registerReducer(reducer);
 
