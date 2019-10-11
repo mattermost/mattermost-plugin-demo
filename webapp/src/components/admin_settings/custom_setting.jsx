@@ -22,11 +22,11 @@ export default class CustomSetting extends React.PureComponent {
 
         this.state = {
             value: this.props.value,
-        }
+        };
     }
 
     handleChange = (e) => {
-        this.setState({value:  e.target.value});
+        this.setState({value: e.target.value});
 
         this.props.onChange(this.props.id, e.target.value);
         this.props.setSaveNeeded();
@@ -34,19 +34,20 @@ export default class CustomSetting extends React.PureComponent {
 
     render() {
         return (
-                <div style={style.div}>
-                    <div style={style.text}> 
-                        {'Demo Custom Setting'} </div>   
-                    <div style={style.text}> 
-                        {this.state.value} </div>                     
-                    <input 
-                        type="range" 
-                        min="0" 
-                        max="10" 
-                        value={this.state.value}
-                        onChange={this.handleChange}></input>     
-                </div>
-            );
+            <div style={style.div}>
+                <div style={style.text}>
+                    {'Demo Custom Setting'}</div>
+                <div style={style.text}>
+                    {this.state.value}</div>
+                <input
+                    type='range'
+                    min='0'
+                    max='10'
+                    value={this.state.value}
+                    onChange={this.handleChange}
+                />
+            </div>
+        );
     }
 }
 
@@ -54,14 +55,14 @@ const style = {
     div: {
         padding: '10px 50px 15px 50px',
         border: '1px solid #ddd',
-        margin: '10px'
+        margin: '10px',
     },
     text: {
         padding: '5px',
         textAlign: 'center',
-        fontWeight: '900'
+        fontWeight: '900',
     },
     input: {
         margin: '5px',
-    }
+    },
 };

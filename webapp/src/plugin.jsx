@@ -18,7 +18,6 @@ import RHSView from './components/right_hand_sidebar';
 import SecretMessageSetting from './components/admin_settings/secret_message_setting';
 import CustomSetting from './components/admin_settings/custom_setting';
 
-
 import PostType from './components/post_type';
 import EphemeralPostType from './components/ephemeral_post_type';
 import {

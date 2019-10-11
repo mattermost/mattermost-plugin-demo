@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-const Setting = window.SystemConsoleSetting;
 
 export default class SecretMessageSetting extends React.PureComponent {
     static propTypes = {
@@ -23,7 +22,7 @@ export default class SecretMessageSetting extends React.PureComponent {
 
         this.state = {
             showSecretMessage: false,
-        }
+        };
     }
 
     componentDidMount() {
@@ -63,29 +62,33 @@ export default class SecretMessageSetting extends React.PureComponent {
 
     render() {
         return (
-                <React.Fragment>
-                    {this.state.showSecretMessage &&
-                        <textarea
-                            className="form-control input"
-                            rows={5}
-                            value={this.props.value}
-                            disabled={this.props.disabled || this.props.setByEnv}
-                            onInput={this.handleChange}
-                        />
-                    }
-                    <div>
-                        <button className="btn btn-default" onClick={this.toggleSecretMessage}>
-                            {this.state.showSecretMessage && "Hide Secret Message"}
-                            {!this.state.showSecretMessage && "Show Secret Message"}
-                        </button>
-                    </div>
-                </React.Fragment>
-            );
+            <React.Fragment>
+                {this.state.showSecretMessage &&
+                    <textarea
+                        style={style.input}
+                        className='form-control input'
+                        rows={5}
+                        value={this.props.value}
+                        disabled={this.props.disabled || this.props.setByEnv}
+                        onInput={this.handleChange}
+                    />
+                }
+                <div>
+                    <button
+                        className='btn btn-default'
+                        onClick={this.toggleSecretMessage}
+                    >
+                        {this.state.showSecretMessage && 'Hide Secret Message'}
+                        {!this.state.showSecretMessage && 'Show Secret Message'}
+                    </button>
+                </div>
+            </React.Fragment>
+        );
     }
 }
 
 const style = {
     input: {
         marginBottom: '5px',
-    }
+    },
 };
