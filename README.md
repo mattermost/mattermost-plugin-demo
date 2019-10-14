@@ -11,3 +11,7 @@ Feel free to base your own plugin off this repository, removing or modifying com
 Note that this plugin is authored for the Mattermost version indicated in the `min_server_version` within [plugin.json](https://github.com/mattermost/mattermost-plugin-demo/blob/master/plugin.json), and is not compatible with earlier releases of Mattermost.
 
 For details on getting started, see [mattermost-plugin-starter-template](https://github.com/mattermost/mattermost-plugin-starter-template).
+
+## Releasing this plugin
+
+A new minor version of this plugin is released with every feature release of Mattermost. The new version should be cut until [Code complete](https://docs.mattermost.com/process/feature-release.html#f-t-minus-14-working-days-code-complete).
