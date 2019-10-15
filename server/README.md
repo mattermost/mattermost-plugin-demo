@@ -63,7 +63,7 @@ or disable the demo plugin's hooks functionality (but leave the command and weba
 The `/ephemeral` command demonstrates ephemeral interactive usage of SendEphemeralPost, 
 UpdateEphemeralPost, and DeleteEphemeralPost.
 
-The `/ephemeral_override` command demonstrates override of ephemeral posts in the webapp.
+The `/ephemeral_override` command demonstrates the override of ephemeral posts in the webapp.
 
 The `/crash` command demonstrates crashing the plugin (and the server recovering/restarting the plugin).
 
@@ -124,13 +124,13 @@ This demo implementation logs a message to the demo channel whenever a user logs
 
 ### UserHasBeenCreated
 
-This demo implementation logs a message to demo channel whenever a new user is created.
+This demo implementation logs a message to the demo channel whenever a new user is created.
 
 ## [file\_hooks.go](file_hooks.go)
 
 ### FileWillBeUploaded
 
-This demo implementation logs a message to demo channel whenever a file is uploaded.
+This demo implementation logs a message to the demo channel whenever a file is uploaded.
 
 
 ## Plugin Settings
