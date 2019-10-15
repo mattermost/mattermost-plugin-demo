@@ -11,5 +11,10 @@
   "tooltip.message": "This is a custom tooltip from the Demo Plugin",
   "useractions.action": "Action",
   "useractions.demo": "Demo Plugin: ",
-  "sample.confirmation.dialog": "Sample Confirmation Dialog"
+  "sample.confirmation.dialog": "Sample Confirmation Dialog",
+  "submenu.menu": "Submenu Example",
+  "submenu.first": "First Item",
+  "submenu.second": "Second Item",
+  "submenu.third": "Third Item",
+  "demo.triggeredby": "Element clicked in the menu: "
 }

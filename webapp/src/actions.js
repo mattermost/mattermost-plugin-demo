@@ -1,9 +1,13 @@
 import {getConfig} from 'mattermost-redux/selectors/entities/general';
 
 import {id as pluginId} from './manifest';
-import {STATUS_CHANGE, OPEN_ROOT_MODAL, CLOSE_ROOT_MODAL} from './action_types';
+import {STATUS_CHANGE, OPEN_ROOT_MODAL, CLOSE_ROOT_MODAL, SUBMENU} from './action_types';
 
-export const openRootModal = () => (dispatch) => {
+export const openRootModal = (subMenuText = '') => (dispatch) => {
+    dispatch({
+        type: SUBMENU,
+        subMenu: subMenuText,
+    });
     dispatch({
         type: OPEN_ROOT_MODAL,
     });
@@ -18,6 +22,7 @@ export const closeRootModal = () => (dispatch) => {
 export const mainMenuAction = openRootModal;
 export const fileUploadMethodAction = openRootModal;
 export const postDropdownMenuAction = openRootModal;
+export const postDropdownSubMenuAction = openRootModal;
 
 // TODO: Move this into mattermost-redux or mattermost-webapp.
 export const getPluginServerRoute = (state) => {

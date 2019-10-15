@@ -27,6 +27,7 @@ import {
     mainMenuAction,
     fileUploadMethodAction,
     postDropdownMenuAction,
+    postDropdownSubMenuAction,
     websocketStatusChange,
     getStatus,
 } from './actions';
@@ -107,6 +108,57 @@ export default class DemoPlugin {
                 defaultMessage='Demo Plugin'
             />,
             () => store.dispatch(postDropdownMenuAction()),
+        );
+
+        // eslint-disable-next-line no-unused-vars
+        const {id, rootRegisterMenuItem} = registry.registerPostDropdownSubMenuAction(
+            <FormattedMessage
+                id='submenu.menu'
+                key='submenu.menu'
+                defaultMessage='Submenu Example'
+            />
+        );
+
+        const firstItem = (
+            <FormattedMessage
+                id='submenu.first'
+                key='submenu.first'
+                defaultMessage='First Item'
+            />
+        );
+        const sub1RegisterMenuItem = rootRegisterMenuItem(
+            firstItem,
+            () => {
+                store.dispatch(postDropdownSubMenuAction(firstItem));
+            }
+        );
+
+        const secondItem = (
+            <FormattedMessage
+                id='submenu.second'
+                key='submenu.second'
+                defaultMessage='Second Item'
+            />
+        );
+        sub1RegisterMenuItem(
+            secondItem,
+            () => {
+                store.dispatch(postDropdownSubMenuAction(secondItem));
+            }
+        );
+
+        const thirdItem = (
+            <FormattedMessage
+                id='submenu.third'
+                key='submenu.third'
+                defaultMessage='Third Item'
+            />
+        );
+        rootRegisterMenuItem(
+            thirdItem,
+            () => {
+                store.dispatch(postDropdownSubMenuAction(thirdItem));
+            }
         );
 
         registry.registerFileUploadMethod(

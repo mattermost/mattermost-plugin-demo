@@ -2,9 +2,21 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {FormattedMessage} from 'react-intl';
 
-const Root = ({visible, close, theme}) => {
+const Root = ({visible, close, theme, subMenu}) => {
     if (!visible) {
         return null;
+    }
+
+    let extraContent = '';
+    let extraContentTitle = '';
+    if (subMenu) {
+        extraContentTitle = (
+            <FormattedMessage
+                id='demo.triggeredby'
+                defaultMessage='Element clicked in the menu: '
+            />
+        );
+        extraContent = subMenu;
     }
 
     const style = getStyle(theme);
@@ -31,6 +43,10 @@ const Root = ({visible, close, theme}) => {
                     id='demo.testintl'
                     defaultMessage='This is the default string'
                 />
+                <br/>
+                <br/>
+                {extraContentTitle}
+                {extraContent}
             </div>
         </div>
     );
@@ -40,6 +56,7 @@ Root.propTypes = {
     visible: PropTypes.bool.isRequired,
     close: PropTypes.func.isRequired,
     theme: PropTypes.object.isRequired,
+    subMenu: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
 };
 
 const getStyle = (theme) => ({

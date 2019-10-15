@@ -10,5 +10,11 @@
   "sidebar.enabled": "Habilitado",
   "tooltip.message": "Esta es una información sobre herramientas personalizada del complemento de demostración",
   "useractions.action": "Acción",
-  "useractions.demo": "Complemento de Demostración: "
+  "useractions.demo": "Complemento de Demostración: ",
+  "submenu.menu": "Ejemplo de submenú",
+  "submenu.first": "Primer elemento",
+  "submenu.second": "Segundo elemento",
+  "submenu.third": "Tercer elemento",
+  "demo.triggeredby": "Elemento hecho clic en el menú: "
+
 }
