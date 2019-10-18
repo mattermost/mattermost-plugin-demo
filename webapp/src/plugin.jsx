@@ -127,7 +127,7 @@ export default class DemoPlugin {
             },
         );
 
-        registry.registerAdminConsoleCustomSetting('SecretMessage', SecretMessageSetting, 'Secret Message');
+        registry.registerAdminConsoleCustomSetting('SecretMessage', SecretMessageSetting, true);
         registry.registerAdminConsoleCustomSetting('CustomSetting', CustomSetting);
 
         registry.registerReducer(reducer);
