@@ -135,7 +135,7 @@ This plugin registers two different admin console settings that are available on
 
 ![custom-setting](docs/admin_setting_full_screen.png)
 
-- `SecretMessage`: Custom setting component that is registerd with a title and is displayed on the right column of the System Console setting page.
+- `SecretMessage`: Custom setting component that is registerd with the option to show title enabled and is displayed on the right column of the System Console setting page.
 
 ![secret-message-setting](docs/admin_setting_with_title.png)
 
