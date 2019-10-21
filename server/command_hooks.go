@@ -16,6 +16,8 @@ const (
 	commandTriggerHooks             = "demo_plugin"
 	commandTriggerDialog            = "dialog"
 	commandTriggerEphemeral         = "ephemeral"
+	commandTriggerGetGroupsForUser  = "getgroups"
+	commandTriggerGetGroupByName    = "getgroup"
 	commandTriggerEphemeralOverride = "ephemeral_override"
 
 	dialogElementNameNumber = "somenumber"
@@ -32,7 +34,9 @@ const (
 		"- `/dialog introduction-text` - Open an Interactive Dialog with optional introduction text. Once submitted, user's action is posted back into a channel.\n" +
 		"- `/dialog error` - Open an Interactive Dialog which always returns an general error.\n" +
 		"- `/dialog error-no-elements` - Open an Interactive Dialog with no elements which always returns an general error.\n" +
-		"- `/dialog help` - Show this help text"
+		"- `/dialog help` - Show this help text.\n" +
+		"- `/getgroups` - Get LDAP groups for a user.\n" +
+		"- `/getgroup developers` - Get group by name"
 )
 
 func (p *Plugin) registerCommands() error {
@@ -74,6 +78,24 @@ func (p *Plugin) registerCommands() error {
 	}
 
 	if err := p.API.RegisterCommand(&model.Command{
+		Trigger:          commandTriggerGetGroupsForUser,
+		AutoComplete:     true,
+		AutoCompleteHint: "",
+		AutoCompleteDesc: "Demonstrates getting groups for a user.",
+	}); err != nil {
+		return errors.Wrapf(err, "failed to register %s command", commandTriggerGetGroupsForUser)
+	}
+
+	if err := p.API.RegisterCommand(&model.Command{
+		Trigger:          commandTriggerGetGroupByName,
+		AutoComplete:     true,
+		AutoCompleteHint: "",
+		AutoCompleteDesc: "Demonstrates getting group by name.",
+	}); err != nil {
+		return errors.Wrapf(err, "failed to register %s command", commandTriggerGetGroupByName)
+	}
+
+	if err := p.API.RegisterCommand(&model.Command{
 		Trigger:          commandTriggerDialog,
 		AutoComplete:     true,
 		AutoCompleteDesc: "Open an Interactive Dialog.",
@@ -109,6 +131,10 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		return p.executeCommandEphemeral(args), nil
 	case commandTriggerEphemeralOverride:
 		return p.executeCommandEphemeralOverride(args), nil
+	case commandTriggerGetGroupsForUser:
+		return p.executeCommandGetGroupsForUser(args), nil
+	case commandTriggerGetGroupByName:
+		return p.executeCommandGetGroupByName(args), nil
 	case commandTriggerDialog:
 		return p.executeCommandDialog(args), nil
 
@@ -211,6 +237,59 @@ func (p *Plugin) executeCommandEphemeralOverride(args *model.CommandArgs) *model
 			"type": "custom_demo_plugin_ephemeral",
 		},
 	})
+	return &model.CommandResponse{}
+}
+
+func (p *Plugin) executeCommandGetGroupByName(args *model.CommandArgs) *model.CommandResponse {
+	name := strings.Fields(args.Command)[1]
+	if name == "" {
+		p.API.SendEphemeralPost(args.UserId, &model.Post{
+			UserId:    args.UserId,
+			ChannelId: args.ChannelId,
+			Message:   "Should pass a name to get group details",
+		})
+	}
+
+	group, err := p.API.GetGroupByName(name)
+	fmt.Println(group)
+	fmt.Println(err)
+	if err != nil {
+		p.API.SendEphemeralPost(args.UserId, &model.Post{
+			UserId:    args.UserId,
+			ChannelId: args.ChannelId,
+			Message:   "Got an error getting group: " + name,
+		})
+	} else {
+		p.API.SendEphemeralPost(args.UserId, &model.Post{
+			UserId:    args.UserId,
+			ChannelId: args.ChannelId,
+			Message:   group.DisplayName + ": " + group.Description,
+		})
+	}
+
+	return &model.CommandResponse{}
+}
+
+func (p *Plugin) executeCommandGetGroupsForUser(args *model.CommandArgs) *model.CommandResponse {
+	groups, err := p.API.GetGroupsForUser(args.UserId)
+	fmt.Println(groups)
+	fmt.Println(err)
+	if err != nil {
+		p.API.SendEphemeralPost(args.UserId, &model.Post{
+			UserId:    args.UserId,
+			ChannelId: args.ChannelId,
+			Message:   "Got an error getting groups for current user",
+		})
+	}
+
+	for _, group := range groups {
+		p.API.SendEphemeralPost(args.UserId, &model.Post{
+			UserId:    args.UserId,
+			ChannelId: args.ChannelId,
+			Message:   "Group: " + group.Name,
+		})
+	}
+
 	return &model.CommandResponse{}
 }
 
