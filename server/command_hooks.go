@@ -241,7 +241,11 @@ func (p *Plugin) executeCommandEphemeralOverride(args *model.CommandArgs) *model
 }
 
 func (p *Plugin) executeCommandGetGroupByName(args *model.CommandArgs) *model.CommandResponse {
-	name := strings.Fields(args.Command)[1]
+	var name string
+	if len(strings.Fields(args.Command)) > 0 {
+		name = strings.Fields(args.Command)[1]
+	}
+
 	if name == "" {
 		p.API.SendEphemeralPost(args.UserId, &model.Post{
 			UserId:    args.UserId,
@@ -272,6 +276,14 @@ func (p *Plugin) executeCommandGetGroupByName(args *model.CommandArgs) *model.Co
 
 func (p *Plugin) executeCommandGetGroupsForUser(args *model.CommandArgs) *model.CommandResponse {
 	groups, err := p.API.GetGroupsForUser(args.UserId)
+	if len(groups) == 0 {
+		p.API.SendEphemeralPost(args.UserId, &model.Post{
+			UserId:    args.UserId,
+			ChannelId: args.ChannelId,
+			Message:   "User is not member of any groups",
+		})
+	}
+
 	fmt.Println(groups)
 	fmt.Println(err)
 	if err != nil {
