@@ -92,7 +92,7 @@ func (p *Plugin) registerCommands() error {
 		Trigger:          commandTriggerGetGroupByName,
 		AutoComplete:     true,
 		AutoCompleteHint: "",
-		AutoCompleteDesc: "Demonstrates getting group by name.",
+		AutoCompleteDesc: "Demonstrates getting group by group name.",
 	}); err != nil {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerGetGroupByName)
 	}
@@ -101,7 +101,7 @@ func (p *Plugin) registerCommands() error {
 		Trigger:          commandTriggerGetGroup,
 		AutoComplete:     true,
 		AutoCompleteHint: "",
-		AutoCompleteDesc: "Demonstrates getting group by name.",
+		AutoCompleteDesc: "Demonstrates getting group by group ID.",
 	}); err != nil {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerGetGroup)
 	}
@@ -288,7 +288,19 @@ func (p *Plugin) executeCommandGetGroupByName(args *model.CommandArgs) *model.Co
 }
 
 func (p *Plugin) executeCommandGetGroupsForUser(args *model.CommandArgs) *model.CommandResponse {
-	groups, err := p.API.GetGroupsForUser(args.UserId)
+	var userID string
+	if len(strings.Fields(args.Command)) > 0 {
+		userID = strings.Fields(args.Command)[1]
+	}
+
+	if userID == "" {
+		p.API.SendEphemeralPost(args.UserId, &model.Post{
+			UserId:    args.UserId,
+			ChannelId: args.ChannelId,
+			Message:   "Should pass a user ID to get group details for a group member",
+		})
+	}
+	groups, err := p.API.GetGroupsForUser(userID)
 	if len(groups) == 0 {
 		p.API.SendEphemeralPost(args.UserId, &model.Post{
 			UserId:    args.UserId,
