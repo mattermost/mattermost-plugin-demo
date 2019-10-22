@@ -17,7 +17,8 @@ const (
 	commandTriggerDialog            = "dialog"
 	commandTriggerEphemeral         = "ephemeral"
 	commandTriggerGetGroupsForUser  = "getgroups"
-	commandTriggerGetGroupByName    = "getgroup"
+	commandTriggerGetGroupByName    = "getgroupbyname"
+	commandTriggerGetGroup          = "getgroup"
 	commandTriggerEphemeralOverride = "ephemeral_override"
 
 	dialogElementNameNumber = "somenumber"
@@ -36,7 +37,8 @@ const (
 		"- `/dialog error-no-elements` - Open an Interactive Dialog with no elements which always returns an general error.\n" +
 		"- `/dialog help` - Show this help text.\n" +
 		"- `/getgroups` - Get LDAP groups for a user.\n" +
-		"- `/getgroup developers` - Get group by name"
+		"- `/getgroupbyname developers` - Get group by name"+
+		"- `/getgroup` - Get group by group ID"
 )
 
 func (p *Plugin) registerCommands() error {
@@ -96,6 +98,15 @@ func (p *Plugin) registerCommands() error {
 	}
 
 	if err := p.API.RegisterCommand(&model.Command{
+		Trigger:          commandTriggerGetGroup,
+		AutoComplete:     true,
+		AutoCompleteHint: "",
+		AutoCompleteDesc: "Demonstrates getting group by name.",
+	}); err != nil {
+		return errors.Wrapf(err, "failed to register %s command", commandTriggerGetGroup)
+	}
+
+	if err := p.API.RegisterCommand(&model.Command{
 		Trigger:          commandTriggerDialog,
 		AutoComplete:     true,
 		AutoCompleteDesc: "Open an Interactive Dialog.",
@@ -135,6 +146,8 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		return p.executeCommandGetGroupsForUser(args), nil
 	case commandTriggerGetGroupByName:
 		return p.executeCommandGetGroupByName(args), nil
+	case commandTriggerGetGroup:
+		return p.executeCommandGetGroup(args), nil
 	case commandTriggerDialog:
 		return p.executeCommandDialog(args), nil
 
@@ -299,6 +312,41 @@ func (p *Plugin) executeCommandGetGroupsForUser(args *model.CommandArgs) *model.
 			UserId:    args.UserId,
 			ChannelId: args.ChannelId,
 			Message:   "Group: " + group.Name,
+		})
+	}
+
+	return &model.CommandResponse{}
+}
+
+func (p *Plugin) executeCommandGetGroup(args *model.CommandArgs) *model.CommandResponse {
+	var groupID string
+	if len(strings.Fields(args.Command)) > 0 {
+		groupID = strings.Fields(args.Command)[1]
+	}
+
+	if groupID == "" {
+		p.API.SendEphemeralPost(args.UserId, &model.Post{
+			UserId:    args.UserId,
+			ChannelId: args.ChannelId,
+			Message:   "Should pass a group ID to get group details",
+		})
+	}
+
+	group, err := p.API.GetGroup(groupID)
+
+	fmt.Println(group)
+	fmt.Println(err)
+	if err != nil {
+		p.API.SendEphemeralPost(args.UserId, &model.Post{
+			UserId:    args.UserId,
+			ChannelId: args.ChannelId,
+			Message:   "Got an error getting group: " + groupID,
+		})
+	} else {
+		p.API.SendEphemeralPost(args.UserId, &model.Post{
+			UserId:    args.UserId,
+			ChannelId: args.ChannelId,
+			Message:   group.DisplayName + ": " + group.Description,
 		})
 	}
 
