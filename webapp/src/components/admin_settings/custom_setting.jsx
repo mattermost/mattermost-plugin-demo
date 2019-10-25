@@ -21,7 +21,7 @@ export default class CustomSetting extends React.PureComponent {
         super(props);
 
         this.state = {
-            value: this.props.value,
+            value: this.props.value || 0,
         };
     }
 
@@ -43,6 +43,7 @@ export default class CustomSetting extends React.PureComponent {
                     type='range'
                     min='0'
                     max='10'
+                    disabled={this.props.disabled}
                     value={this.state.value}
                     onChange={this.handleChange}
                 />

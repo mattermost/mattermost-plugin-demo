@@ -77,6 +77,7 @@ export default class SecretMessageSetting extends React.PureComponent {
                     <button
                         className='btn btn-default'
                         onClick={this.toggleSecretMessage}
+                        disabled={this.props.disabled}
                     >
                         {this.state.showSecretMessage && 'Hide Secret Message'}
                         {!this.state.showSecretMessage && 'Show Secret Message'}
