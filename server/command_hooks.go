@@ -17,6 +17,7 @@ const (
 	commandTriggerDialog            = "dialog"
 	commandTriggerEphemeral         = "ephemeral"
 	commandTriggerEphemeralOverride = "ephemeral_override"
+	commandTriggerInteractive       = "interactive"
 
 	dialogElementNameNumber = "somenumber"
 	dialogElementNameEmail  = "someemail"
@@ -82,6 +83,15 @@ func (p *Plugin) registerCommands() error {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerDialog)
 	}
 
+	if err := p.API.RegisterCommand(&model.Command{
+		Trigger:          commandTriggerInteractive,
+		AutoComplete:     true,
+		AutoCompleteHint: "",
+		AutoCompleteDesc: "Interactive button demonstration",
+	}); err != nil {
+		return errors.Wrapf(err, "failed to register %s command", commandTriggerInteractive)
+	}
+
 	return nil
 }
 
@@ -111,6 +121,8 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		return p.executeCommandEphemeralOverride(args), nil
 	case commandTriggerDialog:
 		return p.executeCommandDialog(args), nil
+	case commandTriggerInteractive:
+		return p.executeCommandInteractive(args), nil
 
 	default:
 		return &model.CommandResponse{
@@ -403,6 +415,39 @@ func getDialogWithIntroductionText(introductionText string) model.Dialog {
 	dialog := getDialogWithSampleElements()
 	dialog.IntroductionText = introductionText
 	return dialog
+}
+
+func (p *Plugin) executeCommandInteractive(args *model.CommandArgs) *model.CommandResponse {
+	siteURL := *p.API.GetConfig().ServiceSettings.SiteURL
+
+	post := &model.Post{
+		ChannelId: args.ChannelId,
+		UserId:    p.botId,
+		Message:   "Test interactive button",
+		Props: model.StringInterface{
+			"attachments": []*model.SlackAttachment{{
+				Actions: []*model.PostAction{{
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s/plugins/%s/interaction/action", siteURL, manifest.Id),
+					},
+					Type: model.POST_ACTION_TYPE_BUTTON,
+					Name: "Interactive Button",
+				}},
+			}},
+		},
+	}
+
+	_, err := p.API.CreatePost(post)
+	if err != nil {
+		errorMessage := "Failed to create post"
+		p.API.LogError(errorMessage, "err", err.Error())
+		return &model.CommandResponse{
+			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			Text:         errorMessage,
+		}
+	}
+
+	return &model.CommandResponse{}
 }
 
 func (p *Plugin) crash() {

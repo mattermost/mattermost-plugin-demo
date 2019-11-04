@@ -34,6 +34,8 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 		p.handleEphemeralUpdate(w, r)
 	case "/ephemeral/delete":
 		p.handleEphemeralDelete(w, r)
+	case "/interaction/action":
+		p.handleInteractionAction(w, r)
 	default:
 		http.NotFound(w, r)
 	}
@@ -223,6 +225,37 @@ func (p *Plugin) handleEphemeralDelete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	p.API.DeleteEphemeralPost(request.UserId, request.PostId)
+
+	resp := &model.PostActionIntegrationResponse{}
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(resp.ToJson())
+}
+
+func (p *Plugin) handleInteractionAction(w http.ResponseWriter, r *http.Request) {
+	request := model.PostActionIntegrationRequestFromJson(r.Body)
+	if request == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	user, appErr := p.API.GetUser(request.UserId)
+	if appErr != nil {
+		p.API.LogError("failed to get user for interaction action", "err", appErr.Error())
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	requestJSON, _ := json.MarshalIndent(request, "", "  ")
+	msg := "@%v clicked an interactive button.\n```json\n%v\n```"
+	if _, appErr := p.API.CreatePost(&model.Post{
+		UserId:    p.botId,
+		ChannelId: request.ChannelId,
+		RootId:    request.PostId,
+		Message:   fmt.Sprintf(msg, user.Username, string(requestJSON)),
+	}); appErr != nil {
+		p.API.LogError("failed to post handleInteractionAction message", "err", appErr.Error())
+		return
+	}
 
 	resp := &model.PostActionIntegrationResponse{}
 	w.WriteHeader(http.StatusOK)
