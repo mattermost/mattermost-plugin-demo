@@ -68,7 +68,7 @@ The `/crash` command demonstrates crashing the plugin (and the server recovering
 
 The `/dialog` command demonstrates [Interactive Dialogs](https://docs.mattermost.com/developer/interactive-dialogs.html). Use `/dialog help` for its usage in this demo plugin.
 
-The `/interactive` command demonstrates the usage of interactive buttons.
+The `/interactive` command demonstrates the usage of interactive message buttons.
 
 ## [http_hooks.go](http_hooks.go)
 

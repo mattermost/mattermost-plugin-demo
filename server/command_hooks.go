@@ -87,7 +87,7 @@ func (p *Plugin) registerCommands() error {
 		Trigger:          commandTriggerInteractive,
 		AutoComplete:     true,
 		AutoCompleteHint: "",
-		AutoCompleteDesc: "Interactive button demonstration",
+		AutoCompleteDesc: "Demonstrates  interactive message buttons.",
 	}); err != nil {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerInteractive)
 	}
@@ -418,7 +418,6 @@ func getDialogWithIntroductionText(introductionText string) model.Dialog {
 }
 
 func (p *Plugin) executeCommandInteractive(args *model.CommandArgs) *model.CommandResponse {
-	siteURL := *p.API.GetConfig().ServiceSettings.SiteURL
 
 	post := &model.Post{
 		ChannelId: args.ChannelId,
@@ -428,7 +427,7 @@ func (p *Plugin) executeCommandInteractive(args *model.CommandArgs) *model.Comma
 			"attachments": []*model.SlackAttachment{{
 				Actions: []*model.PostAction{{
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s/plugins/%s/interaction/action", siteURL, manifest.Id),
+						URL: fmt.Sprintf("/plugins/%s/interactive/button/1", manifest.Id),
 					},
 					Type: model.POST_ACTION_TYPE_BUTTON,
 					Name: "Interactive Button",

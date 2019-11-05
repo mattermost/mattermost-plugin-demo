@@ -34,8 +34,8 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 		p.handleEphemeralUpdate(w, r)
 	case "/ephemeral/delete":
 		p.handleEphemeralDelete(w, r)
-	case "/interaction/action":
-		p.handleInteractionAction(w, r)
+	case "/interactive/button/1":
+		p.handleInteractiveAction(w, r)
 	default:
 		http.NotFound(w, r)
 	}
@@ -231,7 +231,7 @@ func (p *Plugin) handleEphemeralDelete(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(resp.ToJson())
 }
 
-func (p *Plugin) handleInteractionAction(w http.ResponseWriter, r *http.Request) {
+func (p *Plugin) handleInteractiveAction(w http.ResponseWriter, r *http.Request) {
 	request := model.PostActionIntegrationRequestFromJson(r.Body)
 	if request == nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -240,12 +240,18 @@ func (p *Plugin) handleInteractionAction(w http.ResponseWriter, r *http.Request)
 
 	user, appErr := p.API.GetUser(request.UserId)
 	if appErr != nil {
-		p.API.LogError("failed to get user for interaction action", "err", appErr.Error())
-		w.WriteHeader(http.StatusOK)
+		p.API.LogError("failed to get user for interactive action", "err", appErr.Error())
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	requestJSON, _ := json.MarshalIndent(request, "", "  ")
+	requestJSON, jsonErr := json.MarshalIndent(request, "", "  ")
+	if jsonErr != nil {
+		p.API.LogError("failed to marshal json for interactive action", "err", jsonErr.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	msg := "@%v clicked an interactive button.\n```json\n%v\n```"
 	if _, appErr := p.API.CreatePost(&model.Post{
 		UserId:    p.botId,
@@ -253,7 +259,8 @@ func (p *Plugin) handleInteractionAction(w http.ResponseWriter, r *http.Request)
 		RootId:    request.PostId,
 		Message:   fmt.Sprintf(msg, user.Username, string(requestJSON)),
 	}); appErr != nil {
-		p.API.LogError("failed to post handleInteractionAction message", "err", appErr.Error())
+		p.API.LogError("failed to post handleInteractiveAction message", "err", appErr.Error())
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
