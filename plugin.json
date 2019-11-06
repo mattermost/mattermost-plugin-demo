@@ -90,5 +90,10 @@
             "placeholder": "demo_plugin",
             "default": "demo_plugin"
         }]
+    },
+    "required_configuration" : {
+        "TeamSettings": {
+            "EnableTeamCreation": true
+        }
     }
 }
