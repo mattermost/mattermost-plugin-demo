@@ -12,15 +12,6 @@ import (
 
 const minimumServerVersion = "5.12.0"
 
-// var req = &model.Config{
-// 	ServiceSettings: model.ServiceSettings{
-// 		EnablePostUsernameOverride: model.NewBool(true),
-// 		EnablePostIconOverride:     model.NewBool(false),
-// 	},
-// }
-
-var req *model.Config
-
 func (p *Plugin) checkServerVersion() error {
 	serverVersion, err := semver.Parse(p.API.GetServerVersion())
 	if err != nil {
@@ -40,18 +31,17 @@ func (p *Plugin) checkServerVersion() error {
 // This demo implementation logs a message to the demo channel whenever the plugin is activated.
 // It also creates a demo bot account
 func (p *Plugin) OnActivate() error {
-
 	if err := p.checkServerVersion(); err != nil {
 		return err
 	}
-
-	configuration := p.getConfiguration()
 
 	if ok, err := p.checkRequiredServerConfiguration(); err != nil {
 		return errors.Wrap(err, "could not check required server configuration")
 	} else if !ok {
 		return errors.New("server configuration is not compatible")
 	}
+
+	configuration := p.getConfiguration()
 
 	if err := p.registerCommands(); err != nil {
 		return errors.Wrap(err, "failed to register commands")
@@ -109,7 +99,6 @@ func (p *Plugin) OnDeactivate() error {
 // checkRequiredServerConfiguration checks if the server is configured according to
 // plugin requirements.
 func (p *Plugin) checkRequiredServerConfiguration() (bool, error) {
-
 	path, err := p.API.GetBundlePath()
 	if err != nil {
 		return false, errors.Wrap(err, "failed to get bundle path")
@@ -119,8 +108,8 @@ func (p *Plugin) checkRequiredServerConfiguration() (bool, error) {
 	if err != nil {
 		return false, errors.Wrap(err, "failed to find manifest file")
 	}
-	req = manifest.RequiredConfig
 
+	req := manifest.RequiredConfig
 	cfg := p.API.GetConfig()
 
 	if req == nil || cfg == nil {

@@ -50,8 +50,22 @@ func TestOnActivate(t *testing.T) {
 		"check server config fails, could not read manifest": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return(minimumServerVersion)
-
 				api.On("GetBundlePath").Return("", nil)
+
+				return api
+			},
+			ShouldError: true,
+		},
+		"check server config fails, config is incompatible": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetServerVersion").Return(minimumServerVersion)
+				api.On("GetBundlePath").Return("../", nil)
+				api.On("GetConfig").Return(&model.Config{
+					TeamSettings: model.TeamSettings{
+						EnableUserCreation: model.NewBool(true),
+					},
+				})
+
 				return api
 			},
 			ShouldError: true,
@@ -60,9 +74,9 @@ func TestOnActivate(t *testing.T) {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return(minimumServerVersion)
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(&model.AppError{})
-
 				api.On("GetBundlePath").Return("../", nil)
 				api.On("GetConfig").Return(nil)
+
 				return api
 			},
 			ShouldError: true,
@@ -72,9 +86,9 @@ func TestOnActivate(t *testing.T) {
 				api.On("GetServerVersion").Return(minimumServerVersion)
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 				api.On("GetTeams").Return(nil, &model.AppError{})
-
 				api.On("GetBundlePath").Return("../", nil)
 				api.On("GetConfig").Return(nil)
+
 				return api
 			},
 			ShouldError: true,
@@ -85,9 +99,9 @@ func TestOnActivate(t *testing.T) {
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(nil, &model.AppError{})
-
 				api.On("GetBundlePath").Return("../", nil)
 				api.On("GetConfig").Return(nil)
+
 				return api
 			},
 			ShouldError: true,
@@ -98,9 +112,9 @@ func TestOnActivate(t *testing.T) {
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
-
 				api.On("GetBundlePath").Return("../", nil)
 				api.On("GetConfig").Return(nil)
+
 				return api
 			},
 			ShouldError: false,
@@ -113,9 +127,9 @@ func TestOnActivate(t *testing.T) {
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
-
 				api.On("GetBundlePath").Return("../", nil)
 				api.On("GetConfig").Return(nil)
+
 				return api
 			},
 			ShouldError: false,
