@@ -245,6 +245,13 @@ func (p *Plugin) handleInteractiveAction(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	post, postErr := p.API.GetPost(request.PostId)
+	if postErr != nil {
+		p.API.LogError("failed to get post for interactive action", "err", postErr.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	requestJSON, jsonErr := json.MarshalIndent(request, "", "  ")
 	if jsonErr != nil {
 		p.API.LogError("failed to marshal json for interactive action", "err", jsonErr.Error())
@@ -256,7 +263,7 @@ func (p *Plugin) handleInteractiveAction(w http.ResponseWriter, r *http.Request)
 	if _, appErr := p.API.CreatePost(&model.Post{
 		UserId:    p.botId,
 		ChannelId: request.ChannelId,
-		RootId:    request.PostId,
+		RootId:    post.RootId,
 		Message:   fmt.Sprintf(msg, user.Username, string(requestJSON)),
 	}); appErr != nil {
 		p.API.LogError("failed to post handleInteractiveAction message", "err", appErr.Error())

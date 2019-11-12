@@ -421,6 +421,7 @@ func (p *Plugin) executeCommandInteractive(args *model.CommandArgs) *model.Comma
 
 	post := &model.Post{
 		ChannelId: args.ChannelId,
+		RootId:    args.RootId,
 		UserId:    p.botId,
 		Message:   "Test interactive button",
 		Props: model.StringInterface{
