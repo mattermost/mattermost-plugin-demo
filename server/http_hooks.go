@@ -251,6 +251,10 @@ func (p *Plugin) handleInteractiveAction(w http.ResponseWriter, r *http.Request)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	rootId := post.RootId
+	if rootId == "" {
+		rootId = post.Id
+	}
 
 	requestJSON, jsonErr := json.MarshalIndent(request, "", "  ")
 	if jsonErr != nil {
@@ -263,7 +267,7 @@ func (p *Plugin) handleInteractiveAction(w http.ResponseWriter, r *http.Request)
 	if _, appErr := p.API.CreatePost(&model.Post{
 		UserId:    p.botId,
 		ChannelId: request.ChannelId,
-		RootId:    post.RootId,
+		RootId:    rootId,
 		Message:   fmt.Sprintf(msg, user.Username, string(requestJSON)),
 	}); appErr != nil {
 		p.API.LogError("failed to post handleInteractiveAction message", "err", appErr.Error())
