@@ -106,7 +106,5 @@ func (p *Plugin) checkRequiredServerConfiguration() (bool, error) {
 		return false, errors.Wrap(err, "failed to find manifest file")
 	}
 
-	req := manifest.RequiredConfig
-
-	return p.Helpers.CheckRequiredServerConfiguration(req)
+	return p.Helpers.CheckRequiredServerConfiguration(manifest.RequiredConfig)
 }
