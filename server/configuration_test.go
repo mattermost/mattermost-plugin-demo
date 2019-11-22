@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"net/http"
 	"testing"
 
 	"github.com/mattermost/mattermost-server/model"
@@ -83,14 +82,12 @@ func TestOnConfigurationChange(t *testing.T) {
 				api.On("GetChannelByNameForTeamName", "", "", false).Return(&model.Channel{}, nil)
 
 				api.On("GetBundlePath").Return("..", nil)
-				api.On("GetBotIconImage", mock.Anything).Return(nil, model.NewAppError("", "", nil, "", http.StatusNotFound))
-				api.On("SetBotIconImage", mock.Anything, mock.Anything).Return(nil)
 
 				return api
 			},
 			SetupHelpers: func() *plugintest.Helpers {
 				helpers := &plugintest.Helpers{}
-				helpers.On("EnsureBot", mock.AnythingOfType("*model.Bot")).Return(model.NewId(), nil)
+				helpers.On("EnsureBot", mock.AnythingOfType("*model.Bot"), mock.AnythingOfType("plugin.EnsureBotOption")).Return(model.NewId(), nil)
 				return helpers
 			},
 			preConfiguration: apiConfiguration,
@@ -111,14 +108,12 @@ func TestOnConfigurationChange(t *testing.T) {
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
 
 				api.On("GetBundlePath").Return("..", nil)
-				api.On("GetBotIconImage", mock.Anything).Return(nil, model.NewAppError("", "", nil, "", http.StatusNotFound))
-				api.On("SetBotIconImage", mock.Anything, mock.Anything).Return(nil)
 
 				return api
 			},
 			SetupHelpers: func() *plugintest.Helpers {
 				helpers := &plugintest.Helpers{}
-				helpers.On("EnsureBot", mock.AnythingOfType("*model.Bot")).Return(model.NewId(), nil)
+				helpers.On("EnsureBot", mock.AnythingOfType("*model.Bot"), mock.AnythingOfType("plugin.EnsureBotOption")).Return(model.NewId(), nil)
 				return helpers
 			},
 			preConfiguration: &configuration{EnableMentionUser: true},
@@ -131,12 +126,13 @@ func TestOnConfigurationChange(t *testing.T) {
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("GetUserByUsername", mock.AnythingOfType("string")).Return(user, nil)
 				api.On("CreateTeamMember", teamId, "").Return(&model.TeamMember{}, nil)
+				api.On("GetBundlePath").Return("..", nil)
 
 				return api
 			},
 			SetupHelpers: func() *plugintest.Helpers {
 				helpers := &plugintest.Helpers{}
-				helpers.On("EnsureBot", mock.AnythingOfType("*model.Bot")).Return("", errors.New("some error"))
+				helpers.On("EnsureBot", mock.AnythingOfType("*model.Bot"), mock.AnythingOfType("plugin.EnsureBotOption")).Return("", errors.New("some error"))
 				return helpers
 			},
 			preConfiguration: &configuration{EnableMentionUser: true},
@@ -156,13 +152,12 @@ func TestOnConfigurationChange(t *testing.T) {
 				api.On("UploadFile", mock.AnythingOfType("[]uint8"), channel.Id, "configuration.json").Return(&model.FileInfo{}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
 				api.On("GetBundlePath").Return("..", nil)
-				api.On("GetBotIconImage", mock.Anything).Return(nil, nil)
 				api.AssertNotCalled(t, "SetBotIconImage", mock.Anything, mock.Anything)
 				return api
 			},
 			SetupHelpers: func() *plugintest.Helpers {
 				helpers := &plugintest.Helpers{}
-				helpers.On("EnsureBot", mock.AnythingOfType("*model.Bot")).Return(model.NewId(), nil)
+				helpers.On("EnsureBot", mock.AnythingOfType("*model.Bot"), mock.AnythingOfType("plugin.EnsureBotOption")).Return(model.NewId(), nil)
 				return helpers
 			},
 			preConfiguration: &configuration{EnableMentionUser: true},
