@@ -81,8 +81,6 @@ func TestOnConfigurationChange(t *testing.T) {
 				api.On("CreateTeamMember", teamId, "").Return(&model.TeamMember{}, nil)
 				api.On("GetChannelByNameForTeamName", "", "", false).Return(&model.Channel{}, nil)
 
-				api.On("GetBundlePath").Return("..", nil)
-
 				return api
 			},
 			SetupHelpers: func() *plugintest.Helpers {
@@ -107,8 +105,6 @@ func TestOnConfigurationChange(t *testing.T) {
 				api.On("UploadFile", mock.AnythingOfType("[]uint8"), channel.Id, "configuration.json").Return(&model.FileInfo{}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
 
-				api.On("GetBundlePath").Return("..", nil)
-
 				return api
 			},
 			SetupHelpers: func() *plugintest.Helpers {
@@ -126,7 +122,6 @@ func TestOnConfigurationChange(t *testing.T) {
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("GetUserByUsername", mock.AnythingOfType("string")).Return(user, nil)
 				api.On("CreateTeamMember", teamId, "").Return(&model.TeamMember{}, nil)
-				api.On("GetBundlePath").Return("..", nil)
 
 				return api
 			},
@@ -151,7 +146,6 @@ func TestOnConfigurationChange(t *testing.T) {
 				api.On("GetChannelByNameForTeamName", "", "", false).Return(channel, nil)
 				api.On("UploadFile", mock.AnythingOfType("[]uint8"), channel.Id, "configuration.json").Return(&model.FileInfo{}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
-				api.On("GetBundlePath").Return("..", nil)
 				api.AssertNotCalled(t, "SetBotIconImage", mock.Anything, mock.Anything)
 				return api
 			},

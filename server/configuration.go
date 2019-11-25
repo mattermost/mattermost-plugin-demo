@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"path/filepath"
 
 	"github.com/pkg/errors"
 
@@ -202,18 +201,11 @@ func (p *Plugin) OnConfigurationChange() error {
 		return errors.Wrap(err, "failed to ensure demo user")
 	}
 
-	path, err := p.API.GetBundlePath()
-	if err != nil {
-		return errors.Wrap(err, "failed to get bundle path")
-	}
-
-	iconImagePath := filepath.Join(path, "/assets/github.svg")
-
 	botId, ensureBotError := p.Helpers.EnsureBot(&model.Bot{
 		Username:    "demoplugin",
 		DisplayName: "Demo Plugin Bot",
 		Description: "A bot account created by the demo plugin.",
-	}, plugin.IconImagePath(iconImagePath))
+	}, plugin.IconImagePath("/assets/github.svg"))
 	if ensureBotError != nil {
 		return errors.Wrap(ensureBotError, "failed to ensure demo bot.")
 	}
