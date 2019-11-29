@@ -128,7 +128,7 @@ export default class DemoPlugin {
                 defaultMessage='First Item'
             />
         );
-        const sub1RegisterMenuItem = rootRegisterMenuItem(
+        rootRegisterMenuItem(
             firstItem,
             () => {
                 store.dispatch(postDropdownSubMenuAction(firstItem));
@@ -142,7 +142,7 @@ export default class DemoPlugin {
                 defaultMessage='Second Item'
             />
         );
-        sub1RegisterMenuItem(
+        rootRegisterMenuItem(
             secondItem,
             () => {
                 store.dispatch(postDropdownSubMenuAction(secondItem));
