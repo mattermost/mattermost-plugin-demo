@@ -104,6 +104,12 @@ This plugin registers a main menu action that, when clicked, triggers the root c
 
 ![main menu](docs/main_menu.png)
 
+## Channel Header Dropdown Menu Action
+
+This plugin registers a channel header dropdown menu action that, when clicked, triggers the root component:
+
+![channel header dropdown](docs/channel_header_dropdown.png)
+
 ## Post Dropdown
 
 This plugin registers a post dropdown action that, when clicked, triggers the root component:

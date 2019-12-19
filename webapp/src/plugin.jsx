@@ -30,6 +30,7 @@ import {
     fileUploadMethodAction,
     postDropdownMenuAction,
     postDropdownSubMenuAction,
+    channelHeaderMenuAction,
     websocketStatusChange,
     getStatus,
 } from './actions';
@@ -80,6 +81,15 @@ export default class DemoPlugin {
                 defaultMessage='Demo Plugin'
             />,
             () => store.dispatch(mainMenuAction()),
+            <MainMenuMobileIcon/>,
+        );
+
+        registry.registerChannelHeaderMenuAction(
+            <FormattedMessage
+                id='plugin.name'
+                defaultMessage='Demo Plugin'
+            />,
+            (channelId) => store.dispatch(channelHeaderMenuAction(channelId)),
             <MainMenuMobileIcon/>,
         );
 

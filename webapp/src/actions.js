@@ -23,6 +23,7 @@ export const mainMenuAction = openRootModal;
 export const fileUploadMethodAction = openRootModal;
 export const postDropdownMenuAction = openRootModal;
 export const postDropdownSubMenuAction = openRootModal;
+export const channelHeaderMenuAction = openRootModal;
 
 // TODO: Move this into mattermost-redux or mattermost-webapp.
 export const getPluginServerRoute = (state) => {
