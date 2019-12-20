@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/mattermost/mattermost-server/model"
-	"github.com/mattermost/mattermost-server/plugin"
+	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-server/v5/plugin"
 )
 
 // UserWillLogIn before the login of the user is returned. Returning a non empty string will reject the login event.
