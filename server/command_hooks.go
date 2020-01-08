@@ -372,6 +372,23 @@ func getDialogWithSampleElements() model.Dialog {
 				Value: "opt3",
 			}},
 		}, {
+			DisplayName: "Option Selector with default",
+			Name:        "someoptionselector2",
+			Type:        "select",
+			Default:     "opt2",
+			Placeholder: "Select an option...",
+			HelpText:    "Choose an option from the list.",
+			Options: []*model.PostActionOptions{{
+				Text:  "Option1",
+				Value: "opt1",
+			}, {
+				Text:  "Option2",
+				Value: "opt2",
+			}, {
+				Text:  "Option3",
+				Value: "opt3",
+			}},
+		}, {
 			DisplayName: "Boolean Selector",
 			Name:        "someboolean",
 			Type:        "bool",
