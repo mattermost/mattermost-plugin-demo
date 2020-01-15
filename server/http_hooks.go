@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/mattermost/mattermost-server/model"
-	"github.com/mattermost/mattermost-server/plugin"
+	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-server/v5/plugin"
 )
 
 // ServeHTTP allows the plugin to implement the http.Handler interface. Requests destined for the
@@ -34,6 +34,8 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 		p.handleEphemeralUpdate(w, r)
 	case "/ephemeral/delete":
 		p.handleEphemeralDelete(w, r)
+	case "/interactive/button/1":
+		p.handleInteractiveAction(w, r)
 	default:
 		http.NotFound(w, r)
 	}
@@ -223,6 +225,55 @@ func (p *Plugin) handleEphemeralDelete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	p.API.DeleteEphemeralPost(request.UserId, request.PostId)
+
+	resp := &model.PostActionIntegrationResponse{}
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(resp.ToJson())
+}
+
+func (p *Plugin) handleInteractiveAction(w http.ResponseWriter, r *http.Request) {
+	request := model.PostActionIntegrationRequestFromJson(r.Body)
+	if request == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	user, appErr := p.API.GetUser(request.UserId)
+	if appErr != nil {
+		p.API.LogError("failed to get user for interactive action", "err", appErr.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	post, postErr := p.API.GetPost(request.PostId)
+	if postErr != nil {
+		p.API.LogError("failed to get post for interactive action", "err", postErr.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	rootId := post.RootId
+	if rootId == "" {
+		rootId = post.Id
+	}
+
+	requestJSON, jsonErr := json.MarshalIndent(request, "", "  ")
+	if jsonErr != nil {
+		p.API.LogError("failed to marshal json for interactive action", "err", jsonErr.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	msg := "@%v clicked an interactive button.\n```json\n%v\n```"
+	if _, appErr := p.API.CreatePost(&model.Post{
+		UserId:    p.botId,
+		ChannelId: request.ChannelId,
+		RootId:    rootId,
+		Message:   fmt.Sprintf(msg, user.Username, string(requestJSON)),
+	}); appErr != nil {
+		p.API.LogError("failed to post handleInteractiveAction message", "err", appErr.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	resp := &model.PostActionIntegrationResponse{}
 	w.WriteHeader(http.StatusOK)

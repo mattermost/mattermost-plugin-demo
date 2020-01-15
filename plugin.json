@@ -2,8 +2,8 @@
     "id": "com.mattermost.demo-plugin",
     "name": "Demo Plugin",
     "description": "This plugin demonstrates the capabilities of a Mattermost plugin.",
-    "version": "0.3.0",
-    "min_server_version": "5.18.0",
+    "version": "0.4.0",
+    "min_server_version": "5.20.0",
     "server": {
         "executables": {
             "linux-amd64": "server/dist/plugin-linux-amd64",
@@ -73,9 +73,12 @@
         }, {
             "key": "SecretMessage",
             "display_name": "Secret Message",
-            "type": "longtext",
+            "type": "custom",
             "help_text": "The message posted by the demo plugin when the secret phrase is detected.",
             "default": "Yay! The random secret string was posted!\n\nGo to the settings page for this plugin in the system console to generate a new random secret."
+        }, {
+            "key": "CustomSetting",
+            "type": "custom"
         }, {
             "key": "EnableMentionUser",
             "display_name": "Enable Mention User",

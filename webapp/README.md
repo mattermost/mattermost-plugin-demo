@@ -104,6 +104,12 @@ This plugin registers a main menu action that, when clicked, triggers the root c
 
 ![main menu](docs/main_menu.png)
 
+## Channel Header Dropdown Menu Action
+
+This plugin registers a channel header dropdown menu action that, when clicked, triggers the root component:
+
+![channel header dropdown](docs/channel_header_dropdown.png)
+
 ## Post Dropdown
 
 This plugin registers a post dropdown action that, when clicked, triggers the root component:
@@ -126,3 +132,16 @@ This plugin registers a link tooltip component, whose content is fully customiza
 This plugin registers a right-hand sidebar component, whose content is fully customizable and it is triggered by calling an action where required. In this demo plugin, it is triggered by the Channel Header Action Button.
 
 ![right-hand sidebar](docs/right_hand_sidebar.png)
+
+## Admin Console Setting
+
+This plugin registers two different admin console settings that are available once the plugin is enabled:
+
+- `CustomSetting`: Custom setting component that fully customizes the settings area in the System Console.
+
+![custom-setting](docs/admin_setting_full_screen.png)
+
+- `SecretMessage`: Inline, custom setting component shown on the right column of the System Console setting page.
+
+![secret-message-setting](docs/admin_setting_with_title.png)
+
