@@ -2,9 +2,12 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/blang/semver"
 	"github.com/pkg/errors"
+
+	"github.com/lieut-data/mattermost-plugin-api/cluster"
 )
 
 const minimumServerVersion = "5.12.0"
@@ -56,6 +59,17 @@ func (p *Plugin) OnActivate() error {
 		}
 	}
 
+	job, cronErr := cluster.Schedule(
+		"BackgroundJob",
+		cluster.JobConfig{Interval: 1 * time.Minute},
+		p.BackgroundJob,
+		p.API,
+	)
+	if cronErr != nil {
+		p.API.LogError("Failed to schedule background job", "err", cronErr)
+	}
+	p.backgroundJob = job
+
 	return nil
 }
 
@@ -65,6 +79,10 @@ func (p *Plugin) OnActivate() error {
 // This demo implementation logs a message to the demo channel whenever the plugin is deactivated.
 func (p *Plugin) OnDeactivate() error {
 	configuration := p.getConfiguration()
+
+	if p.backgroundJob != nil {
+		p.backgroundJob.Close()
+	}
 
 	teams, err := p.API.GetTeams()
 	if err != nil {

@@ -29,7 +29,7 @@ func TestOnActivate(t *testing.T) {
 				return api
 			},
 			ShouldError: true,
-		},                
+		},
 		"lesser minor version than minimumServerVersion": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				v := semver.MustParse(minimumServerVersion)
@@ -47,7 +47,7 @@ func TestOnActivate(t *testing.T) {
 			},
 			ShouldError: true,
 		},
-		"minimum supported version fullfiled, but RegisterCommand fails": {
+		"minimum supported version fulfilled, but RegisterCommand fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return(minimumServerVersion)
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(&model.AppError{})
@@ -56,7 +56,7 @@ func TestOnActivate(t *testing.T) {
 			},
 			ShouldError: true,
 		},
-		"minimum supported version fullfiled, but GetTeams fails": {
+		"minimum supported version fulfilled, but GetTeams fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return(minimumServerVersion)
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
@@ -66,7 +66,7 @@ func TestOnActivate(t *testing.T) {
 			},
 			ShouldError: true,
 		},
-		"minimum supported version fullfiled, but CreatePost fails": {
+		"minimum supported version fulfilled, but CreatePost fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return(minimumServerVersion)
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
@@ -77,8 +77,11 @@ func TestOnActivate(t *testing.T) {
 			},
 			ShouldError: true,
 		},
-		"minimum supported version fullfiled": {
+		"minimum supported version fulfilled": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("KVSetWithOptions", mock.Anything, mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVGet", mock.Anything).Return(nil, nil).Maybe()
+
 				api.On("GetServerVersion").Return(minimumServerVersion)
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
@@ -90,6 +93,9 @@ func TestOnActivate(t *testing.T) {
 		},
 		"greater minor version than minimumServerVersion": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("KVSetWithOptions", mock.Anything, mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVGet", mock.Anything).Return(nil, nil).Maybe()
+
 				v := semver.MustParse(minimumServerVersion)
 				require.Nil(t, v.IncrementMinor())
 				api.On("GetServerVersion").Return(v.String())

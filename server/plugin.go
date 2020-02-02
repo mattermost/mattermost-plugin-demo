@@ -3,6 +3,7 @@ package main
 import (
 	"sync"
 
+	"github.com/lieut-data/mattermost-plugin-api/cluster"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 )
 
@@ -18,4 +19,8 @@ type Plugin struct {
 
 	// BotId of the created bot account.
 	botId string
+
+	// backgroundJob is a job that executes periodically on only one plugin instance at a time
+	// interval
+	backgroundJob *cluster.Job
 }
