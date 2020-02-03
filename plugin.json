@@ -98,8 +98,8 @@
         }]
     },
     "required_configuration" : {
-        "TeamSettings": {
-            "EnableTeamCreation": true
+        "ServiceSettings": {
+            "EnableGifPicker": true
         }
     }
 }
