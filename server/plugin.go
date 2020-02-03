@@ -21,6 +21,5 @@ type Plugin struct {
 	botId string
 
 	// backgroundJob is a job that executes periodically on only one plugin instance at a time
-	// interval
 	backgroundJob *cluster.Job
 }
