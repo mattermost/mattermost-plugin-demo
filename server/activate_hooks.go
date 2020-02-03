@@ -66,7 +66,7 @@ func (p *Plugin) OnActivate() error {
 		p.API,
 	)
 	if cronErr != nil {
-		p.API.LogError("Failed to schedule background job", "err", cronErr)
+		return errors.Wrap(cronErr, "failed to schedule background job")
 	}
 	p.backgroundJob = job
 
@@ -81,7 +81,9 @@ func (p *Plugin) OnDeactivate() error {
 	configuration := p.getConfiguration()
 
 	if p.backgroundJob != nil {
-		p.backgroundJob.Close()
+		if err := p.backgroundJob.Close(); err != nil {
+			p.API.LogError("Failed to close background job", "err", err)
+		}
 	}
 
 	teams, err := p.API.GetTeams()
