@@ -60,10 +60,10 @@ func (p *Plugin) OnActivate() error {
 	}
 
 	job, cronErr := cluster.Schedule(
+		p.API,
 		"BackgroundJob",
 		cluster.JobConfig{Interval: 1 * time.Minute},
 		p.BackgroundJob,
-		p.API,
 	)
 	if cronErr != nil {
 		return errors.Wrap(cronErr, "failed to schedule background job")
