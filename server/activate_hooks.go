@@ -5,6 +5,8 @@ import (
 
 	"github.com/blang/semver"
 	"github.com/pkg/errors"
+
+	"github.com/mattermost/mattermost-server/v5/model"
 )
 
 const minimumServerVersion = "5.12.0"
@@ -30,6 +32,12 @@ func (p *Plugin) checkServerVersion() error {
 func (p *Plugin) OnActivate() error {
 	if err := p.checkServerVersion(); err != nil {
 		return err
+	}
+
+	if ok, err := p.checkRequiredServerConfiguration(); err != nil {
+		return errors.Wrap(err, "could not check required server configuration")
+	} else if !ok {
+		return errors.New("server configuration is not compatible")
 	}
 
 	configuration := p.getConfiguration()
@@ -85,4 +93,18 @@ func (p *Plugin) OnDeactivate() error {
 	}
 
 	return nil
+}
+
+func (p *Plugin) checkRequiredServerConfiguration() (bool, error) {
+	path, err := p.API.GetBundlePath()
+	if err != nil {
+		return false, errors.Wrap(err, "failed to get bundle path")
+	}
+
+	manifest, _, err := model.FindManifest(path)
+	if err != nil {
+		return false, errors.Wrap(err, "failed to find manifest file")
+	}
+
+	return p.Helpers.CheckRequiredServerConfiguration(manifest.RequiredConfig)
 }

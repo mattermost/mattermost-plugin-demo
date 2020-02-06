@@ -96,5 +96,10 @@
             "placeholder": "demo_plugin",
             "default": "demo_plugin"
         }]
+    },
+    "required_configuration" : {
+        "ServiceSettings": {
+            "EnableGifPicker": true
+        }
     }
 }
