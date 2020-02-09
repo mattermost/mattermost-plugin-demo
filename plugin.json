@@ -95,6 +95,13 @@
             "help_text": "Configure the username to be mentioned by the demo plugin. Must be enabled in the setting above.",
             "placeholder": "demo_plugin",
             "default": "demo_plugin"
+        }, {
+            "key": "secretNumber",
+            "display_name": "Secret Number",
+            "type": "number",
+            "help_text": "A secret number that the demo plugin will watch for. If the secret number is mentioned in any channel then the demo plugin will publish a special message.",
+            "placeholder": "Some secret number",
+            "default": 123
         }]
     },
     "required_configuration" : {
