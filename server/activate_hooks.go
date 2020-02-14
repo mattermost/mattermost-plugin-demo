@@ -37,7 +37,7 @@ func (p *Plugin) OnActivate() error {
 	if ok, err := p.checkRequiredServerConfiguration(); err != nil {
 		return errors.Wrap(err, "could not check required server configuration")
 	} else if !ok {
-		return errors.New("server configuration is not compatible")
+		p.API.LogError("Server configuration is not compatible")
 	}
 
 	configuration := p.getConfiguration()
