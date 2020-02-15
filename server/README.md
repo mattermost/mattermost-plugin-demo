@@ -70,6 +70,8 @@ The `/dialog` command demonstrates [Interactive Dialogs](https://docs.mattermost
 
 The `/interactive` command demonstrates the usage of interactive message buttons.
 
+The `/list_files` command demonstrates the usage of the file search API.
+
 ## [http_hooks.go](http_hooks.go)
 
 ### ServeHTTP
