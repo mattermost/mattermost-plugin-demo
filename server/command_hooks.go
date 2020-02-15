@@ -549,10 +549,19 @@ func (p *Plugin) executeCommandListFiles(args *model.CommandArgs) *model.Command
 	permaLink := args.SiteURL + "/" + team.Name + "/pl/"
 	attachments := make([]*model.SlackAttachment, 0, len(fileInfos))
 	for _, f := range fileInfos {
-		user, userErr := p.API.GetUser(f.CreatorId)
-		if userErr != nil {
+		user, err := p.API.GetUser(f.CreatorId)
+		if err != nil {
 			errorMessage := "Failed to get username"
-			p.API.LogError(errorMessage, "err", userErr.Error())
+			p.API.LogError(errorMessage, "err", err.Error())
+			return &model.CommandResponse{
+				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+				Text:         errorMessage,
+			}
+		}
+		fileLink, err := p.API.GetFileLink(f.Id)
+		if err != nil {
+			errorMessage := "Failed to get file public link"
+			p.API.LogError(errorMessage, "err", err.Error())
 			return &model.CommandResponse{
 				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 				Text:         errorMessage,
@@ -563,6 +572,11 @@ func (p *Plugin) executeCommandListFiles(args *model.CommandArgs) *model.Command
 				Title:     f.Name,
 				TitleLink: permaLink + f.PostId,
 				Text:      fmt.Sprintf("uploaded by %s", user.Username),
+				Fields: []*model.SlackAttachmentField{
+					&model.SlackAttachmentField{
+						Title: "Direct Download Link",
+						Value: args.SiteURL + fileLink,
+					}},
 			},
 		)
 	}
