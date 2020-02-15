@@ -107,6 +107,9 @@
     "required_configuration" : {
         "ServiceSettings": {
             "EnableGifPicker": true
+        },
+        "FileSettings": {
+            "EnablePublicLink": true
         }
     }
 }
