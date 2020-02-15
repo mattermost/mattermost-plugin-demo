@@ -573,7 +573,7 @@ func (p *Plugin) executeCommandListFiles(args *model.CommandArgs) *model.Command
 				TitleLink: permaLink + f.PostId,
 				Text:      fmt.Sprintf("uploaded by %s", user.Username),
 				Fields: []*model.SlackAttachmentField{
-					&model.SlackAttachmentField{
+					{
 						Title: "Direct Download Link",
 						Value: args.SiteURL + fileLink,
 					}},
