@@ -70,6 +70,11 @@ func TestOnActivate(t *testing.T) {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return(minimumServerVersion)
 				api.On("GetBundlePath").Return("../", nil)
+				api.On("LogError", "Server configuration is not compatible").Return()
+				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
+				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
+				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
+				api.On("GetBundlePath").Return("../", nil)
 
 				return api
 			},
@@ -78,7 +83,7 @@ func TestOnActivate(t *testing.T) {
 
 				return helpers
 			},
-			ShouldError: true,
+			ShouldError: false,
 		},
 		"minimum supported version fullfiled, but RegisterCommand fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
