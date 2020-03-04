@@ -18,6 +18,7 @@ const (
 	commandTriggerEphemeral         = "ephemeral"
 	commandTriggerEphemeralOverride = "ephemeral_override"
 	commandTriggerInteractive       = "interactive"
+	commandTriggerMentions          = "show_mentions"
 
 	dialogElementNameNumber = "somenumber"
 	dialogElementNameEmail  = "someemail"
@@ -92,6 +93,15 @@ func (p *Plugin) registerCommands() error {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerInteractive)
 	}
 
+	if err := p.API.RegisterCommand(&model.Command{
+		Trigger:          commandTriggerMentions,
+		AutoComplete:     true,
+		AutoCompleteHint: "",
+		AutoCompleteDesc: "Demonstrates access to mentions in the message.",
+	}); err != nil {
+		return errors.Wrapf(err, "failed to register %s command", commandTriggerMentions)
+	}
+
 	return nil
 }
 
@@ -123,6 +133,8 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		return p.executeCommandDialog(args), nil
 	case commandTriggerInteractive:
 		return p.executeCommandInteractive(args), nil
+	case commandTriggerMentions:
+		return p.executeCommandMentions(args), nil
 
 	default:
 		return &model.CommandResponse{
@@ -508,4 +520,48 @@ func (p *Plugin) crash() {
 	<-time.NewTimer(time.Second).C
 	y := 0
 	_ = 1 / y
+}
+
+func (p *Plugin) executeCommandMentions(args *model.CommandArgs) *model.CommandResponse {
+	message := "The command `" + args.Command + "` contains the following different mentions.\n"
+	message += "### Mentions to users in the team\n"
+	if args.UserMentions == nil {
+		message += "_There are no mentions to users in the team in your command_.\n"
+	} else {
+		message += "| User name | Unique identifier |\n"
+		message += "|-----------|-------------------|\n"
+		for name, id := range args.UserMentions {
+			message += fmt.Sprintf("|@%s|%s|\n", name, id)
+		}
+	}
+
+	message += "\n### Mentions to public channels\n"
+	if args.ChannelMentions == nil {
+		message += "_There are no mentions to public channels in your command_.\n"
+	} else {
+		message += "| Channel name | Unique identifier |\n"
+		message += "|--------------|-------------------|\n"
+		for name, id := range args.ChannelMentions {
+			message += fmt.Sprintf("|~%s|%s|\n", name, id)
+		}
+	}
+
+	post := &model.Post{
+		ChannelId: args.ChannelId,
+		RootId:    args.RootId,
+		UserId:    p.botId,
+		Message:   message,
+	}
+
+	_, err := p.API.CreatePost(post)
+	if err != nil {
+		errorMessage := "Failed to create post"
+		p.API.LogError(errorMessage, "err", err.Error())
+		return &model.CommandResponse{
+			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			Text:         errorMessage,
+		}
+	}
+
+	return &model.CommandResponse{}
 }
