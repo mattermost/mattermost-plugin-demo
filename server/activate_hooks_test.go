@@ -19,14 +19,18 @@ func TestOnActivate(t *testing.T) {
 	}
 
 	for name, test := range map[string]struct {
-		SetupAPI    func(*plugintest.API) *plugintest.API
-		ShouldError bool
+		SetupAPI     func(*plugintest.API) *plugintest.API
+		SetupHelpers func(*plugintest.Helpers) *plugintest.Helpers
+		ShouldError  bool
 	}{
 		"GetServerVersion not implemented, returns empty string": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return("")
 
 				return api
+			},
+			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
+				return helpers
 			},
 			ShouldError: true,
 		},
@@ -45,14 +49,54 @@ func TestOnActivate(t *testing.T) {
 
 				return api
 			},
+			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
+				return helpers
+			},
 			ShouldError: true,
+		},
+		"check server config fails, could not read manifest": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetServerVersion").Return(minimumServerVersion)
+				api.On("GetBundlePath").Return("", nil)
+
+				return api
+			},
+			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
+				return helpers
+			},
+			ShouldError: true,
+		},
+		"check server config fails, config is incompatible": {
+			SetupAPI: func(api *plugintest.API) *plugintest.API {
+				api.On("GetServerVersion").Return(minimumServerVersion)
+				api.On("GetBundlePath").Return("../", nil)
+				api.On("LogError", "Server configuration is not compatible").Return()
+				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
+				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
+				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
+				api.On("GetBundlePath").Return("../", nil)
+
+				return api
+			},
+			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
+				helpers.On("CheckRequiredServerConfiguration", mock.AnythingOfType("*model.Config")).Return(false, nil)
+
+				return helpers
+			},
+			ShouldError: false,
 		},
 		"minimum supported version fulfilled, but RegisterCommand fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return(minimumServerVersion)
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(&model.AppError{})
+				api.On("GetBundlePath").Return("../", nil)
 
 				return api
+			},
+			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
+				helpers.On("CheckRequiredServerConfiguration", mock.AnythingOfType("*model.Config")).Return(true, nil)
+
+				return helpers
 			},
 			ShouldError: true,
 		},
@@ -61,8 +105,14 @@ func TestOnActivate(t *testing.T) {
 				api.On("GetServerVersion").Return(minimumServerVersion)
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 				api.On("GetTeams").Return(nil, &model.AppError{})
+				api.On("GetBundlePath").Return("../", nil)
 
 				return api
+			},
+			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
+				helpers.On("CheckRequiredServerConfiguration", mock.AnythingOfType("*model.Config")).Return(true, nil)
+
+				return helpers
 			},
 			ShouldError: true,
 		},
@@ -72,8 +122,14 @@ func TestOnActivate(t *testing.T) {
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(nil, &model.AppError{})
+				api.On("GetBundlePath").Return("../", nil)
 
 				return api
+			},
+			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
+				helpers.On("CheckRequiredServerConfiguration", mock.AnythingOfType("*model.Config")).Return(true, nil)
+
+				return helpers
 			},
 			ShouldError: true,
 		},
@@ -83,11 +139,17 @@ func TestOnActivate(t *testing.T) {
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
+				api.On("GetBundlePath").Return("../", nil)
 
 				api.On("KVSetWithOptions", mock.Anything, mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 				api.On("KVGet", mock.Anything).Return(nil, nil).Maybe()
 
 				return api
+			},
+			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
+				helpers.On("CheckRequiredServerConfiguration", mock.AnythingOfType("*model.Config")).Return(true, nil)
+
+				return helpers
 			},
 			ShouldError: false,
 		},
@@ -99,17 +161,24 @@ func TestOnActivate(t *testing.T) {
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
+				api.On("GetBundlePath").Return("../", nil)
 
 				api.On("KVSetWithOptions", mock.Anything, mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 				api.On("KVGet", mock.Anything).Return(nil, nil).Maybe()
 
 				return api
 			},
+			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
+				helpers.On("CheckRequiredServerConfiguration", mock.AnythingOfType("*model.Config")).Return(true, nil)
+
+				return helpers
+			},
 			ShouldError: false,
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			api := test.SetupAPI(&plugintest.API{})
+			helpers := test.SetupHelpers(&plugintest.Helpers{})
 			defer api.AssertExpectations(t)
 
 			p := Plugin{}
@@ -117,6 +186,7 @@ func TestOnActivate(t *testing.T) {
 				demoChannelIds: demoChannelIds,
 			})
 			p.SetAPI(api)
+			p.SetHelpers(helpers)
 			err := p.OnActivate()
 
 			if test.ShouldError {

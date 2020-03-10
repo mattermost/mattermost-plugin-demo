@@ -3,7 +3,7 @@ package main
 import (
 	"sync"
 
-	"github.com/lieut-data/mattermost-plugin-api/cluster"
+	"github.com/mattermost/mattermost-plugin-api/cluster"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 )
 

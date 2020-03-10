@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -136,6 +137,19 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 		msg = fmt.Sprintf("The random secret %q has been entered by @%s!\n%s",
 			configuration.RandomSecret, user.Username, configuration.SecretMessage,
 		)
+		if err := p.postPluginMessage(channel.TeamId, msg); err != nil {
+			p.API.LogError(
+				"failed to post random secret message",
+				"channel_id", channel.Id,
+				"user_id", user.Id,
+				"error", err.Error(),
+			)
+		}
+	}
+
+	if strings.Contains(post.Message, strconv.Itoa(configuration.SecretNumber)) {
+		msg = fmt.Sprintf("The random number %d has been entered by @%s!",
+			configuration.SecretNumber, user.Username)
 		if err := p.postPluginMessage(channel.TeamId, msg); err != nil {
 			p.API.LogError(
 				"failed to post random secret message",
