@@ -19,6 +19,7 @@ const (
 	commandTriggerEphemeralOverride = "ephemeral_override"
 	commandTriggerInteractive       = "interactive"
 	commandTriggerMentions          = "show_mentions"
+	commandTriggerListFiles         = "list_files"
 
 	dialogElementNameNumber = "somenumber"
 	dialogElementNameEmail  = "someemail"
@@ -102,6 +103,15 @@ func (p *Plugin) registerCommands() error {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerMentions)
 	}
 
+	if err := p.API.RegisterCommand(&model.Command{
+		Trigger:          commandTriggerListFiles,
+		AutoComplete:     true,
+		AutoCompleteHint: "",
+		AutoCompleteDesc: "Demonstrates the file search plugin api.",
+	}); err != nil {
+		return errors.Wrapf(err, "failed to register %s command", commandTriggerInteractive)
+	}
+
 	return nil
 }
 
@@ -131,6 +141,8 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		return p.executeCommandEphemeralOverride(args), nil
 	case commandTriggerDialog:
 		return p.executeCommandDialog(args), nil
+	case commandTriggerListFiles:
+		return p.executeCommandListFiles(args), nil
 	case commandTriggerInteractive:
 		return p.executeCommandInteractive(args), nil
 	case commandTriggerMentions:
@@ -563,5 +575,76 @@ func (p *Plugin) executeCommandMentions(args *model.CommandArgs) *model.CommandR
 		}
 	}
 
+	return &model.CommandResponse{}
+}
+
+func (p *Plugin) executeCommandListFiles(args *model.CommandArgs) *model.CommandResponse {
+	fileInfos, err := p.API.GetFileInfos(0, 10, &model.GetFileInfosOptions{
+		ChannelIds:     []string{args.ChannelId},
+		SortDescending: true,
+	})
+	if err != nil {
+		errorMessage := "Failed to get file list"
+		p.API.LogError(errorMessage, "err", err.Error())
+		return &model.CommandResponse{
+			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			Text:         errorMessage,
+		}
+	}
+
+	team, err := p.API.GetTeam(args.TeamId)
+	if err != nil {
+		errorMessage := "Failed to get team name"
+		p.API.LogError(errorMessage, "err", err.Error())
+		return &model.CommandResponse{
+			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			Text:         errorMessage,
+		}
+	}
+
+	permaLink := args.SiteURL + "/" + team.Name + "/pl/"
+	attachments := make([]*model.SlackAttachment, 0, len(fileInfos))
+	for _, f := range fileInfos {
+		user, err := p.API.GetUser(f.CreatorId)
+		if err != nil {
+			errorMessage := "Failed to get username"
+			p.API.LogError(errorMessage, "err", err.Error())
+			return &model.CommandResponse{
+				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+				Text:         errorMessage,
+			}
+		}
+		fileLink, err := p.API.GetFileLink(f.Id)
+		if err != nil {
+			errorMessage := "Failed to get file public link"
+			p.API.LogError(errorMessage, "err", err.Error())
+			return &model.CommandResponse{
+				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+				Text:         errorMessage,
+			}
+		}
+		attachments = append(attachments,
+			&model.SlackAttachment{
+				Title:     f.Name,
+				TitleLink: permaLink + f.PostId,
+				Text:      fmt.Sprintf("uploaded by %s", user.Username),
+				Fields: []*model.SlackAttachmentField{
+					{
+						Title: "Direct Download Link",
+						Value: args.SiteURL + fileLink,
+					}},
+			},
+		)
+	}
+
+	post := &model.Post{
+		ChannelId: args.ChannelId,
+		Message:   fmt.Sprintf("Last %d Files uploaded to this channel", len(fileInfos)),
+		Props: model.StringInterface{
+			"attachments": attachments,
+		},
+	}
+
+	_ = p.API.SendEphemeralPost(args.UserId, post)
 	return &model.CommandResponse{}
 }
