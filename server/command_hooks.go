@@ -163,7 +163,7 @@ func (p *Plugin) executeCommandHooks(args *model.CommandArgs) *model.CommandResp
 			}
 		}
 
-		configuration.disabled = false
+		p.setEnabled(true)
 		p.emitStatusChange()
 
 		return &model.CommandResponse{
@@ -181,7 +181,7 @@ func (p *Plugin) executeCommandHooks(args *model.CommandArgs) *model.CommandResp
 			}
 		}
 
-		configuration.disabled = true
+		p.setEnabled(false)
 		p.emitStatusChange()
 
 		return &model.CommandResponse{
