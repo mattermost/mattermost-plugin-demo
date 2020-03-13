@@ -76,10 +76,10 @@ func TestOnActivate(t *testing.T) {
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
 				api.On("GetBundlePath").Return("../", nil)
 
-				api.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
-				api.On("KVGet", mock.Anything).Return(nil, nil).Maybe()
-				api.On("KVSet", mock.Anything, mock.Anything).Return(nil, nil).Maybe()
-				api.On("KVCompareAndDelete", mock.Anything, mock.Anything).Return(true, nil).Maybe()
+				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVGet", "cron_BackgroundJob").Return([]byte("{}"), nil).Maybe()
+				api.On("KVSetWithOptions", "cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 
 				return api
 			},
@@ -96,6 +96,11 @@ func TestOnActivate(t *testing.T) {
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(&model.AppError{})
 				api.On("GetBundlePath").Return("../", nil)
 
+				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVGet", "cron_BackgroundJob").Return([]byte("{}"), nil).Maybe()
+				api.On("KVSetWithOptions", "cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
@@ -111,6 +116,11 @@ func TestOnActivate(t *testing.T) {
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 				api.On("GetTeams").Return(nil, &model.AppError{})
 				api.On("GetBundlePath").Return("../", nil)
+
+				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVGet", "cron_BackgroundJob").Return([]byte{}, nil).Maybe()
+				api.On("KVSetWithOptions", "cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 
 				return api
 			},
@@ -129,6 +139,11 @@ func TestOnActivate(t *testing.T) {
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(nil, &model.AppError{})
 				api.On("GetBundlePath").Return("../", nil)
 
+				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVGet", "cron_BackgroundJob").Return([]byte{}, nil).Maybe()
+				api.On("KVSetWithOptions", "cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
@@ -146,10 +161,10 @@ func TestOnActivate(t *testing.T) {
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
 				api.On("GetBundlePath").Return("../", nil)
 
-				api.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
-				api.On("KVGet", mock.Anything).Return(nil, nil).Maybe()
-				api.On("KVSet", mock.Anything, mock.Anything).Return(nil, nil).Maybe()
-				api.On("KVCompareAndDelete", mock.Anything, mock.Anything).Return(true, nil).Maybe()
+				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVGet", "cron_BackgroundJob").Return([]byte("{}"), nil).Maybe()
+				api.On("KVSetWithOptions", "cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 
 				return api
 			},
@@ -170,10 +185,10 @@ func TestOnActivate(t *testing.T) {
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
 				api.On("GetBundlePath").Return("../", nil)
 
-				api.On("KVCompareAndSet", mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Maybe()
-				api.On("KVGet", mock.Anything).Return(nil, nil).Maybe()
-				api.On("KVSet", mock.Anything, mock.Anything).Return(nil, nil).Maybe()
-				api.On("KVCompareAndDelete", mock.Anything, mock.Anything).Return(true, nil).Maybe()
+				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVGet", "cron_BackgroundJob").Return([]byte("{}"), nil).Maybe()
+				api.On("KVSetWithOptions", "cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 
 				return api
 			},
