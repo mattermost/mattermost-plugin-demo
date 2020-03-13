@@ -540,7 +540,7 @@ func (p *Plugin) executeCommandMentions(args *model.CommandArgs) *model.CommandR
 	if args.UserMentions == nil {
 		message += "_There are no mentions to users in the team in your command_.\n"
 	} else {
-		message += "| User name | Unique identifier |\n"
+		message += "| User name | ID |\n"
 		message += "|-----------|-------------------|\n"
 		for name, id := range args.UserMentions {
 			message += fmt.Sprintf("|@%s|%s|\n", name, id)
