@@ -541,7 +541,7 @@ func (p *Plugin) executeCommandMentions(args *model.CommandArgs) *model.CommandR
 		message += "_There are no mentions to users in the team in your command_.\n"
 	} else {
 		message += "| User name | ID |\n"
-		message += "|-----------|-------------------|\n"
+		message += "|-----------|----|\n"
 		for name, id := range args.UserMentions {
 			message += fmt.Sprintf("|@%s|%s|\n", name, id)
 		}
@@ -551,8 +551,8 @@ func (p *Plugin) executeCommandMentions(args *model.CommandArgs) *model.CommandR
 	if args.ChannelMentions == nil {
 		message += "_There are no mentions to public channels in your command_.\n"
 	} else {
-		message += "| Channel name | Unique identifier |\n"
-		message += "|--------------|-------------------|\n"
+		message += "| Channel name | ID |\n"
+		message += "|--------------|----|\n"
 		for name, id := range args.ChannelMentions {
 			message += fmt.Sprintf("|~%s|%s|\n", name, id)
 		}
