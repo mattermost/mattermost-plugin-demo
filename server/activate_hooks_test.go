@@ -76,6 +76,11 @@ func TestOnActivate(t *testing.T) {
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
 				api.On("GetBundlePath").Return("../", nil)
 
+				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVGet", "cron_BackgroundJob").Return([]byte("{}"), nil).Maybe()
+				api.On("KVSetWithOptions", "cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
@@ -85,11 +90,16 @@ func TestOnActivate(t *testing.T) {
 			},
 			ShouldError: false,
 		},
-		"minimum supported version fullfiled, but RegisterCommand fails": {
+		"minimum supported version fulfilled, but RegisterCommand fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return(minimumServerVersion)
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(&model.AppError{})
 				api.On("GetBundlePath").Return("../", nil)
+
+				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVGet", "cron_BackgroundJob").Return([]byte("{}"), nil).Maybe()
+				api.On("KVSetWithOptions", "cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 
 				return api
 			},
@@ -100,13 +110,18 @@ func TestOnActivate(t *testing.T) {
 			},
 			ShouldError: true,
 		},
-		"minimum supported version fullfiled, but GetTeams fails": {
+		"minimum supported version fulfilled, but GetTeams fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return(minimumServerVersion)
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 				api.On("GetTeams").Return(nil, &model.AppError{})
 				api.On("GetBundlePath").Return("../", nil)
 
+				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVGet", "cron_BackgroundJob").Return([]byte{}, nil).Maybe()
+				api.On("KVSetWithOptions", "cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
@@ -116,7 +131,7 @@ func TestOnActivate(t *testing.T) {
 			},
 			ShouldError: true,
 		},
-		"minimum supported version fullfiled, but CreatePost fails": {
+		"minimum supported version fulfilled, but CreatePost fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return(minimumServerVersion)
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
@@ -124,6 +139,11 @@ func TestOnActivate(t *testing.T) {
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(nil, &model.AppError{})
 				api.On("GetBundlePath").Return("../", nil)
 
+				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVGet", "cron_BackgroundJob").Return([]byte{}, nil).Maybe()
+				api.On("KVSetWithOptions", "cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
@@ -133,13 +153,18 @@ func TestOnActivate(t *testing.T) {
 			},
 			ShouldError: true,
 		},
-		"minimum supported version fullfiled": {
+		"minimum supported version fulfilled": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return(minimumServerVersion)
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
 				api.On("GetBundlePath").Return("../", nil)
+
+				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVGet", "cron_BackgroundJob").Return([]byte("{}"), nil).Maybe()
+				api.On("KVSetWithOptions", "cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 
 				return api
 			},
@@ -159,6 +184,11 @@ func TestOnActivate(t *testing.T) {
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
 				api.On("GetBundlePath").Return("../", nil)
+
+				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVGet", "cron_BackgroundJob").Return([]byte("{}"), nil).Maybe()
+				api.On("KVSetWithOptions", "cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 
 				return api
 			},
