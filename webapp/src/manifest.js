@@ -169,6 +169,7 @@ const manifest = JSON.parse(`
             "EnableLinkPreviews": null,
             "EnableTesting": null,
             "EnableDeveloper": null,
+            "EnableOpenTracing": null,
             "EnableSecurityFixAlert": null,
             "EnableInsecureOutgoingConnections": null,
             "AllowedUntrustedInternalConnections": null,
@@ -289,6 +290,15 @@ const manifest = JSON.parse(`
             "EnableWebhookDebugging": null,
             "EnableDiagnostics": null
         },
+        "ExperimentalAuditSettings": {
+            "Enabled": null,
+            "IP": null,
+            "Port": null,
+            "Tag": null,
+            "Cert": null,
+            "Insecure": null,
+            "MaxQSize": null
+        },
         "NotificationLogSettings": {
             "EnableConsole": null,
             "ConsoleLevel": null,
@@ -341,6 +351,7 @@ const manifest = JSON.parse(`
             "SMTPPassword": null,
             "SMTPServer": null,
             "SMTPPort": null,
+            "SMTPServerTimeout": null,
             "ConnectionSecurity": null,
             "SendPushNotifications": null,
             "PushNotificationServer": null,
