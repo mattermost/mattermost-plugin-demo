@@ -72,6 +72,8 @@ The `/interactive` command demonstrates the usage of interactive message buttons
 
 The `/list_files` command demonstrates the usage of the file search API.
 
+The `/show_mentions` command demonstrates the access to the users and channels mentions found in the command text.
+
 ## [http_hooks.go](http_hooks.go)
 
 ### ServeHTTP
