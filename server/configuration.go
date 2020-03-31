@@ -49,20 +49,20 @@ type configuration struct {
 	// disabled tracks whether or not the plugin has been disabled after activation. It always starts enabled.
 	disabled bool
 
-	// demoUserId is the id of the user specified above.
-	demoUserId string
+	// demoUserID is the id of the user specified above.
+	demoUserID string
 
-	// demoChannelIds maps team ids to the channels created for each using the channel name above.
-	demoChannelIds map[string]string
+	// demoChannelIDs maps team ids to the channels created for each using the channel name above.
+	demoChannelIDs map[string]string
 }
 
 // Clone deep copies the configuration. Your implementation may only require a shallow copy if
 // your configuration has no reference types.
 func (c *configuration) Clone() *configuration {
-	// Deep copy demoChannelIds, a reference type.
-	demoChannelIds := make(map[string]string)
-	for key, value := range c.demoChannelIds {
-		demoChannelIds[key] = value
+	// Deep copy demoChannelIDs, a reference type.
+	demoChannelIDs := make(map[string]string)
+	for key, value := range c.demoChannelIDs {
+		demoChannelIDs[key] = value
 	}
 
 	return &configuration{
@@ -75,8 +75,8 @@ func (c *configuration) Clone() *configuration {
 		EnableMentionUser: c.EnableMentionUser,
 		MentionUser:       c.MentionUser,
 		disabled:          c.disabled,
-		demoUserId:        c.demoUserId,
-		demoChannelIds:    demoChannelIds,
+		demoUserID:        c.demoUserID,
+		demoChannelIDs:    demoChannelIDs,
 	}
 }
 
@@ -157,7 +157,7 @@ func (p *Plugin) diffConfiguration(newConfiguration *configuration) {
 	}
 
 	for _, team := range teams {
-		demoChannelId, ok := newConfiguration.demoChannelIds[team.Id]
+		demoChannelID, ok := newConfiguration.demoChannelIDs[team.Id]
 		if !ok {
 			p.API.LogWarn("No demo channel id for team", "team", team.Id)
 			continue
@@ -169,15 +169,15 @@ func (p *Plugin) diffConfiguration(newConfiguration *configuration) {
 			return
 		}
 
-		fileInfo, err := p.API.UploadFile(newConfigurationData, demoChannelId, "configuration.json")
+		fileInfo, err := p.API.UploadFile(newConfigurationData, demoChannelID, "configuration.json")
 		if err != nil {
 			p.API.LogWarn("failed to attach new configuration", "err", err)
 			return
 		}
 
 		if _, err := p.API.CreatePost(&model.Post{
-			UserId:    p.botId,
-			ChannelId: demoChannelId,
+			UserId:    p.botID,
+			ChannelId: demoChannelID,
 			Message:   "OnConfigChange: loading new configuration",
 			Type:      "custom_demo_plugin",
 			Props:     configurationDiff,
@@ -202,12 +202,12 @@ func (p *Plugin) OnConfigurationChange() error {
 		return errors.Wrap(loadConfigErr, "failed to load plugin configuration")
 	}
 
-	configuration.demoUserId, err = p.ensureDemoUser(configuration)
+	configuration.demoUserID, err = p.ensureDemoUser(configuration)
 	if err != nil {
 		return errors.Wrap(err, "failed to ensure demo user")
 	}
 
-	botId, ensureBotError := p.Helpers.EnsureBot(&model.Bot{
+	botID, ensureBotError := p.Helpers.EnsureBot(&model.Bot{
 		Username:    "demoplugin",
 		DisplayName: "Demo Plugin Bot",
 		Description: "A bot account created by the demo plugin.",
@@ -216,9 +216,9 @@ func (p *Plugin) OnConfigurationChange() error {
 		return errors.Wrap(ensureBotError, "failed to ensure demo bot.")
 	}
 
-	p.botId = botId
+	p.botID = botID
 
-	configuration.demoChannelIds, err = p.ensureDemoChannels(configuration)
+	configuration.demoChannelIDs, err = p.ensureDemoChannels(configuration)
 	if err != nil {
 		return errors.Wrap(err, "failed to ensure demo channels")
 	}
@@ -270,7 +270,10 @@ func (p *Plugin) ensureDemoUser(configuration *configuration) (string, error) {
 
 	for _, team := range teams {
 		// Ignore any error.
-		p.API.CreateTeamMember(team.Id, configuration.demoUserId)
+		_, err := p.API.CreateTeamMember(team.Id, configuration.demoUserID)
+		if err != nil {
+			p.API.LogError("Failed add demo user to team", "teamID", team.Id, "error", err.Error())
+		}
 	}
 
 	return user.Id, nil
@@ -282,7 +285,7 @@ func (p *Plugin) ensureDemoChannels(configuration *configuration) (map[string]st
 		return nil, err
 	}
 
-	demoChannelIds := make(map[string]string)
+	demoChannelIDs := make(map[string]string)
 	for _, team := range teams {
 		// Check for the configured channel. Ignore any error, since it's hard to
 		// distinguish runtime errors from a channel simply not existing.
@@ -305,10 +308,10 @@ func (p *Plugin) ensureDemoChannels(configuration *configuration) (map[string]st
 		}
 
 		// Save the ids for later use.
-		demoChannelIds[team.Id] = channel.Id
+		demoChannelIDs[team.Id] = channel.Id
 	}
 
-	return demoChannelIds, nil
+	return demoChannelIDs, nil
 }
 
 // setEnabled wraps setConfiguration to configure if the plugin is enabled.

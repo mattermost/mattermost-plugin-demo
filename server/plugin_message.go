@@ -19,8 +19,8 @@ func (p *Plugin) postPluginMessage(id, msg string) *model.AppError {
 	msg = fmt.Sprintf("%s%s%s", configuration.TextStyle, msg, configuration.TextStyle)
 
 	_, err := p.API.CreatePost(&model.Post{
-		UserId:    p.botId,
-		ChannelId: configuration.demoChannelIds[id],
+		UserId:    p.botID,
+		ChannelId: configuration.demoChannelIDs[id],
 		Message:   msg,
 	})
 

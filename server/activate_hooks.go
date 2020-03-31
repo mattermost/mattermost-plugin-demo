@@ -53,7 +53,7 @@ func (p *Plugin) OnActivate() error {
 	}
 
 	for _, team := range teams {
-		_, ok := configuration.demoChannelIds[team.Id]
+		_, ok := configuration.demoChannelIDs[team.Id]
 		if !ok {
 			p.API.LogWarn("No demo channel id for team", "team", team.Id)
 			continue
@@ -98,7 +98,7 @@ func (p *Plugin) OnDeactivate() error {
 	}
 
 	for _, team := range teams {
-		_, ok := configuration.demoChannelIds[team.Id]
+		_, ok := configuration.demoChannelIDs[team.Id]
 		if !ok {
 			p.API.LogWarn("No demo channel id for team", "team", team.Id)
 			continue

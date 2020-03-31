@@ -18,7 +18,7 @@ type Plugin struct {
 	configuration *configuration
 
 	// BotId of the created bot account.
-	botId string
+	botID string
 
 	// backgroundJob is a job that executes periodically on only one plugin instance at a time
 	backgroundJob *cluster.Job

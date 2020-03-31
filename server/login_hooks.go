@@ -41,7 +41,7 @@ func (p *Plugin) UserHasLoggedIn(c *plugin.Context, user *model.User) {
 		if err := p.postPluginMessage(team.Id, msg); err != nil {
 			p.API.LogError(
 				"failed to post UserHasLoggedIn message",
-				"channel_id", configuration.demoChannelIds[team.Id],
+				"channel_id", configuration.demoChannelIDs[team.Id],
 				"error", err.Error(),
 			)
 		}

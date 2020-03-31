@@ -59,10 +59,10 @@ func TestOnConfigurationChange(t *testing.T) {
 		Id:       model.NewId(),
 		Username: "demo_user",
 	}
-	teamId := model.NewId()
-	channelId := model.NewId()
-	demoChannelIds := map[string]string{
-		teamId: channelId,
+	teamID := model.NewId()
+	channelID := model.NewId()
+	demoChannelIDs := map[string]string{
+		teamID: channelID,
 	}
 
 	for name, test := range map[string]struct {
@@ -73,10 +73,10 @@ func TestOnConfigurationChange(t *testing.T) {
 		"same configuration": {
 			SetupAPI: func() *plugintest.API {
 				api := &plugintest.API{}
-				api.On("LoadPluginConfiguration", mock.Anything).Return(nil)
-				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
+				api.On("LoadPluginConfiguration", mock.AnythingOfType("*main.configuration")).Return(nil)
+				api.On("GetTeams").Return([]*model.Team{{Id: teamID}}, nil)
 				api.On("GetUserByUsername", mock.AnythingOfType("string")).Return(user, nil)
-				api.On("CreateTeamMember", teamId, "").Return(&model.TeamMember{}, nil)
+				api.On("CreateTeamMember", teamID, "").Return(&model.TeamMember{}, nil)
 				api.On("GetChannelByNameForTeamName", "", "", false).Return(&model.Channel{}, nil)
 
 				return api
@@ -91,13 +91,13 @@ func TestOnConfigurationChange(t *testing.T) {
 		"different configuration": {
 			SetupAPI: func() *plugintest.API {
 				api := &plugintest.API{}
-				api.On("LoadPluginConfiguration", mock.Anything).Return(nil).Run(func(args mock.Arguments) {
+				api.On("LoadPluginConfiguration", mock.AnythingOfType("*main.configuration")).Return(nil).Run(func(args mock.Arguments) {
 					apiConfiguration := args.Get(0).(*configuration)
 					apiConfiguration.EnableMentionUser = true
 				})
-				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
+				api.On("GetTeams").Return([]*model.Team{{Id: teamID}}, nil)
 				api.On("GetUserByUsername", mock.AnythingOfType("string")).Return(user, nil)
-				api.On("CreateTeamMember", teamId, "").Return(&model.TeamMember{}, nil)
+				api.On("CreateTeamMember", teamID, "").Return(&model.TeamMember{}, nil)
 				channel := &model.Channel{
 					Id: model.NewId(),
 				}
@@ -117,13 +117,13 @@ func TestOnConfigurationChange(t *testing.T) {
 		"failure to ensure bot": {
 			SetupAPI: func() *plugintest.API {
 				api := &plugintest.API{}
-				api.On("LoadPluginConfiguration", mock.Anything).Return(nil).Run(func(args mock.Arguments) {
+				api.On("LoadPluginConfiguration", mock.AnythingOfType("*main.configuration")).Return(nil).Run(func(args mock.Arguments) {
 					apiConfiguration := args.Get(0).(*configuration)
 					apiConfiguration.EnableMentionUser = true
 				})
-				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
+				api.On("GetTeams").Return([]*model.Team{{Id: teamID}}, nil)
 				api.On("GetUserByUsername", mock.AnythingOfType("string")).Return(user, nil)
-				api.On("CreateTeamMember", teamId, "").Return(&model.TeamMember{}, nil)
+				api.On("CreateTeamMember", teamID, "").Return(&model.TeamMember{}, nil)
 
 				return api
 			},
@@ -137,13 +137,13 @@ func TestOnConfigurationChange(t *testing.T) {
 		"bot icon exists": {
 			SetupAPI: func() *plugintest.API {
 				api := &plugintest.API{}
-				api.On("LoadPluginConfiguration", mock.Anything).Return(nil).Run(func(args mock.Arguments) {
+				api.On("LoadPluginConfiguration", mock.AnythingOfType("*main.configuration")).Return(nil).Run(func(args mock.Arguments) {
 					apiConfiguration := args.Get(0).(*configuration)
 					apiConfiguration.EnableMentionUser = true
 				})
-				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
+				api.On("GetTeams").Return([]*model.Team{{Id: teamID}}, nil)
 				api.On("GetUserByUsername", mock.AnythingOfType("string")).Return(user, nil)
-				api.On("CreateTeamMember", teamId, "").Return(&model.TeamMember{}, nil)
+				api.On("CreateTeamMember", teamID, "").Return(&model.TeamMember{}, nil)
 				channel := &model.Channel{
 					Id: model.NewId(),
 				}
@@ -170,7 +170,7 @@ func TestOnConfigurationChange(t *testing.T) {
 
 			p := Plugin{}
 			p.setConfiguration(&configuration{
-				demoChannelIds: demoChannelIds,
+				demoChannelIDs: demoChannelIDs,
 			})
 			p.SetAPI(api)
 			p.SetHelpers(helpers)
