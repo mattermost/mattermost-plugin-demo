@@ -104,6 +104,7 @@ ifneq ($(HAS_WEBAPP),)
 endif
 
 ## Builds the webapp in debug mode, if it exists.
+.PHONY: webapp-debug
 webapp-debug: webapp/.npminstall
 ifneq ($(HAS_WEBAPP),)
 	cd webapp && \
