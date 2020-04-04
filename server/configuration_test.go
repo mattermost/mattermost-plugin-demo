@@ -64,18 +64,16 @@ func TestOnConfigurationChange(t *testing.T) {
 	demoChannelIds := map[string]string{
 		teamId: channelId,
 	}
-	var apiConfiguration = new(configuration)
 
 	for name, test := range map[string]struct {
-		SetupAPI         func() *plugintest.API
-		SetupHelpers     func() *plugintest.Helpers
-		preConfiguration *configuration
-		ShouldError      bool
+		SetupAPI     func() *plugintest.API
+		SetupHelpers func() *plugintest.Helpers
+		ShouldError  bool
 	}{
 		"same configuration": {
 			SetupAPI: func() *plugintest.API {
 				api := &plugintest.API{}
-				api.On("LoadPluginConfiguration", apiConfiguration).Return(nil)
+				api.On("LoadPluginConfiguration", mock.Anything).Return(nil)
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("GetUserByUsername", mock.AnythingOfType("string")).Return(user, nil)
 				api.On("CreateTeamMember", teamId, "").Return(&model.TeamMember{}, nil)
@@ -88,13 +86,15 @@ func TestOnConfigurationChange(t *testing.T) {
 				helpers.On("EnsureBot", mock.AnythingOfType("*model.Bot"), mock.AnythingOfType("plugin.EnsureBotOption")).Return(model.NewId(), nil)
 				return helpers
 			},
-			preConfiguration: apiConfiguration,
-			ShouldError:      false,
+			ShouldError: false,
 		},
 		"different configuration": {
 			SetupAPI: func() *plugintest.API {
 				api := &plugintest.API{}
-				api.On("LoadPluginConfiguration", apiConfiguration).Return(nil)
+				api.On("LoadPluginConfiguration", mock.Anything).Return(nil).Run(func(args mock.Arguments) {
+					apiConfiguration := args.Get(0).(*configuration)
+					apiConfiguration.EnableMentionUser = true
+				})
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("GetUserByUsername", mock.AnythingOfType("string")).Return(user, nil)
 				api.On("CreateTeamMember", teamId, "").Return(&model.TeamMember{}, nil)
@@ -112,13 +112,15 @@ func TestOnConfigurationChange(t *testing.T) {
 				helpers.On("EnsureBot", mock.AnythingOfType("*model.Bot"), mock.AnythingOfType("plugin.EnsureBotOption")).Return(model.NewId(), nil)
 				return helpers
 			},
-			preConfiguration: &configuration{EnableMentionUser: true},
-			ShouldError:      false,
+			ShouldError: false,
 		},
 		"failure to ensure bot": {
 			SetupAPI: func() *plugintest.API {
 				api := &plugintest.API{}
-				api.On("LoadPluginConfiguration", apiConfiguration).Return(nil)
+				api.On("LoadPluginConfiguration", mock.Anything).Return(nil).Run(func(args mock.Arguments) {
+					apiConfiguration := args.Get(0).(*configuration)
+					apiConfiguration.EnableMentionUser = true
+				})
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("GetUserByUsername", mock.AnythingOfType("string")).Return(user, nil)
 				api.On("CreateTeamMember", teamId, "").Return(&model.TeamMember{}, nil)
@@ -130,13 +132,15 @@ func TestOnConfigurationChange(t *testing.T) {
 				helpers.On("EnsureBot", mock.AnythingOfType("*model.Bot"), mock.AnythingOfType("plugin.EnsureBotOption")).Return("", errors.New("some error"))
 				return helpers
 			},
-			preConfiguration: &configuration{EnableMentionUser: true},
-			ShouldError:      true,
+			ShouldError: true,
 		},
 		"bot icon exists": {
 			SetupAPI: func() *plugintest.API {
 				api := &plugintest.API{}
-				api.On("LoadPluginConfiguration", apiConfiguration).Return(nil)
+				api.On("LoadPluginConfiguration", mock.Anything).Return(nil).Run(func(args mock.Arguments) {
+					apiConfiguration := args.Get(0).(*configuration)
+					apiConfiguration.EnableMentionUser = true
+				})
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("GetUserByUsername", mock.AnythingOfType("string")).Return(user, nil)
 				api.On("CreateTeamMember", teamId, "").Return(&model.TeamMember{}, nil)
@@ -154,8 +158,7 @@ func TestOnConfigurationChange(t *testing.T) {
 				helpers.On("EnsureBot", mock.AnythingOfType("*model.Bot"), mock.AnythingOfType("plugin.EnsureBotOption")).Return(model.NewId(), nil)
 				return helpers
 			},
-			preConfiguration: &configuration{EnableMentionUser: true},
-			ShouldError:      false,
+			ShouldError: false,
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
@@ -172,9 +175,6 @@ func TestOnConfigurationChange(t *testing.T) {
 			p.SetAPI(api)
 			p.SetHelpers(helpers)
 
-			// The configuration set here allows us to test calling the
-			// "OnConfigurationChange" hook from multiple states
-			p.setConfiguration(test.preConfiguration)
 			err := p.OnConfigurationChange()
 
 			if test.ShouldError {

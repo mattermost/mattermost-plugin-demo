@@ -194,7 +194,7 @@ func (p *Plugin) diffConfiguration(newConfiguration *configuration) {
 // This demo implementation ensures the configured demo user and channel are created for use
 // by the plugin.
 func (p *Plugin) OnConfigurationChange() error {
-	var configuration = new(configuration)
+	configuration := p.getConfiguration().Clone()
 	var err error
 
 	// Load the public configuration fields from the Mattermost server configuration.
