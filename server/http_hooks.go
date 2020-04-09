@@ -36,8 +36,49 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 		p.handleEphemeralDelete(w, r)
 	case "/interactive/button/1":
 		p.handleInteractiveAction(w, r)
+	case "/dynamic_issues":
+		p.handleDynamicIssues(w, r)
+	case "/dynamic_users":
+		p.handleDynamicUsers(w, r)
+	case "/dynamic_states":
+		p.handleDynamicStates(w, r)
 	default:
 		http.NotFound(w, r)
+	}
+}
+func (p *Plugin) handleDynamicIssues(w http.ResponseWriter, r *http.Request) {
+	a := make([]model.AutocompleteStaticListItem, 0)
+	a = append(a, model.AutocompleteStaticListItem{Hint: "[Error in the webapp]", Item: "mm-12329"})
+	a = append(a, model.AutocompleteStaticListItem{Hint: "[Add autocomplete suggestion]", Item: "mm-24493"})
+	a = append(a, model.AutocompleteStaticListItem{Hint: "[Update version of go]", Item: "mm-23432"})
+	b, _ := json.Marshal(a)
+	w.Header().Set("Content-Type", "application/json")
+	if _, err := w.Write(b); err != nil {
+		p.API.LogError("failed to write status", "err", err.Error())
+	}
+}
+
+func (p *Plugin) handleDynamicUsers(w http.ResponseWriter, r *http.Request) {
+	a := make([]model.AutocompleteStaticListItem, 0)
+	a = append(a, model.AutocompleteStaticListItem{Hint: "[Luke Skywalker]", Item: "luke"})
+	a = append(a, model.AutocompleteStaticListItem{Hint: "[Han Solo]", Item: "han"})
+	a = append(a, model.AutocompleteStaticListItem{Hint: "[Boba Fett]", Item: "boba"})
+	b, _ := json.Marshal(a)
+	w.Header().Set("Content-Type", "application/json")
+	if _, err := w.Write(b); err != nil {
+		p.API.LogError("failed to write status", "err", err.Error())
+	}
+}
+
+func (p *Plugin) handleDynamicStates(w http.ResponseWriter, r *http.Request) {
+	a := make([]model.AutocompleteStaticListItem, 0)
+	a = append(a, model.AutocompleteStaticListItem{Hint: "[Open issue]", Item: "open"})
+	a = append(a, model.AutocompleteStaticListItem{Hint: "[Close issue]", Item: "close"})
+	a = append(a, model.AutocompleteStaticListItem{Hint: "[Delete issue]", Item: "delete"})
+	b, _ := json.Marshal(a)
+	w.Header().Set("Content-Type", "application/json")
+	if _, err := w.Write(b); err != nil {
+		p.API.LogError("failed to write status", "err", err.Error())
 	}
 }
 
