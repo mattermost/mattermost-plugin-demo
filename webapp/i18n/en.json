@@ -1,20 +1,20 @@
 {
   "demo.testintl": "This is the English String",
+  "demo.triggeredby": "Element clicked in the menu: ",
   "plugin.name": "Demo Plugin",
   "plugin.upload": "Upload using Demo Plugin",
+  "rhs.triggered": "You have triggered the right-hand sidebar component of the demo plugin.",
   "root.clicktoclose": "Click anywhere to close.",
   "root.triggered": "You have triggered the root component of the demo plugin.",
-  "rhs.triggered": "You have triggered the right-hand sidebar component of the demo plugin.",
+  "sample.confirmation.dialog": "Sample Confirmation Dialog",
   "sidebar.demo": "Demo Plugin:",
   "sidebar.disabled": "Disabled",
   "sidebar.enabled": "Enabled",
-  "tooltip.message": "This is a custom tooltip from the Demo Plugin",
-  "useractions.action": "Action",
-  "useractions.demo": "Demo Plugin: ",
-  "sample.confirmation.dialog": "Sample Confirmation Dialog",
-  "submenu.menu": "Submenu Example",
   "submenu.first": "First Item",
+  "submenu.menu": "Submenu Example",
   "submenu.second": "Second Item",
   "submenu.third": "Third Item",
-  "demo.triggeredby": "Element clicked in the menu: "
+  "tooltip.message": "This is a custom tooltip from the Demo Plugin",
+  "useractions.action": "Action",
+  "useractions.demo": "Demo Plugin: "
 }

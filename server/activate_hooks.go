@@ -8,7 +8,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/mattermost/mattermost-plugin-api/cluster"
-	"github.com/mattermost/mattermost-server/v5/model"
 )
 
 const minimumServerVersion = "5.12.0"
@@ -115,15 +114,5 @@ func (p *Plugin) OnDeactivate() error {
 }
 
 func (p *Plugin) checkRequiredServerConfiguration() (bool, error) {
-	path, err := p.API.GetBundlePath()
-	if err != nil {
-		return false, errors.Wrap(err, "failed to get bundle path")
-	}
-
-	manifest, _, err := model.FindManifest(path)
-	if err != nil {
-		return false, errors.Wrap(err, "failed to find manifest file")
-	}
-
 	return p.Helpers.CheckRequiredServerConfiguration(manifest.RequiredConfig)
 }

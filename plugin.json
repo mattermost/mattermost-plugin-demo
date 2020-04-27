@@ -78,7 +78,7 @@
             "display_name": "Secret Message",
             "type": "custom",
             "help_text": "The message posted by the demo plugin when the secret phrase is detected.",
-            "default": "Yay! The random secret string was posted!\n\nGo to the settings page for this plugin in the system console to generate a new random secret."
+            "default": "Yay! The random secret string was posted! Go to the settings page for this plugin in the system console to generate a new random secret."
         }, {
             "key": "CustomSetting",
             "type": "custom"

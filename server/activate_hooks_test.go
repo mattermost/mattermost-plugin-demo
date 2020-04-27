@@ -54,27 +54,13 @@ func TestOnActivate(t *testing.T) {
 			},
 			ShouldError: true,
 		},
-		"check server config fails, could not read manifest": {
-			SetupAPI: func(api *plugintest.API) *plugintest.API {
-				api.On("GetServerVersion").Return(minimumServerVersion)
-				api.On("GetBundlePath").Return("", nil)
-
-				return api
-			},
-			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
-				return helpers
-			},
-			ShouldError: true,
-		},
 		"check server config fails, config is incompatible": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return(minimumServerVersion)
-				api.On("GetBundlePath").Return("../", nil)
 				api.On("LogError", "Server configuration is not compatible").Return()
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
-				api.On("GetBundlePath").Return("../", nil)
 
 				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 				api.On("KVGet", "cron_BackgroundJob").Return([]byte("{}"), nil).Maybe()
@@ -94,7 +80,6 @@ func TestOnActivate(t *testing.T) {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return(minimumServerVersion)
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(&model.AppError{})
-				api.On("GetBundlePath").Return("../", nil)
 
 				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 				api.On("KVGet", "cron_BackgroundJob").Return([]byte("{}"), nil).Maybe()
@@ -115,7 +100,6 @@ func TestOnActivate(t *testing.T) {
 				api.On("GetServerVersion").Return(minimumServerVersion)
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 				api.On("GetTeams").Return(nil, &model.AppError{})
-				api.On("GetBundlePath").Return("../", nil)
 
 				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 				api.On("KVGet", "cron_BackgroundJob").Return([]byte{}, nil).Maybe()
@@ -137,7 +121,6 @@ func TestOnActivate(t *testing.T) {
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(nil, &model.AppError{})
-				api.On("GetBundlePath").Return("../", nil)
 
 				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 				api.On("KVGet", "cron_BackgroundJob").Return([]byte{}, nil).Maybe()
@@ -159,7 +142,6 @@ func TestOnActivate(t *testing.T) {
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
-				api.On("GetBundlePath").Return("../", nil)
 
 				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 				api.On("KVGet", "cron_BackgroundJob").Return([]byte("{}"), nil).Maybe()
@@ -183,7 +165,6 @@ func TestOnActivate(t *testing.T) {
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
-				api.On("GetBundlePath").Return("../", nil)
 
 				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 				api.On("KVGet", "cron_BackgroundJob").Return([]byte("{}"), nil).Maybe()
