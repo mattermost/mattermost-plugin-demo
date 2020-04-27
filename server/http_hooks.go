@@ -47,10 +47,10 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 	}
 }
 func (p *Plugin) handleDynamicIssues(w http.ResponseWriter, r *http.Request) {
-	a := make([]model.AutocompleteStaticListItem, 0)
-	a = append(a, model.AutocompleteStaticListItem{Hint: "[Error in the webapp]", Item: "mm-12329"})
-	a = append(a, model.AutocompleteStaticListItem{Hint: "[Add autocomplete suggestion]", Item: "mm-24493"})
-	a = append(a, model.AutocompleteStaticListItem{Hint: "[Update version of go]", Item: "mm-23432"})
+	a := make([]model.AutocompleteListItem, 0)
+	a = append(a, model.AutocompleteListItem{HelpText: "Error in the webapp", Item: "mm-12329"})
+	a = append(a, model.AutocompleteListItem{HelpText: "Add autocomplete suggestion", Item: "mm-24493"})
+	a = append(a, model.AutocompleteListItem{HelpText: "Update version of go", Item: "mm-23432"})
 	b, _ := json.Marshal(a)
 	w.Header().Set("Content-Type", "application/json")
 	if _, err := w.Write(b); err != nil {
@@ -59,10 +59,10 @@ func (p *Plugin) handleDynamicIssues(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Plugin) handleDynamicUsers(w http.ResponseWriter, r *http.Request) {
-	a := make([]model.AutocompleteStaticListItem, 0)
-	a = append(a, model.AutocompleteStaticListItem{Hint: "[Luke Skywalker]", Item: "luke"})
-	a = append(a, model.AutocompleteStaticListItem{Hint: "[Han Solo]", Item: "han"})
-	a = append(a, model.AutocompleteStaticListItem{Hint: "[Boba Fett]", Item: "boba"})
+	a := make([]model.AutocompleteListItem, 0)
+	a = append(a, model.AutocompleteListItem{HelpText: "Luke Skywalker", Item: "luke"})
+	a = append(a, model.AutocompleteListItem{HelpText: "Han Solo", Item: "han"})
+	a = append(a, model.AutocompleteListItem{Hint: "[bob]", HelpText: "Boba Fett", Item: "boba"})
 	b, _ := json.Marshal(a)
 	w.Header().Set("Content-Type", "application/json")
 	if _, err := w.Write(b); err != nil {
@@ -71,10 +71,10 @@ func (p *Plugin) handleDynamicUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Plugin) handleDynamicStates(w http.ResponseWriter, r *http.Request) {
-	a := make([]model.AutocompleteStaticListItem, 0)
-	a = append(a, model.AutocompleteStaticListItem{Hint: "[Open issue]", Item: "open"})
-	a = append(a, model.AutocompleteStaticListItem{Hint: "[Close issue]", Item: "close"})
-	a = append(a, model.AutocompleteStaticListItem{Hint: "[Delete issue]", Item: "delete"})
+	a := make([]model.AutocompleteListItem, 0)
+	a = append(a, model.AutocompleteListItem{HelpText: "Open issue", Item: "open"})
+	a = append(a, model.AutocompleteListItem{HelpText: "Close issue", Item: "close"})
+	a = append(a, model.AutocompleteListItem{HelpText: "Delete issue", Item: "delete"})
 	b, _ := json.Marshal(a)
 	w.Header().Set("Content-Type", "application/json")
 	if _, err := w.Write(b); err != nil {

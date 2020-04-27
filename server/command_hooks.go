@@ -97,7 +97,7 @@ func (p *Plugin) registerCommands() error {
 		AutoComplete:     true,
 		AutoCompleteHint: "",
 		AutoCompleteDesc: "Demonstrates  interactive message buttons.",
-		AutocompleteData: CreateJiraAutocompleteData(),
+		AutocompleteData: createJiraAutocompleteData(),
 	}); err != nil {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerInteractive)
 	}
@@ -105,65 +105,76 @@ func (p *Plugin) registerCommands() error {
 	return nil
 }
 
-// CreateJiraAutocompleteData will create autocomplete data for jira plugin. For testing purposes only.
-func CreateJiraAutocompleteData() *model.AutocompleteData {
+func createJiraAutocompleteData() *model.AutocompleteData {
 	jira := model.NewAutocompleteData("jira", "[command]", "Available commands: connect, assign, disconnect, create, transition, view, subscribe, settings, install cloud/server, uninstall cloud/server, help")
 
-	connect := model.NewAutocompleteData("connect", "[server]", "Connect your Mattermost account to your Jira account")
-	connect.AddTextArgument("", "connect to the server", "[server]", "")
+	connect := model.NewAutocompleteData("connect", "[url]", "Connect your Mattermost account to your Jira account")
+	connect.AddTextArgument("connect to the server", "[url]", "")
 	jira.AddCommand(connect)
 
-	disconnect := model.NewAutocompleteData("disconnect", "[server]", "Disconnect your Mattermost account from your Jira account")
+	disconnect := model.NewAutocompleteData("disconnect", "", "Disconnect your Mattermost account from your Jira account")
 	jira.AddCommand(disconnect)
 
-	assign := model.NewAutocompleteData("assign", "[[issue] [user]]", "Change the assignee of a Jira issue")
-	assign.AddDynamicListArgument("", "List of issues from your Jira account", "dynamic_issues")
-	assign.AddDynamicListArgument("", "List of assignees from your Jira account", "dynamic_users")
+	assign := model.NewAutocompleteData("assign", "[issue] [user]", "Change the assignee of a Jira issue")
+	assign.AddDynamicListArgument("List of issues is downloading from your Jira account", "dynamic_issues")
+	assign.AddDynamicListArgument("List of assignees is downloading from your Jira account", "dynamic_users")
 	jira.AddCommand(assign)
 
 	create := model.NewAutocompleteData("create", "[issue text]", "Create a new Issue")
-	create.AddTextArgument("", "This text is optional, will be inserted into the description field", "[issue text]", "")
+	create.AddTextArgument("This text is optional, will be inserted into the description field", "[text]", "")
 	jira.AddCommand(create)
 
 	transition := model.NewAutocompleteData("transition", "[issue]", "Change the state of a Jira issue")
-	transition.AddDynamicListArgument("", "List of issues from your Jira account", "dynamic_issues")
-	transition.AddDynamicListArgument("", "List of states from your Jira account", "dynamic_states")
+	transition.AddDynamicListArgument("List of issues is downloading from your Jira account", "dynamic_issues")
+	transition.AddDynamicListArgument("List of states is downloading from your Jira account", "dynamic_states")
 	jira.AddCommand(transition)
 
-	subscribe := model.NewAutocompleteData("subscribe", "[project]", "Configure the Jira notifications sent to this channel")
+	subscribe := model.NewAutocompleteData("subscribe", "", "Configure the Jira notifications sent to this channel")
 	jira.AddCommand(subscribe)
 
 	view := model.NewAutocompleteData("view", "[issue]", "View the details of a specific Jira issue")
-	view.AddDynamicListArgument("", "List of issues from your Jira account", "dynamic_issues")
+	view.AddDynamicListArgument("List of issues is downloading from your Jira account", "dynamic_issues")
 	jira.AddCommand(view)
 
 	settings := model.NewAutocompleteData("settings", "[notifications/...]", "Update your user settings")
 	notifications := model.NewAutocompleteData("notifications", "[on/off]", "Turn notifications on or off")
-	argument := model.NewAutocompleteStaticListArg()
-	argument.AddArgument("on", "Turn notifications on")
-	argument.AddArgument("off", "Turn notifications off")
-	notifications.AddStaticListArgument("", "[Turn notifications on or off]", argument)
+
+	items := []model.AutocompleteListItem{
+		{
+			Item:     "on",
+			HelpText: "Turn notifications on",
+		},
+		{
+			Item:     "off",
+			HelpText: "Turn notifications off",
+		},
+	}
+	notifications.AddStaticListArgument("Turn notifications on or off", items)
 	settings.AddCommand(notifications)
 	jira.AddCommand(settings)
+
+	timezone := model.NewAutocompleteData("timezone", "", "Update your timezone")
+	timezone.AddNamedTextArgument("zone", "Set timezone", "[UTC+07:00]", "")
+	jira.AddCommand(timezone)
 
 	install := model.NewAutocompleteData("install", "[cloud/server]", "Connect Mattermost to a Jira instance")
 	install.RoleID = model.SYSTEM_ADMIN_ROLE_ID
 	cloud := model.NewAutocompleteData("cloud", "[URL]", "Connect to a Jira Cloud instance")
 	urlPattern := "https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)"
-	cloud.AddTextArgument("", "input URL of the Jira Cloud instance", "[URL]", urlPattern)
+	cloud.AddTextArgument("input URL of the Jira Cloud instance", "[URL]", urlPattern)
 	install.AddCommand(cloud)
-	server := model.NewAutocompleteData("server", "[URL]", "Connect to a Jira Server or Data Center instance")
-	server.AddTextArgument("", "input URL of the Jira Server or Data Center instance", "[URL]", urlPattern)
+	server := model.NewAutocompleteData("server", "", "Connect to a Jira Server or Data Center instance")
+	server.AddTextArgument("input URL of the Jira Server or Data Center instance", "[URL]", urlPattern)
 	install.AddCommand(server)
 	jira.AddCommand(install)
 
 	uninstall := model.NewAutocompleteData("uninstall", "[cloud/server]", "Disconnect Mattermost from a Jira instance")
 	uninstall.RoleID = model.SYSTEM_ADMIN_ROLE_ID
 	cloud = model.NewAutocompleteData("cloud", "[URL]", "Disconnect from a Jira Cloud instance")
-	cloud.AddTextArgument("", "input URL of the Jira Cloud instance", "[URL]", urlPattern)
+	cloud.AddTextArgument("input URL of the Jira Cloud instance", "[URL]", urlPattern)
 	uninstall.AddCommand(cloud)
 	server = model.NewAutocompleteData("server", "[URL]", "Disconnect from a Jira Server or Data Center instance")
-	server.AddTextArgument("", "input URL of the Jira Server or Data Center instance", "[URL]", urlPattern)
+	server.AddTextArgument("input URL of the Jira Server or Data Center instance", "[URL]", urlPattern)
 	uninstall.AddCommand(server)
 	jira.AddCommand(uninstall)
 
