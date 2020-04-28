@@ -269,7 +269,6 @@ func (p *Plugin) ensureDemoUser(configuration *configuration) (string, error) {
 	}
 
 	for _, team := range teams {
-		// Ignore any error.
 		_, err := p.API.CreateTeamMember(team.Id, configuration.demoUserID)
 		if err != nil {
 			p.API.LogError("Failed add demo user to team", "teamID", team.Id, "error", err.Error())
