@@ -145,3 +145,9 @@ This plugin registers two different admin console settings that are available on
 
 ![secret-message-setting](docs/admin_setting_with_title.png)
 
+## Custom routes
+
+This plugin registers two custom routes. 
+
+- `/plug/com.mattermost.demo-plugin/roottest` which brings you to a page with the text `Demo plugin route.`
+- `/<teamname>/com.mattermost.demo-plugin/teamtest` which brings you to a page with the text `Demo plugin team route.`
