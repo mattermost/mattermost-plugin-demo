@@ -1,12 +1,16 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
+	"io/ioutil"
+	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/pkg/errors"
 
+	svg "github.com/h2non/go-is-svg"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 )
@@ -92,17 +96,97 @@ func (p *Plugin) registerCommands() error {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerInteractive)
 	}
 
+	jiraIconData, err := p.readFile("/assets/icon.svg")
+	if err != nil {
+		return errors.Wrap(err, "failed to read icon image")
+	}
 	if err := p.API.RegisterCommand(&model.Command{
-		Trigger:          "jira",
-		AutoComplete:     true,
-		AutoCompleteHint: "",
-		AutoCompleteDesc: "Demonstrates  interactive message buttons.",
-		AutocompleteData: createJiraAutocompleteData(),
+		Trigger:              "jira",
+		AutoComplete:         true,
+		AutoCompleteHint:     "",
+		AutoCompleteDesc:     "Demonstrates  interactive message buttons.",
+		AutocompleteData:     createJiraAutocompleteData(),
+		AutocompleteIconData: jiraIconData,
+	}); err != nil {
+		return errors.Wrapf(err, "failed to register %s command", commandTriggerInteractive)
+	}
+
+	agendaIconData, err := p.readFile("/assets/github.svg")
+	if err != nil {
+		return errors.Wrap(err, "failed to read icon image")
+	}
+	if err := p.API.RegisterCommand(&model.Command{
+		Trigger:              "agenda",
+		AutoComplete:         true,
+		AutoCompleteHint:     "",
+		AutoCompleteDesc:     "Demonstrates  interactive message buttons.",
+		AutocompleteData:     createAgendaAutocompleteData(),
+		AutocompleteIconData: agendaIconData,
 	}); err != nil {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerInteractive)
 	}
 
 	return nil
+}
+
+func (p *Plugin) readFile(path string) (string, error) {
+	bundlePath, err := p.API.GetBundlePath()
+	if err != nil {
+		return "", errors.Wrap(err, "failed to get bundle path")
+	}
+
+	imageBytes, err := ioutil.ReadFile(filepath.Join(bundlePath, path))
+	if err != nil {
+		return "", errors.Wrap(err, "failed to read image")
+	}
+	if !svg.Is(imageBytes) {
+		return "", errors.Wrapf(err, "icon is not svg %s", "/assets/icon.svg")
+	}
+	iconData := fmt.Sprintf("data:image/svg+xml;base64,%s", base64.StdEncoding.EncodeToString(imageBytes))
+
+	return iconData, nil
+}
+
+func getIcon(iconPath string) (string, error) {
+	icon, err := ioutil.ReadFile(iconPath)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to open icon at path %s", iconPath)
+	}
+	if !svg.Is(icon) {
+		return "", errors.Wrapf(err, "icon is not svg %s", iconPath)
+	}
+	return fmt.Sprintf("data:image/svg+xml;base64,%s", base64.StdEncoding.EncodeToString(icon)), nil
+}
+
+func createAgendaAutocompleteData() *model.AutocompleteData {
+	agenda := model.NewAutocompleteData("agenda", "[command]", "Available commands: list, queue, setting, help")
+
+	list := model.NewAutocompleteData("list", "", "Show a list of items queued for the next meeting")
+	optionalListNextWeek := model.NewAutocompleteData("next-week", "(optional)", "If `next-week` is provided, it will list the agenda for the next calendar week.")
+	list.AddCommand(optionalListNextWeek)
+	agenda.AddCommand(list)
+
+	queue := model.NewAutocompleteData("queue", "", "Queue `message` as a topic on the next meeting.")
+	queue.AddStaticListArgument("If `next-week` is provided, it will queue for the meeting in the next calendar week.", []model.AutocompleteListItem{{
+		HelpText: "If `next-week` is provided, it will queue for the meeting in the next calendar week.",
+		Hint:     "(optional)",
+		Item:     "next-week",
+	}}, false)
+	queue.AddTextArgument("Creates a post for user with the given message for the next meeting date.", "message", "")
+	agenda.AddCommand(queue)
+
+	setting := model.NewAutocompleteData("setting", "", "Update the setting.")
+	schedule := model.NewAutocompleteData("schedule", "", "Update schedule.")
+	schedule.AddTextArgument("Must be between 1-5", "weekday", "")
+	setting.AddCommand(schedule)
+	hashtag := model.NewAutocompleteData("hashtag", "", "Update hastag.")
+	hashtag.AddTextArgument("input hashtag", "Default: Jan02", "")
+	setting.AddCommand(hashtag)
+	agenda.AddCommand(setting)
+
+	help := model.NewAutocompleteData("help", "", "Mattermost Agenda plugin slash command help")
+	agenda.AddCommand(help)
+	return agenda
 }
 
 func createJiraAutocompleteData() *model.AutocompleteData {
@@ -116,8 +200,8 @@ func createJiraAutocompleteData() *model.AutocompleteData {
 	jira.AddCommand(disconnect)
 
 	assign := model.NewAutocompleteData("assign", "[issue] [user]", "Change the assignee of a Jira issue")
-	assign.AddDynamicListArgument("List of issues is downloading from your Jira account", "dynamic_issues")
-	assign.AddDynamicListArgument("List of assignees is downloading from your Jira account", "dynamic_users")
+	assign.AddDynamicListArgument("List of issues is downloading from your Jira account", "dynamic_issues", true)
+	assign.AddDynamicListArgument("List of assignees is downloading from your Jira account", "dynamic_users", true)
 	jira.AddCommand(assign)
 
 	create := model.NewAutocompleteData("create", "[issue text]", "Create a new Issue")
@@ -125,15 +209,15 @@ func createJiraAutocompleteData() *model.AutocompleteData {
 	jira.AddCommand(create)
 
 	transition := model.NewAutocompleteData("transition", "[issue]", "Change the state of a Jira issue")
-	transition.AddDynamicListArgument("List of issues is downloading from your Jira account", "dynamic_issues")
-	transition.AddDynamicListArgument("List of states is downloading from your Jira account", "dynamic_states")
+	transition.AddDynamicListArgument("List of issues is downloading from your Jira account", "dynamic_issues", true)
+	transition.AddDynamicListArgument("List of states is downloading from your Jira account", "dynamic_states", true)
 	jira.AddCommand(transition)
 
 	subscribe := model.NewAutocompleteData("subscribe", "", "Configure the Jira notifications sent to this channel")
 	jira.AddCommand(subscribe)
 
 	view := model.NewAutocompleteData("view", "[issue]", "View the details of a specific Jira issue")
-	view.AddDynamicListArgument("List of issues is downloading from your Jira account", "dynamic_issues")
+	view.AddDynamicListArgument("List of issues is downloading from your Jira account", "dynamic_issues", true)
 	jira.AddCommand(view)
 
 	settings := model.NewAutocompleteData("settings", "[notifications/...]", "Update your user settings")
@@ -149,12 +233,12 @@ func createJiraAutocompleteData() *model.AutocompleteData {
 			HelpText: "Turn notifications off",
 		},
 	}
-	notifications.AddStaticListArgument("Turn notifications on or off", items)
+	notifications.AddStaticListArgument("Turn notifications on or off", items, true)
 	settings.AddCommand(notifications)
 	jira.AddCommand(settings)
 
 	timezone := model.NewAutocompleteData("timezone", "", "Update your timezone")
-	timezone.AddNamedTextArgument("zone", "Set timezone", "[UTC+07:00]", "")
+	timezone.AddNamedTextArgument("zone", "Set timezone", "[UTC+07:00]", "", true)
 	jira.AddCommand(timezone)
 
 	install := model.NewAutocompleteData("install", "[cloud/server]", "Connect Mattermost to a Jira instance")

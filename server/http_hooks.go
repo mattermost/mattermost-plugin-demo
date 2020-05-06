@@ -48,9 +48,9 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 }
 func (p *Plugin) handleDynamicIssues(w http.ResponseWriter, r *http.Request) {
 	a := make([]model.AutocompleteListItem, 0)
-	a = append(a, model.AutocompleteListItem{HelpText: "Error in the webapp", Item: "mm-12329"})
-	a = append(a, model.AutocompleteListItem{HelpText: "Add autocomplete suggestion", Item: "mm-24493"})
-	a = append(a, model.AutocompleteListItem{HelpText: "Update version of go", Item: "mm-23432"})
+	a = append(a, model.AutocompleteListItem{HelpText: "Error in the webapp", Item: "MM-12329"})
+	a = append(a, model.AutocompleteListItem{HelpText: "Add autocomplete suggestion", Item: "MM-24493"})
+	a = append(a, model.AutocompleteListItem{HelpText: "Update version of go", Item: "MM-23432"})
 	b, _ := json.Marshal(a)
 	w.Header().Set("Content-Type", "application/json")
 	if _, err := w.Write(b); err != nil {
@@ -60,9 +60,9 @@ func (p *Plugin) handleDynamicIssues(w http.ResponseWriter, r *http.Request) {
 
 func (p *Plugin) handleDynamicUsers(w http.ResponseWriter, r *http.Request) {
 	a := make([]model.AutocompleteListItem, 0)
-	a = append(a, model.AutocompleteListItem{HelpText: "Luke Skywalker", Item: "luke"})
-	a = append(a, model.AutocompleteListItem{HelpText: "Han Solo", Item: "han"})
-	a = append(a, model.AutocompleteListItem{Hint: "[bob]", HelpText: "Boba Fett", Item: "boba"})
+	a = append(a, model.AutocompleteListItem{HelpText: "Luke Skywalker", Item: "Luke"})
+	a = append(a, model.AutocompleteListItem{HelpText: "Han Solo", Item: "Han"})
+	a = append(a, model.AutocompleteListItem{Hint: "[bob]", HelpText: "Boba Fett", Item: "Boba"})
 	b, _ := json.Marshal(a)
 	w.Header().Set("Content-Type", "application/json")
 	if _, err := w.Write(b); err != nil {

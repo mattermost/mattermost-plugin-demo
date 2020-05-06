@@ -228,10 +228,8 @@ github.com/mattermost/gorp v2.0.1-0.20190301154413-3b31e9a39d05+incompatible/go.
 github.com/mattermost/gosaml2 v0.3.2/go.mod h1:Z429EIOiEi9kbq6yHoApfzlcXpa6dzRDc6pO+Vy2Ksk=
 github.com/mattermost/ldap v0.0.0-20191128190019-9f62ba4b8d4d h1:2DV7VIlEv6J5R5o6tUcb3ZMKJYeeZuWZL7Rv1m23TgQ=
 github.com/mattermost/ldap v0.0.0-20191128190019-9f62ba4b8d4d/go.mod h1:HLbgMEI5K131jpxGazJ97AxfPDt31osq36YS1oxFQPQ=
-github.com/mattermost/mattermost-server/v5 v5.3.2-0.20200407212028-bd0fe36eefd1 h1:b0kff9FsqlUaihtlBvheRt9uUC6g5pxawNz3td4MM/k=
-github.com/mattermost/mattermost-server/v5 v5.3.2-0.20200407212028-bd0fe36eefd1/go.mod h1:gb6I/r6iUPA3LzpKipO+MWTNE5kS7PiLGkP5XhaaUiw=
-github.com/mattermost/mattermost-server/v5 v5.3.2-0.20200427133649-8f7f388eb27f h1:e6CLGpa2PTYgbNrLi0pWUPH2ermu+QTPSnboFDDBcX8=
-github.com/mattermost/mattermost-server/v5 v5.3.2-0.20200427133649-8f7f388eb27f/go.mod h1:gb6I/r6iUPA3LzpKipO+MWTNE5kS7PiLGkP5XhaaUiw=
+github.com/mattermost/mattermost-server/v5 v5.3.2-0.20200506111235-c949d2742829 h1:5R7YLM/K8q7gdABFRnKn3VyJDBBWdYLGu5YENETLRYM=
+github.com/mattermost/mattermost-server/v5 v5.3.2-0.20200506111235-c949d2742829/go.mod h1:gb6I/r6iUPA3LzpKipO+MWTNE5kS7PiLGkP5XhaaUiw=
 github.com/mattermost/rsc v0.0.0-20160330161541-bbaefb05eaa0/go.mod h1:nV5bfVpT//+B1RPD2JvRnxbkLmJEYXmRaaVl15fsXjs=
 github.com/mattermost/viper v1.0.4/go.mod h1:uc5hKG9lv4/KRwPOt2c1omOyirS/UnuA2TytiZQSFHM=
 github.com/mattn/go-colorable v0.0.9/go.mod h1:9vuHe8Xs5qXnSaW/c/ABM9alt+Vo+STaOChaDxuIBZU=
