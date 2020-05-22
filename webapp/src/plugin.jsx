@@ -17,6 +17,7 @@ import UserActions from './components/user_actions';
 import RHSView from './components/right_hand_sidebar';
 import SecretMessageSetting from './components/admin_settings/secret_message_setting';
 import CustomSetting from './components/admin_settings/custom_setting';
+import FilePreviewOverride from './components/file_preview_override';
 
 import PostType from './components/post_type';
 import EphemeralPostType from './components/ephemeral_post_type';
@@ -35,6 +36,7 @@ import {
     getStatus,
 } from './actions';
 import reducer from './reducer';
+import {isEnabled} from 'selectors';
 
 function getTranslations(locale) {
     switch (locale) {
@@ -191,6 +193,10 @@ export default class DemoPlugin {
 
         registry.registerAdminConsoleCustomSetting('SecretMessage', SecretMessageSetting, {showTitle: true});
         registry.registerAdminConsoleCustomSetting('CustomSetting', CustomSetting);
+
+        registry.registerFilePreviewComponent((fileInfo, post) => {
+            return isEnabled(store.getState()) && fileInfo.extension === 'demo';
+        }, FilePreviewOverride);
 
         registry.registerReducer(reducer);
 
