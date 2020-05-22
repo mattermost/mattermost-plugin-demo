@@ -1,6 +1,13 @@
 import React from 'react';
 
-export default function FilePreviewOverride(props) {
+import {FileInfo} from 'mattermost-redux/types/files';
+
+type Props = {
+    fileInfo: FileInfo;
+    onModalDismissed: () => void;
+};
+
+export default function FilePreviewOverride(props: Props) {
     return (
         <div>
             <h3>{props.fileInfo.name}</h3>

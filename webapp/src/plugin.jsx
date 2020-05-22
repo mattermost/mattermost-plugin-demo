@@ -36,7 +36,7 @@ import {
     getStatus,
 } from './actions';
 import reducer from './reducer';
-import {isEnabled} from 'selectors';
+import {isEnabled} from './selectors';
 
 function getTranslations(locale) {
     switch (locale) {
@@ -194,7 +194,7 @@ export default class DemoPlugin {
         registry.registerAdminConsoleCustomSetting('SecretMessage', SecretMessageSetting, {showTitle: true});
         registry.registerAdminConsoleCustomSetting('CustomSetting', CustomSetting);
 
-        registry.registerFilePreviewComponent((fileInfo, post) => {
+        registry.registerFilePreviewComponent((fileInfo) => {
             return isEnabled(store.getState()) && fileInfo.extension === 'demo';
         }, FilePreviewOverride);
 
