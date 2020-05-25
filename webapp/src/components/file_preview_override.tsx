@@ -15,5 +15,5 @@ export default function FilePreviewOverride(props: Props) {
                 {'Close'}
             </button>
         </div>
-    )
+    );
 }
