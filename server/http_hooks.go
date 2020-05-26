@@ -100,11 +100,11 @@ func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
 
 	msg := "@%v submitted an Interative Dialog"
 	if request.Cancelled {
-		msg = "@%v cancelled an Interative Dialog"
+		msg = "@%v canceled an Interative Dialog"
 	}
 
 	rootPost, appErr := p.API.CreatePost(&model.Post{
-		UserId:    p.botId,
+		UserId:    p.botID,
 		ChannelId: request.ChannelId,
 		Message:   fmt.Sprintf(msg, user.Username),
 	})
@@ -118,7 +118,7 @@ func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
 		request.Submission[dialogElementNameEmail] = "xxxxxxxxxxx"
 
 		if _, appErr = p.API.CreatePost(&model.Post{
-			UserId:    p.botId,
+			UserId:    p.botID,
 			ChannelId: request.ChannelId,
 			RootId:    rootPost.Id,
 			Message:   "Data:",
@@ -154,7 +154,7 @@ func (p *Plugin) handleDialog2(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, appErr = p.API.CreatePost(&model.Post{
-		UserId:    p.botId,
+		UserId:    p.botID,
 		ChannelId: request.ChannelId,
 		Message:   fmt.Sprintf("@%v confirmed an Interactive Dialog %v", user.Username, suffix),
 	}); appErr != nil {
@@ -213,7 +213,6 @@ func (p *Plugin) handleEphemeralUpdate(w http.ResponseWriter, r *http.Request) {
 	resp := &model.PostActionIntegrationResponse{}
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(resp.ToJson())
-
 }
 
 func (p *Plugin) handleEphemeralDelete(w http.ResponseWriter, r *http.Request) {
@@ -251,9 +250,9 @@ func (p *Plugin) handleInteractiveAction(w http.ResponseWriter, r *http.Request)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	rootId := post.RootId
-	if rootId == "" {
-		rootId = post.Id
+	rootID := post.RootId
+	if rootID == "" {
+		rootID = post.Id
 	}
 
 	requestJSON, jsonErr := json.MarshalIndent(request, "", "  ")
@@ -265,9 +264,9 @@ func (p *Plugin) handleInteractiveAction(w http.ResponseWriter, r *http.Request)
 
 	msg := "@%v clicked an interactive button.\n```json\n%v\n```"
 	if _, appErr := p.API.CreatePost(&model.Post{
-		UserId:    p.botId,
+		UserId:    p.botID,
 		ChannelId: request.ChannelId,
-		RootId:    rootId,
+		RootId:    rootID,
 		Message:   fmt.Sprintf(msg, user.Username, string(requestJSON)),
 	}); appErr != nil {
 		p.API.LogError("failed to post handleInteractiveAction message", "err", appErr.Error())

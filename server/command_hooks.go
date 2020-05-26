@@ -71,7 +71,7 @@ func (p *Plugin) registerCommands() error {
 		Trigger:          commandTriggerEphemeralOverride,
 		AutoComplete:     true,
 		AutoCompleteHint: "",
-		AutoCompleteDesc: "Demonstrates an ephemeral post overriden in the webapp.",
+		AutoCompleteDesc: "Demonstrates an ephemeral post overridden in the webapp.",
 	}); err != nil {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerEphemeralOverride)
 	}
@@ -182,7 +182,6 @@ func (p *Plugin) executeCommandHooks(args *model.CommandArgs) *model.CommandResp
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			Text:         "Enabled demo plugin hooks.",
 		}
-
 	}
 
 	if strings.HasSuffix(args.Command, "false") {
@@ -496,11 +495,10 @@ func getDialogWithIntroductionText(introductionText string) model.Dialog {
 }
 
 func (p *Plugin) executeCommandInteractive(args *model.CommandArgs) *model.CommandResponse {
-
 	post := &model.Post{
 		ChannelId: args.ChannelId,
 		RootId:    args.RootId,
-		UserId:    p.botId,
+		UserId:    p.botID,
 		Message:   "Test interactive button",
 		Props: model.StringInterface{
 			"attachments": []*model.SlackAttachment{{
@@ -517,7 +515,7 @@ func (p *Plugin) executeCommandInteractive(args *model.CommandArgs) *model.Comma
 
 	_, err := p.API.CreatePost(post)
 	if err != nil {
-		errorMessage := "Failed to create post"
+		const errorMessage = "Failed to create post"
 		p.API.LogError(errorMessage, "err", err.Error())
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
@@ -561,13 +559,13 @@ func (p *Plugin) executeCommandMentions(args *model.CommandArgs) *model.CommandR
 	post := &model.Post{
 		ChannelId: args.ChannelId,
 		RootId:    args.RootId,
-		UserId:    p.botId,
+		UserId:    p.botID,
 		Message:   message,
 	}
 
 	_, err := p.API.CreatePost(post)
 	if err != nil {
-		errorMessage := "Failed to create post"
+		const errorMessage = "Failed to create post"
 		p.API.LogError(errorMessage, "err", err.Error())
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,

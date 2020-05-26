@@ -12,10 +12,10 @@ import (
 )
 
 func TestOnActivate(t *testing.T) {
-	teamId := model.NewId()
-	channelId := model.NewId()
-	demoChannelIds := map[string]string{
-		teamId: channelId,
+	teamID := model.NewId()
+	channelID := model.NewId()
+	demoChannelIDs := map[string]string{
+		teamID: channelID,
 	}
 
 	for name, test := range map[string]struct {
@@ -59,7 +59,7 @@ func TestOnActivate(t *testing.T) {
 				api.On("GetServerVersion").Return(minimumServerVersion)
 				api.On("LogError", "Server configuration is not compatible").Return()
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
-				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
+				api.On("GetTeams").Return([]*model.Team{{Id: teamID}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
 
 				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
@@ -119,7 +119,7 @@ func TestOnActivate(t *testing.T) {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return(minimumServerVersion)
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
-				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
+				api.On("GetTeams").Return([]*model.Team{{Id: teamID}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(nil, &model.AppError{})
 
 				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
@@ -140,7 +140,7 @@ func TestOnActivate(t *testing.T) {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return(minimumServerVersion)
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
-				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
+				api.On("GetTeams").Return([]*model.Team{{Id: teamID}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
 
 				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
@@ -163,7 +163,7 @@ func TestOnActivate(t *testing.T) {
 				require.Nil(t, v.IncrementMinor())
 				api.On("GetServerVersion").Return(v.String())
 				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
-				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
+				api.On("GetTeams").Return([]*model.Team{{Id: teamID}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
 
 				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
@@ -188,7 +188,7 @@ func TestOnActivate(t *testing.T) {
 
 			p := Plugin{}
 			p.setConfiguration(&configuration{
-				demoChannelIds: demoChannelIds,
+				demoChannelIDs: demoChannelIDs,
 			})
 			p.SetAPI(api)
 			p.SetHelpers(helpers)
@@ -204,10 +204,10 @@ func TestOnActivate(t *testing.T) {
 }
 
 func TestOnDeactivate(t *testing.T) {
-	teamId := model.NewId()
-	channelId := model.NewId()
-	demoChannelIds := map[string]string{
-		teamId: channelId,
+	teamID := model.NewId()
+	channelID := model.NewId()
+	demoChannelIDs := map[string]string{
+		teamID: channelID,
 	}
 
 	for name, test := range map[string]struct {
@@ -217,7 +217,7 @@ func TestOnDeactivate(t *testing.T) {
 		"all fine": {
 			SetupAPI: func() *plugintest.API {
 				api := &plugintest.API{}
-				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
+				api.On("GetTeams").Return([]*model.Team{{Id: teamID}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
 
 				return api
@@ -236,7 +236,7 @@ func TestOnDeactivate(t *testing.T) {
 		"CreatePost fails": {
 			SetupAPI: func() *plugintest.API {
 				api := &plugintest.API{}
-				api.On("GetTeams").Return([]*model.Team{&model.Team{Id: teamId}}, nil)
+				api.On("GetTeams").Return([]*model.Team{{Id: teamID}}, nil)
 				api.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(nil, &model.AppError{})
 
 				return api
@@ -250,7 +250,7 @@ func TestOnDeactivate(t *testing.T) {
 
 			p := Plugin{}
 			p.setConfiguration(&configuration{
-				demoChannelIds: demoChannelIds,
+				demoChannelIDs: demoChannelIDs,
 			})
 			p.SetAPI(api)
 			err := p.OnDeactivate()

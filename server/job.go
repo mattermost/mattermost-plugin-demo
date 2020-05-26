@@ -11,16 +11,16 @@ func (p *Plugin) BackgroundJob() {
 		return
 	}
 
-	for _, channelId := range configuration.demoChannelIds {
+	for _, channelID := range configuration.demoChannelIDs {
 		_, err := p.API.CreatePost(&model.Post{
-			UserId:    p.botId,
-			ChannelId: channelId,
+			UserId:    p.botID,
+			ChannelId: channelID,
 			Message:   "Background job executed",
 		})
 		if err != nil {
 			p.API.LogError(
 				"failed to post BackgroundJob message",
-				"channel_id", channelId,
+				"channel_id", channelID,
 				"error", err.Error(),
 			)
 		}

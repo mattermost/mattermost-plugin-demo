@@ -41,7 +41,7 @@ func (p *Plugin) FileWillBeUploaded(c *plugin.Context, fileInfo *model.FileInfo,
 		if err := p.postPluginMessage(team.Id, msg); err != nil {
 			p.API.LogError(
 				"failed to post FileWillBeUploaded message",
-				"channel_id", configuration.demoChannelIds[team.Id],
+				"channel_id", configuration.demoChannelIDs[team.Id],
 				"error", err.Error(),
 			)
 		}
