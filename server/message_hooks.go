@@ -27,16 +27,16 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 	}
 
 	// Always allow posts by the demo plugin user and demo plugin bot.
-	if post.UserId == p.botId || post.UserId == configuration.demoUserId {
+	if post.UserId == p.botID || post.UserId == configuration.demoUserID {
 		return post, ""
 	}
 
 	// Reject posts by other users in the demo channels, effectively making it read-only.
-	for _, channelId := range configuration.demoChannelIds {
-		if channelId == post.ChannelId {
+	for _, channelID := range configuration.demoChannelIDs {
+		if channelID == post.ChannelId {
 			p.API.SendEphemeralPost(post.UserId, &model.Post{
-				UserId:    configuration.demoUserId,
-				ChannelId: channelId,
+				UserId:    configuration.demoUserID,
+				ChannelId: channelID,
 				Message:   "Posting is not allowed in this channel.",
 			})
 
@@ -47,7 +47,7 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 	// Reject posts mentioning the demo plugin user.
 	if strings.Contains(post.Message, fmt.Sprintf("@%s", configuration.Username)) {
 		p.API.SendEphemeralPost(post.UserId, &model.Post{
-			UserId:    configuration.demoUserId,
+			UserId:    configuration.demoUserID,
 			ChannelId: post.ChannelId,
 			Message:   "Shh! You must not talk about the demo plugin user.",
 		})
@@ -80,7 +80,7 @@ func (p *Plugin) MessageWillBeUpdated(c *plugin.Context, newPost, oldPost *model
 	// Reject posts mentioning the demo plugin user.
 	if strings.Contains(newPost.Message, fmt.Sprintf("@%s", configuration.Username)) {
 		p.API.SendEphemeralPost(newPost.UserId, &model.Post{
-			UserId:    configuration.demoUserId,
+			UserId:    configuration.demoUserID,
 			ChannelId: newPost.ChannelId,
 			Message:   "You must not talk about the demo plugin user.",
 		})
@@ -106,7 +106,7 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 	}
 
 	// Ignore posts by the demo plugin user and demo plugin bot.
-	if post.UserId == p.botId || post.UserId == configuration.demoUserId {
+	if post.UserId == p.botID || post.UserId == configuration.demoUserID {
 		return
 	}
 
@@ -175,7 +175,7 @@ func (p *Plugin) MessageHasBeenUpdated(c *plugin.Context, newPost, oldPost *mode
 	}
 
 	// Ignore updates by the demo plugin user.
-	if newPost.UserId == configuration.demoUserId {
+	if newPost.UserId == configuration.demoUserID {
 		return
 	}
 
