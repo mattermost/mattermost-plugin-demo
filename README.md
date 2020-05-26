@@ -2,6 +2,8 @@
 
 [![Build Status](https://img.shields.io/circleci/project/github/mattermost/mattermost-plugin-demo/master.svg)](https://circleci.com/gh/mattermost/mattermost-plugin-demo)
 [![Code Coverage](https://img.shields.io/codecov/c/github/mattermost/mattermost-plugin-demo/master.svg)](https://codecov.io/gh/mattermost/mattermost-plugin-demo)
+[![Release](https://img.shields.io/github/v/release/mattermost/mattermost-plugin-demo)](https://github.com/mattermost/mattermost-plugin-demo/releases/latest)
+[![HW](https://img.shields.io/github/issues/mattermost/mattermost-plugin-demo/Up%20For%20Grabs?color=dark%20green&label=Help%20Wanted)](https://github.com/mattermost/mattermost-plugin-demo/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3A%22Up+For+Grabs%22+label%3A%22Help+Wanted%22)
 
 **Maintainer:** [@hanzei](https://github.com/hanzei)
 **Co-Maintainer:** [@jfrerich](https://github.com/jfrerich)
