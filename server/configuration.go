@@ -231,11 +231,12 @@ func (p *Plugin) OnConfigurationChange() error {
 }
 
 func (p *Plugin) ensureDemoUser(configuration *configuration) (string, error) {
-	var err *model.AppError
-
 	// Check for the configured user. Ignore any error, since it's hard to distinguish runtime
 	// errors from a user simply not existing.
-	user, _ := p.API.GetUserByUsername(configuration.Username)
+	user, err := p.API.GetUserByUsername(configuration.Username)
+	if err != nil {
+		return "", err
+	}
 
 	// Ensure the configured user exists.
 	if user == nil {
@@ -269,7 +270,7 @@ func (p *Plugin) ensureDemoUser(configuration *configuration) (string, error) {
 	}
 
 	for _, team := range teams {
-		_, err := p.API.CreateTeamMember(team.Id, configuration.demoUserID)
+		_, err := p.API.CreateTeamMember(team.Id, user.Id)
 		if err != nil {
 			p.API.LogError("Failed add demo user to team", "teamID", team.Id, "error", err.Error())
 		}
