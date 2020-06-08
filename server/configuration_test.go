@@ -76,7 +76,7 @@ func TestOnConfigurationChange(t *testing.T) {
 				api.On("LoadPluginConfiguration", mock.AnythingOfType("*main.configuration")).Return(nil)
 				api.On("GetTeams").Return([]*model.Team{{Id: teamID}}, nil)
 				api.On("GetUserByUsername", mock.AnythingOfType("string")).Return(user, nil)
-				api.On("CreateTeamMember", teamID, "").Return(&model.TeamMember{}, nil)
+				api.On("CreateTeamMember", teamID, user.Id).Return(&model.TeamMember{}, nil)
 				api.On("GetChannelByNameForTeamName", "", "", false).Return(&model.Channel{}, nil)
 
 				return api
@@ -97,7 +97,7 @@ func TestOnConfigurationChange(t *testing.T) {
 				})
 				api.On("GetTeams").Return([]*model.Team{{Id: teamID}}, nil)
 				api.On("GetUserByUsername", mock.AnythingOfType("string")).Return(user, nil)
-				api.On("CreateTeamMember", teamID, "").Return(&model.TeamMember{}, nil)
+				api.On("CreateTeamMember", teamID, user.Id).Return(&model.TeamMember{}, nil)
 				channel := &model.Channel{
 					Id: model.NewId(),
 				}
@@ -123,7 +123,7 @@ func TestOnConfigurationChange(t *testing.T) {
 				})
 				api.On("GetTeams").Return([]*model.Team{{Id: teamID}}, nil)
 				api.On("GetUserByUsername", mock.AnythingOfType("string")).Return(user, nil)
-				api.On("CreateTeamMember", teamID, "").Return(&model.TeamMember{}, nil)
+				api.On("CreateTeamMember", teamID, user.Id).Return(&model.TeamMember{}, nil)
 
 				return api
 			},
@@ -143,7 +143,7 @@ func TestOnConfigurationChange(t *testing.T) {
 				})
 				api.On("GetTeams").Return([]*model.Team{{Id: teamID}}, nil)
 				api.On("GetUserByUsername", mock.AnythingOfType("string")).Return(user, nil)
-				api.On("CreateTeamMember", teamID, "").Return(&model.TeamMember{}, nil)
+				api.On("CreateTeamMember", teamID, user.Id).Return(&model.TeamMember{}, nil)
 				channel := &model.Channel{
 					Id: model.NewId(),
 				}
