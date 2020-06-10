@@ -18,6 +18,8 @@ func TestOnActivate(t *testing.T) {
 		teamID: channelID,
 	}
 
+	demoUserID := model.NewId()
+
 	for name, test := range map[string]struct {
 		SetupAPI     func(*plugintest.API) *plugintest.API
 		SetupHelpers func(*plugintest.Helpers) *plugintest.Helpers
@@ -65,12 +67,19 @@ func TestOnActivate(t *testing.T) {
 				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 				api.On("KVGet", "cron_BackgroundJob").Return([]byte("{}"), nil).Maybe()
 				api.On("KVSetWithOptions", "cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+
+				// OnConfigurationChange
 				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
+				api.On("LoadPluginConfiguration", mock.AnythingOfType("*main.configuration")).Return(nil)
+				api.On("GetUserByUsername", mock.AnythingOfType("string")).Return(&model.User{Id: demoUserID, Username: "demo_user"}, nil)
+				api.On("CreateTeamMember", teamID, demoUserID).Return(&model.TeamMember{}, nil)
+				api.On("GetChannelByNameForTeamName", "", "", false).Return(&model.Channel{}, nil)
 
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
 				helpers.On("CheckRequiredServerConfiguration", mock.AnythingOfType("*model.Config")).Return(false, nil)
+				helpers.On("EnsureBot", mock.AnythingOfType("*model.Bot"), mock.AnythingOfType("plugin.EnsureBotOption")).Return(model.NewId(), nil)
 
 				return helpers
 			},
@@ -86,10 +95,18 @@ func TestOnActivate(t *testing.T) {
 				api.On("KVSetWithOptions", "cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 
+				// OnConfigurationChange
+				api.On("LoadPluginConfiguration", mock.AnythingOfType("*main.configuration")).Return(nil)
+				api.On("GetTeams").Return([]*model.Team{{Id: teamID}}, nil)
+				api.On("GetUserByUsername", mock.AnythingOfType("string")).Return(&model.User{Id: demoUserID, Username: "demo_user"}, nil)
+				api.On("CreateTeamMember", teamID, demoUserID).Return(&model.TeamMember{}, nil)
+				api.On("GetChannelByNameForTeamName", "", "", false).Return(&model.Channel{}, nil)
+
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
 				helpers.On("CheckRequiredServerConfiguration", mock.AnythingOfType("*model.Config")).Return(true, nil)
+				helpers.On("EnsureBot", mock.AnythingOfType("*model.Bot"), mock.AnythingOfType("plugin.EnsureBotOption")).Return(model.NewId(), nil)
 
 				return helpers
 			},
@@ -98,7 +115,6 @@ func TestOnActivate(t *testing.T) {
 		"minimum supported version fulfilled, but GetTeams fails": {
 			SetupAPI: func(api *plugintest.API) *plugintest.API {
 				api.On("GetServerVersion").Return(minimumServerVersion)
-				api.On("RegisterCommand", mock.AnythingOfType("*model.Command")).Return(nil)
 				api.On("GetTeams").Return(nil, &model.AppError{})
 
 				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
@@ -106,10 +122,16 @@ func TestOnActivate(t *testing.T) {
 				api.On("KVSetWithOptions", "cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 
+				// OnConfigurationChange
+				api.On("LoadPluginConfiguration", mock.AnythingOfType("*main.configuration")).Return(nil)
+				api.On("GetTeams").Return([]*model.Team{{Id: teamID}}, nil)
+				api.On("GetUserByUsername", mock.AnythingOfType("string")).Return(&model.User{Id: demoUserID, Username: "demo_user"}, nil)
+
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
 				helpers.On("CheckRequiredServerConfiguration", mock.AnythingOfType("*model.Config")).Return(true, nil)
+				helpers.On("EnsureBot", mock.AnythingOfType("*model.Bot"), mock.AnythingOfType("plugin.EnsureBotOption")).Return(model.NewId(), nil)
 
 				return helpers
 			},
@@ -127,10 +149,18 @@ func TestOnActivate(t *testing.T) {
 				api.On("KVSetWithOptions", "cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 
+				// OnConfigurationChange
+				api.On("LoadPluginConfiguration", mock.AnythingOfType("*main.configuration")).Return(nil)
+				api.On("GetTeams").Return([]*model.Team{{Id: teamID}}, nil)
+				api.On("GetUserByUsername", mock.AnythingOfType("string")).Return(&model.User{Id: demoUserID, Username: "demo_user"}, nil)
+				api.On("CreateTeamMember", teamID, demoUserID).Return(&model.TeamMember{}, nil)
+				api.On("GetChannelByNameForTeamName", "", "", false).Return(&model.Channel{}, nil)
+
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
 				helpers.On("CheckRequiredServerConfiguration", mock.AnythingOfType("*model.Config")).Return(true, nil)
+				helpers.On("EnsureBot", mock.AnythingOfType("*model.Bot"), mock.AnythingOfType("plugin.EnsureBotOption")).Return(model.NewId(), nil)
 
 				return helpers
 			},
@@ -148,10 +178,18 @@ func TestOnActivate(t *testing.T) {
 				api.On("KVSetWithOptions", "cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 
+				// OnConfigurationChange
+				api.On("LoadPluginConfiguration", mock.AnythingOfType("*main.configuration")).Return(nil)
+				api.On("GetTeams").Return([]*model.Team{{Id: teamID}}, nil)
+				api.On("GetUserByUsername", mock.AnythingOfType("string")).Return(&model.User{Id: demoUserID, Username: "demo_user"}, nil)
+				api.On("CreateTeamMember", teamID, demoUserID).Return(&model.TeamMember{}, nil)
+				api.On("GetChannelByNameForTeamName", "", "", false).Return(&model.Channel{}, nil)
+
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
 				helpers.On("CheckRequiredServerConfiguration", mock.AnythingOfType("*model.Config")).Return(true, nil)
+				helpers.On("EnsureBot", mock.AnythingOfType("*model.Bot"), mock.AnythingOfType("plugin.EnsureBotOption")).Return(model.NewId(), nil)
 
 				return helpers
 			},
@@ -171,10 +209,18 @@ func TestOnActivate(t *testing.T) {
 				api.On("KVSetWithOptions", "cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 				api.On("KVSetWithOptions", "mutex_cron_BackgroundJob", mock.Anything, mock.AnythingOfType("model.PluginKVSetOptions")).Return(true, nil).Maybe()
 
+				// OnConfigurationChange
+				api.On("LoadPluginConfiguration", mock.AnythingOfType("*main.configuration")).Return(nil)
+				api.On("GetTeams").Return([]*model.Team{{Id: teamID}}, nil)
+				api.On("GetUserByUsername", mock.AnythingOfType("string")).Return(&model.User{Id: demoUserID, Username: "demo_user"}, nil)
+				api.On("CreateTeamMember", teamID, demoUserID).Return(&model.TeamMember{}, nil)
+				api.On("GetChannelByNameForTeamName", "", "", false).Return(&model.Channel{}, nil)
+
 				return api
 			},
 			SetupHelpers: func(helpers *plugintest.Helpers) *plugintest.Helpers {
 				helpers.On("CheckRequiredServerConfiguration", mock.AnythingOfType("*model.Config")).Return(true, nil)
+				helpers.On("EnsureBot", mock.AnythingOfType("*model.Bot"), mock.AnythingOfType("plugin.EnsureBotOption")).Return(model.NewId(), nil)
 
 				return helpers
 			},

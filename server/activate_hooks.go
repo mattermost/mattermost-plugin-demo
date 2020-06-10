@@ -41,6 +41,10 @@ func (p *Plugin) OnActivate() error {
 		p.API.LogError("Server configuration is not compatible")
 	}
 
+	if err := p.OnConfigurationChange(); err != nil {
+		return err
+	}
+
 	configuration := p.getConfiguration()
 
 	if err := p.registerCommands(); err != nil {

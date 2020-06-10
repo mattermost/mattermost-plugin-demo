@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 
 	"github.com/pkg/errors"
 
@@ -231,25 +232,25 @@ func (p *Plugin) OnConfigurationChange() error {
 }
 
 func (p *Plugin) ensureDemoUser(configuration *configuration) (string, error) {
-	var err *model.AppError
+	user, err := p.API.GetUserByUsername(configuration.Username)
+	if err != nil {
+		if err.StatusCode == http.StatusNotFound {
+			p.API.LogInfo("DemoUser doesn't exist. Trying to create it.")
 
-	// Check for the configured user. Ignore any error, since it's hard to distinguish runtime
-	// errors from a user simply not existing.
-	user, _ := p.API.GetUserByUsername(configuration.Username)
+			user, err = p.API.CreateUser(&model.User{
+				Username:  configuration.Username,
+				Password:  "Password_123",
+				Email:     fmt.Sprintf("%s@example.com", configuration.Username),
+				Nickname:  "Demo Day",
+				FirstName: "Demo",
+				LastName:  configuration.LastName,
+				Position:  "Bot",
+			})
 
-	// Ensure the configured user exists.
-	if user == nil {
-		user, err = p.API.CreateUser(&model.User{
-			Username:  configuration.Username,
-			Password:  "password",
-			Email:     fmt.Sprintf("%s@example.com", configuration.Username),
-			Nickname:  "Demo Day",
-			FirstName: "Demo",
-			LastName:  configuration.LastName,
-			Position:  "Bot",
-		})
-
-		if err != nil {
+			if err != nil {
+				return "", err
+			}
+		} else {
 			return "", err
 		}
 	}
@@ -269,7 +270,7 @@ func (p *Plugin) ensureDemoUser(configuration *configuration) (string, error) {
 	}
 
 	for _, team := range teams {
-		_, err := p.API.CreateTeamMember(team.Id, configuration.demoUserID)
+		_, err := p.API.CreateTeamMember(team.Id, user.Id)
 		if err != nil {
 			p.API.LogError("Failed add demo user to team", "teamID", team.Id, "error", err.Error())
 		}
