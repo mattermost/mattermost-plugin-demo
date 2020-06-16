@@ -127,6 +127,11 @@ This plugin registers a file upload action that, when clicked, triggers the root
 This plugin registers a link tooltip component, whose content is fully customizable. It is displayed when the mouse cursor hovers over a link in a post.
 ![link tooltip](docs/link_tooltip.png)
 
+## File Preview Override
+
+This plugin registers a file preview component, which is rendered when the user clicks on a post's file attachment. You can apply any logic necessary to determine whether or not the preview should be overridden. In the case of this plugin's implementation, the file must have the extension `demo`.
+![file preview override](docs/file_preview_override.png)
+
 ## Right-Hand Sidebar
 
 This plugin registers a right-hand sidebar component, whose content is fully customizable and it is triggered by calling an action where required. In this demo plugin, it is triggered by the Channel Header Action Button.

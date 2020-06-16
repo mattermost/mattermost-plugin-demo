@@ -17,6 +17,7 @@ import UserActions from './components/user_actions';
 import RHSView from './components/right_hand_sidebar';
 import SecretMessageSetting from './components/admin_settings/secret_message_setting';
 import CustomSetting from './components/admin_settings/custom_setting';
+import FilePreviewOverride from './components/file_preview_override';
 
 import PostType from './components/post_type';
 import EphemeralPostType from './components/ephemeral_post_type';
@@ -191,6 +192,8 @@ export default class DemoPlugin {
 
         registry.registerAdminConsoleCustomSetting('SecretMessage', SecretMessageSetting, {showTitle: true});
         registry.registerAdminConsoleCustomSetting('CustomSetting', CustomSetting);
+
+        registry.registerFilePreviewComponent((fileInfo) => fileInfo.extension === 'demo', FilePreviewOverride);
 
         registry.registerReducer(reducer);
 
