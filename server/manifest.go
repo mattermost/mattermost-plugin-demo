@@ -19,7 +19,7 @@ const manifestStr = `
   "support_url": "https://github.com/mattermost/mattermost-plugin-demo/issues",
   "icon_path": "assets/icon.svg",
   "version": "0.8.0",
-  "min_server_version": "5.24.0",
+  "min_server_version": "5.26.0",
   "server": {
     "executables": {
       "linux-amd64": "server/dist/plugin-linux-amd64",
