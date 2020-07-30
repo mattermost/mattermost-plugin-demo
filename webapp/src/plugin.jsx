@@ -207,7 +207,7 @@ export default class DemoPlugin {
 
         registry.registerTranslations(getTranslations);
 
-        registry.registerNeedsTeamRoute('/teamtest', () => <RouterShowcase />);
+        registry.registerNeedsTeamRoute('/teamtest', () => <RouterShowcase/>);
         registry.registerCustomRoute('/roottest', () => 'Demo plugin route.');
     }
 
