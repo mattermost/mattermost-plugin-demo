@@ -18,7 +18,7 @@ import RHSView from './components/right_hand_sidebar';
 import SecretMessageSetting from './components/admin_settings/secret_message_setting';
 import CustomSetting from './components/admin_settings/custom_setting';
 import FilePreviewOverride from './components/file_preview_override';
-import CustomSubRoutes from './components/custom_subroutes/custom_subroutes';
+import RouterShowcase from './components/router_showcase/router_showcase';
 import PostType from './components/post_type';
 import EphemeralPostType from './components/ephemeral_post_type';
 import {
@@ -207,7 +207,7 @@ export default class DemoPlugin {
 
         registry.registerTranslations(getTranslations);
 
-        registry.registerNeedsTeamRoute('/teamtest', () => <CustomSubRoutes />);
+        registry.registerNeedsTeamRoute('/teamtest', () => <RouterShowcase />);
         registry.registerCustomRoute('/roottest', () => 'Demo plugin route.');
     }
 

@@ -8,7 +8,7 @@ import {getCurrentTeam} from 'mattermost-redux/selectors/entities/teams';
 import {useSelector} from 'react-redux';
 import {id} from 'src/manifest';
 
-export default function CustomSubRoutes() {
+export default function RouterShowcase() {
   const currentTeam = useSelector(getCurrentTeam);
   let query = useQuery();
 
