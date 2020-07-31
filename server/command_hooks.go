@@ -20,6 +20,7 @@ const (
 	commandTriggerInteractive       = "interactive"
 	commandTriggerMentions          = "show_mentions"
 	commandTriggerListFiles         = "list_files"
+	commandTriggerAutocompleteTest  = "autocomplete_test"
 
 	dialogElementNameNumber = "somenumber"
 	dialogElementNameEmail  = "someemail"
@@ -45,6 +46,7 @@ func (p *Plugin) registerCommands() error {
 		AutoComplete:     true,
 		AutoCompleteHint: "(true|false)",
 		AutoCompleteDesc: "Enables or disables the demo plugin hooks.",
+		AutocompleteData: getCommandHooksAutocompleteData(),
 	}); err != nil {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerHooks)
 	}
@@ -81,6 +83,7 @@ func (p *Plugin) registerCommands() error {
 		AutoComplete:     true,
 		AutoCompleteDesc: "Open an Interactive Dialog.",
 		DisplayName:      "Demo Plugin Command",
+		AutocompleteData: getCommandDialogAutocompleteData(),
 	}); err != nil {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerDialog)
 	}
@@ -111,6 +114,15 @@ func (p *Plugin) registerCommands() error {
 	}); err != nil {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerInteractive)
 	}
+	if err := p.API.RegisterCommand(&model.Command{
+		Trigger:          commandTriggerAutocompleteTest,
+		AutoComplete:     true,
+		AutoCompleteDesc: "Test an autocomplete.",
+		DisplayName:      "Demo Plugin Autocomplete Test",
+		AutocompleteData: getAutocompleteTestAutocompleteData(),
+	}); err != nil {
+		return errors.Wrapf(err, "failed to register %s command", commandTriggerDialog)
+	}
 
 	return nil
 }
@@ -121,6 +133,52 @@ func (p *Plugin) emitStatusChange() {
 	p.API.PublishWebSocketEvent("status_change", map[string]interface{}{
 		"enabled": !configuration.disabled,
 	}, &model.WebsocketBroadcast{})
+}
+
+func getCommandHooksAutocompleteData() *model.AutocompleteData {
+	command := model.NewAutocompleteData(commandTriggerHooks, "", "Enables or disables the demo plugin hooks.")
+	command.AddStaticListArgument("", true, []model.AutocompleteListItem{
+		{
+			Item:     "true",
+			HelpText: "Enable demo plugin hooks",
+		}, {
+			Item:     "false",
+			HelpText: "Disable demo plugin hooks",
+		},
+	})
+	return command
+}
+
+func getCommandDialogAutocompleteData() *model.AutocompleteData {
+	command := model.NewAutocompleteData(commandTriggerDialog, "", "Open an Interactive Dialog.")
+	noElements := model.NewAutocompleteData("no-elements", "", "Open an Interactive Dialog with no elements.")
+	command.AddCommand(noElements)
+	relativeCallbackURL := model.NewAutocompleteData("relative-callback-url", "", "Open an Interactive Dialog with a relative callback url.")
+	command.AddCommand(relativeCallbackURL)
+	introText := model.NewAutocompleteData("introduction-text", "", "Open an Interactive Dialog with an introduction text.")
+	command.AddCommand(introText)
+	error := model.NewAutocompleteData("error", "", "Open an Interactive Dialog with error.")
+	command.AddCommand(error)
+	errorNoElements := model.NewAutocompleteData("error-no-elements", "", "Open an Interactive Dialog with error no elements.")
+	command.AddCommand(errorNoElements)
+	help := model.NewAutocompleteData("help", "", "")
+	command.AddCommand(help)
+	return command
+}
+
+func getAutocompleteTestAutocompleteData() *model.AutocompleteData {
+	command := model.NewAutocompleteData(commandTriggerAutocompleteTest, "", "Test an autocomplete.")
+	dynamicArg := model.NewAutocompleteData("dynamic-arg", "", "Test a dynamic argument")
+	dynamicArg.AddDynamicListArgument("Some dynamic argument", "dynamic_arg_test_url", true)
+	command.AddCommand(dynamicArg)
+	namedArg := model.NewAutocompleteData("named-arg", "", "Test a named argument")
+	namedArg.AddNamedTextArgument("name", "Input named argument with pattern p([a-z]+)ch", "", "p([a-z]+)ch", true)
+	command.AddCommand(namedArg)
+	optionalArg := model.NewAutocompleteData("optional-arg", "", "Test an optional argument")
+	optionalArg.AddNamedTextArgument("name1", "Optional named argument", "", "", false)
+	optionalArg.AddNamedTextArgument("name2", "Optional named argument with pattern p([a-z]+)ch", "", "p([a-z]+)ch", false)
+	command.AddCommand(optionalArg)
+	return command
 }
 
 // ExecuteCommand executes a command that has been previously registered via the RegisterCommand
@@ -147,6 +205,8 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		return p.executeCommandInteractive(args), nil
 	case commandTriggerMentions:
 		return p.executeCommandMentions(args), nil
+	case commandTriggerAutocompleteTest:
+		return p.executeAutocompleteTest(args), nil
 
 	default:
 		return &model.CommandResponse{
@@ -645,4 +705,11 @@ func (p *Plugin) executeCommandListFiles(args *model.CommandArgs) *model.Command
 
 	_ = p.API.SendEphemeralPost(args.UserId, post)
 	return &model.CommandResponse{}
+}
+
+func (p *Plugin) executeAutocompleteTest(args *model.CommandArgs) *model.CommandResponse {
+	return &model.CommandResponse{
+		ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+		Text:         fmt.Sprintf("Executed command: " + args.Command),
+	}
 }

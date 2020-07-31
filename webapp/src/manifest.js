@@ -181,6 +181,7 @@ const manifest = JSON.parse(`
             "CorsAllowCredentials": null,
             "CorsDebug": null,
             "AllowCookiesForSubdomains": null,
+            "ExtendSessionLengthWithActivity": null,
             "SessionLengthWebInDays": null,
             "SessionLengthMobileInDays": null,
             "SessionLengthSSOInDays": null,
@@ -212,6 +213,7 @@ const manifest = JSON.parse(`
             "ExperimentalEnableDefaultChannelLeaveJoinMessages": null,
             "ExperimentalGroupUnreadChannels": null,
             "ExperimentalChannelOrganization": null,
+            "ExperimentalChannelSidebarOrganization": null,
             "ImageProxyType": null,
             "ImageProxyURL": null,
             "ImageProxyOptions": null,
@@ -223,7 +225,9 @@ const manifest = JSON.parse(`
             "DisableBotsWhenOwnerIsDeactivated": null,
             "EnableBotAccountCreation": null,
             "EnableSVGs": null,
-            "EnableLatex": null
+            "EnableLatex": null,
+            "EnableLocalMode": null,
+            "LocalModeSocketLocation": null
         },
         "TeamSettings": {
             "SiteName": null,
@@ -277,7 +281,8 @@ const manifest = JSON.parse(`
             "MaxOpenConns": null,
             "Trace": null,
             "AtRestEncryptKey": null,
-            "QueryTimeout": null
+            "QueryTimeout": null,
+            "DisableDatabaseSearch": null
         },
         "LogSettings": {
             "EnableConsole": null,
@@ -291,13 +296,20 @@ const manifest = JSON.parse(`
             "EnableDiagnostics": null
         },
         "ExperimentalAuditSettings": {
-            "Enabled": null,
-            "IP": null,
-            "Port": null,
-            "Tag": null,
-            "Cert": null,
-            "Insecure": null,
-            "MaxQSize": null
+            "SysLogEnabled": null,
+            "SysLogIP": null,
+            "SysLogPort": null,
+            "SysLogTag": null,
+            "SysLogCert": null,
+            "SysLogInsecure": null,
+            "SysLogMaxQueueSize": null,
+            "FileEnabled": null,
+            "FileName": null,
+            "FileMaxSizeMB": null,
+            "FileMaxAgeDays": null,
+            "FileMaxBackups": null,
+            "FileCompress": null,
+            "FileMaxQueueSize": null
         },
         "NotificationLogSettings": {
             "EnableConsole": null,
@@ -454,6 +466,7 @@ const manifest = JSON.parse(`
             "IdAttribute": null,
             "PositionAttribute": null,
             "LoginIdAttribute": null,
+            "PictureAttribute": null,
             "SyncIntervalMinutes": null,
             "SkipCertificateVerification": null,
             "QueryTimeout": null,
@@ -484,6 +497,7 @@ const manifest = JSON.parse(`
             "IdpUrl": null,
             "IdpDescriptorUrl": null,
             "IdpMetadataUrl": null,
+            "ServiceProviderIdentifier": null,
             "AssertionConsumerServiceURL": null,
             "SignatureAlgorithm": null,
             "CanonicalAlgorithm": null,
@@ -567,6 +581,13 @@ const manifest = JSON.parse(`
             "RequestTimeoutSeconds": null,
             "SkipTLSVerification": null,
             "Trace": null
+        },
+        "BleveSettings": {
+            "IndexDir": null,
+            "EnableIndexing": null,
+            "EnableSearching": null,
+            "EnableAutocomplete": null,
+            "BulkIndexingTimeWindowSeconds": null
         },
         "DataRetentionSettings": {
             "EnableMessageDeletion": null,
