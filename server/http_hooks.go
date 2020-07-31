@@ -313,5 +313,32 @@ func (p *Plugin) handleDynamicArgTest(w http.ResponseWriter, r *http.Request) {
 		UserId:    p.botID,
 		Message:   result,
 	}
-	p.API.CreatePost(post)
+
+	_, appErr := p.API.CreatePost(post)
+	if appErr != nil {
+		http.Error(w, fmt.Sprintf("Error creating post: %s", appErr.Error()), http.StatusInternalServerError)
+		return
+	}
+
+	suggestions := []model.AutocompleteListItem{{
+		Item:     "suggestion 1",
+		HelpText: "help text 1",
+		Hint:     "(hint)",
+	}, {
+		Item:     "suggestion 2",
+		HelpText: "help text 2",
+		Hint:     "(hint)",
+	}}
+
+	jsonBytes, err := json.Marshal(suggestions)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error getting dynamic args: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if _, err = w.Write(jsonBytes); err != nil {
+		http.Error(w, fmt.Sprintf("Error getting dynamic args: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
 }
