@@ -117,8 +117,6 @@ func (p *Plugin) registerCommands() error {
 	if err := p.API.RegisterCommand(&model.Command{
 		Trigger:          commandTriggerAutocompleteTest,
 		AutoComplete:     true,
-		AutoCompleteDesc: "Test an autocomplete.",
-		DisplayName:      "Demo Plugin Autocomplete Test",
 		AutocompleteData: getAutocompleteTestAutocompleteData(),
 	}); err != nil {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerDialog)
@@ -151,33 +149,44 @@ func getCommandHooksAutocompleteData() *model.AutocompleteData {
 
 func getCommandDialogAutocompleteData() *model.AutocompleteData {
 	command := model.NewAutocompleteData(commandTriggerDialog, "", "Open an Interactive Dialog.")
+
 	noElements := model.NewAutocompleteData("no-elements", "", "Open an Interactive Dialog with no elements.")
 	command.AddCommand(noElements)
+
 	relativeCallbackURL := model.NewAutocompleteData("relative-callback-url", "", "Open an Interactive Dialog with a relative callback url.")
 	command.AddCommand(relativeCallbackURL)
+
 	introText := model.NewAutocompleteData("introduction-text", "", "Open an Interactive Dialog with an introduction text.")
 	command.AddCommand(introText)
+
 	error := model.NewAutocompleteData("error", "", "Open an Interactive Dialog with error.")
 	command.AddCommand(error)
+
 	errorNoElements := model.NewAutocompleteData("error-no-elements", "", "Open an Interactive Dialog with error no elements.")
 	command.AddCommand(errorNoElements)
+
 	help := model.NewAutocompleteData("help", "", "")
 	command.AddCommand(help)
+
 	return command
 }
 
 func getAutocompleteTestAutocompleteData() *model.AutocompleteData {
 	command := model.NewAutocompleteData(commandTriggerAutocompleteTest, "", "Test an autocomplete.")
+
 	dynamicArg := model.NewAutocompleteData("dynamic-arg", "", "Test a dynamic argument")
 	dynamicArg.AddDynamicListArgument("Some dynamic argument", "dynamic_arg_test_url", true)
 	command.AddCommand(dynamicArg)
+
 	namedArg := model.NewAutocompleteData("named-arg", "", "Test a named argument")
 	namedArg.AddNamedTextArgument("name", "Input named argument with pattern p([a-z]+)ch", "", "p([a-z]+)ch", true)
 	command.AddCommand(namedArg)
+
 	optionalArg := model.NewAutocompleteData("optional-arg", "", "Test an optional argument")
 	optionalArg.AddNamedTextArgument("name1", "Optional named argument", "", "", false)
 	optionalArg.AddNamedTextArgument("name2", "Optional named argument with pattern p([a-z]+)ch", "", "p([a-z]+)ch", false)
 	command.AddCommand(optionalArg)
+
 	return command
 }
 

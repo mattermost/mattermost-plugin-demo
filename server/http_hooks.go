@@ -298,15 +298,31 @@ func (p *Plugin) handleDynamicArgTest(w http.ResponseWriter, r *http.Request) {
 	userID := query.Get("user_id")
 	rootID := query.Get("root_id")
 
-	channel, _ := p.API.GetChannel(channelID)
-	team, _ := p.API.GetTeam(teamID)
-	user, _ := p.API.GetUser(userID)
+	channel, appErr := p.API.GetChannel(channelID)
+	if appErr != nil {
+		http.Error(w, fmt.Sprintf("Error getting channels: %s", appErr.Error()), http.StatusInternalServerError)
+		return
+	}
+	team, appErr := p.API.GetTeam(teamID)
+	if appErr != nil {
+		http.Error(w, fmt.Sprintf("Error getting team: %s", appErr.Error()), http.StatusInternalServerError)
+		return
+	}
+	user, appErr := p.API.GetUser(userID)
+	if appErr != nil {
+		http.Error(w, fmt.Sprintf("Error getting user: %s", appErr.Error()), http.StatusInternalServerError)
+		return
+	}
 
 	argMap := map[string]string{}
 	for _, arg := range queryArgs {
 		argMap[arg] = query.Get(arg)
 	}
-	result := fmt.Sprintf("dynamic argument was triggered by **%v** from team **%v** in the **%v** channel, with these arguments __%v__", user.GetFullName(), team.DisplayName, channel.DisplayName, argMap)
+	argMapString := ""
+	for k, v := range argMap {
+		argMapString = fmt.Sprintf("%s  * %s:%s\n", argMapString, k, v)
+	}
+	result := fmt.Sprintf("dynamic argument was triggered by **%v** from team **%v** in the **%v** channel, with these arguments\n\n%v", user.GetFullName(), team.DisplayName, channel.DisplayName, argMapString)
 	post := &model.Post{
 		ChannelId: channelID,
 		RootId:    rootID,
@@ -314,7 +330,7 @@ func (p *Plugin) handleDynamicArgTest(w http.ResponseWriter, r *http.Request) {
 		Message:   result,
 	}
 
-	_, appErr := p.API.CreatePost(post)
+	_, appErr = p.API.CreatePost(post)
 	if appErr != nil {
 		http.Error(w, fmt.Sprintf("Error creating post: %s", appErr.Error()), http.StatusInternalServerError)
 		return
