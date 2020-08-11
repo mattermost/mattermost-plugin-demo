@@ -23,10 +23,10 @@ export default function RouterShowcase() {
 
     return (
         <Switch>
-            <Route path={`${teamUrlPath('subpath')}`}>
+            <Route path={teamUrlPath('subpath')}>
                 <h3>{'Hello, Subpath Component!'}</h3>
             </Route>
-            <Route path={`${teamUrlPath('subpath-with-query')}`}>
+            <Route path={teamUrlPath('subpath-with-query')}>
                 <h3>{'Hello, Subpath with Query!'}</h3>
                 <p>{`The search-value in the query string is ${query.get('search-value') === 'on' ? 'enabled' : 'disabled'}.`}</p>
             </Route>
