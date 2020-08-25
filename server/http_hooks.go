@@ -36,6 +36,8 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 		p.handleEphemeralDelete(w, r)
 	case "/interactive/button/1":
 		p.handleInteractiveAction(w, r)
+	case "/dynamic_arg_test_url":
+		p.handleDynamicArgTest(w, r)
 	default:
 		http.NotFound(w, r)
 	}
@@ -284,5 +286,75 @@ func (p *Plugin) writeSubmitDialogResponse(w http.ResponseWriter, response *mode
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write(response.ToJson()); err != nil {
 		p.API.LogError("failed to write DialogResponse", "err", err.Error())
+	}
+}
+
+func (p *Plugin) handleDynamicArgTest(w http.ResponseWriter, r *http.Request) {
+	queryArgs := []string{"user_input", "parsed", "root_id", "parent_id", "user_id", "site_url", "request_id", "session_id", "ip_address", "accept_language", "user_agent"}
+	query := r.URL.Query()
+
+	channelID := query.Get("channel_id")
+	teamID := query.Get("team_id")
+	userID := query.Get("user_id")
+	rootID := query.Get("root_id")
+
+	channel, appErr := p.API.GetChannel(channelID)
+	if appErr != nil {
+		http.Error(w, fmt.Sprintf("Error getting channels: %s", appErr.Error()), http.StatusInternalServerError)
+		return
+	}
+	team, appErr := p.API.GetTeam(teamID)
+	if appErr != nil {
+		http.Error(w, fmt.Sprintf("Error getting team: %s", appErr.Error()), http.StatusInternalServerError)
+		return
+	}
+	user, appErr := p.API.GetUser(userID)
+	if appErr != nil {
+		http.Error(w, fmt.Sprintf("Error getting user: %s", appErr.Error()), http.StatusInternalServerError)
+		return
+	}
+
+	argMap := map[string]string{}
+	for _, arg := range queryArgs {
+		argMap[arg] = query.Get(arg)
+	}
+	argMapString := ""
+	for k, v := range argMap {
+		argMapString = fmt.Sprintf("%s  * %s:%s\n", argMapString, k, v)
+	}
+	result := fmt.Sprintf("dynamic argument was triggered by **%v** from team **%v** in the **%v** channel, with these arguments\n\n%v", user.GetFullName(), team.DisplayName, channel.DisplayName, argMapString)
+	post := &model.Post{
+		ChannelId: channelID,
+		RootId:    rootID,
+		UserId:    p.botID,
+		Message:   result,
+	}
+
+	_, appErr = p.API.CreatePost(post)
+	if appErr != nil {
+		http.Error(w, fmt.Sprintf("Error creating post: %s", appErr.Error()), http.StatusInternalServerError)
+		return
+	}
+
+	suggestions := []model.AutocompleteListItem{{
+		Item:     "suggestion 1",
+		HelpText: "help text 1",
+		Hint:     "(hint)",
+	}, {
+		Item:     "suggestion 2",
+		HelpText: "help text 2",
+		Hint:     "(hint)",
+	}}
+
+	jsonBytes, err := json.Marshal(suggestions)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error getting dynamic args: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if _, err = w.Write(jsonBytes); err != nil {
+		http.Error(w, fmt.Sprintf("Error getting dynamic args: %s", err.Error()), http.StatusInternalServerError)
+		return
 	}
 }

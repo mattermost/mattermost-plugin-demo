@@ -18,8 +18,8 @@ const manifestStr = `
   "homepage_url": "https://github.com/mattermost/mattermost-plugin-demo",
   "support_url": "https://github.com/mattermost/mattermost-plugin-demo/issues",
   "icon_path": "assets/icon.svg",
-  "version": "0.7.0",
-  "min_server_version": "5.24.0",
+  "version": "0.8.0",
+  "min_server_version": "5.26.0",
   "server": {
     "executables": {
       "linux-amd64": "server/dist/plugin-linux-amd64",
@@ -191,6 +191,7 @@ const manifestStr = `
       "CorsAllowCredentials": null,
       "CorsDebug": null,
       "AllowCookiesForSubdomains": null,
+      "ExtendSessionLengthWithActivity": null,
       "SessionLengthWebInDays": null,
       "SessionLengthMobileInDays": null,
       "SessionLengthSSOInDays": null,
@@ -222,6 +223,7 @@ const manifestStr = `
       "ExperimentalEnableDefaultChannelLeaveJoinMessages": null,
       "ExperimentalGroupUnreadChannels": null,
       "ExperimentalChannelOrganization": null,
+      "ExperimentalChannelSidebarOrganization": null,
       "ImageProxyType": null,
       "ImageProxyURL": null,
       "ImageProxyOptions": null,
@@ -233,7 +235,9 @@ const manifestStr = `
       "DisableBotsWhenOwnerIsDeactivated": null,
       "EnableBotAccountCreation": null,
       "EnableSVGs": null,
-      "EnableLatex": null
+      "EnableLatex": null,
+      "EnableLocalMode": null,
+      "LocalModeSocketLocation": null
     },
     "TeamSettings": {
       "SiteName": null,
@@ -287,7 +291,8 @@ const manifestStr = `
       "MaxOpenConns": null,
       "Trace": null,
       "AtRestEncryptKey": null,
-      "QueryTimeout": null
+      "QueryTimeout": null,
+      "DisableDatabaseSearch": null
     },
     "LogSettings": {
       "EnableConsole": null,
@@ -301,13 +306,20 @@ const manifestStr = `
       "EnableDiagnostics": null
     },
     "ExperimentalAuditSettings": {
-      "Enabled": null,
-      "IP": null,
-      "Port": null,
-      "Tag": null,
-      "Cert": null,
-      "Insecure": null,
-      "MaxQSize": null
+      "SysLogEnabled": null,
+      "SysLogIP": null,
+      "SysLogPort": null,
+      "SysLogTag": null,
+      "SysLogCert": null,
+      "SysLogInsecure": null,
+      "SysLogMaxQueueSize": null,
+      "FileEnabled": null,
+      "FileName": null,
+      "FileMaxSizeMB": null,
+      "FileMaxAgeDays": null,
+      "FileMaxBackups": null,
+      "FileCompress": null,
+      "FileMaxQueueSize": null
     },
     "NotificationLogSettings": {
       "EnableConsole": null,
@@ -464,6 +476,7 @@ const manifestStr = `
       "IdAttribute": null,
       "PositionAttribute": null,
       "LoginIdAttribute": null,
+      "PictureAttribute": null,
       "SyncIntervalMinutes": null,
       "SkipCertificateVerification": null,
       "QueryTimeout": null,
@@ -494,6 +507,7 @@ const manifestStr = `
       "IdpUrl": null,
       "IdpDescriptorUrl": null,
       "IdpMetadataUrl": null,
+      "ServiceProviderIdentifier": null,
       "AssertionConsumerServiceURL": null,
       "SignatureAlgorithm": null,
       "CanonicalAlgorithm": null,
@@ -577,6 +591,13 @@ const manifestStr = `
       "RequestTimeoutSeconds": null,
       "SkipTLSVerification": null,
       "Trace": null
+    },
+    "BleveSettings": {
+      "IndexDir": null,
+      "EnableIndexing": null,
+      "EnableSearching": null,
+      "EnableAutocomplete": null,
+      "BulkIndexingTimeWindowSeconds": null
     },
     "DataRetentionSettings": {
       "EnableMessageDeletion": null,
