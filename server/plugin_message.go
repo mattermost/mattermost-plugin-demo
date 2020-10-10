@@ -6,7 +6,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 )
 
-func (p *Plugin) postPluginMessage(id, msg string) *model.AppError {
+func (p *Plugin) postPluginMessage(teamID, msg string) *model.AppError {
 	configuration := p.getConfiguration()
 
 	if configuration.disabled {
@@ -20,7 +20,7 @@ func (p *Plugin) postPluginMessage(id, msg string) *model.AppError {
 
 	_, err := p.API.CreatePost(&model.Post{
 		UserId:    p.botID,
-		ChannelId: configuration.demoChannelIDs[id],
+		ChannelId: configuration.demoChannelIDs[teamID],
 		Message:   msg,
 	})
 

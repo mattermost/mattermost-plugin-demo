@@ -10,7 +10,7 @@ import (
 	"github.com/mattermost/mattermost-plugin-api/cluster"
 )
 
-const minimumServerVersion = "5.12.0"
+const minimumServerVersion = "5.30.0"
 
 func (p *Plugin) checkServerVersion() error {
 	serverVersion, err := semver.Parse(p.API.GetServerVersion())

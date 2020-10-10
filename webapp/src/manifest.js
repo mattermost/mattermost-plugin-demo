@@ -214,10 +214,12 @@ const manifest = JSON.parse(`
             "ExperimentalGroupUnreadChannels": null,
             "ExperimentalChannelOrganization": null,
             "ExperimentalChannelSidebarOrganization": null,
+            "ExperimentalDataPrefetch": null,
             "ImageProxyType": null,
             "ImageProxyURL": null,
             "ImageProxyOptions": null,
             "EnableAPITeamDeletion": null,
+            "EnableAPIUserDeletion": null,
             "ExperimentalEnableHardenedMode": null,
             "DisableLegacyMFA": null,
             "ExperimentalStrictCSRFEnforcement": null,
@@ -226,8 +228,10 @@ const manifest = JSON.parse(`
             "EnableBotAccountCreation": null,
             "EnableSVGs": null,
             "EnableLatex": null,
+            "EnableAPIChannelDeletion": null,
             "EnableLocalMode": null,
-            "LocalModeSocketLocation": null
+            "LocalModeSocketLocation": null,
+            "EnableAWSMetering": null
         },
         "TeamSettings": {
             "SiteName": null,
@@ -293,23 +297,19 @@ const manifest = JSON.parse(`
             "FileJson": null,
             "FileLocation": null,
             "EnableWebhookDebugging": null,
-            "EnableDiagnostics": null
+            "EnableDiagnostics": null,
+            "EnableSentry": null,
+            "AdvancedLoggingConfig": null
         },
         "ExperimentalAuditSettings": {
-            "SysLogEnabled": null,
-            "SysLogIP": null,
-            "SysLogPort": null,
-            "SysLogTag": null,
-            "SysLogCert": null,
-            "SysLogInsecure": null,
-            "SysLogMaxQueueSize": null,
             "FileEnabled": null,
             "FileName": null,
             "FileMaxSizeMB": null,
             "FileMaxAgeDays": null,
             "FileMaxBackups": null,
             "FileCompress": null,
-            "FileMaxQueueSize": null
+            "FileMaxQueueSize": null,
+            "AdvancedLoggingConfig": null
         },
         "NotificationLogSettings": {
             "EnableConsole": null,
@@ -318,7 +318,8 @@ const manifest = JSON.parse(`
             "EnableFile": null,
             "FileLevel": null,
             "FileJson": null,
-            "FileLocation": null
+            "FileLocation": null,
+            "AdvancedLoggingConfig": null
         },
         "PasswordSettings": {
             "MinimumLength": null,
@@ -340,6 +341,7 @@ const manifest = JSON.parse(`
             "AmazonS3AccessKeyId": null,
             "AmazonS3SecretAccessKey": null,
             "AmazonS3Bucket": null,
+            "AmazonS3PathPrefix": null,
             "AmazonS3Region": null,
             "AmazonS3Endpoint": null,
             "AmazonS3SSL": null,
@@ -368,6 +370,7 @@ const manifest = JSON.parse(`
             "SendPushNotifications": null,
             "PushNotificationServer": null,
             "PushNotificationContents": null,
+            "PushNotificationBuffer": null,
             "EnableEmailBatching": null,
             "EmailBatchingBufferSize": null,
             "EmailBatchingInterval": null,
@@ -399,14 +402,20 @@ const manifest = JSON.parse(`
             "ReportAProblemLink": null,
             "SupportEmail": null,
             "CustomTermsOfServiceEnabled": null,
-            "CustomTermsOfServiceReAcceptancePeriod": null
+            "CustomTermsOfServiceReAcceptancePeriod": null,
+            "EnableAskCommunityLink": null
         },
         "AnnouncementSettings": {
             "EnableBanner": null,
             "BannerText": null,
             "BannerColor": null,
             "BannerTextColor": null,
-            "AllowBannerDismissal": null
+            "AllowBannerDismissal": null,
+            "AdminNoticesEnabled": null,
+            "UserNoticesEnabled": null,
+            "NoticesURL": null,
+            "NoticesFetchFrequency": null,
+            "NoticesSkipCache": null
         },
         "ThemeSettings": {
             "EnableThemeSelection": null,
@@ -469,6 +478,8 @@ const manifest = JSON.parse(`
             "PictureAttribute": null,
             "SyncIntervalMinutes": null,
             "SkipCertificateVerification": null,
+            "PublicCertificateFile": null,
+            "PrivateKeyFile": null,
             "QueryTimeout": null,
             "MaxPageSize": null,
             "LoginFieldName": null,
@@ -536,6 +547,7 @@ const manifest = JSON.parse(`
             "AdvertiseAddress": null,
             "UseIpAddress": null,
             "UseExperimentalGossip": null,
+            "EnableExperimentalGossipEncryption": null,
             "ReadOnlyConfig": null,
             "GossipPort": null,
             "StreamingPort": null,
@@ -554,7 +566,10 @@ const manifest = JSON.parse(`
             "EnableClickToReply": null,
             "LinkMetadataTimeoutMilliseconds": null,
             "RestrictSystemAdmin": null,
-            "UseNewSAMLLibrary": null
+            "UseNewSAMLLibrary": null,
+            "CloudUserLimit": null,
+            "CloudBilling": null,
+            "EnableSharedChannels": null
         },
         "AnalyticsSettings": {
             "MaxUsersForStatistics": null
@@ -602,6 +617,7 @@ const manifest = JSON.parse(`
             "DailyRunTime": null,
             "ExportFromTimestamp": null,
             "BatchSize": null,
+            "DownloadExportResults": null,
             "GlobalRelaySettings": null
         },
         "JobSettings": {
@@ -639,6 +655,9 @@ const manifest = JSON.parse(`
             "ImageProxyType": null,
             "RemoteImageProxyURL": null,
             "RemoteImageProxyOptions": null
+        },
+        "CloudSettings": {
+            "CWSUrl": null
         }
     }
 }

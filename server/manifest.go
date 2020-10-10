@@ -224,10 +224,12 @@ const manifestStr = `
       "ExperimentalGroupUnreadChannels": null,
       "ExperimentalChannelOrganization": null,
       "ExperimentalChannelSidebarOrganization": null,
+      "ExperimentalDataPrefetch": null,
       "ImageProxyType": null,
       "ImageProxyURL": null,
       "ImageProxyOptions": null,
       "EnableAPITeamDeletion": null,
+      "EnableAPIUserDeletion": null,
       "ExperimentalEnableHardenedMode": null,
       "DisableLegacyMFA": null,
       "ExperimentalStrictCSRFEnforcement": null,
@@ -236,8 +238,10 @@ const manifestStr = `
       "EnableBotAccountCreation": null,
       "EnableSVGs": null,
       "EnableLatex": null,
+      "EnableAPIChannelDeletion": null,
       "EnableLocalMode": null,
-      "LocalModeSocketLocation": null
+      "LocalModeSocketLocation": null,
+      "EnableAWSMetering": null
     },
     "TeamSettings": {
       "SiteName": null,
@@ -303,23 +307,19 @@ const manifestStr = `
       "FileJson": null,
       "FileLocation": null,
       "EnableWebhookDebugging": null,
-      "EnableDiagnostics": null
+      "EnableDiagnostics": null,
+      "EnableSentry": null,
+      "AdvancedLoggingConfig": null
     },
     "ExperimentalAuditSettings": {
-      "SysLogEnabled": null,
-      "SysLogIP": null,
-      "SysLogPort": null,
-      "SysLogTag": null,
-      "SysLogCert": null,
-      "SysLogInsecure": null,
-      "SysLogMaxQueueSize": null,
       "FileEnabled": null,
       "FileName": null,
       "FileMaxSizeMB": null,
       "FileMaxAgeDays": null,
       "FileMaxBackups": null,
       "FileCompress": null,
-      "FileMaxQueueSize": null
+      "FileMaxQueueSize": null,
+      "AdvancedLoggingConfig": null
     },
     "NotificationLogSettings": {
       "EnableConsole": null,
@@ -328,7 +328,8 @@ const manifestStr = `
       "EnableFile": null,
       "FileLevel": null,
       "FileJson": null,
-      "FileLocation": null
+      "FileLocation": null,
+      "AdvancedLoggingConfig": null
     },
     "PasswordSettings": {
       "MinimumLength": null,
@@ -350,6 +351,7 @@ const manifestStr = `
       "AmazonS3AccessKeyId": null,
       "AmazonS3SecretAccessKey": null,
       "AmazonS3Bucket": null,
+      "AmazonS3PathPrefix": null,
       "AmazonS3Region": null,
       "AmazonS3Endpoint": null,
       "AmazonS3SSL": null,
@@ -378,6 +380,7 @@ const manifestStr = `
       "SendPushNotifications": null,
       "PushNotificationServer": null,
       "PushNotificationContents": null,
+      "PushNotificationBuffer": null,
       "EnableEmailBatching": null,
       "EmailBatchingBufferSize": null,
       "EmailBatchingInterval": null,
@@ -409,14 +412,20 @@ const manifestStr = `
       "ReportAProblemLink": null,
       "SupportEmail": null,
       "CustomTermsOfServiceEnabled": null,
-      "CustomTermsOfServiceReAcceptancePeriod": null
+      "CustomTermsOfServiceReAcceptancePeriod": null,
+      "EnableAskCommunityLink": null
     },
     "AnnouncementSettings": {
       "EnableBanner": null,
       "BannerText": null,
       "BannerColor": null,
       "BannerTextColor": null,
-      "AllowBannerDismissal": null
+      "AllowBannerDismissal": null,
+      "AdminNoticesEnabled": null,
+      "UserNoticesEnabled": null,
+      "NoticesURL": null,
+      "NoticesFetchFrequency": null,
+      "NoticesSkipCache": null
     },
     "ThemeSettings": {
       "EnableThemeSelection": null,
@@ -479,6 +488,8 @@ const manifestStr = `
       "PictureAttribute": null,
       "SyncIntervalMinutes": null,
       "SkipCertificateVerification": null,
+      "PublicCertificateFile": null,
+      "PrivateKeyFile": null,
       "QueryTimeout": null,
       "MaxPageSize": null,
       "LoginFieldName": null,
@@ -546,6 +557,7 @@ const manifestStr = `
       "AdvertiseAddress": null,
       "UseIpAddress": null,
       "UseExperimentalGossip": null,
+      "EnableExperimentalGossipEncryption": null,
       "ReadOnlyConfig": null,
       "GossipPort": null,
       "StreamingPort": null,
@@ -564,7 +576,10 @@ const manifestStr = `
       "EnableClickToReply": null,
       "LinkMetadataTimeoutMilliseconds": null,
       "RestrictSystemAdmin": null,
-      "UseNewSAMLLibrary": null
+      "UseNewSAMLLibrary": null,
+      "CloudUserLimit": null,
+      "CloudBilling": null,
+      "EnableSharedChannels": null
     },
     "AnalyticsSettings": {
       "MaxUsersForStatistics": null
@@ -612,6 +627,7 @@ const manifestStr = `
       "DailyRunTime": null,
       "ExportFromTimestamp": null,
       "BatchSize": null,
+      "DownloadExportResults": null,
       "GlobalRelaySettings": null
     },
     "JobSettings": {
@@ -649,6 +665,9 @@ const manifestStr = `
       "ImageProxyType": null,
       "RemoteImageProxyURL": null,
       "RemoteImageProxyOptions": null
+    },
+    "CloudSettings": {
+      "CWSUrl": null
     }
   }
 }
