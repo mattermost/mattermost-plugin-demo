@@ -22,25 +22,25 @@ func (p *Plugin) ReactionHasBeenAdded(c *plugin.Context, reaction *model.Reactio
 
 	user, err := p.API.GetUser(reaction.UserId)
 	if err != nil {
-		p.API.LogError("failed to query user", "user_id", reaction.UserId)
+		p.API.LogError("Failed to query user", "user_id", reaction.UserId)
 		return
 	}
 
 	post, err := p.API.GetPost(reaction.PostId)
 	if err != nil {
-		p.API.LogError("failed to query post", "post_id", reaction.PostId)
+		p.API.LogError("Failed to query post", "post_id", reaction.PostId)
 		return
 	}
 
 	channel, err := p.API.GetChannel(post.ChannelId)
 	if err != nil {
-		p.API.LogError("failed to query channel", "channel_id", post.ChannelId)
+		p.API.LogError("Failed to query channel", "channel_id", post.ChannelId)
 		return
 	}
 
 	team, err := p.API.GetTeam(channel.TeamId)
 	if err != nil {
-		p.API.LogError("failed to query team", "team_id", channel.TeamId)
+		p.API.LogError("Failed to query team", "team_id", channel.TeamId)
 		return
 	}
 
@@ -49,7 +49,7 @@ func (p *Plugin) ReactionHasBeenAdded(c *plugin.Context, reaction *model.Reactio
 	msg := fmt.Sprintf("ReactionHasBeenAdded: @%s, :%s:, [<jump to convo>](%s)", user.Username, reaction.EmojiName, postURL)
 	if err := p.postPluginMessage(channel.TeamId, msg); err != nil {
 		p.API.LogError(
-			"failed to post ReactionHasBeenAdded message",
+			"Failed to post ReactionHasBeenAdded message",
 			"channel_id", channel.Id,
 			"user_id", user.Id,
 			"error", err.Error(),
@@ -72,25 +72,25 @@ func (p *Plugin) ReactionHasBeenRemoved(c *plugin.Context, reaction *model.React
 
 	user, err := p.API.GetUser(reaction.UserId)
 	if err != nil {
-		p.API.LogError("failed to query user", "user_id", reaction.UserId)
+		p.API.LogError("Failed to query user", "user_id", reaction.UserId)
 		return
 	}
 
 	post, err := p.API.GetPost(reaction.PostId)
 	if err != nil {
-		p.API.LogError("failed to query post", "post_id", reaction.PostId)
+		p.API.LogError("Failed to query post", "post_id", reaction.PostId)
 		return
 	}
 
 	channel, err := p.API.GetChannel(post.ChannelId)
 	if err != nil {
-		p.API.LogError("failed to query channel", "channel_id", post.ChannelId)
+		p.API.LogError("Failed to query channel", "channel_id", post.ChannelId)
 		return
 	}
 
 	team, err := p.API.GetTeam(channel.TeamId)
 	if err != nil {
-		p.API.LogError("failed to query team", "team_id", channel.TeamId)
+		p.API.LogError("Failed to query team", "team_id", channel.TeamId)
 		return
 	}
 
@@ -99,7 +99,7 @@ func (p *Plugin) ReactionHasBeenRemoved(c *plugin.Context, reaction *model.React
 	msg := fmt.Sprintf("ReactionHasBeenRemoved: @%s, :%s:, [<jump to convo>](%s)", user.Username, reaction.EmojiName, postURL)
 	if err := p.postPluginMessage(channel.TeamId, msg); err != nil {
 		p.API.LogError(
-			"failed to post ReactionHasBeenRemoved message",
+			"Failed to post ReactionHasBeenRemoved message",
 			"channel_id", channel.Id,
 			"user_id", user.Id,
 			"error", err.Error(),

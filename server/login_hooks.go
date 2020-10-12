@@ -30,7 +30,7 @@ func (p *Plugin) UserHasLoggedIn(c *plugin.Context, user *model.User) {
 	teams, err := p.API.GetTeams()
 	if err != nil {
 		p.API.LogError(
-			"failed to query teams UserHasLoggedIn",
+			"Failed to query teams UserHasLoggedIn",
 			"error", err.Error(),
 		)
 		return
@@ -40,7 +40,7 @@ func (p *Plugin) UserHasLoggedIn(c *plugin.Context, user *model.User) {
 		msg := fmt.Sprintf("User @%s has logged in", user.Username)
 		if err := p.postPluginMessage(team.Id, msg); err != nil {
 			p.API.LogError(
-				"failed to post UserHasLoggedIn message",
+				"Failed to post UserHasLoggedIn message",
 				"channel_id", configuration.demoChannelIDs[team.Id],
 				"error", err.Error(),
 			)

@@ -20,7 +20,7 @@ func (p *Plugin) ChannelHasBeenCreated(c *plugin.Context, channel *model.Channel
 	msg := fmt.Sprintf("ChannelHasBeenCreated: ~%s", channel.Name)
 	if err := p.postPluginMessage(channel.TeamId, msg); err != nil {
 		p.API.LogError(
-			"failed to post ChannelHasBeenCreated message",
+			"Failed to post ChannelHasBeenCreated message",
 			"channel_id", channel.Id,
 			"error", err.Error(),
 		)
@@ -40,20 +40,20 @@ func (p *Plugin) UserHasJoinedChannel(c *plugin.Context, channelMember *model.Ch
 
 	user, err := p.API.GetUser(channelMember.UserId)
 	if err != nil {
-		p.API.LogError("failed to query user", "user_id", channelMember.UserId)
+		p.API.LogError("Failed to query user", "user_id", channelMember.UserId)
 		return
 	}
 
 	channel, err := p.API.GetChannel(channelMember.ChannelId)
 	if err != nil {
-		p.API.LogError("failed to query channel", "channel_id", channelMember.ChannelId)
+		p.API.LogError("Failed to query channel", "channel_id", channelMember.ChannelId)
 		return
 	}
 
 	msg := fmt.Sprintf("UserHasJoinedChannel: @%s, ~%s", user.Username, channel.Name)
 	if err := p.postPluginMessage(channel.TeamId, msg); err != nil {
 		p.API.LogError(
-			"failed to post UserHasJoinedChannel message",
+			"Failed to post UserHasJoinedChannel message",
 			"user_id", channelMember.UserId,
 			"error", err.Error(),
 		)
@@ -74,20 +74,20 @@ func (p *Plugin) UserHasLeftChannel(c *plugin.Context, channelMember *model.Chan
 
 	user, err := p.API.GetUser(channelMember.UserId)
 	if err != nil {
-		p.API.LogError("failed to query user", "user_id", channelMember.UserId)
+		p.API.LogError("Failed to query user", "user_id", channelMember.UserId)
 		return
 	}
 
 	channel, err := p.API.GetChannel(channelMember.ChannelId)
 	if err != nil {
-		p.API.LogError("failed to query channel", "channel_id", channelMember.ChannelId)
+		p.API.LogError("Failed to query channel", "channel_id", channelMember.ChannelId)
 		return
 	}
 
 	msg := fmt.Sprintf("UserHasLeftChannel: @%s, ~%s", user.Username, channel.Name)
 	if err := p.postPluginMessage(channel.TeamId, msg); err != nil {
 		p.API.LogError(
-			"failed to post UserHasLeftChannel message",
+			"Failed to post UserHasLeftChannel message",
 			"user_id", channelMember.UserId,
 			"error", err.Error(),
 		)

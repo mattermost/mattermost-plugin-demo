@@ -22,7 +22,7 @@ func (p *Plugin) FileWillBeUploaded(c *plugin.Context, fileInfo *model.FileInfo,
 	teams, err := p.API.GetTeams()
 	if err != nil {
 		p.API.LogError(
-			"failed to query teams FileWillBeUploaded",
+			"Failed to query teams FileWillBeUploaded",
 			"error", err.Error(),
 		)
 		return
@@ -40,7 +40,7 @@ func (p *Plugin) FileWillBeUploaded(c *plugin.Context, fileInfo *model.FileInfo,
 		msg := fmt.Sprintf("FileName @%s has been created in", fileInfo.Name)
 		if err := p.postPluginMessage(team.Id, msg); err != nil {
 			p.API.LogError(
-				"failed to post FileWillBeUploaded message",
+				"Failed to post FileWillBeUploaded message",
 				"channel_id", configuration.demoChannelIDs[team.Id],
 				"error", err.Error(),
 			)

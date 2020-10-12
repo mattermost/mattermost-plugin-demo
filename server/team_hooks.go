@@ -21,14 +21,14 @@ func (p *Plugin) UserHasJoinedTeam(c *plugin.Context, teamMember *model.TeamMemb
 
 	user, err := p.API.GetUser(teamMember.UserId)
 	if err != nil {
-		p.API.LogError("failed to query user", "user_id", teamMember.UserId)
+		p.API.LogError("Failed to query user", "user_id", teamMember.UserId)
 		return
 	}
 
 	msg := fmt.Sprintf("UserHasJoinedTeam: @%s", user.Username)
 	if err := p.postPluginMessage(teamMember.TeamId, msg); err != nil {
 		p.API.LogError(
-			"failed to post UserHasJoinedTeam message",
+			"Failed to post UserHasJoinedTeam message",
 			"user_id", teamMember.UserId,
 			"error", err.Error(),
 		)
@@ -49,14 +49,14 @@ func (p *Plugin) UserHasLeftTeam(c *plugin.Context, teamMember *model.TeamMember
 
 	user, err := p.API.GetUser(teamMember.UserId)
 	if err != nil {
-		p.API.LogError("failed to query user", "user_id", teamMember.UserId)
+		p.API.LogError("Failed to query user", "user_id", teamMember.UserId)
 		return
 	}
 
 	msg := fmt.Sprintf("UserHasLeftTeam: @%s", user.Username)
 	if err := p.postPluginMessage(teamMember.TeamId, msg); err != nil {
 		p.API.LogError(
-			"failed to post UserHasLeftTeam message",
+			"Failed to post UserHasLeftTeam message",
 			"user_id", teamMember.UserId,
 			"error", err.Error(),
 		)
