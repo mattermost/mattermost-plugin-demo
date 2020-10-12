@@ -50,18 +50,7 @@ func (p *Plugin) ReactionHasBeenAdded(c *plugin.Context, reaction *model.Reactio
 		return
 	}
 
-	team, err := p.API.GetTeam(channel.TeamId)
-	if err != nil {
-		p.API.LogError(
-			"Failed to query team",
-			"team_id", channel.TeamId,
-			"error", err.Error(),
-		)
-		return
-	}
-
-	siteURL := *p.API.GetConfig().ServiceSettings.SiteURL
-	postURL := fmt.Sprintf("%s/%s/pl/%s", siteURL, team.Name, reaction.PostId)
+	postURL := fmt.Sprintf("%s/_redirect/pl/%s", *p.API.GetConfig().ServiceSettings.SiteURL, reaction.PostId)
 	msg := fmt.Sprintf("ReactionHasBeenAdded: @%s, :%s:, [<jump to convo>](%s)", user.Username, reaction.EmojiName, postURL)
 	if err := p.postPluginMessage(channel.TeamId, msg); err != nil {
 		p.API.LogError(
@@ -116,18 +105,7 @@ func (p *Plugin) ReactionHasBeenRemoved(c *plugin.Context, reaction *model.React
 		return
 	}
 
-	team, err := p.API.GetTeam(channel.TeamId)
-	if err != nil {
-		p.API.LogError(
-			"Failed to query team",
-			"team_id", channel.TeamId,
-			"error", err.Error(),
-		)
-		return
-	}
-
-	siteURL := *p.API.GetConfig().ServiceSettings.SiteURL
-	postURL := fmt.Sprintf("%s/%s/pl/%s", siteURL, team.Name, reaction.PostId)
+	postURL := fmt.Sprintf("%s/_redirect/pl/%s", *p.API.GetConfig().ServiceSettings.SiteURL, reaction.PostId)
 	msg := fmt.Sprintf("ReactionHasBeenRemoved: @%s, :%s:, [<jump to convo>](%s)", user.Username, reaction.EmojiName, postURL)
 	if err := p.postPluginMessage(channel.TeamId, msg); err != nil {
 		p.API.LogError(
