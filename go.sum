@@ -628,9 +628,6 @@ github.com/segmentio/analytics-go v3.1.0+incompatible/go.mod h1:C7CYBtQWk4vRk2Ry
 github.com/segmentio/backo-go v0.0.0-20160424052352-204274ad699c/go.mod h1:kJ9mm9YmoWSkk+oQ+5Cj8DEoRCX2JT6As4kEtIIOp1M=
 github.com/segmentio/backo-go v0.0.0-20200129164019-23eae7c10bd3/go.mod h1:9/Rh6yILuLysoQnZ2oNooD2g7aBnvM7r/fNVxRNWfBc=
 github.com/sergi/go-diff v1.0.0/go.mod h1:0CfEIISq7TuYL3j771MWULgwwjU+GofnZX9QAmXWZgo=
-github.com/shieldsjared/mattermost-server v1.4.0 h1:OMeOgvJX7huXVPOFAur5Jdx0XbJN0nuC3Y2PUWXQpC4=
-github.com/shieldsjared/mattermost-server v3.1.0+incompatible h1:IdM2ZEfkQLuQAGG9q+yddCN2m96izaD4zaO08TfvRl8=
-github.com/shieldsjared/mattermost-server/v5 v5.0.0-20201004131406-375931a4b9ab h1:nA1nMl7tBZ2HeePt1rH8+pvxgXvdq3CoXI7MtJSDxY0=
 github.com/shieldsjared/mattermost-server/v5 v5.0.0-20201008141002-56ee0d27d54b h1:FUDeCTXR9NsSnxQsIhCksuw5Q1538YtHcrObRzhTkfc=
 github.com/shieldsjared/mattermost-server/v5 v5.0.0-20201008141002-56ee0d27d54b/go.mod h1:FB6izcE5IL4XlC+xKyr+3xOLpIMfa6RUuAygi9nvfiY=
 github.com/shurcooL/component v0.0.0-20170202220835-f88ec8f54cc4/go.mod h1:XhFIlyj5a1fBNx5aJTbKoIq0mNaPvOagO+HjB3EtxrY=
