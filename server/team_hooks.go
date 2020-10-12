@@ -21,7 +21,11 @@ func (p *Plugin) UserHasJoinedTeam(c *plugin.Context, teamMember *model.TeamMemb
 
 	user, err := p.API.GetUser(teamMember.UserId)
 	if err != nil {
-		p.API.LogError("Failed to query user", "user_id", teamMember.UserId)
+		p.API.LogError(
+			"Failed to query user",
+			"user_id", teamMember.UserId,
+			"error", err.Error(),
+		)
 		return
 	}
 
@@ -49,7 +53,11 @@ func (p *Plugin) UserHasLeftTeam(c *plugin.Context, teamMember *model.TeamMember
 
 	user, err := p.API.GetUser(teamMember.UserId)
 	if err != nil {
-		p.API.LogError("Failed to query user", "user_id", teamMember.UserId)
+		p.API.LogError(
+			"Failed to query user",
+			"user_id", teamMember.UserId,
+			"error", err.Error(),
+		)
 		return
 	}
 

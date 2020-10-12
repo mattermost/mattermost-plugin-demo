@@ -22,25 +22,41 @@ func (p *Plugin) ReactionHasBeenAdded(c *plugin.Context, reaction *model.Reactio
 
 	user, err := p.API.GetUser(reaction.UserId)
 	if err != nil {
-		p.API.LogError("Failed to query user", "user_id", reaction.UserId)
+		p.API.LogError(
+			"Failed to query user",
+			"user_id", reaction.UserId,
+			"error", err.Error(),
+		)
 		return
 	}
 
 	post, err := p.API.GetPost(reaction.PostId)
 	if err != nil {
-		p.API.LogError("Failed to query post", "post_id", reaction.PostId)
+		p.API.LogError(
+			"Failed to query post",
+			"post_id", reaction.PostId,
+			"error", err.Error(),
+		)
 		return
 	}
 
 	channel, err := p.API.GetChannel(post.ChannelId)
 	if err != nil {
-		p.API.LogError("Failed to query channel", "channel_id", post.ChannelId)
+		p.API.LogError(
+			"Failed to query channel",
+			"channel_id", post.ChannelId,
+			"error", err.Error(),
+		)
 		return
 	}
 
 	team, err := p.API.GetTeam(channel.TeamId)
 	if err != nil {
-		p.API.LogError("Failed to query team", "team_id", channel.TeamId)
+		p.API.LogError(
+			"Failed to query team",
+			"team_id", channel.TeamId,
+			"error", err.Error(),
+		)
 		return
 	}
 
@@ -72,25 +88,41 @@ func (p *Plugin) ReactionHasBeenRemoved(c *plugin.Context, reaction *model.React
 
 	user, err := p.API.GetUser(reaction.UserId)
 	if err != nil {
-		p.API.LogError("Failed to query user", "user_id", reaction.UserId)
+		p.API.LogError(
+			"Failed to query user",
+			"user_id", reaction.UserId,
+			"error", err.Error(),
+		)
 		return
 	}
 
 	post, err := p.API.GetPost(reaction.PostId)
 	if err != nil {
-		p.API.LogError("Failed to query post", "post_id", reaction.PostId)
+		p.API.LogError(
+			"Failed to query post",
+			"post_id", reaction.PostId,
+			"error", err.Error(),
+		)
 		return
 	}
 
 	channel, err := p.API.GetChannel(post.ChannelId)
 	if err != nil {
-		p.API.LogError("Failed to query channel", "channel_id", post.ChannelId)
+		p.API.LogError(
+			"Failed to query channel",
+			"channel_id", post.ChannelId,
+			"error", err.Error(),
+		)
 		return
 	}
 
 	team, err := p.API.GetTeam(channel.TeamId)
 	if err != nil {
-		p.API.LogError("Failed to query team", "team_id", channel.TeamId)
+		p.API.LogError(
+			"Failed to query team",
+			"team_id", channel.TeamId,
+			"error", err.Error(),
+		)
 		return
 	}
 

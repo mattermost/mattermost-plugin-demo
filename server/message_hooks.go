@@ -112,13 +112,21 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 
 	user, err := p.API.GetUser(post.UserId)
 	if err != nil {
-		p.API.LogError("Failed to query user", "user_id", post.UserId)
+		p.API.LogError(
+			"Failed to query user",
+			"user_id", post.UserId,
+			"error", err.Error(),
+		)
 		return
 	}
 
 	channel, err := p.API.GetChannel(post.ChannelId)
 	if err != nil {
-		p.API.LogError("Failed to query channel", "channel_id", post.ChannelId)
+		p.API.LogError(
+			"Failed to query channel",
+			"channel_id", post.ChannelId,
+			"error", err.Error(),
+		)
 		return
 	}
 
@@ -181,13 +189,21 @@ func (p *Plugin) MessageHasBeenUpdated(c *plugin.Context, newPost, oldPost *mode
 
 	user, err := p.API.GetUser(newPost.UserId)
 	if err != nil {
-		p.API.LogError("Failed to query user", "user_id", newPost.UserId)
+		p.API.LogError(
+			"Failed to query user",
+			"user_id", newPost.UserId,
+			"error", err.Error(),
+		)
 		return
 	}
 
 	channel, err := p.API.GetChannel(newPost.ChannelId)
 	if err != nil {
-		p.API.LogError("Failed to query channel", "channel_id", newPost.ChannelId)
+		p.API.LogError(
+			"Failed to query channel",
+			"channel_id", newPost.ChannelId,
+			"error", err.Error(),
+		)
 		return
 	}
 

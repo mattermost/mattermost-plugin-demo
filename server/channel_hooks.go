@@ -40,13 +40,21 @@ func (p *Plugin) UserHasJoinedChannel(c *plugin.Context, channelMember *model.Ch
 
 	user, err := p.API.GetUser(channelMember.UserId)
 	if err != nil {
-		p.API.LogError("Failed to query user", "user_id", channelMember.UserId)
+		p.API.LogError(
+			"Failed to query user",
+			"user_id", channelMember.UserId,
+			"error", err.Error(),
+		)
 		return
 	}
 
 	channel, err := p.API.GetChannel(channelMember.ChannelId)
 	if err != nil {
-		p.API.LogError("Failed to query channel", "channel_id", channelMember.ChannelId)
+		p.API.LogError(
+			"Failed to query channel",
+			"channel_id", channelMember.ChannelId,
+			"error", err.Error(),
+		)
 		return
 	}
 
@@ -74,13 +82,21 @@ func (p *Plugin) UserHasLeftChannel(c *plugin.Context, channelMember *model.Chan
 
 	user, err := p.API.GetUser(channelMember.UserId)
 	if err != nil {
-		p.API.LogError("Failed to query user", "user_id", channelMember.UserId)
+		p.API.LogError(
+			"Failed to query user",
+			"user_id", channelMember.UserId,
+			"error", err.Error(),
+		)
 		return
 	}
 
 	channel, err := p.API.GetChannel(channelMember.ChannelId)
 	if err != nil {
-		p.API.LogError("Failed to query channel", "channel_id", channelMember.ChannelId)
+		p.API.LogError(
+			"Failed to query channel",
+			"channel_id", channelMember.ChannelId,
+			"error", err.Error(),
+		)
 		return
 	}
 
