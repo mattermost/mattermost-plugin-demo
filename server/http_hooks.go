@@ -56,20 +56,20 @@ func (p *Plugin) handleStatus(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	if _, err := w.Write(responseJSON); err != nil {
-		p.API.LogError("failed to write status", "err", err.Error())
+		p.API.LogError("Failed to write status", "err", err.Error())
 	}
 }
 
 func (p *Plugin) handleHello(w http.ResponseWriter, r *http.Request) {
 	if _, err := w.Write([]byte("Hello World!")); err != nil {
-		p.API.LogError("failed to write hello world", "err", err.Error())
+		p.API.LogError("Failed to write hello world", "err", err.Error())
 	}
 }
 
 func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
 	request := model.SubmitDialogRequestFromJson(r.Body)
 	if request == nil {
-		p.API.LogError("failed to decode SubmitDialogRequest")
+		p.API.LogError("Failed to decode SubmitDialogRequest")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -77,7 +77,7 @@ func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
 	if !request.Cancelled {
 		number, ok := request.Submission[dialogElementNameNumber].(float64)
 		if !ok {
-			p.API.LogError("request is missing field", "field", dialogElementNameNumber)
+			p.API.LogError("Request is missing field", "field", dialogElementNameNumber)
 			w.WriteHeader(http.StatusOK)
 			return
 		}
@@ -95,7 +95,7 @@ func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
 
 	user, appErr := p.API.GetUser(request.UserId)
 	if appErr != nil {
-		p.API.LogError("failed to get user for dialog", "err", appErr.Error())
+		p.API.LogError("Failed to get user for dialog", "err", appErr.Error())
 		w.WriteHeader(http.StatusOK)
 		return
 	}
@@ -111,7 +111,7 @@ func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
 		Message:   fmt.Sprintf(msg, user.Username),
 	})
 	if appErr != nil {
-		p.API.LogError("failed to post handleDialog1 message", "err", appErr.Error())
+		p.API.LogError("Failed to post handleDialog1 message", "err", appErr.Error())
 		return
 	}
 
@@ -127,7 +127,7 @@ func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
 			Type:      "custom_demo_plugin",
 			Props:     request.Submission,
 		}); appErr != nil {
-			p.API.LogError("failed to post handleDialog1 message", "err", appErr.Error())
+			p.API.LogError("Failed to post handleDialog1 message", "err", appErr.Error())
 			return
 		}
 	}
@@ -138,14 +138,14 @@ func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
 func (p *Plugin) handleDialog2(w http.ResponseWriter, r *http.Request) {
 	request := model.SubmitDialogRequestFromJson(r.Body)
 	if request == nil {
-		p.API.LogError("failed to decode SubmitDialogRequest")
+		p.API.LogError("Failed to decode SubmitDialogRequest")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	user, appErr := p.API.GetUser(request.UserId)
 	if appErr != nil {
-		p.API.LogError("failed to get user for dialog", "err", appErr.Error())
+		p.API.LogError("Failed to get user for dialog", "err", appErr.Error())
 		w.WriteHeader(http.StatusOK)
 		return
 	}
@@ -160,7 +160,7 @@ func (p *Plugin) handleDialog2(w http.ResponseWriter, r *http.Request) {
 		ChannelId: request.ChannelId,
 		Message:   fmt.Sprintf("@%v confirmed an Interactive Dialog %v", user.Username, suffix),
 	}); appErr != nil {
-		p.API.LogError("failed to post handleDialog2 message", "err", appErr.Error())
+		p.API.LogError("Failed to post handleDialog2 message", "err", appErr.Error())
 		return
 	}
 
@@ -241,14 +241,14 @@ func (p *Plugin) handleInteractiveAction(w http.ResponseWriter, r *http.Request)
 
 	user, appErr := p.API.GetUser(request.UserId)
 	if appErr != nil {
-		p.API.LogError("failed to get user for interactive action", "err", appErr.Error())
+		p.API.LogError("Failed to get user for interactive action", "err", appErr.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	post, postErr := p.API.GetPost(request.PostId)
 	if postErr != nil {
-		p.API.LogError("failed to get post for interactive action", "err", postErr.Error())
+		p.API.LogError("Failed to get post for interactive action", "err", postErr.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -259,7 +259,7 @@ func (p *Plugin) handleInteractiveAction(w http.ResponseWriter, r *http.Request)
 
 	requestJSON, jsonErr := json.MarshalIndent(request, "", "  ")
 	if jsonErr != nil {
-		p.API.LogError("failed to marshal json for interactive action", "err", jsonErr.Error())
+		p.API.LogError("Failed to marshal json for interactive action", "err", jsonErr.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -271,7 +271,7 @@ func (p *Plugin) handleInteractiveAction(w http.ResponseWriter, r *http.Request)
 		RootId:    rootID,
 		Message:   fmt.Sprintf(msg, user.Username, string(requestJSON)),
 	}); appErr != nil {
-		p.API.LogError("failed to post handleInteractiveAction message", "err", appErr.Error())
+		p.API.LogError("Failed to post handleInteractiveAction message", "err", appErr.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -285,7 +285,7 @@ func (p *Plugin) writeSubmitDialogResponse(w http.ResponseWriter, response *mode
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write(response.ToJson()); err != nil {
-		p.API.LogError("failed to write DialogResponse", "err", err.Error())
+		p.API.LogError("Failed to write DialogResponse", "err", err.Error())
 	}
 }
 

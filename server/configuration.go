@@ -153,7 +153,7 @@ func (p *Plugin) diffConfiguration(newConfiguration *configuration) {
 
 	teams, err := p.API.GetTeams()
 	if err != nil {
-		p.API.LogWarn("failed to query teams OnConfigChange", "err", err)
+		p.API.LogWarn("Failed to query teams OnConfigChange", "err", err)
 		return
 	}
 
@@ -166,13 +166,13 @@ func (p *Plugin) diffConfiguration(newConfiguration *configuration) {
 
 		newConfigurationData, jsonErr := json.Marshal(newConfiguration)
 		if jsonErr != nil {
-			p.API.LogWarn("failed to marshal new configuration", "err", err)
+			p.API.LogWarn("Failed to marshal new configuration", "err", err)
 			return
 		}
 
 		fileInfo, err := p.API.UploadFile(newConfigurationData, demoChannelID, "configuration.json")
 		if err != nil {
-			p.API.LogWarn("failed to attach new configuration", "err", err)
+			p.API.LogWarn("Failed to attach new configuration", "err", err)
 			return
 		}
 
@@ -184,7 +184,7 @@ func (p *Plugin) diffConfiguration(newConfiguration *configuration) {
 			Props:     configurationDiff,
 			FileIds:   model.StringArray{fileInfo.Id},
 		}); err != nil {
-			p.API.LogWarn("failed to post OnConfigChange message", "err", err)
+			p.API.LogWarn("Failed to post OnConfigChange message", "err", err)
 			return
 		}
 	}

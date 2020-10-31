@@ -19,7 +19,7 @@ func (p *Plugin) BackgroundJob() {
 		})
 		if err != nil {
 			p.API.LogError(
-				"failed to post BackgroundJob message",
+				"Failed to post BackgroundJob message",
 				"channel_id", channelID,
 				"error", err.Error(),
 			)

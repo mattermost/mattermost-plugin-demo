@@ -112,20 +112,28 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 
 	user, err := p.API.GetUser(post.UserId)
 	if err != nil {
-		p.API.LogError("failed to query user", "user_id", post.UserId)
+		p.API.LogError(
+			"Failed to query user",
+			"user_id", post.UserId,
+			"error", err.Error(),
+		)
 		return
 	}
 
 	channel, err := p.API.GetChannel(post.ChannelId)
 	if err != nil {
-		p.API.LogError("failed to query channel", "channel_id", post.ChannelId)
+		p.API.LogError(
+			"Failed to query channel",
+			"channel_id", post.ChannelId,
+			"error", err.Error(),
+		)
 		return
 	}
 
 	msg := fmt.Sprintf("MessageHasBeenPosted: @%s, ~%s", user.Username, channel.Name)
 	if err := p.postPluginMessage(channel.TeamId, msg); err != nil {
 		p.API.LogError(
-			"failed to post MessageHasBeenPosted message",
+			"Failed to post MessageHasBeenPosted message",
 			"channel_id", channel.Id,
 			"user_id", user.Id,
 			"error", err.Error(),
@@ -139,7 +147,7 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 		)
 		if err := p.postPluginMessage(channel.TeamId, msg); err != nil {
 			p.API.LogError(
-				"failed to post random secret message",
+				"Failed to post random secret message",
 				"channel_id", channel.Id,
 				"user_id", user.Id,
 				"error", err.Error(),
@@ -152,7 +160,7 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 			configuration.SecretNumber, user.Username)
 		if err := p.postPluginMessage(channel.TeamId, msg); err != nil {
 			p.API.LogError(
-				"failed to post random secret message",
+				"Failed to post random secret message",
 				"channel_id", channel.Id,
 				"user_id", user.Id,
 				"error", err.Error(),
@@ -181,20 +189,28 @@ func (p *Plugin) MessageHasBeenUpdated(c *plugin.Context, newPost, oldPost *mode
 
 	user, err := p.API.GetUser(newPost.UserId)
 	if err != nil {
-		p.API.LogError("failed to query user", "user_id", newPost.UserId)
+		p.API.LogError(
+			"Failed to query user",
+			"user_id", newPost.UserId,
+			"error", err.Error(),
+		)
 		return
 	}
 
 	channel, err := p.API.GetChannel(newPost.ChannelId)
 	if err != nil {
-		p.API.LogError("failed to query channel", "channel_id", newPost.ChannelId)
+		p.API.LogError(
+			"Failed to query channel",
+			"channel_id", newPost.ChannelId,
+			"error", err.Error(),
+		)
 		return
 	}
 
 	msg := fmt.Sprintf("MessageHasBeenUpdated: @%s, ~%s", user.Username, channel.Name)
 	if err := p.postPluginMessage(channel.TeamId, msg); err != nil {
 		p.API.LogError(
-			"failed to post MessageHasBeenUpdated message",
+			"Failed to post MessageHasBeenUpdated message",
 			"channel_id", channel.Id,
 			"user_id", user.Id,
 			"error", err.Error(),
@@ -208,7 +224,7 @@ func (p *Plugin) MessageHasBeenUpdated(c *plugin.Context, newPost, oldPost *mode
 		)
 		if err := p.postPluginMessage(channel.TeamId, msg); err != nil {
 			p.API.LogError(
-				"failed to post random secret message",
+				"Failed to post random secret message",
 				"channel_id", channel.Id,
 				"user_id", user.Id,
 				"error", err.Error(),

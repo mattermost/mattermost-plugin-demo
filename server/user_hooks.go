@@ -21,7 +21,7 @@ func (p *Plugin) UserHasBeenCreated(c *plugin.Context, user *model.User) {
 	teams, err := p.API.GetTeams()
 	if err != nil {
 		p.API.LogError(
-			"failed to query teams UserHasBeenCreated",
+			"Failed to query teams UserHasBeenCreated",
 			"error", err.Error(),
 		)
 		return
@@ -31,7 +31,7 @@ func (p *Plugin) UserHasBeenCreated(c *plugin.Context, user *model.User) {
 		msg := fmt.Sprintf("User_ID @%s has been created in", user.Id)
 		if err := p.postPluginMessage(team.Id, msg); err != nil {
 			p.API.LogError(
-				"failed to post UserHasBeenCreated message",
+				"Failed to post UserHasBeenCreated message",
 				"channel_id", configuration.demoChannelIDs[team.Id],
 				"error", err.Error(),
 			)

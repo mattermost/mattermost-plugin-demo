@@ -6,7 +6,10 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 )
 
-func (p *Plugin) postPluginMessage(id, msg string) *model.AppError {
+// Helper method for the demo plugin. Posts a message to the "demo" channel
+// for the team specified. If the teamID specified is empty, the method
+// will post the message to the "demo" channel for each team.
+func (p *Plugin) postPluginMessage(teamID, msg string) *model.AppError {
 	configuration := p.getConfiguration()
 
 	if configuration.disabled {
@@ -18,11 +21,25 @@ func (p *Plugin) postPluginMessage(id, msg string) *model.AppError {
 	}
 	msg = fmt.Sprintf("%s%s%s", configuration.TextStyle, msg, configuration.TextStyle)
 
-	_, err := p.API.CreatePost(&model.Post{
-		UserId:    p.botID,
-		ChannelId: configuration.demoChannelIDs[id],
-		Message:   msg,
-	})
+	if teamID != "" {
+		_, err := p.API.CreatePost(&model.Post{
+			UserId:    p.botID,
+			ChannelId: configuration.demoChannelIDs[teamID],
+			Message:   msg,
+		})
+		return err
+	}
 
-	return err
+	for _, channelID := range configuration.demoChannelIDs {
+		_, err := p.API.CreatePost(&model.Post{
+			UserId:    p.botID,
+			ChannelId: channelID,
+			Message:   msg,
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
