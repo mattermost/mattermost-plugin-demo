@@ -74,6 +74,9 @@ The `/list_files` command demonstrates the usage of the file search API.
 
 The `/show_mentions` command demonstrates the access to the users and channels mentions found in the command text.
 
+The `/preferences` command demonstrates the access to the users preferences.
+Use `/preferences help` for its usage in this demo plugin.
+
 ## [http_hooks.go](http_hooks.go)
 
 ### ServeHTTP
