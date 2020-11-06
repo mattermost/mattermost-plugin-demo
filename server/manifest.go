@@ -18,7 +18,7 @@ const manifestStr = `
   "homepage_url": "https://github.com/mattermost/mattermost-plugin-demo",
   "support_url": "https://github.com/mattermost/mattermost-plugin-demo/issues",
   "icon_path": "assets/icon.svg",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "min_server_version": "5.26.0",
   "server": {
     "executables": {
