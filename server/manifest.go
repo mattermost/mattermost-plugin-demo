@@ -241,7 +241,11 @@ const manifestStr = `
       "EnableAPIChannelDeletion": null,
       "EnableLocalMode": null,
       "LocalModeSocketLocation": null,
-      "EnableAWSMetering": null
+      "EnableAWSMetering": null,
+      "SplitKey": null,
+      "FeatureFlagSyncIntervalSeconds": null,
+      "DebugSplit": null,
+      "ThreadAutoFollow": null
     },
     "TeamSettings": {
       "SiteName": null,
@@ -512,6 +516,7 @@ const manifestStr = `
       "Enable": null,
       "EnableSyncWithLdap": null,
       "EnableSyncWithLdapIncludeAuth": null,
+      "IgnoreGuestsLdapSync": null,
       "Verify": null,
       "Encrypt": null,
       "SignRequest": null,
