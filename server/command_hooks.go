@@ -787,7 +787,7 @@ func (p *Plugin) executeCommandPreferences(args *model.CommandArgs) *model.Comma
 		name = fields[2]
 		prefs, err := p.API.GetPreferencesForUser(args.UserId)
 		if err != nil {
-			p.API.LogError("Failed to get user preferences", "err", aErr.Error())
+			p.API.LogError("Failed to get user preferences", "err", err.Error())
 			return &model.CommandResponse{}
 		}
 		for _, p := range prefs {
@@ -809,7 +809,6 @@ func (p *Plugin) executeCommandPreferences(args *model.CommandArgs) *model.Comma
 				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 				Text:         "Please provide preference name and value",
 			}
-
 		}
 		name = fields[2]
 		value = fields[3]
