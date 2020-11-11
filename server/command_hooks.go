@@ -210,15 +210,15 @@ func getAutocompleteTestAutocompleteData() *model.AutocompleteData {
 func getPreferenceAutocompleteData() *model.AutocompleteData {
 	command := model.NewAutocompleteData(commandTriggerPreferences, "", "get/update/delete user preferences")
 
-	get := model.NewAutocompleteData("get", "", "Open an Interactive Dialog with no elements.")
+	get := model.NewAutocompleteData("get", "", "Get value for given preference name")
 	get.AddTextArgument("name", "Name of the preference to get info", "p([a-z]+)ch")
 	command.AddCommand(get)
 
-	update := model.NewAutocompleteData("update", "", "Open an Interactive Dialog with a relative callback url.")
+	update := model.NewAutocompleteData("update", "", "Update value of given preference name")
 	update.AddNamedTextArgument("name", "Name and Value of preference to update with pattern p([a-z]+)ch", "", "p([a-z]+)ch", false)
 	command.AddCommand(update)
 
-	delete := model.NewAutocompleteData("delete", "", "Open an Interactive Dialog with an introduction text.")
+	delete := model.NewAutocompleteData("delete", "", "Delete value for given preference name")
 	get.AddTextArgument("name", "Name of the preference to delete", "p([a-z]+)ch")
 	command.AddCommand(delete)
 
@@ -778,16 +778,15 @@ func (p *Plugin) executeCommandPreferences(args *model.CommandArgs) *model.Comma
 		}
 	case "get":
 		var name string
-		if len(fields) == 3 {
-			name = fields[2]
-		} else {
+		if len(fields) != 3 {
 			return &model.CommandResponse{
 				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 				Text:         "Please provide preference name",
 			}
 		}
-		prefs, aErr := p.API.GetPreferencesForUser(args.UserId)
-		if aErr != nil {
+		name = fields[2]
+		prefs, err := p.API.GetPreferencesForUser(args.UserId)
+		if err != nil {
 			p.API.LogError("Failed to get user preferences", "err", aErr.Error())
 			return &model.CommandResponse{}
 		}
@@ -805,21 +804,19 @@ func (p *Plugin) executeCommandPreferences(args *model.CommandArgs) *model.Comma
 		}
 	case "update":
 		var name, value string
-		if len(fields) == 4 {
-			name = fields[2]
-			value = fields[3]
-		} else {
+		if len(fields) != 4 {
 			return &model.CommandResponse{
 				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 				Text:         "Please provide preference name and value",
 			}
+
 		}
+		name = fields[2]
+		value = fields[3]
 		pref := []model.Preference{{Name: name, Value: value}}
-
-		aErr := p.API.UpdatePreferencesForUser(args.UserId, pref)
-
-		if aErr != nil {
-			p.API.LogError("Failed to update user preferences", "err", aErr.Error())
+		err := p.API.UpdatePreferencesForUser(args.UserId, pref)
+		if err != nil {
+			p.API.LogError("Failed to update user preferences", "err", err.Error())
 			return &model.CommandResponse{}
 		}
 		return &model.CommandResponse{
@@ -828,18 +825,17 @@ func (p *Plugin) executeCommandPreferences(args *model.CommandArgs) *model.Comma
 		}
 	case "delete":
 		var name string
-		if len(fields) == 3 {
-			name = fields[2]
-		} else {
+		if len(fields) != 3 {
 			return &model.CommandResponse{
 				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 				Text:         "Please provide preference name",
 			}
 		}
+		name = fields[2]
 		pref := []model.Preference{{Name: name}}
-		aErr := p.API.DeletePreferencesForUser(args.UserId, pref)
-		if aErr != nil {
-			p.API.LogError("Failed to delete user preferences", "err", aErr.Error())
+		err := p.API.DeletePreferencesForUser(args.UserId, pref)
+		if err != nil {
+			p.API.LogError("Failed to delete user preferences", "err", err.Error())
 			return &model.CommandResponse{}
 		}
 		return &model.CommandResponse{
