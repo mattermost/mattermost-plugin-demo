@@ -14,6 +14,7 @@ export default class LinkTooltip extends React.PureComponent {
 
         return (
             <div
+                data-testid='tooltipMessage'
                 style={parentDivStyles}
             >
                 <i

@@ -16,7 +16,7 @@ import * as TIMEOUTS from '../fixtures/timeouts';
 describe('Integrations', () => {
     const pluginIdDemo = 'com.mattermost.demo-plugin';
 
-    before(() => {
+    beforeEach(() => {
         // # Initialize setup and visit town-square
 
         // * Verify that the server is licensed, needed for all plugin features
@@ -41,7 +41,7 @@ describe('Integrations', () => {
         // cy.apiRemovePluginById(pluginIdDemo);
     });
 
-    it('PASSES - MM-T2405 allow plugin to dismiss post', () => {
+    it('MM-T2405 allow plugin to dismiss post', () => {
         // # at-mention the demo plugin user
         cy.get('#post_textbox').clear().type('@demo_plugin hello {enter}');
 
@@ -52,7 +52,7 @@ describe('Integrations', () => {
         cy.findByText('Shh! You must not talk about the demo plugin user.').should('be.visible');
     });
 
-    it('PASSES - MM-T2404 crash and restart', () => {
+    it.only('MM-T2404 crash and restart', () => {
         // # Post crash slash command
         cy.get('#post_textbox').clear().type('/crash {enter}');
 
@@ -69,7 +69,7 @@ describe('Integrations', () => {
         cy.wait(TIMEOUTS.HALF_MIN);
 
         // # @mention the demo plugin user
-        cy.get('#post_textbox').clear().type('@demo_plugin hellow {enter}');
+        cy.get('#post_textbox').clear().type('@demo_plugin hello {enter}');
 
         // * Confirm plugin is responsive again. Verify ephemeral message is posted
         cy.findByText('Shh! You must not talk about the demo plugin user.').should('be.visible');
@@ -110,18 +110,11 @@ describe('Integrations', () => {
             trigger('mouseover');
         });
 
-        cy.findByText('BROKEN - cannot find text below').should('be.visible')
-        cy.findByText('This is a custom tooltip').should('be.visible')
-        // cy.get('div.span').should('be.visible').and('contain', 'This is a ');
-
-
-        // // * Verify item is sent and is (only visible to you)
-        // cy.getLastPostId().then((postId) => {
-        //     cy.get(`#post_${postId}`).contains('Executed command: /autocomplete_test optional-arg');
-        // });
+        cy.get('[data-testid=tooltipMessage]').should('be.visible').
+          should('contain.text', 'This is a custom tooltip from the Demo Plugin')
     });
 
-    it('PASSES -- MM-T3426 Hashtags still work with demo plugin enabled', () => {
+    it('MM-T3426 Hashtags still work with demo plugin enabled', () => {
         // # Post a hashtag
         cy.get('#post_textbox').clear().type('#pickles {enter}');
 
