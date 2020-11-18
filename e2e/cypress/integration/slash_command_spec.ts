@@ -121,24 +121,21 @@ describe('Integrations', () => {
         // });
     });
 
-    it.only('MM-T3426 Hashtags still work with demo plugin enabled', () => {
-        // # Post a
+    it('PASSES -- MM-T3426 Hashtags still work with demo plugin enabled', () => {
+        // # Post a hashtag
         cy.get('#post_textbox').clear().type('#pickles {enter}');
 
-        let postID1
-        // * Verify suggestion list is visible with 11 children
         cy.getLastPostId().then((postId: string) => {
-          postID1 = postId
+
+          // # click hashtag in from the last post
           cy.get(`#postMessageText_${postId}`).
             find('.mention-link').
             click();
-        });
 
-        // cy.get('#search-items-container').should('be.visible').within(() => {
-            cy.get(`#searchResult_${postID1}`).
-                should('contain.text', '#pickles')
-        // });
-
+          // * verify post exists in the RHS
+          cy.get(`#searchResult_${postId}`).
+              should('contain.text', '#pickles')
+          });
     });
 });
 
