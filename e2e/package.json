@@ -1,0 +1,28 @@
+{
+  "devDependencies": {
+    "@testing-library/cypress": "6.0.0",
+    "@types/node": "^14.0.27",
+    "@typescript-eslint/eslint-plugin": "3.7.1",
+    "@typescript-eslint/parser": "3.7.1",
+    "babel-eslint": "10.1.0",
+    "cypress": "4.11.0",
+    "cypress-wait-until": "1.7.1",
+    "eslint": "7.5.0",
+    "eslint-plugin-cypress": "2.11.1",
+    "eslint-plugin-header": "3.0.0",
+    "eslint-plugin-import": "2.22.0",
+    "eslint-plugin-mattermost": "github:mattermost/eslint-plugin-mattermost#070ce792d105482ffb2b27cfc0b7e78b3d20acee",
+    "eslint-plugin-react": "7.20.5",
+    "typescript": "3.9.7"
+  },
+  "dependencies": {
+    "mattermost-redux": "github:mattermost/mattermost-redux#9de41da87ccf66b8f7a634c81e012d433f7af304"
+  },
+  "scripts": {
+    "check": "eslint --ext .js --ext .ts . --quiet --cache",
+    "fix": "eslint --ext .js --ext .ts . --quiet --fix --cache",
+    "cypress:open": "cypress open",
+    "test": "cypress run",
+    "ts": "tsc --project cypress/tsconfig.json --noEmit"
+  }
+}
