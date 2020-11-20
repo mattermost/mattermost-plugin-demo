@@ -19,18 +19,6 @@ declare namespace Cypress {
     interface Chainable<Subject = any> {
 
         /**
-         * Get plugins.
-         * See https://api.mattermost.com/#tag/plugins/paths/~1plugins/get
-         * @returns {PluginsResponse} `out.plugins` as `PluginsResponse`
-         *
-         * @example
-         *   cy.apiGetAllPlugins().then(({plugins}) => {
-         *       // do something with plugins
-         *   });
-         */
-        apiGetAllPlugins(): Chainable<PluginsResponse>;
-
-        /**
          * Upload plugin.
          * See https://api.mattermost.com/#tag/plugins/paths/~1plugins/post
          * @param {string} filename - name of the plugin to upload
@@ -40,20 +28,6 @@ declare namespace Cypress {
          *   cy.apiUploadPlugin('filename');
          */
         apiUploadPlugin(filename: string): Chainable<Response>;
-
-        /**
-         * Install plugin from url.
-         * See https://api.mattermost.com/#tag/plugins/paths/~1plugins~1install_from_url/post
-         * @param {string} pluginDownloadUrl - URL used to download the plugin
-         * @param {string} force - Set to 'true' to overwrite a previously installed plugin with the same ID, if any
-         * @returns {PluginManifest} `out.plugin` as `PluginManifest`
-         *
-         * @example
-         *   cy.apiInstallPluginFromUrl('url', 'true').then(({plugin}) => {
-         *       // do something with plugin
-         *   });
-         */
-        apiInstallPluginFromUrl(pluginDownloadUrl: string, force: string): Chainable<PluginManifest>;
 
         /**
          * Enable plugin.
