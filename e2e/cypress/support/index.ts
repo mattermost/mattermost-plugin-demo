@@ -4,6 +4,4 @@
 import 'cypress-wait-until';
 import './server_api_commands.ts';
 import './ui_commands.ts';
-import './verification_commands.ts';
-import './navigation_commands.ts';
 import './api/index.js';
