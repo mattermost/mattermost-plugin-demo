@@ -4,10 +4,10 @@
 // import './brand';
 // import './bots';
 // import './channel';
-// import './common';
+import './common';
 // import './ldap';
 // import './preference';
-// import './plugin';
+import './plugin';
 // import './role';
 // import './saml';
 // import './scheme';
