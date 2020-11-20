@@ -3,4 +3,3 @@
 
 import './common';
 import './plugin';
-import './team';
