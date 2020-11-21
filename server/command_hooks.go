@@ -766,7 +766,7 @@ func (p *Plugin) executeAutocompleteTest(args *model.CommandArgs) *model.Command
 func (p *Plugin) executeCommandPreferences(args *model.CommandArgs) *model.CommandResponse {
 	fields := strings.Fields(args.Command)
 	command := ""
-	if len(fields) == 2 {
+	if len(fields) >= 2 {
 		command = fields[1]
 	}
 
