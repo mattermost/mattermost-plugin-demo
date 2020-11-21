@@ -42,7 +42,7 @@ const (
 	commandPreferencesHelp = "###### Preferences Slash Command Help\n" +
 		"- `/preferences get <name>` - Get value of given preference name.\n" +
 		"- `/preferences update <name> <value>` - Update given value for given preference name.\n" +
-		"- `/preferences delete <name> - Delete value of given preference name.\n" +
+		"- `/preferences delete <name>` - Delete value of given preference name.\n" +
 		"- `/preferences help` - Show this help text"
 
 	help = "help"
