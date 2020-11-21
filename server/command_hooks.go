@@ -786,8 +786,12 @@ func (p *Plugin) executeCommandPreferences(args *model.CommandArgs) *model.Comma
 		}
 		prefs, err := p.API.GetPreferencesForUser(args.UserId)
 		if err != nil {
+			errorMessage := "Failed to get user preferences"
 			p.API.LogError("Failed to get user preferences", "err", err.Error())
-			return &model.CommandResponse{}
+			return &model.CommandResponse{
+				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+				Text:         errorMessage,
+			}
 		}
 		for _, p := range prefs {
 			if p.Name == fields[2] {
@@ -812,8 +816,12 @@ func (p *Plugin) executeCommandPreferences(args *model.CommandArgs) *model.Comma
 		pref := []model.Preference{{Name: fields[2], Value: fields[3]}}
 		err := p.API.UpdatePreferencesForUser(args.UserId, pref)
 		if err != nil {
+			errorMessage := fmt.Sprintf("Failed to update user preference %s with value %s", fields[2], fields[3])
 			p.API.LogError("Failed to update user preferences", "err", err.Error())
-			return &model.CommandResponse{}
+			return &model.CommandResponse{
+				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+				Text:         errorMessage,
+			}
 		}
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
@@ -830,8 +838,12 @@ func (p *Plugin) executeCommandPreferences(args *model.CommandArgs) *model.Comma
 		pref := []model.Preference{{Name: fields[2]}}
 		err := p.API.DeletePreferencesForUser(args.UserId, pref)
 		if err != nil {
+			errorMessage := "Failed to delete user preference: " + fields[2]
 			p.API.LogError("Failed to delete user preferences", "err", err.Error())
-			return &model.CommandResponse{}
+			return &model.CommandResponse{
+				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+				Text:         errorMessage,
+			}
 		}
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
