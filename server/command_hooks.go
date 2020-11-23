@@ -777,7 +777,6 @@ func (p *Plugin) executeCommandPreferences(args *model.CommandArgs) *model.Comma
 			Text:         commandPreferencesHelp,
 		}
 	case "get":
-		var name string
 		if len(fields) != 3 {
 			return &model.CommandResponse{
 				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
@@ -803,10 +802,9 @@ func (p *Plugin) executeCommandPreferences(args *model.CommandArgs) *model.Comma
 		}
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			Text:         fmt.Sprintf("Did not find preference with name `%v`\n", name),
+			Text:         fmt.Sprintf("Did not find preference with name `%v`\n", fields[2]),
 		}
 	case "update":
-		var name, value string
 		if len(fields) != 4 {
 			return &model.CommandResponse{
 				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
@@ -825,10 +823,9 @@ func (p *Plugin) executeCommandPreferences(args *model.CommandArgs) *model.Comma
 		}
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			Text:         fmt.Sprintf("Updated preference `%v`:`%v`\n", name, value),
+			Text:         fmt.Sprintf("Updated preference `%v`:`%v`\n", fields[2], fields[3]),
 		}
 	case "delete":
-		var name string
 		if len(fields) != 3 {
 			return &model.CommandResponse{
 				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
@@ -847,7 +844,7 @@ func (p *Plugin) executeCommandPreferences(args *model.CommandArgs) *model.Comma
 		}
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
-			Text:         fmt.Sprintf("Deleted preference with name `%v`\n", name),
+			Text:         fmt.Sprintf("Deleted preference with name `%v`\n", fields[2]),
 		}
 	default:
 		return &model.CommandResponse{
