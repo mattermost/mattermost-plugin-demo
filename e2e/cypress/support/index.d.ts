@@ -34,6 +34,16 @@ declare namespace Cypress {
         apiLogin(username?: string, password?: string | null): Chainable<Response>;
 
         /**
+         * Logout a user's active session from server via API.
+         * See https://api.mattermost.com/#tag/users/paths/~1users~1logout/post
+         * Clears all cookies espececially `MMAUTHTOKEN`, `MMUSERID` and `MMCSRF`.
+         *
+         * @example
+         *   cy.apiLogout();
+         */
+        apiLogout(): Chainable<Response>;
+
+        /**
          * Identify the last post in the current channel and find its ID.
          * @return the ID of the last post in the current channel.
         */
@@ -44,5 +54,19 @@ declare namespace Cypress {
          * @return the ID of the last post in the current channel.
         */
         toAccountSettingsModal(): Chainable<string>;
+
+        /**
+         * Identify the last post in the current channel and find its ID.
+         * @return the ID of the last post in the current channel.
+        */
+        postMessage(message: string | null): Chainable<string>;
+
+        /**
+         * Click dot menu by post ID or to most recent post (if post ID is not provided)
+         * @param {String} postId - Post ID
+         * @param {String} location - as 'CENTER', 'RHS_ROOT', 'RHS_COMMENT', 'SEARCH'
+         */
+        clickPostDotMenu(postId: string): Chainable<string>;
+
     }
 }

@@ -19,3 +19,28 @@ function apiLogin(username = 'user-1', password : string | null = null) : Cypres
     });
 }
 Cypress.Commands.add('apiLogin', apiLogin);
+
+Cypress.Commands.add('apiLogout', () => {
+    cy.request({
+        headers: {'X-Requested-With': 'XMLHttpRequest'},
+        url: '/api/v4/users/logout',
+        method: 'POST',
+        log: false,
+    });
+
+    // * Verify logged out
+    cy.visit('/login?extra=expired').url().should('include', '/login');
+
+    // # Ensure we clear out these specific cookies
+    ['MMAUTHTOKEN', 'MMUSERID', 'MMCSRF'].forEach((cookie) => {
+        cy.clearCookie(cookie);
+    });
+
+    // # Clear remainder of cookies
+    cy.clearCookies();
+
+    // * Verify cookies are empty
+    cy.getCookies({log: false}).should('be.empty');
+});
+
+

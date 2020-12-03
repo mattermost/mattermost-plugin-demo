@@ -26,7 +26,9 @@ const Root = ({visible, close, theme, subMenu}) => {
             style={style.backdrop}
             onClick={close}
         >
-            <div style={style.modal}>
+            <div style={style.modal}
+                data-testid='rootModalMessage'
+            >
                 <FormattedMessage
                     id='root.triggered'
                     defaultMessage='You have triggered the root component of the demo plugin.'
