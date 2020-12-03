@@ -43,7 +43,6 @@ describe('Integrations', () => {
           cy.get(`#post_${postId}`).
             findByText('www.test.com').
             trigger('mouseover');
-          // cy.pause()
         });
 
         cy.get('[data-testid=tooltipMessage]').should('be.visible').
