@@ -35,8 +35,29 @@ describe('Integrations', () => {
         cy.apiRemovePluginById(pluginIdDemo, "");
     });
 
-    it.skip('MM-T2403 theme', () => {
-      // TBD
+    it('MM-T2403 theme', () => {
+      // # change theme to mattermost dark
+      navigateToThemeSettings()
+
+      // * Verify icon color is white
+      cy.get('.team-sidebar-bottom-plugin').find('.fa-plug').should('have.css', 'color', 'rgb(255, 255, 255)')
     });
 });
+
+
+function navigateToThemeSettings() {
+    // # Change theme to desired theme (keeps settings modal open)
+    cy.toAccountSettingsModal();
+    cy.get('#displayButton').click();
+    cy.get('#displaySettingsTitle').should('exist');
+
+    // # Open edit theme
+    cy.get('#themeTitle').should('be.visible');
+    cy.get('#themeEdit').click();
+
+    // # Click on the image
+    cy.findByAltText('premade theme mattermostDark').click();
+    cy.get('[data-testid="saveSetting"]').click();
+    cy.get('#accountSettingsHeader').find('.close').click();
+}
 

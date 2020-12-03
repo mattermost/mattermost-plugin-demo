@@ -38,5 +38,11 @@ declare namespace Cypress {
          * @return the ID of the last post in the current channel.
         */
         getLastPostId(): Chainable<string>;
+
+        /**
+         * Identify the last post in the current channel and find its ID.
+         * @return the ID of the last post in the current channel.
+        */
+        toAccountSettingsModal(): Chainable<string>;
     }
 }
