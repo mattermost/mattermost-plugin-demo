@@ -46,6 +46,16 @@ Cypress.Commands.add('uiClickPostDropdownMenu', (postId, menuItem, location = 'C
 });
 
 /**
+ * Click comment icon by post ID or to most recent post (if post ID is not provided)
+ * This open up the RHS
+ * @param {String} postId - Post ID
+ * @param {String} location - as 'CENTER', 'SEARCH'
+ */
+Cypress.Commands.add('clickPostCommentIcon', (postId, location = 'CENTER') => {
+    clickPostHeaderItem(postId, location, 'commentIcon');
+});
+
+/**
  * Click dot menu by post ID or to most recent post (if post ID is not provided)
  * @param {String} postId - Post ID
  * @param {String} location - as 'CENTER', 'RHS_ROOT', 'RHS_COMMENT', 'SEARCH'

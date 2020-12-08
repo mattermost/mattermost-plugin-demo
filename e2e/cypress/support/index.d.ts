@@ -68,5 +68,12 @@ declare namespace Cypress {
          */
         clickPostDotMenu(postId: string): Chainable<string>;
 
+        /**
+         * Click comment icon by post ID or to most recent post (if post ID is not provided)
+         * This open up the RHS
+         * @param {String} postId - Post ID
+         * @param {String} location - as 'CENTER', 'SEARCH'
+         */
+        clickPostCommentIcon(postId: string): Chainable<string>;
     }
 }
