@@ -26,7 +26,8 @@ const Root = ({visible, close, theme, subMenu}) => {
             style={style.backdrop}
             onClick={close}
         >
-            <div style={style.modal}
+            <div
+                style={style.modal}
                 data-testid='rootModalMessage'
             >
                 <FormattedMessage
