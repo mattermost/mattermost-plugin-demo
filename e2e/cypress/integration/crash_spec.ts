@@ -46,6 +46,9 @@ describe('Integrations', () => {
         // * Verify ephemeral post confirming plugin crashes
         cy.get('#postListContent').should('contain.text', 'Crashing plugin');
 
+        // # wait a few seconds for plugin to re-enable
+        cy.wait(TIMEOUTS.TWO_SEC);
+
         // # Post crash slash command
         cy.get('#post_textbox').clear().type('/demo_plugin true {enter}');
 
