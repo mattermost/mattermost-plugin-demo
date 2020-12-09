@@ -19,7 +19,7 @@ const manifestStr = `
   "support_url": "https://github.com/mattermost/mattermost-plugin-demo/issues",
   "icon_path": "assets/icon.svg",
   "version": "0.9.0",
-  "min_server_version": "5.26.0",
+  "min_server_version": "5.30.0",
   "server": {
     "executables": {
       "linux-amd64": "server/dist/plugin-linux-amd64",
@@ -241,7 +241,11 @@ const manifestStr = `
       "EnableAPIChannelDeletion": null,
       "EnableLocalMode": null,
       "LocalModeSocketLocation": null,
-      "EnableAWSMetering": null
+      "EnableAWSMetering": null,
+      "SplitKey": null,
+      "FeatureFlagSyncIntervalSeconds": null,
+      "DebugSplit": null,
+      "ThreadAutoFollow": null
     },
     "TeamSettings": {
       "SiteName": null,
@@ -512,6 +516,7 @@ const manifestStr = `
       "Enable": null,
       "EnableSyncWithLdap": null,
       "EnableSyncWithLdapIncludeAuth": null,
+      "IgnoreGuestsLdapSync": null,
       "Verify": null,
       "Encrypt": null,
       "SignRequest": null,
