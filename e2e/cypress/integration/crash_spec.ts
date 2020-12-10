@@ -8,8 +8,6 @@
 // - Use element ID when selecting an element. Create one if none.
 // ***************************************************************
 
-import '@testing-library/cypress/add-commands';
-
 import {TIMEOUTS} from '../support/constants';
 
 /**
