@@ -18,7 +18,7 @@ import {TIMEOUTS} from '../support/constants';
  * make dist latest master and copy to ./e2e/cypress/fixtures/com.mattermost.demo-plugin-0.9.0.tar.gz
  */
 
-describe('Integrations', () => {
+describe('Crash', () => {
 
     const pluginIdDemo = 'com.mattermost.demo-plugin'
     const demoFile = 'com.mattermost.demo-plugin-0.9.0.tar.gz';
