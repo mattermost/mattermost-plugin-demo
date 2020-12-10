@@ -28,7 +28,7 @@ declare namespace Cypress {
          * @param {Number} options.successStatus - HTTP status code
          *
          * @example
-         *   cy.apiUploadFile('certificate', filePath, {url: '/api/v4/saml/certificate/public', method: 'POST', successStatus: 200});
+         *   cy.apiUploadFile('plugin', filePath, {url: '/api/v4/plugins', method: 'POST', successStatus: 201});
          */
         apiUploadFile(name: string, filePath: string, options: Record<string, unknown>): Chainable<Response>;
     }

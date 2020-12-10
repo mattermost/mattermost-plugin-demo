@@ -64,6 +64,4 @@ describe('Integrations', () => {
         // * Confirm plugin is responsive again. Verify ephemeral message is posted
         cy.findByText('Shh! You must not talk about the demo plugin user.').should('be.visible');
     });
-
 });
-

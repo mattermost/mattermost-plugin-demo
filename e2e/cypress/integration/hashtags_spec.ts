@@ -35,7 +35,7 @@ describe('Integrations', () => {
         cy.apiRemovePluginById(pluginIdDemo, "");
     });
 
-    it.only('MM-T3426 Hashtags still work with demo plugin enabled', () => {
+    it('MM-T3426 Hashtags still work with demo plugin enabled', () => {
         // # Post a hashtag
         cy.get('#post_textbox').clear().type('#pickles {enter}');
 

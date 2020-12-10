@@ -13,22 +13,18 @@ declare namespace Cypress {
     type AdminConfig = import('mattermost-redux/types/config').AdminConfig;
     type PreferenceType = import('mattermost-redux/types/preferences').PreferenceType;
 
-    type PartialAdminConfig = import('./server_api_commands').PartialAdminConfig;
-    type MessageDisplay = import('./server_api_commands').MessageDisplay;
-    type TeammateNameFormat = import('./server_api_commands').TeammateNameFormat;
-
     interface Chainable<Subject> {
 
         // *****************************************************************************
         //
-        // API commands (ttps://api.mattermost.com/)
+        // API commands (https://api.mattermost.com/)
         //
         // *****************************************************************************
 
         /**
          * User login directly via API.
          * @param {String} username - the username of the user.
-         * @param {String} password - the password of the uesr.
+         * @param {String} password - the password of the user.
          * @return The Response returned by the API call.
         */
         apiLogin(username?: string, password?: string | null): Chainable<Response>;

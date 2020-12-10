@@ -35,7 +35,7 @@ describe('Integrations', () => {
         cy.apiRemovePluginById(pluginIdDemo, "");
     });
 
-    it.only('MM-T3422 Demo plugin can draw a tooltip', () => {
+    it('MM-T3422 Demo plugin can draw a tooltip', () => {
         // # Post a slash command that omits the optional argument
         cy.get('#post_textbox').clear().type('www.test.com {enter}');
 
@@ -45,7 +45,7 @@ describe('Integrations', () => {
             trigger('mouseover');
         });
 
-        cy.get('[data-testid=tooltipMessage]').should('be.visible').
+        cy.findByTestId('tooltipMessage').should('be.visible').
           should('contain.text', 'This is a custom tooltip from the Demo Plugin')
     });
 });
