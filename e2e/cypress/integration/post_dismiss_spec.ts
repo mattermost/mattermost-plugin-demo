@@ -17,22 +17,21 @@ import '@testing-library/cypress/add-commands';
  */
 
 describe('Posts', () => {
-
-    const pluginIdDemo = 'com.mattermost.demo-plugin'
+    const pluginIdDemo = 'com.mattermost.demo-plugin';
     const demoFile = 'com.mattermost.demo-plugin-0.9.0.tar.gz';
 
     before(() => {
-        cy.apiLogin('sysadmin')
+        cy.apiLogin('sysadmin');
         cy.visit('/');
 
-        cy.apiRemovePluginById(pluginIdDemo, "");
+        cy.apiRemovePluginById(pluginIdDemo, '');
 
         cy.apiUploadPlugin(demoFile);
         cy.apiEnablePluginById(pluginIdDemo);
     });
 
     after(() => {
-        cy.apiRemovePluginById(pluginIdDemo, "");
+        cy.apiRemovePluginById(pluginIdDemo, '');
     });
 
     it('MM-T2405 allow plugin to dismiss post', () => {

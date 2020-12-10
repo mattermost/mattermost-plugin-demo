@@ -3,7 +3,7 @@
 
 /// <reference types="cypress" />
 
-import {HTTP}  from '../constants';
+import {HTTP} from '../constants';
 
 // ***************************************************************
 // Each command should be properly documented using JSDoc.

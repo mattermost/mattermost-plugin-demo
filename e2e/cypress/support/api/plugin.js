@@ -1,7 +1,7 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import {HTTP, TIMEOUTS}  from '../constants';
+import {HTTP, TIMEOUTS} from '../constants';
 
 // *****************************************************************************
 // Plugins
@@ -9,7 +9,6 @@ import {HTTP, TIMEOUTS}  from '../constants';
 // *****************************************************************************
 
 Cypress.Commands.add('apiUploadPlugin', (filename) => {
-
     return cy.apiUploadFile('plugin', filename, {url: '/api/v4/plugins', method: 'POST', successStatus: HTTP.StatusCreated});
 });
 

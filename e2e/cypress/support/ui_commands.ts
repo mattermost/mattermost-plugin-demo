@@ -9,7 +9,7 @@ function getLastPostId() : Cypress.Chainable<string> {
     cy.waitUntil(() =>
         cy.findAllByTestId('postView').
             last().
-            then((el) => !(el[0].id.includes(':')))
+            then((el) => !(el[0].id.includes(':'))),
     );
 
     // # Get the last post and return its ID.
@@ -29,5 +29,4 @@ Cypress.Commands.add('toAccountSettingsModal', () => {
     cy.get('#accountSettings').should('be.visible').click();
     cy.get('#accountSettingsModal').should('be.visible');
 });
-
 

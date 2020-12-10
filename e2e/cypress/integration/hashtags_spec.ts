@@ -17,22 +17,21 @@ import '@testing-library/cypress/add-commands';
  */
 
 describe('Hashtags', () => {
-
-    const pluginIdDemo = 'com.mattermost.demo-plugin'
+    const pluginIdDemo = 'com.mattermost.demo-plugin';
     const demoFile = 'com.mattermost.demo-plugin-0.9.0.tar.gz';
 
     before(() => {
-        cy.apiLogin('sysadmin')
+        cy.apiLogin('sysadmin');
         cy.visit('/');
 
-        cy.apiRemovePluginById(pluginIdDemo, "");
+        cy.apiRemovePluginById(pluginIdDemo, '');
 
         cy.apiUploadPlugin(demoFile);
         cy.apiEnablePluginById(pluginIdDemo);
     });
 
     after(() => {
-        cy.apiRemovePluginById(pluginIdDemo, "");
+        cy.apiRemovePluginById(pluginIdDemo, '');
     });
 
     it('MM-T3426 Hashtags still work with demo plugin enabled', () => {
@@ -40,16 +39,15 @@ describe('Hashtags', () => {
         cy.get('#post_textbox').clear().type('#pickles {enter}');
 
         cy.getLastPostId().then((postId: string) => {
+            // # click hashtag in from the last post
+            cy.get(`#postMessageText_${postId}`).
+                find('.mention-link').
+                click();
 
-          // # click hashtag in from the last post
-          cy.get(`#postMessageText_${postId}`).
-            find('.mention-link').
-            click();
-
-          // * verify post exists in the RHS
-          cy.get(`#searchResult_${postId}`).
-              should('contain.text', '#pickles')
-          });
+            // * verify post exists in the RHS
+            cy.get(`#searchResult_${postId}`).
+                should('contain.text', '#pickles');
+        });
     });
 });
 

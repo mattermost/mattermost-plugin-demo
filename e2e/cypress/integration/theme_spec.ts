@@ -17,33 +17,31 @@ import '@testing-library/cypress/add-commands';
  */
 
 describe('Themes', () => {
-
-    const pluginIdDemo = 'com.mattermost.demo-plugin'
+    const pluginIdDemo = 'com.mattermost.demo-plugin';
     const demoFile = 'com.mattermost.demo-plugin-0.9.0.tar.gz';
 
     before(() => {
-        cy.apiLogin('sysadmin')
+        cy.apiLogin('sysadmin');
         cy.visit('/');
 
-        cy.apiRemovePluginById(pluginIdDemo, "");
+        cy.apiRemovePluginById(pluginIdDemo, '');
 
         cy.apiUploadPlugin(demoFile);
         cy.apiEnablePluginById(pluginIdDemo);
     });
 
     after(() => {
-        cy.apiRemovePluginById(pluginIdDemo, "");
+        cy.apiRemovePluginById(pluginIdDemo, '');
     });
 
     it('MM-T2403 theme', () => {
-      // # change theme to mattermost dark
-      navigateToThemeSettings()
+        // # change theme to mattermost dark
+        navigateToThemeSettings();
 
-      // * Verify icon color is white
-      cy.get('.team-sidebar-bottom-plugin').find('.fa-plug').should('have.css', 'color', 'rgb(255, 255, 255)')
+        // * Verify icon color is white
+        cy.get('.team-sidebar-bottom-plugin').find('.fa-plug').should('have.css', 'color', 'rgb(255, 255, 255)');
     });
 });
-
 
 function navigateToThemeSettings() {
     // # Change theme to desired theme (keeps settings modal open)

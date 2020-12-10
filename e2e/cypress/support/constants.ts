@@ -4,15 +4,14 @@
 export const HTTP = {
     StatusOk: 200,
     StatusCreated: 201,
-    StatusNotFound: 404
-}
+    StatusNotFound: 404,
+};
 
 const MILLISECONDS_PER_SECOND = 1000;
 const SECONDS_PER_MINUTE = 60;
 
 const SECOND = MILLISECONDS_PER_SECOND;
 const MINUTE = SECOND * SECONDS_PER_MINUTE;
-
 
 export const TIMEOUTS = {
     ONE_HUNDRED_MILLIS: 100,
@@ -31,12 +30,12 @@ export const TIMEOUTS = {
     FIVE_MIN: MINUTE * 5,
     TEN_MIN: MINUTE * 10,
     TWENTY_MIN: MINUTE * 20,
-}
+};
 
 export const Constants = {
     HTTP,
     TIMEOUTS,
-}
+};
 
-export default Constants
+export default Constants;
 

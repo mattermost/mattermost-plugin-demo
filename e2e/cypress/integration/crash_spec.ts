@@ -19,25 +19,23 @@ import {TIMEOUTS} from '../support/constants';
  */
 
 describe('Crash', () => {
-
-    const pluginIdDemo = 'com.mattermost.demo-plugin'
+    const pluginIdDemo = 'com.mattermost.demo-plugin';
     const demoFile = 'com.mattermost.demo-plugin-0.9.0.tar.gz';
 
     before(() => {
         // # Login as sysadmin
-        cy.apiLogin('sysadmin')
+        cy.apiLogin('sysadmin');
         cy.visit('/');
 
-        cy.apiRemovePluginById(pluginIdDemo, "");
+        cy.apiRemovePluginById(pluginIdDemo, '');
 
         cy.apiUploadPlugin(demoFile);
         cy.apiEnablePluginById(pluginIdDemo);
     });
 
     after(() => {
-        cy.apiRemovePluginById(pluginIdDemo, "");
+        cy.apiRemovePluginById(pluginIdDemo, '');
     });
-
 
     it('MM-T2404 crash and restart', () => {
         // # Post crash slash command
