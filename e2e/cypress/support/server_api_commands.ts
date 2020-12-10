@@ -2,7 +2,7 @@
 // See LICENSE.txt for license information.
 
 import users from '../fixtures/users';
-import {httpStatusOk} from '../support/constants';
+import {HTTP} from '../support/constants';
 
 function apiLogin(username = 'user-1', password : string | null = null) : Cypress.Chainable<Cypress.Response> {
     return cy.request({
@@ -14,7 +14,7 @@ function apiLogin(username = 'user-1', password : string | null = null) : Cypres
             password: password || users[username].password,
         },
     }).then((response: Cypress.Response) => {
-        expect(response.status).to.equal(httpStatusOk);
+        expect(response.status).to.equal(HTTP.StatusOk);
         return cy.wrap(response);
     });
 }
