@@ -1,14 +1,10 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-export const httpStatusOk = 200;
-export const httpStatusCreated = 201;
-export const httpStatusNotFound = 404;
-
-export const HTTPStatuses = {
-    httpStatusOk: 200,
-    httpStatusCreated: 201,
-    httpStatusNotFound: 404
+export const HTTP = {
+    StatusOk: 200,
+    StatusCreated: 201,
+    StatusNotFound: 404
 }
 
 const MILLISECONDS_PER_SECOND = 1000;
@@ -38,7 +34,7 @@ export const TIMEOUTS = {
 }
 
 export const Constants = {
-    HTTPStatuses,
+    HTTP,
     TIMEOUTS,
 }
 

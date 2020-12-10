@@ -1,7 +1,7 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import {HTTPStatuses, TIMEOUTS}  from '../constants';
+import {HTTP, TIMEOUTS}  from '../constants';
 
 // *****************************************************************************
 // Plugins
@@ -9,7 +9,8 @@ import {HTTPStatuses, TIMEOUTS}  from '../constants';
 // *****************************************************************************
 
 Cypress.Commands.add('apiUploadPlugin', (filename) => {
-    return cy.apiUploadFile('plugin', filename, {url: '/api/v4/plugins', method: 'POST', successStatus: 201});
+
+    return cy.apiUploadFile('plugin', filename, {url: '/api/v4/plugins', method: 'POST', successStatus: HTTP.StatusCreated});
 });
 
 Cypress.Commands.add('apiEnablePluginById', (pluginId) => {
@@ -20,7 +21,7 @@ Cypress.Commands.add('apiEnablePluginById', (pluginId) => {
         timeout: TIMEOUTS.ONE_MIN,
         failOnStatusCode: true,
     }).then((response) => {
-        expect(response.status).to.equal(200);
+        expect(response.status).to.equal(HTTP.StatusOk);
         return cy.wrap(response);
     });
 });
@@ -32,8 +33,8 @@ Cypress.Commands.add('apiRemovePluginById', (pluginId) => {
         method: 'DELETE',
         failOnStatusCode: false,
     }).then((response) => {
-        if (response.status !== 200 && response.status !== 404) {
-            expect(response.status).to.equal(200);
+        if (response.status !== HTTP.StatusOk && response.status !== HTTP.StatusNotFound) {
+            expect(response.status).to.equal(HTTP.StatusOk);
         }
 
         return cy.wrap(response);

@@ -3,6 +3,8 @@
 
 /// <reference types="cypress" />
 
+import {HTTP}  from '../constants';
+
 // ***************************************************************
 // Each command should be properly documented using JSDoc.
 // See https://jsdoc.app/index.html for reference.
@@ -28,7 +30,7 @@ declare namespace Cypress {
          * @param {Number} options.successStatus - HTTP status code
          *
          * @example
-         *   cy.apiUploadFile('plugin', filePath, {url: '/api/v4/plugins', method: 'POST', successStatus: 201});
+         *   cy.apiUploadFile('plugin', filePath, {url: '/api/v4/plugins', method: 'POST', successStatus: HTTP.StatusOk});
          */
         apiUploadFile(name: string, filePath: string, options: Record<string, unknown>): Chainable<Response>;
     }
