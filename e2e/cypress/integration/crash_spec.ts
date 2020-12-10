@@ -10,7 +10,7 @@
 
 import '@testing-library/cypress/add-commands';
 
-import * as TIMEOUTS from '../fixtures/timeouts';
+import {TIMEOUTS} from '../support/constants';
 
 /**
  * Note : This test requires the demo plugin tar file under fixtures folder.

@@ -1,7 +1,7 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import * as TIMEOUTS from '../../fixtures/timeouts';
+import {TIMEOUTS}  from '../constants';
 
 const path = require('path');
 
