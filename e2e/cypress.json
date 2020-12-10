@@ -1,5 +1,7 @@
 {
     "baseUrl": "http://localhost:8065",
     "defaultCommandTimeout": 20000,
-    "supportFile": "cypress/support/index.ts"
+    "supportFile": "cypress/support/index.ts",
+    "pluginID": "com.mattermost.demo-plugin",
+    "pluginFile": "com.mattermost.demo-plugin-0.9.0.tar.gz"
 }

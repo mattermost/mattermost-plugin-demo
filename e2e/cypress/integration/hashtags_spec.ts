@@ -17,21 +17,21 @@ import '@testing-library/cypress/add-commands';
  */
 
 describe('Hashtags', () => {
-    const pluginIdDemo = 'com.mattermost.demo-plugin';
-    const demoFile = 'com.mattermost.demo-plugin-0.9.0.tar.gz';
+    const pluginID = Cypress.config('pluginID');
+    const pluginFile = Cypress.config('pluginFile');
 
     before(() => {
         cy.apiLogin('sysadmin');
         cy.visit('/');
 
-        cy.apiRemovePluginById(pluginIdDemo, '');
+        cy.apiRemovePluginById(pluginID, '');
 
-        cy.apiUploadPlugin(demoFile);
-        cy.apiEnablePluginById(pluginIdDemo);
+        cy.apiUploadPlugin(pluginFile);
+        cy.apiEnablePluginById(pluginID);
     });
 
     after(() => {
-        cy.apiRemovePluginById(pluginIdDemo, '');
+        cy.apiRemovePluginById(pluginID, '');
     });
 
     it('MM-T3426 Hashtags still work with demo plugin enabled', () => {
