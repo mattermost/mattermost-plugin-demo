@@ -17,7 +17,8 @@
   "plugins": [
     "react",
     "import",
-    "cypress"
+    "cypress",
+    "no-only-tests"
   ],
   "env": {
     "browser": true,
@@ -629,7 +630,8 @@
         "exceptRange": false,
         "onlyEquality": false
       }
-    ]
+    ],
+    "no-only-tests/no-only-tests": ["error", {"focus": ["only", "skip"]}]
   },
   "overrides": [
     {
