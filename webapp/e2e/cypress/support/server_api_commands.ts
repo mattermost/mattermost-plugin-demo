@@ -4,7 +4,7 @@
 import users from '../fixtures/users';
 import {HTTP} from '../support/constants';
 
-function apiLogin(username = 'user-1', password : string | null = null) : Cypress.Chainable<Cypress.Response> {
+function apiLogin(username = 'user-1', password: string | null = null): Cypress.Chainable<Cypress.Response> {
     return cy.request({
         headers: {'X-Requested-With': 'XMLHttpRequest'},
         url: '/api/v4/users/login',

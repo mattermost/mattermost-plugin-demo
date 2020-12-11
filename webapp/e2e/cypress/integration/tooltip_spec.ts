@@ -1,6 +1,6 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
-/// <reference path="../support/index.d.ts" />
+// <reference path="../support/index.d.ts" />
 
 // ***************************************************************
 // - [#] indicates a test step (e.g. # Go to a page)
@@ -14,7 +14,7 @@
  * make dist latest master and copy to ./e2e/cypress/fixtures/com.mattermost.demo-plugin-0.9.0.tar.gz
  */
 
-describe('Posts', () => {
+describe('Tooltips', () => {
     const pluginID = Cypress.config('pluginID');
     const pluginFile = Cypress.config('pluginFile');
 
@@ -22,25 +22,28 @@ describe('Posts', () => {
         cy.apiLogin('sysadmin');
         cy.visit('/');
 
-        cy.apiRemovePluginById(pluginID, '');
-
-        cy.apiUploadPlugin(pluginFile);
-        cy.apiEnablePluginById(pluginID);
+        // cy.apiRemovePluginById(pluginID, '');
+        //
+        // cy.apiUploadPlugin(pluginFile);
+        // cy.apiEnablePluginById(pluginID);
     });
 
     after(() => {
-        cy.apiRemovePluginById(pluginID, '');
+        // cy.apiRemovePluginById(pluginID, '');
     });
 
-    it('MM-T2405 allow plugin to dismiss post', () => {
-        // # at-mention the demo plugin user
-        cy.get('#post_textbox').clear().type('@demo_plugin hello {enter}');
+    it.only('MM-T3422 Demo plugin can draw a tooltip', () => {
+        // # Post a slash command that omits the optional argument
+        cy.get('#post_textbox').clear().type('www.test.com {enter}');
 
-        // * Verify previously posted message is removed from center channel
-        cy.findByText('@demo_plugin hello').should('not.be.visible');
+        cy.getLastPostId().then((postId) => {
+            cy.get(`#post_${postId}`).
+                findByText('www.test.com').
+                trigger('mouseover');
+        });
 
-        // * Verify ephemeral message is posted
-        cy.findByText('Shh! You must not talk about the demo plugin user.').should('be.visible');
+        // * Verify tooltip show
+        cy.findByTestId('tooltipMessage').should('contain.text', 'This is a custom tooltip from the Demo Plugin');
     });
 });
 

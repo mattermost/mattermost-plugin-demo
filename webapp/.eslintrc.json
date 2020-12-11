@@ -1,5 +1,8 @@
 {
-  "extends": "eslint:recommended",
+  "extends": [
+    "eslint:recommended",
+    "plugin:cypress/recommended"
+  ],
   "parserOptions": {
     "ecmaVersion": 8,
     "sourceType": "module",
@@ -13,7 +16,8 @@
   "parser": "babel-eslint",
   "plugins": [
     "react",
-    "import"
+    "import",
+    "cypress"
   ],
   "env": {
     "browser": true,
@@ -194,12 +198,6 @@
         "max": 450,
         "skipBlankLines": true,
         "skipComments": false
-      }
-    ],
-    "max-nested-callbacks": [
-      2,
-      {
-        "max": 2
       }
     ],
     "max-statements-per-line": [
@@ -638,6 +636,7 @@
       "files": ["**/*.tsx", "**/*.ts"],
       "extends": "plugin:@typescript-eslint/recommended",
       "rules": {
+        "import/no-unresolved": 0, // ts handles this better
         "@typescript-eslint/no-var-requires": 0,
         "@typescript-eslint/prefer-interface": 0,
         "@typescript-eslint/indent": [

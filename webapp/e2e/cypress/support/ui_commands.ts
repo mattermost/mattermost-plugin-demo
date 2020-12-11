@@ -3,7 +3,7 @@
 
 import {TIMEOUTS} from './constants';
 
-function getLastPostId() : Cypress.Chainable<string> {
+function getLastPostId(): Cypress.Chainable<string> {
     // # Wait until permanent post.
     cy.get('#postListContent').should('be.visible');
     cy.waitUntil(() =>
