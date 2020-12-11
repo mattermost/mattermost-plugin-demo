@@ -22,17 +22,17 @@ describe('Tooltips', () => {
         cy.apiLogin('sysadmin');
         cy.visit('/');
 
-        // cy.apiRemovePluginById(pluginID, '');
-        //
-        // cy.apiUploadPlugin(pluginFile);
-        // cy.apiEnablePluginById(pluginID);
+        cy.apiRemovePluginById(pluginID, '');
+
+        cy.apiUploadPlugin(pluginFile);
+        cy.apiEnablePluginById(pluginID);
     });
 
     after(() => {
-        // cy.apiRemovePluginById(pluginID, '');
+        cy.apiRemovePluginById(pluginID, '');
     });
 
-    it.only('MM-T3422 Demo plugin can draw a tooltip', () => {
+    it('MM-T3422 Demo plugin can draw a tooltip', () => {
         // # Post a slash command that omits the optional argument
         cy.get('#post_textbox').clear().type('www.test.com {enter}');
 
