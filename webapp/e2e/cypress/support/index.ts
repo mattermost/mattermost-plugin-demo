@@ -6,6 +6,4 @@ import '@testing-library/cypress/add-commands';
 import 'cypress-wait-until';
 import './server_api_commands.ts';
 import './ui_commands.ts';
-import './api/index.js';
-
-// import './constants.ts';
+import './api/index.ts';
