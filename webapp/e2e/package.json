@@ -39,14 +39,10 @@
   },
   "scripts": {
     "cypress:open": "cross-env TZ=Etc/UTC cypress open",
-    "cypress:run": "cross-env TZ=Etc/UTC cypress run --browser chrome --config ignoreTestFiles='**/enterprise/**/*.js'",
-    "cypress:run:enterprise": "cross-env TZ=Etc/UTC cypress run --browser chrome --spec='cypress/integration/enterprise/**/*_spec.js'",
-    "cypress:run:firefox": "cross-env TZ=Etc/UTC cypress run --browser firefox --config ignoreTestFiles='**/enterprise/**/*.js'",
-    "cypress:run:firefox:enterprise": "cross-env TZ=Etc/UTC cypress run --browser firefox --spec='cypress/integration/enterprise/**/*_spec.js'",
-    "cypress:run:edge": "cross-env TZ=Etc/UTC cypress run --browser edge --config ignoreTestFiles='**/enterprise/**/*.js'",
-    "cypress:run:edge:enterprise": "cross-env TZ=Etc/UTC cypress run --browser edge --spec='cypress/integration/enterprise/**/*_spec.js'",
-    "cypress:run:electron": "cross-env TZ=Etc/UTC cypress run --browser electron --config ignoreTestFiles='**/enterprise/**/*.js'",
-    "cypress:run:electron:enterprise": "cross-env TZ=Etc/UTC cypress run --browser electron --spec='cypress/integration/enterprise/**/*_spec.js'",
+    "cypress:run": "cross-env TZ=Etc/UTC cypress run --browser chrome",
+    "cypress:run:firefox": "cross-env TZ=Etc/UTC cypress run --browser firefox",
+    "cypress:run:edge": "cross-env TZ=Etc/UTC cypress run --browser edge",
+    "cypress:run:electron": "cross-env TZ=Etc/UTC cypress run --browser electron",
     "test:ci": "node run_tests.js",
     "uniq-meta": "grep -r \"^// $META:\" cypress | grep -ow '@\\w*' | sort | uniq"
   }
