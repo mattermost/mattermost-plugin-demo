@@ -1,7 +1,32 @@
 {
     "baseUrl": "http://localhost:8065",
+    "viewportWidth": 1300,
     "defaultCommandTimeout": 20000,
-    "supportFile": "cypress/support/index.ts",
+    "taskTimeout": 20000,
     "pluginID": "com.mattermost.demo-plugin",
-    "pluginFile": "com.mattermost.demo-plugin-0.9.0.tar.gz"
+    "pluginFile": "com.mattermost.demo-plugin-0.9.0.tar.gz",
+    "video": false,
+    "ignoreTestFiles": "**/node_modules/**/*",
+    "integrationFolder": "..",
+    "testFiles": "**/*_spec.js",
+    "env": {
+        "adminUsername": "sysadmin",
+        "adminPassword": "Sys@dmin-sample1",
+        "ciBaseUrl": "",
+        "dbClient": "postgres",
+        "dbConnection": "postgres://mmuser:mostest@localhost/mattermost_cypress?sslmode=disable\u0026connect_timeout=10",
+        "enableApplitools": false,
+        "enableVisualTest": false,
+        "ldapServer": "localhost",
+        "ldapPort": 389,
+        "numberOfTrialUsers": 100,
+        "runLDAPSync": true,
+        "resetBeforeTest": false,
+        "smtpUrl": "http://localhost:10080",
+        "storybookUrl": "http://localhost:6006/",
+        "webhookBaseUrl": "http://localhost:3000",
+        "AWS_S3_BUCKET": "",
+        "AWS_ACCESS_KEY_ID": "",
+        "AWS_SECRET_ACCESS_KEY": ""
+    }
 }

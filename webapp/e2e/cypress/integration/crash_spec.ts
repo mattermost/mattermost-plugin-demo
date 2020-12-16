@@ -8,7 +8,7 @@
 // - Use element ID when selecting an element. Create one if none.
 // ***************************************************************
 
-import {TIMEOUTS} from '../support/constants';
+import * as TIMEOUTS from 'mattermost-webapp/e2e/cypress/fixtures/timeouts';
 
 /**
  * Note : This test requires the demo plugin tar file under fixtures folder.
