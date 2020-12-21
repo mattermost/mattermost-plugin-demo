@@ -14,7 +14,7 @@
         "adminPassword": "Sys@dmin-sample1",
         "ciBaseUrl": "",
         "dbClient": "postgres",
-        "dbConnection": "postgres://mmuser:mostest@localhost/mattermost_cypress?sslmode=disable\u0026connect_timeout=10",
+        "dbConnection": "postgres://mmuser:mostest@localhost/mattermost_test?sslmode=disable\u0026connect_timeout=10",
         "enableApplitools": false,
         "enableVisualTest": false,
         "ldapServer": "localhost",
