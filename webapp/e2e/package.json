@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@applitools/eyes-cypress": "3.12.0",
     "@testing-library/cypress": "7.0.0",
     "async": "3.2.0",
     "aws-sdk": "2.751.0",
@@ -20,6 +21,7 @@
     "lodash.without": "4.4.0",
     "lodash.xor": "4.5.0",
     "mattermost-redux": "5.26.2",
+    "mattermost-webapp": "github:mattermost/mattermost-webapp#40853eab863f321bd64d67efe1b986864b01278c",
     "mime": "2.4.6",
     "mime-types": "2.1.27",
     "mocha": "8.1.3",

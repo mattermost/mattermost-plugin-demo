@@ -1,9 +1,8 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import '@testing-library/cypress/add-commands';
+// ***********************************************************
+// Read more at: https://on.cypress.io/configuration
+// ***********************************************************
 
-import 'cypress-wait-until';
-import './server_api_commands.ts';
-import './ui_commands.ts';
-import './api/index.ts';
+import 'mattermost-webapp/e2e/cypress/support';
