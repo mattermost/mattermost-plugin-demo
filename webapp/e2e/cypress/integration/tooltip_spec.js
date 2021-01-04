@@ -14,12 +14,12 @@
  * make dist latest master and copy to ./e2e/cypress/fixtures/com.mattermost.demo-plugin-0.9.0.tar.gz
  */
 
-describe('Posts', () => {
+describe('Tooltips', () => {
     const pluginID = Cypress.config('pluginID');
     const pluginFile = Cypress.config('pluginFile');
 
     before(() => {
-        cy.apiLogin('sysadmin');
+        cy.apiAdminLogin();
         cy.visit('/');
 
         cy.apiRemovePluginById(pluginID, '');
@@ -32,15 +32,18 @@ describe('Posts', () => {
         cy.apiRemovePluginById(pluginID, '');
     });
 
-    it('MM-T2405 allow plugin to dismiss post', () => {
-        // # at-mention the demo plugin user
-        cy.get('#post_textbox').clear().type('@demo_plugin hello {enter}');
+    it('MM-T3422 Demo plugin can draw a tooltip', () => {
+        // # Post a slash command that omits the optional argument
+        cy.get('#post_textbox').clear().type('www.test.com {enter}');
 
-        // * Verify previously posted message is removed from center channel
-        cy.findByText('@demo_plugin hello').should('not.be.visible');
+        cy.getLastPostId().then((postId) => {
+            cy.get(`#post_${postId}`).
+                findByText('www.test.com').
+                trigger('mouseover');
+        });
 
-        // * Verify ephemeral message is posted
-        cy.findByText('Shh! You must not talk about the demo plugin user.').should('be.visible');
+        // * Verify tooltip show
+        cy.findByTestId('tooltipMessage').should('contain.text', 'This is a custom tooltip from the Demo Plugin');
     });
 });
 

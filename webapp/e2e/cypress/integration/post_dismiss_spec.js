@@ -14,12 +14,12 @@
  * make dist latest master and copy to ./e2e/cypress/fixtures/com.mattermost.demo-plugin-0.9.0.tar.gz
  */
 
-describe('Themes', () => {
+describe('Posts', () => {
     const pluginID = Cypress.config('pluginID');
     const pluginFile = Cypress.config('pluginFile');
 
     before(() => {
-        cy.apiLogin('sysadmin');
+        cy.apiAdminLogin();
         cy.visit('/');
 
         cy.apiRemovePluginById(pluginID, '');
@@ -32,28 +32,15 @@ describe('Themes', () => {
         cy.apiRemovePluginById(pluginID, '');
     });
 
-    it('MM-T2403 theme', () => {
-        // # change theme to mattermost dark
-        navigateToThemeSettings();
+    it('MM-T2405 allow plugin to dismiss post', () => {
+        // # at-mention the demo plugin user
+        cy.get('#post_textbox').clear().type('@demo_plugin hello {enter}');
 
-        // * Verify icon color is white
-        cy.get('.team-sidebar-bottom-plugin').find('.fa-plug').should('have.css', 'color', 'rgb(255, 255, 255)');
+        // * Verify previously posted message is removed from center channel
+        cy.findByText('@demo_plugin hello').should('not.be.visible');
+
+        // * Verify ephemeral message is posted
+        cy.findByText('Shh! You must not talk about the demo plugin user.').should('be.visible');
     });
 });
-
-function navigateToThemeSettings() {
-    // # Change theme to desired theme (keeps settings modal open)
-    cy.toAccountSettingsModal();
-    cy.get('#displayButton').click();
-    cy.get('#displaySettingsTitle').should('exist');
-
-    // # Open edit theme
-    cy.get('#themeTitle').should('be.visible');
-    cy.get('#themeEdit').click();
-
-    // # Click on the image
-    cy.findByAltText('premade theme mattermostDark').click();
-    cy.get('[data-testid="saveSetting"]').click();
-    cy.get('#accountSettingsHeader').find('.close').click();
-}
 

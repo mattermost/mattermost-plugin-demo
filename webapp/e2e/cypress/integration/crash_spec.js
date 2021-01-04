@@ -21,8 +21,7 @@ describe('Crash', () => {
     const pluginFile = Cypress.config('pluginFile');
 
     before(() => {
-        // # Login as sysadmin
-        cy.apiLogin('sysadmin');
+        cy.apiAdminLogin();
         cy.visit('/');
 
         cy.apiRemovePluginById(pluginID, '');
