@@ -19,6 +19,7 @@ describe('Plugin functions - Demo channel', () => {
         cy.apiInitSetup().then(({team}) => {
             testTeam = team;
         });
+
         // # Login as sysadmin
         cy.apiAdminLogin();
 
