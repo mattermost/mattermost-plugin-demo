@@ -44,7 +44,7 @@ describe('Crash', () => {
         // # wait a few seconds for plugin to re-enable
         cy.wait(TIMEOUTS.TWO_SEC);
 
-        // # Post crash slash command
+        // # Post plugin slash command to trigger plugin not working ephemeral response
         cy.get('#post_textbox').clear().type('/demo_plugin true {enter}');
 
         // * Verify ephemeral post confirming plugin crashes
