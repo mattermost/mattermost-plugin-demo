@@ -10,12 +10,6 @@
 
 import * as TIMEOUTS from 'mattermost-webapp/e2e/cypress/fixtures/timeouts';
 
-/**
- * Note : This test requires the demo plugin tar file under fixtures folder.
- * Download :
- * make dist latest master and copy to ./e2e/cypress/fixtures/com.mattermost.demo-plugin-0.9.0.tar.gz
- */
-
 describe('Crash', () => {
     const pluginID = Cypress.config('pluginID');
     const pluginFile = Cypress.config('pluginFile');
