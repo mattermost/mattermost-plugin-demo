@@ -8,7 +8,7 @@
     "video": false,
     "ignoreTestFiles": "**/node_modules/**/*",
     "integrationFolder": "..",
-    "testFiles": "**/*_spec.js",
+    "testFiles": "**/*_spec.{js,ts}",
     "env": {
         "adminUsername": "sysadmin",
         "adminPassword": "Sys@dmin-sample1",
