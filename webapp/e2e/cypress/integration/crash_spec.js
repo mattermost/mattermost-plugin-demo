@@ -51,6 +51,9 @@ describe('Crash', () => {
         cy.get('#post_textbox').clear().type('@demo_plugin hello {enter}');
 
         // * Confirm plugin is responsive again. Verify ephemeral message is posted
-        cy.findByText('Shh! You must not talk about the demo plugin user.').should('be.visible');
+        cy.getLastPostId().then((postId) => {
+            cy.get(`#post_${postId}`).
+                findByText('Shh! You must not talk about the demo plugin user.').should('be.visible');
+        });
     });
 });
