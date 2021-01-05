@@ -30,6 +30,9 @@ describe('Tooltips', () => {
         // # Post a slash command that omits the optional argument
         cy.get('#post_textbox').clear().type('www.test.com {enter}');
 
+        // * Verify tooltip doesn't show
+        cy.findByTestId('tooltipMessage').should('not.exist');
+
         cy.getLastPostId().then((postId) => {
             cy.get(`#post_${postId}`).
                 findByText('www.test.com').
