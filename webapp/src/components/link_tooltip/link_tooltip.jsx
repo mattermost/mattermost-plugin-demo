@@ -5,6 +5,7 @@ import {FormattedMessage} from 'react-intl';
 export default class LinkTooltip extends React.PureComponent {
     static propTypes = {
         href: PropTypes.string.isRequired,
+        show: PropTypes.bool,
     }
 
     render() {
@@ -12,9 +13,14 @@ export default class LinkTooltip extends React.PureComponent {
             return null;
         }
 
+        let testID = '';
+        if (this.props.show) {
+            testID = 'tooltipMessage';
+        }
+
         return (
             <div
-                data-testid='tooltipMessage'
+                data-testid={testID}
                 style={parentDivStyles}
             >
                 <i
