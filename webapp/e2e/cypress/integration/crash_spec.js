@@ -10,19 +10,12 @@
 
 import * as TIMEOUTS from 'mattermost-webapp/e2e/cypress/fixtures/timeouts';
 
-/**
- * Note : This test requires the demo plugin tar file under fixtures folder.
- * Download :
- * make dist latest master and copy to ./e2e/cypress/fixtures/com.mattermost.demo-plugin-0.9.0.tar.gz
- */
-
 describe('Crash', () => {
     const pluginID = Cypress.config('pluginID');
     const pluginFile = Cypress.config('pluginFile');
 
     before(() => {
-        // # Login as sysadmin
-        cy.apiLogin('sysadmin');
+        cy.apiAdminLogin();
         cy.visit('/');
 
         cy.apiRemovePluginById(pluginID, '');
@@ -45,7 +38,7 @@ describe('Crash', () => {
         // # wait a few seconds for plugin to re-enable
         cy.wait(TIMEOUTS.TWO_SEC);
 
-        // # Post crash slash command
+        // # Post plugin slash command to trigger plugin not working ephemeral response
         cy.get('#post_textbox').clear().type('/demo_plugin true {enter}');
 
         // * Verify ephemeral post confirming plugin crashes
@@ -58,6 +51,9 @@ describe('Crash', () => {
         cy.get('#post_textbox').clear().type('@demo_plugin hello {enter}');
 
         // * Confirm plugin is responsive again. Verify ephemeral message is posted
-        cy.findByText('Shh! You must not talk about the demo plugin user.').should('be.visible');
+        cy.getLastPostId().then((postId) => {
+            cy.get(`#post_${postId}`).
+                findByText('Shh! You must not talk about the demo plugin user.').should('be.visible');
+        });
     });
 });
