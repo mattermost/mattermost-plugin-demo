@@ -18,7 +18,8 @@ describe('Enable and disable plugin hook events for Demo plugin', () => {
     const pluginID = Cypress.config('pluginID');
     const pluginFile = Cypress.config('pluginFile');
 
-    before(() => {        cy.visit('/');
+    before(() => {
+        cy.visit('/');
 
         cy.apiRemovePluginById(pluginID);
 
