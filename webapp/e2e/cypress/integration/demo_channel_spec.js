@@ -20,9 +20,6 @@ describe('Plugin functions - Demo channel', () => {
             testTeam = team;
         });
 
-        // # Login as sysadmin
-        cy.apiAdminLogin();
-
         cy.apiRemovePluginById(pluginID);
 
         cy.apiUploadPlugin(pluginFile);

@@ -18,19 +18,16 @@ describe('Enable and disable plugin hook events for Demo plugin', () => {
     const pluginID = Cypress.config('pluginID');
     const pluginFile = Cypress.config('pluginFile');
 
-    before(() => {
-        // # Login as sysadmin
-        cy.apiAdminLogin();
-        cy.visit('/');
+    before(() => {        cy.visit('/');
 
-        cy.apiRemovePluginById(pluginID, '');
+        cy.apiRemovePluginById(pluginID);
 
         cy.apiUploadPlugin(pluginFile);
         cy.apiEnablePluginById(pluginID);
     });
 
     after(() => {
-        cy.apiRemovePluginById(pluginID, '');
+        cy.apiRemovePluginById(pluginID);
     });
 
     it('MM-T2411 Enable and disable plugin hook events for Demo plugin', () => {
