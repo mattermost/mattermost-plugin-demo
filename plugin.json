@@ -61,7 +61,7 @@
             },
             {
                 "key": "TextStyle",
-                "display_name": "Text Style",
+                "display_name": "Text Style:",
                 "type": "dropdown",
                 "help_text": "Change the text style of the messages posted by this plugin.",
                 "placeholder": "",
@@ -83,7 +83,7 @@
             },
             {
                 "key": "RandomSecret",
-                "display_name": "Random Secret",
+                "display_name": "Random Secret:",
                 "type": "generated",
                 "help_text": "Generate a random string that the demo plugin will watch for. If the secret string is mentioned in any channel then the demo plugin will publish a special message.",
                 "regenerate_help_text": "Generate a new secret string.",
