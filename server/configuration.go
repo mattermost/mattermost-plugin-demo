@@ -212,7 +212,7 @@ func (p *Plugin) OnConfigurationChange() error {
 		Username:    "demoplugin",
 		DisplayName: "Demo Plugin Bot",
 		Description: "A bot account created by the demo plugin.",
-	}, plugin.IconImagePath("/assets/github.svg"))
+	}, plugin.ProfileImagePath("/assets/icon.png"))
 	if ensureBotError != nil {
 		return errors.Wrap(ensureBotError, "failed to ensure demo bot.")
 	}
