@@ -21,6 +21,7 @@ const (
 	commandTriggerMentions          = "show_mentions"
 	commandTriggerListFiles         = "list_files"
 	commandTriggerAutocompleteTest  = "autocomplete_test"
+	commandTriggerPreferences       = "preferences"
 
 	dialogElementNameNumber = "somenumber"
 	dialogElementNameEmail  = "someemail"
@@ -37,6 +38,14 @@ const (
 		"- `/dialog error` - Open an Interactive Dialog which always returns an general error.\n" +
 		"- `/dialog error-no-elements` - Open an Interactive Dialog with no elements which always returns an general error.\n" +
 		"- `/dialog help` - Show this help text"
+
+	commandPreferencesHelp = "###### Preferences Slash Command Help\n" +
+		"- `/preferences get <name>` - Get value of given preference name.\n" +
+		"- `/preferences update <name> <value>` - Update given value for given preference name.\n" +
+		"- `/preferences delete <name>` - Delete value of given preference name.\n" +
+		"- `/preferences help` - Show this help text"
+
+	help = "help"
 )
 
 func (p *Plugin) registerCommands() error {
@@ -122,6 +131,14 @@ func (p *Plugin) registerCommands() error {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerDialog)
 	}
 
+	if err := p.API.RegisterCommand(&model.Command{
+		Trigger:          commandTriggerPreferences,
+		AutoComplete:     true,
+		AutocompleteData: getPreferenceAutocompleteData(),
+	}); err != nil {
+		return errors.Wrapf(err, "failed to register %s command", commandTriggerPreferences)
+	}
+
 	return nil
 }
 
@@ -190,6 +207,27 @@ func getAutocompleteTestAutocompleteData() *model.AutocompleteData {
 	return command
 }
 
+func getPreferenceAutocompleteData() *model.AutocompleteData {
+	command := model.NewAutocompleteData(commandTriggerPreferences, "", "get/update/delete user preferences")
+
+	get := model.NewAutocompleteData("get", "", "Get value for given preference name")
+	get.AddTextArgument("name", "Name of the preference to get info", "p([a-z]+)ch")
+	command.AddCommand(get)
+
+	update := model.NewAutocompleteData("update", "", "Update value of given preference name")
+	update.AddNamedTextArgument("name", "Name and Value of preference to update with pattern p([a-z]+)ch", "", "p([a-z]+)ch", false)
+	command.AddCommand(update)
+
+	delete := model.NewAutocompleteData("delete", "", "Delete value for given preference name")
+	get.AddTextArgument("name", "Name of the preference to delete", "p([a-z]+)ch")
+	command.AddCommand(delete)
+
+	help := model.NewAutocompleteData("help", "", "")
+	command.AddCommand(help)
+
+	return command
+}
+
 // ExecuteCommand executes a command that has been previously registered via the RegisterCommand
 // API.
 //
@@ -216,6 +254,8 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		return p.executeCommandMentions(args), nil
 	case commandTriggerAutocompleteTest:
 		return p.executeAutocompleteTest(args), nil
+	case commandTriggerPreferences:
+		return p.executeCommandPreferences(args), nil
 
 	default:
 		return &model.CommandResponse{
@@ -329,7 +369,7 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 	}
 
 	switch command {
-	case "help":
+	case help:
 		return &model.CommandResponse{
 			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 			Text:         commandDialogHelp,
@@ -720,5 +760,96 @@ func (p *Plugin) executeAutocompleteTest(args *model.CommandArgs) *model.Command
 	return &model.CommandResponse{
 		ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
 		Text:         fmt.Sprintf("Executed command: " + args.Command),
+	}
+}
+
+func (p *Plugin) executeCommandPreferences(args *model.CommandArgs) *model.CommandResponse {
+	fields := strings.Fields(args.Command)
+	command := ""
+	if len(fields) >= 2 {
+		command = fields[1]
+	}
+
+	switch command {
+	case help:
+		return &model.CommandResponse{
+			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			Text:         commandPreferencesHelp,
+		}
+	case "get":
+		if len(fields) != 3 {
+			return &model.CommandResponse{
+				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+				Text:         "Please provide preference name",
+			}
+		}
+		prefs, err := p.API.GetPreferencesForUser(args.UserId)
+		if err != nil {
+			errorMessage := "Failed to get user preferences"
+			p.API.LogError("Failed to get user preferences", "err", err.Error())
+			return &model.CommandResponse{
+				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+				Text:         errorMessage,
+			}
+		}
+		for _, p := range prefs {
+			if p.Name == fields[2] {
+				return &model.CommandResponse{
+					ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+					Text:         fmt.Sprintf("Value for preference `%v` is `%v`\n", p.Name, p.Value),
+				}
+			}
+		}
+		return &model.CommandResponse{
+			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			Text:         fmt.Sprintf("Did not find preference with name `%v`\n", fields[2]),
+		}
+	case "update":
+		if len(fields) != 4 {
+			return &model.CommandResponse{
+				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+				Text:         "Please provide preference name and value",
+			}
+		}
+		pref := []model.Preference{{Name: fields[2], Value: fields[3]}}
+		err := p.API.UpdatePreferencesForUser(args.UserId, pref)
+		if err != nil {
+			errorMessage := fmt.Sprintf("Failed to update user preference %s with value %s", fields[2], fields[3])
+			p.API.LogError("Failed to update user preferences", "err", err.Error())
+			return &model.CommandResponse{
+				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+				Text:         errorMessage,
+			}
+		}
+		return &model.CommandResponse{
+			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			Text:         fmt.Sprintf("Updated preference `%v`:`%v`\n", fields[2], fields[3]),
+		}
+	case "delete":
+		if len(fields) != 3 {
+			return &model.CommandResponse{
+				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+				Text:         "Please provide preference name",
+			}
+		}
+		pref := []model.Preference{{Name: fields[2]}}
+		err := p.API.DeletePreferencesForUser(args.UserId, pref)
+		if err != nil {
+			errorMessage := "Failed to delete user preference: " + fields[2]
+			p.API.LogError("Failed to delete user preferences", "err", err.Error())
+			return &model.CommandResponse{
+				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+				Text:         errorMessage,
+			}
+		}
+		return &model.CommandResponse{
+			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			Text:         fmt.Sprintf("Deleted preference with name `%v`\n", fields[2]),
+		}
+	default:
+		return &model.CommandResponse{
+			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			Text:         fmt.Sprintf("Unknown command: " + command),
+		}
 	}
 }
