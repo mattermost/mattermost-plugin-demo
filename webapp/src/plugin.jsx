@@ -28,6 +28,7 @@ import {
 } from './components/icons';
 import {
     mainMenuAction,
+    fileDropdownMenuAction,
     fileUploadMethodAction,
     postDropdownMenuAction,
     postDropdownSubMenuAction,
@@ -182,6 +183,18 @@ export default class DemoPlugin {
                 defaultMessage='Upload using Demo Plugin'
             />,
         );
+
+        // ignore if registerFileDropdownMenuAction method does not exist
+        if (registry.registerFileDropdownMenuAction) {
+            registry.registerFileDropdownMenuAction(
+                (fileInfo) => fileInfo.extension === 'demo',
+                <FormattedMessage
+                    id='plugin.name'
+                    defaultMessage='Demo Plugin'
+                />,
+                () => store.dispatch(fileDropdownMenuAction()),
+            );
+        }
 
         registry.registerWebSocketEventHandler(
             'custom_' + pluginId + '_status_change',
