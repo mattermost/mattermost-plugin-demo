@@ -32,7 +32,7 @@ export default class LinkTooltip extends React.PureComponent {
 }
 
 const getStyle = (theme) => ({
-        configuration: {
+    configuration: {
         borderRadius: '4px',
         boxShadow: 'rgba(61, 60, 64, 0.1) 0px 17px 50px 0px, rgba(61, 60, 64, 0.1) 0px 12px 15px 0px',
         fontSize: '14px',
