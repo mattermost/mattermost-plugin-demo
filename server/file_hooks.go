@@ -12,7 +12,7 @@ import (
 //
 // This demo implementation logs a message to the demo channel in the team
 // when a new file is uploaded.
-func (p *Plugin) FileWillBeUploaded(c *plugin.Context, fileInfo *model.FileInfo, reader bytes.Reader, buf *bytes.Buffer) {
+func (p *Plugin) FileWillBeUploaded(c *plugin.Context, fileInfo *model.FileInfo, reader bytes.Reader, buf *bytes.Buffer) (*model.FileInfo, string) {
 	configuration := p.getConfiguration()
 
 	if configuration.disabled {
@@ -25,7 +25,7 @@ func (p *Plugin) FileWillBeUploaded(c *plugin.Context, fileInfo *model.FileInfo,
 			"Failed to query teams FileWillBeUploaded",
 			"error", err.Error(),
 		)
-		return
+		return 
 	}
 
 	if reader.Size() == 0 {
