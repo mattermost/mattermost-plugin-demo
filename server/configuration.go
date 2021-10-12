@@ -207,12 +207,24 @@ func (p *Plugin) OnConfigurationChange() error {
 	if err != nil {
 		return errors.Wrap(err, "failed to ensure demo user")
 	}
+	
+	p.diffConfiguration(configuration)
+
+	p.setConfiguration(configuration)
+
+	return nil
+}
+
+func(p *Plugin) CreateUserAndChannels() error{
+	configuration := p.getConfiguration().Clone()
+	var err error
 
 	botID, ensureBotError := p.Helpers.EnsureBot(&model.Bot{
 		Username:    "demoplugin",
 		DisplayName: "Demo Plugin Bot",
 		Description: "A bot account created by the demo plugin.",
 	}, plugin.ProfileImagePath("/assets/icon.png"))
+
 	if ensureBotError != nil {
 		return errors.Wrap(ensureBotError, "failed to ensure demo bot.")
 	}
@@ -223,11 +235,6 @@ func (p *Plugin) OnConfigurationChange() error {
 	if err != nil {
 		return errors.Wrap(err, "failed to ensure demo channels")
 	}
-
-	p.diffConfiguration(configuration)
-
-	p.setConfiguration(configuration)
-
 	return nil
 }
 

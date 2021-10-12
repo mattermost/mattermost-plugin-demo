@@ -41,7 +41,7 @@ func (p *Plugin) OnActivate() error {
 		p.API.LogError("Server configuration is not compatible")
 	}
 
-	if err := p.OnConfigurationChange(); err != nil {
+	if err := p.CreateUserAndChannels(); err != nil {
 		return err
 	}
 
