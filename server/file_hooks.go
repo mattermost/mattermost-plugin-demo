@@ -16,7 +16,7 @@ func (p *Plugin) FileWillBeUploaded(c *plugin.Context, fileInfo *model.FileInfo,
 	configuration := p.getConfiguration()
 
 	if configuration.disabled {
-		return
+		return nil, "Configuration is disabled"
 	}
 
 	teams, err := p.API.GetTeams()
@@ -25,7 +25,7 @@ func (p *Plugin) FileWillBeUploaded(c *plugin.Context, fileInfo *model.FileInfo,
 			"Failed to query teams FileWillBeUploaded",
 			"error", err.Error(),
 		)
-		return 
+		return nil, "Failed to query teams"
 	}
 
 	if reader.Size() == 0 {
@@ -33,7 +33,7 @@ func (p *Plugin) FileWillBeUploaded(c *plugin.Context, fileInfo *model.FileInfo,
 			"Uploaded file has zero size",
 			"error", err.Error(),
 		)
-		return
+		return nil, "Upload Failed as file has zero size"
 	}
 
 	for _, team := range teams {
