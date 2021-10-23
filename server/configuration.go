@@ -207,7 +207,7 @@ func (p *Plugin) OnConfigurationChange() error {
 	if err != nil {
 		return errors.Wrap(err, "failed to ensure demo user")
 	}
-	
+
 	p.diffConfiguration(configuration)
 
 	p.setConfiguration(configuration)
@@ -215,7 +215,7 @@ func (p *Plugin) OnConfigurationChange() error {
 	return nil
 }
 
-func(p *Plugin) CreateUserAndChannels() error{
+func (p *Plugin) CreateUserAndChannels() error {
 	configuration := p.getConfiguration().Clone()
 	var err error
 
