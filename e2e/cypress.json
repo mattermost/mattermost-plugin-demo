@@ -1,0 +1,5 @@
+{
+    "baseUrl": "http://localhost:8065",
+    "defaultCommandTimeout": 20000,
+    "supportFile": "cypress/support/index.ts"
+}
