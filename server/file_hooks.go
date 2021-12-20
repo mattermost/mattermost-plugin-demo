@@ -46,5 +46,5 @@ func (p *Plugin) FileWillBeUploaded(c *plugin.Context, fileInfo *model.FileInfo,
 			)
 		}
 	}
-	return nil, "" // <--- This is the new return line
+	return nil, ""
 }
