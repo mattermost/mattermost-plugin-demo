@@ -214,7 +214,7 @@ func (p *Plugin) OnConfigurationChange() error {
 		Description: "A bot account created by the demo plugin.",
 	}, plugin.ProfileImagePath("/assets/icon.png"))
 	if ensureBotError != nil {
-		return errors.Wrap(ensureBotError, "failed to ensure demo bot.")
+		return errors.Wrap(ensureBotError, "failed to ensure demo bot")
 	}
 
 	p.botID = botID
