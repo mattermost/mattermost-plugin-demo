@@ -19,7 +19,7 @@ const manifestStr = `
   "support_url": "https://github.com/mattermost/mattermost-plugin-demo/issues",
   "icon_path": "assets/icon.svg",
   "version": "0.9.0",
-  "min_server_version": "5.26.0",
+  "min_server_version": "5.30.0",
   "server": {
     "executables": {
       "linux-amd64": "server/dist/plugin-linux-amd64",
@@ -32,12 +32,12 @@ const manifestStr = `
     "bundle_path": "webapp/dist/main.js"
   },
   "settings_schema": {
-    "header": "Header: Configure your demo plugin settings below",
-    "footer": "Footer: The code for this demo plugin can be found [here](https://github.com/mattermost/mattermost-plugin-demo)",
+    "header": "Header: Configure your demo plugin settings below.",
+    "footer": "Footer: The code for this demo plugin can be found [here](https://github.com/mattermost/mattermost-plugin-demo).",
     "settings": [
       {
         "key": "ChannelName",
-        "display_name": "Channel Name",
+        "display_name": "Channel Name:",
         "type": "text",
         "help_text": "The channel to use as part of the demo plugin, created for each team automatically if it does not exist.",
         "placeholder": "demo_plugin",
@@ -45,7 +45,7 @@ const manifestStr = `
       },
       {
         "key": "Username",
-        "display_name": "Username",
+        "display_name": "Username:",
         "type": "text",
         "help_text": "The user to use as part of the demo plugin, created automatically if it does not exist.",
         "placeholder": "demo_plugin",
@@ -53,9 +53,9 @@ const manifestStr = `
       },
       {
         "key": "LastName",
-        "display_name": "Demo User Last Name",
+        "display_name": "Demo User Last Name:",
         "type": "radio",
-        "help_text": "Select the last name for the demo user",
+        "help_text": "Select the last name for the demo user.",
         "placeholder": "",
         "default": "Plugin User",
         "options": [
@@ -75,9 +75,9 @@ const manifestStr = `
       },
       {
         "key": "TextStyle",
-        "display_name": "Text Style",
+        "display_name": "Text Style:",
         "type": "dropdown",
-        "help_text": "Change the text style of the messages posted by this plugin",
+        "help_text": "Change the text style of the messages posted by this plugin.",
         "placeholder": "",
         "default": "",
         "options": [
@@ -97,7 +97,7 @@ const manifestStr = `
       },
       {
         "key": "RandomSecret",
-        "display_name": "Random Secret",
+        "display_name": "Random Secret:",
         "type": "generated",
         "help_text": "Generate a random string that the demo plugin will watch for. If the secret string is mentioned in any channel then the demo plugin will publish a special message.",
         "regenerate_help_text": "Generate a new secret string.",
@@ -106,11 +106,11 @@ const manifestStr = `
       },
       {
         "key": "SecretMessage",
-        "display_name": "Secret Message",
+        "display_name": "Secret Message:",
         "type": "custom",
         "help_text": "The message posted by the demo plugin when the secret phrase is detected.",
         "placeholder": "",
-        "default": "Yay! The random secret string was posted! Go to the settings page for this plugin in the system console to generate a new random secret."
+        "default": "Yay! The random secret string was posted! Go to the settings page for this plugin in the System Console to generate a new random secret."
       },
       {
         "key": "CustomSetting",
@@ -122,7 +122,7 @@ const manifestStr = `
       },
       {
         "key": "EnableMentionUser",
-        "display_name": "Enable Mention User",
+        "display_name": "Enable Mention User:",
         "type": "bool",
         "help_text": "Enable or disable the demo plugin to tag a username on every message sent. The username value is set below.",
         "placeholder": "",
@@ -130,7 +130,7 @@ const manifestStr = `
       },
       {
         "key": "MentionUser",
-        "display_name": "Mention User",
+        "display_name": "Mention User:",
         "type": "username",
         "help_text": "Configure the username to be mentioned by the demo plugin. Must be enabled in the setting above.",
         "placeholder": "demo_plugin",
@@ -138,7 +138,7 @@ const manifestStr = `
       },
       {
         "key": "secretNumber",
-        "display_name": "Secret Number",
+        "display_name": "Secret Number:",
         "type": "number",
         "help_text": "A secret number that the demo plugin will watch for. If the secret number is mentioned in any channel then the demo plugin will publish a special message.",
         "placeholder": "Some secret number",
@@ -241,7 +241,11 @@ const manifestStr = `
       "EnableAPIChannelDeletion": null,
       "EnableLocalMode": null,
       "LocalModeSocketLocation": null,
-      "EnableAWSMetering": null
+      "EnableAWSMetering": null,
+      "SplitKey": null,
+      "FeatureFlagSyncIntervalSeconds": null,
+      "DebugSplit": null,
+      "ThreadAutoFollow": null
     },
     "TeamSettings": {
       "SiteName": null,
@@ -512,6 +516,7 @@ const manifestStr = `
       "Enable": null,
       "EnableSyncWithLdap": null,
       "EnableSyncWithLdapIncludeAuth": null,
+      "IgnoreGuestsLdapSync": null,
       "Verify": null,
       "Encrypt": null,
       "SignRequest": null,
