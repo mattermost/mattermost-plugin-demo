@@ -22,8 +22,10 @@ const manifestStr = `
   "min_server_version": "5.30.0",
   "server": {
     "executables": {
-      "linux-amd64": "server/dist/plugin-linux-amd64",
       "darwin-amd64": "server/dist/plugin-darwin-amd64",
+      "darwin-arm64": "server/dist/plugin-darwin-arm64",
+      "linux-amd64": "server/dist/plugin-linux-amd64",
+      "linux-arm64": "server/dist/plugin-linux-arm64",
       "windows-amd64": "server/dist/plugin-windows-amd64.exe"
     },
     "executable": ""
@@ -168,15 +170,16 @@ const manifestStr = `
       "IdleTimeout": null,
       "MaximumLoginAttempts": null,
       "GoroutineHealthThreshold": null,
-      "GoogleDeveloperKey": null,
       "EnableOAuthServiceProvider": null,
       "EnableIncomingWebhooks": null,
       "EnableOutgoingWebhooks": null,
       "EnableCommands": null,
-      "EnableOnlyAdminIntegrations": null,
       "EnablePostUsernameOverride": null,
       "EnablePostIconOverride": null,
+      "GoogleDeveloperKey": null,
+      "EnableOnlyAdminIntegrations": null,
       "EnableLinkPreviews": null,
+      "RestrictLinkPreviews": null,
       "EnableTesting": null,
       "EnableDeveloper": null,
       "EnableOpenTracing": null,
@@ -200,17 +203,18 @@ const manifestStr = `
       "WebsocketSecurePort": null,
       "WebsocketPort": null,
       "WebserverMode": null,
-      "EnableCustomEmoji": null,
-      "EnableEmojiPicker": null,
       "EnableGifPicker": true,
       "GfycatApiKey": null,
       "GfycatApiSecret": null,
+      "EnableCustomEmoji": null,
+      "EnableEmojiPicker": null,
       "RestrictCustomEmojiCreation": null,
       "RestrictPostDelete": null,
       "AllowEditPost": null,
       "PostEditTimeLimit": null,
       "TimeBetweenUserTypingUpdatesMilliseconds": null,
       "EnablePostSearch": null,
+      "EnableFileSearch": null,
       "MinimumHashtagLength": null,
       "EnableUserTypingMessages": null,
       "EnableChannelViewedMessages": null,
@@ -223,8 +227,6 @@ const manifestStr = `
       "ExperimentalEnableDefaultChannelLeaveJoinMessages": null,
       "ExperimentalGroupUnreadChannels": null,
       "ExperimentalChannelOrganization": null,
-      "ExperimentalChannelSidebarOrganization": null,
-      "ExperimentalDataPrefetch": null,
       "ImageProxyType": null,
       "ImageProxyURL": null,
       "ImageProxyOptions": null,
@@ -245,7 +247,11 @@ const manifestStr = `
       "SplitKey": null,
       "FeatureFlagSyncIntervalSeconds": null,
       "DebugSplit": null,
-      "ThreadAutoFollow": null
+      "ThreadAutoFollow": null,
+      "CollapsedThreads": null,
+      "ManagedResourcePaths": null,
+      "EnableLegacySidebar": null,
+      "EnableReliableWebSockets": null
     },
     "TeamSettings": {
       "SiteName": null,
@@ -255,6 +261,7 @@ const manifestStr = `
       "EnableOpenServer": null,
       "EnableUserDeactivation": null,
       "RestrictCreationToDomains": null,
+      "EnableCustomUserStatuses": null,
       "EnableCustomBrand": null,
       "CustomBrandText": null,
       "CustomDescriptionText": null,
@@ -296,16 +303,19 @@ const manifestStr = `
       "DataSourceSearchReplicas": null,
       "MaxIdleConns": null,
       "ConnMaxLifetimeMilliseconds": null,
+      "ConnMaxIdleTimeMilliseconds": null,
       "MaxOpenConns": null,
       "Trace": null,
       "AtRestEncryptKey": null,
       "QueryTimeout": null,
-      "DisableDatabaseSearch": null
+      "DisableDatabaseSearch": null,
+      "ReplicaLagSettings": null
     },
     "LogSettings": {
       "EnableConsole": null,
       "ConsoleLevel": null,
       "ConsoleJson": null,
+      "EnableColor": null,
       "EnableFile": null,
       "FileLevel": null,
       "FileJson": null,
@@ -329,6 +339,7 @@ const manifestStr = `
       "EnableConsole": null,
       "ConsoleLevel": null,
       "ConsoleJson": null,
+      "EnableColor": null,
       "EnableFile": null,
       "FileLevel": null,
       "FileJson": null,
@@ -350,6 +361,8 @@ const manifestStr = `
       "DriverName": null,
       "Directory": null,
       "EnablePublicLink": true,
+      "ExtractContent": null,
+      "ArchiveRecursion": null,
       "PublicLinkSalt": null,
       "InitialFont": null,
       "AmazonS3AccessKeyId": null,
@@ -444,7 +457,10 @@ const manifestStr = `
       "Scope": null,
       "AuthEndpoint": null,
       "TokenEndpoint": null,
-      "UserApiEndpoint": null
+      "UserApiEndpoint": null,
+      "DiscoveryEndpoint": null,
+      "ButtonText": null,
+      "ButtonColor": null
     },
     "GoogleSettings": {
       "Enable": null,
@@ -453,7 +469,10 @@ const manifestStr = `
       "Scope": null,
       "AuthEndpoint": null,
       "TokenEndpoint": null,
-      "UserApiEndpoint": null
+      "UserApiEndpoint": null,
+      "DiscoveryEndpoint": null,
+      "ButtonText": null,
+      "ButtonColor": null
     },
     "Office365Settings": {
       "Enable": null,
@@ -463,7 +482,20 @@ const manifestStr = `
       "AuthEndpoint": null,
       "TokenEndpoint": null,
       "UserApiEndpoint": null,
+      "DiscoveryEndpoint": null,
       "DirectoryId": null
+    },
+    "OpenIdSettings": {
+      "Enable": null,
+      "Secret": null,
+      "Id": null,
+      "Scope": null,
+      "AuthEndpoint": null,
+      "TokenEndpoint": null,
+      "UserApiEndpoint": null,
+      "DiscoveryEndpoint": null,
+      "ButtonText": null,
+      "ButtonColor": null
     },
     "LdapSettings": {
       "Enable": null,
@@ -505,7 +537,8 @@ const manifestStr = `
     "ComplianceSettings": {
       "Enable": null,
       "Directory": null,
-      "EnableDaily": null
+      "EnableDaily": null,
+      "BatchSize": null
     },
     "LocalizationSettings": {
       "DefaultServerLocale": null,
@@ -549,6 +582,7 @@ const manifestStr = `
       "LoginButtonTextColor": null
     },
     "NativeAppSettings": {
+      "AppCustomURLSchemes": null,
       "AppDownloadLink": null,
       "AndroidAppDownloadLink": null,
       "IosAppDownloadLink": null
@@ -562,6 +596,7 @@ const manifestStr = `
       "AdvertiseAddress": null,
       "UseIpAddress": null,
       "UseExperimentalGossip": null,
+      "EnableGossipCompression": null,
       "EnableExperimentalGossipEncryption": null,
       "ReadOnlyConfig": null,
       "GossipPort": null,
@@ -584,7 +619,8 @@ const manifestStr = `
       "UseNewSAMLLibrary": null,
       "CloudUserLimit": null,
       "CloudBilling": null,
-      "EnableSharedChannels": null
+      "EnableSharedChannels": null,
+      "EnableRemoteClusterService": null
     },
     "AnalyticsSettings": {
       "MaxUsersForStatistics": null
@@ -624,7 +660,8 @@ const manifestStr = `
       "EnableFileDeletion": null,
       "MessageRetentionDays": null,
       "FileRetentionDays": null,
-      "DeletionJobStartTime": null
+      "DeletionJobStartTime": null,
+      "BatchSize": null
     },
     "MessageExportSettings": {
       "EnableExport": null,
@@ -653,7 +690,8 @@ const manifestStr = `
       "AutomaticPrepackagedPlugins": null,
       "RequirePluginSignature": null,
       "MarketplaceUrl": null,
-      "SignaturePublicKeyFiles": null
+      "SignaturePublicKeyFiles": null,
+      "ChimeraOAuthProxyUrl": null
     },
     "DisplaySettings": {
       "CustomUrlSchemes": null,
@@ -672,7 +710,16 @@ const manifestStr = `
       "RemoteImageProxyOptions": null
     },
     "CloudSettings": {
-      "CWSUrl": null
+      "CWSUrl": null,
+      "CWSAPIUrl": null
+    },
+    "ImportSettings": {
+      "Directory": null,
+      "RetentionDays": null
+    },
+    "ExportSettings": {
+      "Directory": null,
+      "RetentionDays": null
     }
   }
 }
