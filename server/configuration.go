@@ -7,8 +7,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/mattermost/mattermost-server/v5/plugin"
+	pluginapi "github.com/mattermost/mattermost-plugin-api"
+	"github.com/mattermost/mattermost-server/v6/model"
 )
 
 // configuration captures the plugin's external configuration as exposed in the Mattermost server
@@ -195,24 +195,28 @@ func (p *Plugin) diffConfiguration(newConfiguration *configuration) {
 // This demo implementation ensures the configured demo user and channel are created for use
 // by the plugin.
 func (p *Plugin) OnConfigurationChange() error {
+	if p.client == nil {
+		p.client = pluginapi.NewClient(p.API, p.Driver)
+	}
+
 	configuration := p.getConfiguration().Clone()
-	var err error
 
 	// Load the public configuration fields from the Mattermost server configuration.
 	if loadConfigErr := p.API.LoadPluginConfiguration(configuration); loadConfigErr != nil {
 		return errors.Wrap(loadConfigErr, "failed to load plugin configuration")
 	}
 
-	configuration.demoUserID, err = p.ensureDemoUser(configuration)
+	demoUserID, err := p.ensureDemoUser(configuration)
 	if err != nil {
 		return errors.Wrap(err, "failed to ensure demo user")
 	}
+	configuration.demoUserID = demoUserID
 
-	botID, ensureBotError := p.Helpers.EnsureBot(&model.Bot{
+	botID, ensureBotError := p.client.Bot.EnsureBot(&model.Bot{
 		Username:    "demoplugin",
 		DisplayName: "Demo Plugin Bot",
 		Description: "A bot account created by the demo plugin.",
-	}, plugin.ProfileImagePath("/assets/icon.png"))
+	}, pluginapi.ProfileImagePath("/assets/icon.png"))
 	if ensureBotError != nil {
 		return errors.Wrap(ensureBotError, "failed to ensure demo bot")
 	}
@@ -295,7 +299,7 @@ func (p *Plugin) ensureDemoChannels(configuration *configuration) (map[string]st
 		if channel == nil {
 			channel, err = p.API.CreateChannel(&model.Channel{
 				TeamId:      team.Id,
-				Type:        model.CHANNEL_OPEN,
+				Type:        model.ChannelTypeOpen,
 				DisplayName: "Demo Plugin",
 				Name:        configuration.ChannelName,
 				Header:      "The channel used by the demo plugin.",

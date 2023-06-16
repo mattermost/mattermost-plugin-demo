@@ -4,35 +4,19 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/blang/semver/v4"
 	"github.com/pkg/errors"
 
+	pluginapi "github.com/mattermost/mattermost-plugin-api"
 	"github.com/mattermost/mattermost-plugin-api/cluster"
 )
-
-const minimumServerVersion = "5.30.0"
-
-func (p *Plugin) checkServerVersion() error {
-	serverVersion, err := semver.Parse(p.API.GetServerVersion())
-	if err != nil {
-		return errors.Wrap(err, "failed to parse server version")
-	}
-
-	r := semver.MustParseRange(">=" + minimumServerVersion)
-	if !r(serverVersion) {
-		return fmt.Errorf("this plugin requires Mattermost v%s or later", minimumServerVersion)
-	}
-
-	return nil
-}
 
 // OnActivate is invoked when the plugin is activated.
 //
 // This demo implementation logs a message to the demo channel whenever the plugin is activated.
 // It also creates a demo bot account
 func (p *Plugin) OnActivate() error {
-	if err := p.checkServerVersion(); err != nil {
-		return err
+	if p.client == nil {
+		p.client = pluginapi.NewClient(p.API, p.Driver)
 	}
 
 	if ok, err := p.checkRequiredServerConfiguration(); err != nil {
@@ -118,5 +102,5 @@ func (p *Plugin) OnDeactivate() error {
 }
 
 func (p *Plugin) checkRequiredServerConfiguration() (bool, error) {
-	return p.Helpers.CheckRequiredServerConfiguration(manifest.RequiredConfig)
+	return p.client.Configuration.CheckRequiredServerConfiguration(manifest.RequiredConfig)
 }

@@ -7,8 +7,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost-server/v6/plugin"
 )
 
 const (
@@ -219,7 +219,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 
 	default:
 		return &model.CommandResponse{
-			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			ResponseType: model.CommandResponseTypeEphemeral,
 			Text:         fmt.Sprintf("Unknown command: " + args.Command),
 		}, nil
 	}
@@ -228,7 +228,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 func (p *Plugin) executeCommandCrash() *model.CommandResponse {
 	go p.crash()
 	return &model.CommandResponse{
-		ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+		ResponseType: model.CommandResponseTypeEphemeral,
 		Text:         "Crashing plugin",
 	}
 }
@@ -239,7 +239,7 @@ func (p *Plugin) executeCommandHooks(args *model.CommandArgs) *model.CommandResp
 	if strings.HasSuffix(args.Command, "true") {
 		if !configuration.disabled {
 			return &model.CommandResponse{
-				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+				ResponseType: model.CommandResponseTypeEphemeral,
 				Text:         "The demo plugin hooks are already enabled.",
 			}
 		}
@@ -248,7 +248,7 @@ func (p *Plugin) executeCommandHooks(args *model.CommandArgs) *model.CommandResp
 		p.emitStatusChange()
 
 		return &model.CommandResponse{
-			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			ResponseType: model.CommandResponseTypeEphemeral,
 			Text:         "Enabled demo plugin hooks.",
 		}
 	}
@@ -256,7 +256,7 @@ func (p *Plugin) executeCommandHooks(args *model.CommandArgs) *model.CommandResp
 	if strings.HasSuffix(args.Command, "false") {
 		if configuration.disabled {
 			return &model.CommandResponse{
-				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+				ResponseType: model.CommandResponseTypeEphemeral,
 				Text:         "The demo plugin hooks are already disabled.",
 			}
 		}
@@ -265,13 +265,13 @@ func (p *Plugin) executeCommandHooks(args *model.CommandArgs) *model.CommandResp
 		p.emitStatusChange()
 
 		return &model.CommandResponse{
-			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			ResponseType: model.CommandResponseTypeEphemeral,
 			Text:         "Disabled demo plugin hooks.",
 		}
 	}
 
 	return &model.CommandResponse{
-		ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+		ResponseType: model.CommandResponseTypeEphemeral,
 		Text:         fmt.Sprintf("Unknown command action: " + args.Command),
 	}
 }
@@ -291,13 +291,13 @@ func (p *Plugin) executeCommandEphemeral(args *model.CommandArgs) *model.Command
 						},
 						URL: fmt.Sprintf("%s/plugins/%s/ephemeral/update", siteURL, manifest.Id),
 					},
-					Type: model.POST_ACTION_TYPE_BUTTON,
+					Type: model.PostActionTypeButton,
 					Name: "Update",
 				}, {
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("%s/plugins/%s/ephemeral/delete", siteURL, manifest.Id),
 					},
-					Type: model.POST_ACTION_TYPE_BUTTON,
+					Type: model.PostActionTypeButton,
 					Name: "Delete",
 				}},
 			}},
@@ -331,7 +331,7 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 	switch command {
 	case "help":
 		return &model.CommandResponse{
-			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			ResponseType: model.CommandResponseTypeEphemeral,
 			Text:         commandDialogHelp,
 		}
 	case "":
@@ -372,7 +372,7 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 		}
 	default:
 		return &model.CommandResponse{
-			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			ResponseType: model.CommandResponseTypeEphemeral,
 			Text:         fmt.Sprintf("Unknown command: " + command),
 		}
 	}
@@ -381,7 +381,7 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 		errorMessage := "Failed to open Interactive Dialog"
 		p.API.LogError(errorMessage, "err", err.Error())
 		return &model.CommandResponse{
-			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			ResponseType: model.CommandResponseTypeEphemeral,
 			Text:         errorMessage,
 		}
 	}
@@ -575,7 +575,7 @@ func (p *Plugin) executeCommandInteractive(args *model.CommandArgs) *model.Comma
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/interactive/button/1", manifest.Id),
 					},
-					Type: model.POST_ACTION_TYPE_BUTTON,
+					Type: model.PostActionTypeButton,
 					Name: "Interactive Button",
 				}},
 			}},
@@ -587,7 +587,7 @@ func (p *Plugin) executeCommandInteractive(args *model.CommandArgs) *model.Comma
 		const errorMessage = "Failed to create post"
 		p.API.LogError(errorMessage, "err", err.Error())
 		return &model.CommandResponse{
-			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			ResponseType: model.CommandResponseTypeEphemeral,
 			Text:         errorMessage,
 		}
 	}
@@ -637,7 +637,7 @@ func (p *Plugin) executeCommandMentions(args *model.CommandArgs) *model.CommandR
 		const errorMessage = "Failed to create post"
 		p.API.LogError(errorMessage, "err", err.Error())
 		return &model.CommandResponse{
-			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			ResponseType: model.CommandResponseTypeEphemeral,
 			Text:         errorMessage,
 		}
 	}
@@ -654,7 +654,7 @@ func (p *Plugin) executeCommandListFiles(args *model.CommandArgs) *model.Command
 		errorMessage := "Failed to get file list"
 		p.API.LogError(errorMessage, "err", err.Error())
 		return &model.CommandResponse{
-			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			ResponseType: model.CommandResponseTypeEphemeral,
 			Text:         errorMessage,
 		}
 	}
@@ -664,7 +664,7 @@ func (p *Plugin) executeCommandListFiles(args *model.CommandArgs) *model.Command
 		errorMessage := "Failed to get team name"
 		p.API.LogError(errorMessage, "err", err.Error())
 		return &model.CommandResponse{
-			ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+			ResponseType: model.CommandResponseTypeEphemeral,
 			Text:         errorMessage,
 		}
 	}
@@ -677,7 +677,7 @@ func (p *Plugin) executeCommandListFiles(args *model.CommandArgs) *model.Command
 			errorMessage := "Failed to get username"
 			p.API.LogError(errorMessage, "err", err.Error())
 			return &model.CommandResponse{
-				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+				ResponseType: model.CommandResponseTypeEphemeral,
 				Text:         errorMessage,
 			}
 		}
@@ -686,7 +686,7 @@ func (p *Plugin) executeCommandListFiles(args *model.CommandArgs) *model.Command
 			errorMessage := "Failed to get file public link"
 			p.API.LogError(errorMessage, "err", err.Error())
 			return &model.CommandResponse{
-				ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+				ResponseType: model.CommandResponseTypeEphemeral,
 				Text:         errorMessage,
 			}
 		}
@@ -718,7 +718,7 @@ func (p *Plugin) executeCommandListFiles(args *model.CommandArgs) *model.Command
 
 func (p *Plugin) executeAutocompleteTest(args *model.CommandArgs) *model.CommandResponse {
 	return &model.CommandResponse{
-		ResponseType: model.COMMAND_RESPONSE_TYPE_EPHEMERAL,
+		ResponseType: model.CommandResponseTypeEphemeral,
 		Text:         fmt.Sprintf("Executed command: " + args.Command),
 	}
 }

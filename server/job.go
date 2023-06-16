@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-server/v6/model"
 )
 
 func (p *Plugin) BackgroundJob() {
