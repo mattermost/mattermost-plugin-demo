@@ -235,6 +235,84 @@ func (p *Plugin) OnConfigurationChange() error {
 	return nil
 }
 
+// ConfigurationWillBeSaved is invoked before saving the configuration to the
+// backing store.
+// An error can be returned to reject the operation. Additionally, a new
+// config object can be returned to be stored in place of the provided one.
+// Minimum server version: 8.0
+//
+// This demo implementation logs a message to the demo channel whenever config
+// is going to be saved.
+// If the Username config option is set to "invalid" an error will be
+// returned, resulting in the config not getting saved.
+// If the Username config option is set to "replaceme" the config value will be
+// replaced with "replaced".
+func (p *Plugin) ConfigurationWillBeSaved(newCfg *model.Config) (*model.Config, error) {
+	cfg := p.getConfiguration()
+	if cfg.disabled {
+		return nil, nil
+	}
+
+	teams, appErr := p.API.GetTeams()
+	if appErr != nil {
+		p.API.LogError(
+			"Failed to query teams ConfigurationWillBeSaved",
+			"error", appErr.Error(),
+		)
+		return nil, nil
+	}
+
+	msg := "Configuration will be saved"
+
+	configData := newCfg.PluginSettings.Plugins[manifest.Id]
+	js, err := json.Marshal(configData)
+	if err != nil {
+		p.API.LogError(
+			"Failed to marshal config data ConfigurationWillBeSaved",
+			"error", err.Error(),
+		)
+		return nil, nil
+	}
+
+	if err := json.Unmarshal(js, &cfg); err != nil {
+		p.API.LogError(
+			"Failed to unmarshal config data ConfigurationWillBeSaved",
+			"error", err.Error(),
+		)
+		return nil, nil
+	}
+
+	invalidUsernameUsed := cfg.Username == "invalid"
+	replaceUsernameUsed := cfg.Username == "replaceme"
+
+	if invalidUsernameUsed {
+		msg = "Configuration won't be saved, invalid Username value used"
+	} else if replaceUsernameUsed {
+		msg = "Configuration will be save, replacing Username value"
+	}
+
+	for _, team := range teams {
+		if err := p.postPluginMessage(team.Id, msg); err != nil {
+			p.API.LogError(
+				"Failed to post ConfigurationWillBeSaved message",
+				"channel_id", cfg.demoChannelIDs[team.Id],
+				"error", err.Error(),
+			)
+		}
+	}
+
+	if invalidUsernameUsed {
+		return nil, errors.New(msg)
+	}
+
+	if replaceUsernameUsed {
+		newCfg.PluginSettings.Plugins[manifest.Id]["username"] = "replaced"
+		return newCfg, nil
+	}
+
+	return nil, nil
+}
+
 func (p *Plugin) ensureDemoUser(configuration *configuration) (string, error) {
 	user, err := p.API.GetUserByUsername(configuration.Username)
 	if err != nil {
