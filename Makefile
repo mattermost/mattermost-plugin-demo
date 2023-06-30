@@ -14,8 +14,13 @@ export GO111MODULE=on
 # You can include assets this directory into the bundle. This can be e.g. used to include profile pictures.
 ASSETS_DIR ?= assets
 
+## Define the default target (make all)
+.PHONY: default
+default: all
+
 # Verify environment, and define PLUGIN_ID, PLUGIN_VERSION, HAS_SERVER and HAS_WEBAPP as needed.
 include build/setup.mk
+include build/legacy.mk
 
 BUNDLE_NAME ?= $(PLUGIN_ID)-$(PLUGIN_VERSION).tar.gz
 
@@ -32,11 +37,6 @@ endif
 
 ## Checks the code style, tests, builds and bundles the plugin.
 all: check-style test dist
-
-## Propagates plugin manifest information into the server/ and webapp/ folders as required.
-.PHONY: apply
-apply:
-	./build/bin/manifest apply
 
 ## Runs golangci-lint and eslint.
 .PHONY: check-style
@@ -126,7 +126,7 @@ endif
 
 ## Builds and bundles the plugin.
 .PHONY: dist
-dist:	apply server webapp bundle
+dist:	server webapp bundle
 
 ## Installs the plugin to a (development) server.
 ## It uses the API if appropriate environment variables are defined,
@@ -139,7 +139,7 @@ deploy: dist
 debug-deploy: debug-dist deploy
 
 .PHONY: debug-dist
-debug-dist: apply server webapp-debug bundle
+debug-dist: server webapp-debug bundle
 
 ## Runs any lints and unit tests defined for the server and webapp, if they exist.
 .PHONY: test
