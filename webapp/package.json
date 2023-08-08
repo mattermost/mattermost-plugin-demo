@@ -4,12 +4,15 @@
   "main": "src/index.js",
   "scripts": {
     "build": "webpack --mode=production",
+    "build:watch": "webpack --mode=production --watch",
     "debug": "webpack --mode=none",
-    "lint": "eslint --ignore-pattern node_modules --ignore-pattern dist --ext .js --ext .jsx --ext tsx --ext ts . --quiet",
-    "fix": "eslint --ignore-pattern node_modules --ignore-pattern dist --ext .js --ext .jsx --ext tsx --ext ts . --quiet --fix",
+    "debug:watch": "webpack --mode=development --watch",
+    "lint": "eslint --ignore-pattern node_modules --ignore-pattern dist --ext .js --ext .jsx --ext tsx --ext ts . --quiet --cache",
+    "fix": "eslint --ignore-pattern node_modules --ignore-pattern dist --ext .js --ext .jsx --ext tsx --ext ts . --quiet --fix --cache",
     "test": "jest --forceExit --detectOpenHandles --verbose",
     "test:watch": "jest --watch",
-    "test-ci": "jest --forceExit --detectOpenHandles --maxWorkers=2"
+    "test-ci": "jest --forceExit --detectOpenHandles --maxWorkers=2",
+    "check-types": "tsc"
   },
   "author": "",
   "license": "Apache-2.0",
@@ -30,6 +33,7 @@
     "@types/react": "16.9.17",
     "@types/react-dom": "16.9.4",
     "@types/react-intl": "2.3.18",
+    "@types/react-redux": "7.1.25",
     "@types/react-router-dom": "4.3.4",
     "@types/react-transition-group": "4.2.2",
     "@typescript-eslint/eslint-plugin": "1.13.0",
