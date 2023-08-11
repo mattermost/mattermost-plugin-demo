@@ -102,8 +102,8 @@ github.com/mattermost/ldap v0.0.0-20201202150706-ee0e6284187d h1:/RJ/UV7M5c7L2TQ
 github.com/mattermost/ldap v0.0.0-20201202150706-ee0e6284187d/go.mod h1:HLbgMEI5K131jpxGazJ97AxfPDt31osq36YS1oxFQPQ=
 github.com/mattermost/logr/v2 v2.0.16 h1:jnePX4cPskC3WDFvUardh/xZfxNdsFXbEERJQ1kUEDE=
 github.com/mattermost/logr/v2 v2.0.16/go.mod h1:1dm/YhTpozsqANXxo5Pi5zYLBsal2xY0pX+JZNbzYJY=
-github.com/mattermost/mattermost/server/public v0.0.8-0.20230808080038-0753def44509 h1:WMUgVctzKOc2/uQIJaMdF0+fQHeDuCJuADH37YHuTKg=
-github.com/mattermost/mattermost/server/public v0.0.8-0.20230808080038-0753def44509/go.mod h1:oJXHdo+Tku9t9BtTq6nJnJ9nvMx7lfQxtL+Mnu5tMtM=
+github.com/mattermost/mattermost/server/public v0.0.8-0.20230810070810-eb8ac25c0b67 h1:o2R1Fxe68DZJ0gEvP7H2SjnNidS7HgOJXfradzSUmnU=
+github.com/mattermost/mattermost/server/public v0.0.8-0.20230810070810-eb8ac25c0b67/go.mod h1:pLzA0bv9jzLU5MwoJ+WjJAPsyEG1GVLu+puCfmbftbE=
 github.com/mattn/go-colorable v0.1.9/go.mod h1:u6P/XSegPjTcexA+o6vUJrdnUu04hMope9wVRipJSqc=
 github.com/mattn/go-colorable v0.1.12/go.mod h1:u5H1YNBxpqRaxsYJYSkiCWKzEfiAb1Gb520KVy5xxl4=
 github.com/mattn/go-colorable v0.1.13 h1:fFA4WZxdEF4tXPZVKMLwD8oUnCTTo08duU7wxecdEvA=
