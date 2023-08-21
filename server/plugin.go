@@ -5,8 +5,8 @@ import (
 
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
-	"github.com/mattermost/mattermost/server/public/plugin/cluster"
-	"github.com/mattermost/mattermost/server/public/plugin/pluginapi"
+	"github.com/mattermost/mattermost/server/public/pluginapi"
+	"github.com/mattermost/mattermost/server/public/pluginapi/cluster"
 
 	root "github.com/mattermost/mattermost-plugin-demo"
 )
