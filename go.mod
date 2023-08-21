@@ -3,7 +3,7 @@ module github.com/mattermost/mattermost-plugin-demo
 go 1.19
 
 require (
-	github.com/mattermost/mattermost/server/public v0.0.8-0.20230821092930-95b76e42ad62
+	github.com/mattermost/mattermost/server/public v0.0.8
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.8.4
 )
