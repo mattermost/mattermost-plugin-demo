@@ -6,8 +6,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	pluginapi "github.com/mattermost/mattermost-plugin-api"
-	"github.com/mattermost/mattermost-plugin-api/cluster"
+	"github.com/mattermost/mattermost/server/public/pluginapi"
+	"github.com/mattermost/mattermost/server/public/pluginapi/cluster"
 )
 
 // OnActivate is invoked when the plugin is activated.
@@ -19,10 +19,8 @@ func (p *Plugin) OnActivate() error {
 		p.client = pluginapi.NewClient(p.API, p.Driver)
 	}
 
-	if ok, err := p.checkRequiredServerConfiguration(); err != nil {
-		return errors.Wrap(err, "could not check required server configuration")
-	} else if !ok {
-		p.API.LogError("Server configuration is not compatible")
+	if err := p.checkRequiredServerConfiguration(); err != nil {
+		return errors.Wrap(err, "server configuration is not compatible")
 	}
 
 	if err := p.OnConfigurationChange(); err != nil {
@@ -101,6 +99,15 @@ func (p *Plugin) OnDeactivate() error {
 	return nil
 }
 
-func (p *Plugin) checkRequiredServerConfiguration() (bool, error) {
-	return p.client.Configuration.CheckRequiredServerConfiguration(manifest.RequiredConfig)
+func (p *Plugin) checkRequiredServerConfiguration() error {
+	config := p.client.Configuration.GetConfig()
+	if config.ServiceSettings.EnableGifPicker == nil || !*config.ServiceSettings.EnableGifPicker {
+		return errors.New("ServiceSettings.EnableGifPicker must be enabled")
+	}
+
+	if config.FileSettings.EnablePublicLink == nil || !*config.FileSettings.EnablePublicLink {
+		return errors.New("FileSettings.EnablePublicLink must be enabled")
+	}
+
+	return nil
 }

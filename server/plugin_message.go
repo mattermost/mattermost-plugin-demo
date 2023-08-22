@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost/server/public/model"
 )
 
 // Helper method for the demo plugin. Posts a message to the "demo" channel
