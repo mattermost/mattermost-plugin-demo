@@ -232,3 +232,52 @@ func (p *Plugin) MessageHasBeenUpdated(c *plugin.Context, newPost, oldPost *mode
 		}
 	}
 }
+
+// MessageHasBeenDeleted is invoked after a message is mark as deleted in the
+// database. If you need to modify or reject the post, see MessageWillBeUpdated
+// Note that this method will be called for posts deleted by plugins, including
+// the plugin that deleted the post.
+//
+// This demo implementation logs a message to the demo channel whenever a message is deleted.
+func (p *Plugin) MessageHasBeenDeleted(c *plugin.Context, post *model.Post) {
+	configuration := p.getConfiguration()
+
+	if configuration.disabled {
+		return
+	}
+
+	// Ignore updates by the demo plugin user.
+	if post.UserId == configuration.demoUserID {
+		return
+	}
+
+	user, err := p.API.GetUser(post.UserId)
+	if err != nil {
+		p.API.LogError(
+			"Failed to query user",
+			"user_id", post.UserId,
+			"error", err.Error(),
+		)
+		return
+	}
+
+	channel, err := p.API.GetChannel(post.ChannelId)
+	if err != nil {
+		p.API.LogError(
+			"Failed to query channel",
+			"channel_id", post.ChannelId,
+			"error", err.Error(),
+		)
+		return
+	}
+
+	msg := fmt.Sprintf("MessageHasBeenDeleted: @%s, ~%s", user.Username, channel.Name)
+	if err := p.postPluginMessage(channel.TeamId, msg); err != nil {
+		p.API.LogError(
+			"Failed to post MessageHasBeenDeleted message",
+			"channel_id", channel.Id,
+			"user_id", user.Id,
+			"error", err.Error(),
+		)
+	}
+}
