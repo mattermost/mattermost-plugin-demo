@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost/server/public/model"
+	"github.com/mattermost/mattermost/server/public/plugin"
 )
 
 // ServeHTTP allows the plugin to implement the http.Handler interface. Requests destined for the
@@ -67,12 +67,14 @@ func (p *Plugin) handleHello(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
-	request := model.SubmitDialogRequestFromJson(r.Body)
-	if request == nil {
-		p.API.LogError("Failed to decode SubmitDialogRequest")
+	var request model.SubmitDialogRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		p.API.LogError("Failed to decode SubmitDialogRequest", "err", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	defer r.Body.Close()
 
 	if !request.Cancelled {
 		number, ok := request.Submission[dialogElementNameNumber].(float64)
@@ -88,7 +90,7 @@ func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
 					dialogElementNameNumber: "This must be 42",
 				},
 			}
-			p.writeSubmitDialogResponse(w, response)
+			p.writeJSON(w, response)
 			return
 		}
 	}
@@ -136,12 +138,14 @@ func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Plugin) handleDialog2(w http.ResponseWriter, r *http.Request) {
-	request := model.SubmitDialogRequestFromJson(r.Body)
-	if request == nil {
-		p.API.LogError("Failed to decode SubmitDialogRequest")
+	var request model.SubmitDialogRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		p.API.LogError("Failed to decode SubmitDialogRequest", "err", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	defer r.Body.Close()
 
 	user, appErr := p.API.GetUser(request.UserId)
 	if appErr != nil {
@@ -172,16 +176,19 @@ func (p *Plugin) handleDialogWithError(w http.ResponseWriter, r *http.Request) {
 	response := &model.SubmitDialogResponse{
 		Error: "some error",
 	}
-	p.writeSubmitDialogResponse(w, response)
+	p.writeJSON(w, response)
 }
 
 func (p *Plugin) handleEphemeralUpdate(w http.ResponseWriter, r *http.Request) {
-	request := model.PostActionIntegrationRequestFromJson(r.Body)
-
-	if request == nil {
+	var request model.PostActionIntegrationRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		p.API.LogError("Failed to decode PostActionIntegrationRequest", "err", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	defer r.Body.Close()
+
 	siteURL := *p.API.GetConfig().ServiceSettings.SiteURL
 	count := request.Context["count"].(float64) + 1
 
@@ -198,13 +205,13 @@ func (p *Plugin) handleEphemeralUpdate(w http.ResponseWriter, r *http.Request) {
 						},
 						URL: fmt.Sprintf("%s/plugins/%s/ephemeral/update", siteURL, manifest.Id),
 					},
-					Type: model.POST_ACTION_TYPE_BUTTON,
+					Type: model.PostActionTypeButton,
 					Name: fmt.Sprintf("Update %d", int(count)),
 				}, {
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("%s/plugins/%s/ephemeral/delete", siteURL, manifest.Id),
 					},
-					Type: model.POST_ACTION_TYPE_BUTTON,
+					Type: model.PostActionTypeButton,
 					Name: "Delete",
 				}},
 			}},
@@ -213,31 +220,34 @@ func (p *Plugin) handleEphemeralUpdate(w http.ResponseWriter, r *http.Request) {
 	p.API.UpdateEphemeralPost(request.UserId, post)
 
 	resp := &model.PostActionIntegrationResponse{}
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(resp.ToJson())
+	p.writeJSON(w, resp)
 }
 
 func (p *Plugin) handleEphemeralDelete(w http.ResponseWriter, r *http.Request) {
-	request := model.PostActionIntegrationRequestFromJson(r.Body)
-
-	if request == nil {
+	var request model.PostActionIntegrationRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		p.API.LogError("Failed to decode PostActionIntegrationRequest", "err", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	defer r.Body.Close()
 
 	p.API.DeleteEphemeralPost(request.UserId, request.PostId)
 
 	resp := &model.PostActionIntegrationResponse{}
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(resp.ToJson())
+	p.writeJSON(w, resp)
 }
 
 func (p *Plugin) handleInteractiveAction(w http.ResponseWriter, r *http.Request) {
-	request := model.PostActionIntegrationRequestFromJson(r.Body)
-	if request == nil {
+	var request model.PostActionIntegrationRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		p.API.LogError("Failed to decode PostActionIntegrationRequest", "err", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	defer r.Body.Close()
 
 	user, appErr := p.API.GetUser(request.UserId)
 	if appErr != nil {
@@ -277,15 +287,16 @@ func (p *Plugin) handleInteractiveAction(w http.ResponseWriter, r *http.Request)
 	}
 
 	resp := &model.PostActionIntegrationResponse{}
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(resp.ToJson())
+	p.writeJSON(w, resp)
 }
 
-func (p *Plugin) writeSubmitDialogResponse(w http.ResponseWriter, response *model.SubmitDialogResponse) {
+func (p *Plugin) writeJSON(w http.ResponseWriter, response any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if _, err := w.Write(response.ToJson()); err != nil {
-		p.API.LogError("Failed to write DialogResponse", "err", err.Error())
+
+	err := json.NewEncoder(w).Encode(response)
+	if err != nil {
+		p.API.LogError("Failed to write JSON response", "err", err.Error())
 	}
 }
 

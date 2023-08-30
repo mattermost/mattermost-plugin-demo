@@ -7,8 +7,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost/server/public/model"
+	"github.com/mattermost/mattermost/server/public/pluginapi"
 )
 
 // configuration captures the plugin's external configuration as exposed in the Mattermost server
@@ -195,24 +195,28 @@ func (p *Plugin) diffConfiguration(newConfiguration *configuration) {
 // This demo implementation ensures the configured demo user and channel are created for use
 // by the plugin.
 func (p *Plugin) OnConfigurationChange() error {
+	if p.client == nil {
+		p.client = pluginapi.NewClient(p.API, p.Driver)
+	}
+
 	configuration := p.getConfiguration().Clone()
-	var err error
 
 	// Load the public configuration fields from the Mattermost server configuration.
 	if loadConfigErr := p.API.LoadPluginConfiguration(configuration); loadConfigErr != nil {
 		return errors.Wrap(loadConfigErr, "failed to load plugin configuration")
 	}
 
-	configuration.demoUserID, err = p.ensureDemoUser(configuration)
+	demoUserID, err := p.ensureDemoUser(configuration)
 	if err != nil {
 		return errors.Wrap(err, "failed to ensure demo user")
 	}
+	configuration.demoUserID = demoUserID
 
-	botID, ensureBotError := p.Helpers.EnsureBot(&model.Bot{
+	botID, ensureBotError := p.client.Bot.EnsureBot(&model.Bot{
 		Username:    "demoplugin",
 		DisplayName: "Demo Plugin Bot",
 		Description: "A bot account created by the demo plugin.",
-	}, plugin.ProfileImagePath("/assets/icon.png"))
+	}, pluginapi.ProfileImagePath("/assets/icon.png"))
 	if ensureBotError != nil {
 		return errors.Wrap(ensureBotError, "failed to ensure demo bot")
 	}
@@ -229,6 +233,84 @@ func (p *Plugin) OnConfigurationChange() error {
 	p.setConfiguration(configuration)
 
 	return nil
+}
+
+// ConfigurationWillBeSaved is invoked before saving the configuration to the
+// backing store.
+// An error can be returned to reject the operation. Additionally, a new
+// config object can be returned to be stored in place of the provided one.
+// Minimum server version: 8.0
+//
+// This demo implementation logs a message to the demo channel whenever config
+// is going to be saved.
+// If the Username config option is set to "invalid" an error will be
+// returned, resulting in the config not getting saved.
+// If the Username config option is set to "replaceme" the config value will be
+// replaced with "replaced".
+func (p *Plugin) ConfigurationWillBeSaved(newCfg *model.Config) (*model.Config, error) {
+	cfg := p.getConfiguration()
+	if cfg.disabled {
+		return nil, nil
+	}
+
+	teams, appErr := p.API.GetTeams()
+	if appErr != nil {
+		p.API.LogError(
+			"Failed to query teams ConfigurationWillBeSaved",
+			"error", appErr.Error(),
+		)
+		return nil, nil
+	}
+
+	msg := "Configuration will be saved"
+
+	configData := newCfg.PluginSettings.Plugins[manifest.Id]
+	js, err := json.Marshal(configData)
+	if err != nil {
+		p.API.LogError(
+			"Failed to marshal config data ConfigurationWillBeSaved",
+			"error", err.Error(),
+		)
+		return nil, nil
+	}
+
+	if err := json.Unmarshal(js, &cfg); err != nil {
+		p.API.LogError(
+			"Failed to unmarshal config data ConfigurationWillBeSaved",
+			"error", err.Error(),
+		)
+		return nil, nil
+	}
+
+	invalidUsernameUsed := cfg.Username == "invalid"
+	replaceUsernameUsed := cfg.Username == "replaceme"
+
+	if invalidUsernameUsed {
+		msg = "Configuration won't be saved, invalid Username value used"
+	} else if replaceUsernameUsed {
+		msg = "Configuration will be save, replacing Username value"
+	}
+
+	for _, team := range teams {
+		if err := p.postPluginMessage(team.Id, msg); err != nil {
+			p.API.LogError(
+				"Failed to post ConfigurationWillBeSaved message",
+				"channel_id", cfg.demoChannelIDs[team.Id],
+				"error", err.Error(),
+			)
+		}
+	}
+
+	if invalidUsernameUsed {
+		return nil, errors.New(msg)
+	}
+
+	if replaceUsernameUsed {
+		newCfg.PluginSettings.Plugins[manifest.Id]["username"] = "replaced"
+		return newCfg, nil
+	}
+
+	return nil, nil
 }
 
 func (p *Plugin) ensureDemoUser(configuration *configuration) (string, error) {
@@ -295,7 +377,7 @@ func (p *Plugin) ensureDemoChannels(configuration *configuration) (map[string]st
 		if channel == nil {
 			channel, err = p.API.CreateChannel(&model.Channel{
 				TeamId:      team.Id,
-				Type:        model.CHANNEL_OPEN,
+				Type:        model.ChannelTypeOpen,
 				DisplayName: "Demo Plugin",
 				Name:        configuration.ChannelName,
 				Header:      "The channel used by the demo plugin.",

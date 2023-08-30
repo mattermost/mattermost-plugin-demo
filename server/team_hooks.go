@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost/server/public/model"
+	"github.com/mattermost/mattermost/server/public/plugin"
 )
 
 // UserHasJoinedTeam is invoked after the membership has been committed to the database. If

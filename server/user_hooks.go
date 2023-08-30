@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost/server/public/model"
+	"github.com/mattermost/mattermost/server/public/plugin"
 )
 
 // UserHasBeenCreated is invoked when a new user is created.
@@ -28,10 +28,42 @@ func (p *Plugin) UserHasBeenCreated(c *plugin.Context, user *model.User) {
 	}
 
 	for _, team := range teams {
-		msg := fmt.Sprintf("User_ID @%s has been created in", user.Id)
+		msg := fmt.Sprintf("@%s has been created. ID: `%s`", user.Username, user.Id)
 		if err := p.postPluginMessage(team.Id, msg); err != nil {
 			p.API.LogError(
 				"Failed to post UserHasBeenCreated message",
+				"channel_id", configuration.demoChannelIDs[team.Id],
+				"error", err.Error(),
+			)
+		}
+	}
+}
+
+// UserHasBeenDeactivated is invoked when a user is made inactive.
+//
+// This demo implementation logs a message to the demo channel in the team whenever a user
+// is deactivated.
+func (p *Plugin) UserHasBeenDeactivated(c *plugin.Context, user *model.User) {
+	configuration := p.getConfiguration()
+
+	if configuration.disabled {
+		return
+	}
+
+	teams, err := p.API.GetTeams()
+	if err != nil {
+		p.API.LogError(
+			"Failed to query teams UserHasBeenDeactivated",
+			"error", err.Error(),
+		)
+		return
+	}
+
+	for _, team := range teams {
+		msg := fmt.Sprintf("@%s has been deactivated. ID: `%s`", user.Username, user.Id)
+		if err := p.postPluginMessage(team.Id, msg); err != nil {
+			p.API.LogError(
+				"Failed to post UserHasBeenDeactivated message",
 				"channel_id", configuration.demoChannelIDs[team.Id],
 				"error", err.Error(),
 			)

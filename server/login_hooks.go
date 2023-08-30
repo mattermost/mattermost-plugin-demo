@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/mattermost/mattermost-server/v5/model"
-	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/mattermost/mattermost/server/public/model"
+	"github.com/mattermost/mattermost/server/public/plugin"
 )
 
 // UserWillLogIn before the login of the user is returned. Returning a non empty string will reject the login event.
@@ -37,7 +37,7 @@ func (p *Plugin) UserHasLoggedIn(c *plugin.Context, user *model.User) {
 	}
 
 	for _, team := range teams {
-		msg := fmt.Sprintf("User @%s has logged in", user.Username)
+		msg := fmt.Sprintf("@%s has logged in. ID: `%s`", user.Username, user.Id)
 		if err := p.postPluginMessage(team.Id, msg); err != nil {
 			p.API.LogError(
 				"Failed to post UserHasLoggedIn message",

@@ -4,41 +4,23 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/blang/semver/v4"
 	"github.com/pkg/errors"
 
-	"github.com/mattermost/mattermost-plugin-api/cluster"
+	"github.com/mattermost/mattermost/server/public/pluginapi"
+	"github.com/mattermost/mattermost/server/public/pluginapi/cluster"
 )
-
-const minimumServerVersion = "5.30.0"
-
-func (p *Plugin) checkServerVersion() error {
-	serverVersion, err := semver.Parse(p.API.GetServerVersion())
-	if err != nil {
-		return errors.Wrap(err, "failed to parse server version")
-	}
-
-	r := semver.MustParseRange(">=" + minimumServerVersion)
-	if !r(serverVersion) {
-		return fmt.Errorf("this plugin requires Mattermost v%s or later", minimumServerVersion)
-	}
-
-	return nil
-}
 
 // OnActivate is invoked when the plugin is activated.
 //
 // This demo implementation logs a message to the demo channel whenever the plugin is activated.
 // It also creates a demo bot account
 func (p *Plugin) OnActivate() error {
-	if err := p.checkServerVersion(); err != nil {
-		return err
+	if p.client == nil {
+		p.client = pluginapi.NewClient(p.API, p.Driver)
 	}
 
-	if ok, err := p.checkRequiredServerConfiguration(); err != nil {
-		return errors.Wrap(err, "could not check required server configuration")
-	} else if !ok {
-		p.API.LogError("Server configuration is not compatible")
+	if err := p.checkRequiredServerConfiguration(); err != nil {
+		return errors.Wrap(err, "server configuration is not compatible")
 	}
 
 	if err := p.OnConfigurationChange(); err != nil {
@@ -117,6 +99,15 @@ func (p *Plugin) OnDeactivate() error {
 	return nil
 }
 
-func (p *Plugin) checkRequiredServerConfiguration() (bool, error) {
-	return p.Helpers.CheckRequiredServerConfiguration(manifest.RequiredConfig)
+func (p *Plugin) checkRequiredServerConfiguration() error {
+	config := p.client.Configuration.GetConfig()
+	if config.ServiceSettings.EnableGifPicker == nil || !*config.ServiceSettings.EnableGifPicker {
+		return errors.New("ServiceSettings.EnableGifPicker must be enabled")
+	}
+
+	if config.FileSettings.EnablePublicLink == nil || !*config.FileSettings.EnablePublicLink {
+		return errors.New("FileSettings.EnablePublicLink must be enabled")
+	}
+
+	return nil
 }

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -49,7 +49,7 @@ func TestServeHTTP(t *testing.T) {
 			require.NotNil(t, result)
 			defer result.Body.Close()
 
-			bodyBytes, err := ioutil.ReadAll(result.Body)
+			bodyBytes, err := io.ReadAll(result.Body)
 			require.Nil(t, err)
 			bodyString := string(bodyBytes)
 
