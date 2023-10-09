@@ -40,6 +40,7 @@ func TestServeHTTP(t *testing.T) {
 			assert := assert.New(t)
 
 			plugin := &Plugin{}
+			plugin.initializeAPI()
 
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest("GET", test.RequestURL, nil)

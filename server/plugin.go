@@ -3,6 +3,8 @@ package main
 import (
 	"sync"
 
+	"github.com/gorilla/mux"
+
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
@@ -25,6 +27,8 @@ type Plugin struct {
 	// configuration is the active plugin configuration. Consult getConfiguration and
 	// setConfiguration for usage.
 	configuration *configuration
+
+	router *mux.Router
 
 	// BotId of the created bot account.
 	botID string
