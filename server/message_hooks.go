@@ -286,7 +286,7 @@ func (p *Plugin) MessageHasBeenDeleted(c *plugin.Context, post *model.Post) {
 // modify the message before it is sent to the client. Note that this method will be called for
 // posts created by plugins, including the plugin that created the post.
 //
-// This demo implementation prepends "ENCRYPTED:" to the messages containing "SECURE" flag.
+// This demo implementation replaces "SECURE" prefix in the messages with "ENCRYPTED" prefix.
 func (p *Plugin) MessagesWillBeConsumed(posts []*model.Post) []*model.Post {
 	configuration := p.getConfiguration()
 
