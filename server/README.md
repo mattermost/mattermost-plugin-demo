@@ -111,7 +111,7 @@ unless by the demo plugin user itself.
 
 ### MessagesWillBeConsumed
 
-This demo implementation replaces "[SECURE]" message prefix with "[ECRYPTED]".
+This demo implementation replaces "[SECURE]" message prefix with "[ENCRYPTED]".
 
 ## [team_hooks.go](team_hooks.go)
 
