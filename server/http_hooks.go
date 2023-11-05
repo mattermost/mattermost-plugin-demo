@@ -38,6 +38,8 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 		p.handleInteractiveAction(w, r)
 	case "/dynamic_arg_test_url":
 		p.handleDynamicArgTest(w, r)
+	case "/check_auth_header":
+		p.handleCheckAuthHeader(c, w, r)
 	default:
 		http.NotFound(w, r)
 	}
@@ -63,6 +65,25 @@ func (p *Plugin) handleStatus(w http.ResponseWriter, r *http.Request) {
 func (p *Plugin) handleHello(w http.ResponseWriter, r *http.Request) {
 	if _, err := w.Write([]byte("Hello World!")); err != nil {
 		p.API.LogError("Failed to write hello world", "err", err.Error())
+	}
+}
+
+// The Authorization header should be an empty string if the request is by an
+// authenticated user.
+func (p *Plugin) handleCheckAuthHeader(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
+	isAuthenticatedUser := c.SessionId != ""
+	authHeader := r.Header.Get(model.HeaderAuth)
+
+	responseMessage := ""
+
+	if isAuthenticatedUser {
+		responseMessage += "You are an authenticated user. The Authorization header should be an empty string.\n"
+	}
+
+	responseMessage += fmt.Sprintf("Authorization header: %s", authHeader)
+
+	if _, err := w.Write([]byte(responseMessage)); err != nil {
+		p.API.LogError("Failed to write checkAuthHeader message", "err", err.Error())
 	}
 }
 
