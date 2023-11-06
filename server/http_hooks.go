@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
 )
@@ -19,28 +21,43 @@ import (
 // is used by the web app to recover from a network reconnection and synchronize the state of the
 // plugin's hooks.
 func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
-	switch r.URL.Path {
-	case "/status":
-		p.handleStatus(w, r)
-	case "/hello":
-		p.handleHello(w, r)
-	case "/dialog/1":
-		p.handleDialog1(w, r)
-	case "/dialog/2":
-		p.handleDialog2(w, r)
-	case "/dialog/error":
-		p.handleDialogWithError(w, r)
-	case "/ephemeral/update":
-		p.handleEphemeralUpdate(w, r)
-	case "/ephemeral/delete":
-		p.handleEphemeralDelete(w, r)
-	case "/interactive/button/1":
-		p.handleInteractiveAction(w, r)
-	case "/dynamic_arg_test_url":
-		p.handleDynamicArgTest(w, r)
-	default:
-		http.NotFound(w, r)
-	}
+	p.router.ServeHTTP(w, r)
+}
+
+func (p *Plugin) initializeAPI() {
+	router := mux.NewRouter()
+
+	router.HandleFunc("/status", p.handleStatus)
+	router.HandleFunc("/hello", p.handleHello)
+	router.HandleFunc("/dynamic_arg_test_url", p.handleDynamicArgTest)
+
+	interativeRouter := router.PathPrefix("/interactive").Subrouter()
+	interativeRouter.Use(p.withDelay)
+	interativeRouter.HandleFunc("/button/1", p.handleInteractiveAction)
+
+	dialogRouter := router.PathPrefix("/dialog").Subrouter()
+	dialogRouter.Use(p.withDelay)
+	dialogRouter.HandleFunc("/1", p.handleDialog1)
+	dialogRouter.HandleFunc("/2", p.handleDialog2)
+	dialogRouter.HandleFunc("/error", p.handleDialogWithError)
+
+	ephemeralRouter := router.PathPrefix("/ephemeral").Subrouter()
+	ephemeralRouter.Use(p.withDelay)
+	ephemeralRouter.HandleFunc("/update", p.handleEphemeralUpdate)
+	ephemeralRouter.HandleFunc("/delete", p.handleEphemeralDelete)
+
+	p.router = router
+}
+
+func (p *Plugin) withDelay(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		delay := p.getConfiguration().IntegrationRequestDelay
+		if delay > 0 {
+			time.Sleep(time.Duration(delay) * time.Second)
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
 
 func (p *Plugin) handleStatus(w http.ResponseWriter, r *http.Request) {

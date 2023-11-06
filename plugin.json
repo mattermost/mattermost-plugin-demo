@@ -131,6 +131,14 @@
                 "help_text": "A secret number that the demo plugin will watch for. If the secret number is mentioned in any channel then the demo plugin will publish a special message.",
                 "placeholder": "Some secret number",
                 "default": 123
+            },
+            {
+                "key": "integrationRequestDelay",
+                "display_name": "Integration Request delay",
+                "type": "number",
+                "help_text": "A deplay in seconds that is applied to Slash Command responses, Post Actions responses and Interactive Dialog responses. It's useful for testing.",
+                "placeholder": "A delay in seconds",
+                "default": 0
             }
         ]
     }
