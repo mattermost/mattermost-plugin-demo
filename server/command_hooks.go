@@ -196,6 +196,11 @@ func getAutocompleteTestAutocompleteData() *model.AutocompleteData {
 // This demo implementation responds to a /demo_plugin command, allowing the user to enable
 // or disable the demo plugin's hooks functionality (but leave the command and webapp enabled).
 func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
+	delay := p.getConfiguration().IntegrationRequestDelay
+	if delay > 0 {
+		time.Sleep(time.Duration(delay) * time.Second)
+	}
+
 	trigger := strings.TrimPrefix(strings.Fields(args.Command)[0], "/")
 	switch trigger {
 	case commandTriggerCrash:

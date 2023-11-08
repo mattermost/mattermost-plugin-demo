@@ -27,6 +27,8 @@ func (p *Plugin) OnActivate() error {
 		return err
 	}
 
+	p.initializeAPI()
+
 	configuration := p.getConfiguration()
 
 	if err := p.registerCommands(); err != nil {
