@@ -30,6 +30,7 @@ func (p *Plugin) initializeAPI() {
 	router.HandleFunc("/status", p.handleStatus)
 	router.HandleFunc("/hello", p.handleHello)
 	router.HandleFunc("/dynamic_arg_test_url", p.handleDynamicArgTest)
+	router.HandleFunc("/check_auth_header", p.handleCheckAuthHeader)
 
 	interativeRouter := router.PathPrefix("/interactive").Subrouter()
 	interativeRouter.Use(p.withDelay)
@@ -80,6 +81,25 @@ func (p *Plugin) handleStatus(w http.ResponseWriter, r *http.Request) {
 func (p *Plugin) handleHello(w http.ResponseWriter, r *http.Request) {
 	if _, err := w.Write([]byte("Hello World!")); err != nil {
 		p.API.LogError("Failed to write hello world", "err", err.Error())
+	}
+}
+
+// The Authorization header should be an empty string if the request is by an
+// authenticated user.
+func (p *Plugin) handleCheckAuthHeader(w http.ResponseWriter, r *http.Request) {
+	isAuthenticatedUser := r.Header.Get("Mattermost-User-ID") != ""
+	authHeader := r.Header.Get(model.HeaderAuth)
+
+	responseMessage := ""
+
+	if isAuthenticatedUser {
+		responseMessage += "You are an authenticated user. The Authorization header should be an empty string.\n"
+	}
+
+	responseMessage += fmt.Sprintf("Authorization header: %s", authHeader)
+
+	if _, err := w.Write([]byte(responseMessage)); err != nil {
+		p.API.LogError("Failed to write checkAuthHeader message", "err", err.Error())
 	}
 }
 
