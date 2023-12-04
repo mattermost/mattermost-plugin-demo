@@ -6,7 +6,7 @@ import en from 'i18n/en.json';
 
 import es from 'i18n/es.json';
 
-import {id as pluginId} from './manifest';
+import manifest from './manifest';
 
 import Root from './components/root';
 import BottomTeamSidebar from './components/bottom_team_sidebar';
@@ -104,7 +104,7 @@ export default class DemoPlugin {
                 window.openInteractiveDialog({
                     dialog: {
                         callback_id: 'somecallbackid',
-                        url: '/plugins/' + pluginId + '/dialog/2',
+                        url: '/plugins/' + manifest.id + '/dialog/2',
                         title: 'Sample Confirmation Dialog',
                         elements: [],
                         submit_label: 'Confirm',
@@ -197,7 +197,7 @@ export default class DemoPlugin {
         }
 
         registry.registerWebSocketEventHandler(
-            'custom_' + pluginId + '_status_change',
+            'custom_' + manifest.id + '_status_change',
             (message) => {
                 store.dispatch(websocketStatusChange(message));
             },
@@ -222,6 +222,80 @@ export default class DemoPlugin {
 
         registry.registerNeedsTeamRoute('/teamtest', RouterShowcase);
         registry.registerCustomRoute('/roottest', () => 'Demo plugin route.');
+
+        registry.registerUserSettings?.({
+            id: manifest.id,
+            icon: `/plugins/${manifest.id}/public/icon.png`,
+            uiName: manifest.name,
+            sections: [
+                {
+                    settings: [
+                        {
+                            name: 'setting1',
+                            title: 'setting 1',
+                            options: [
+                                {
+                                    text: 'Option 1',
+                                    value: '1',
+                                    helpText: 'Some option help text',
+                                },
+                                {
+                                    text: 'Option 2',
+                                    value: '2',
+                                },
+                            ],
+                            type: 'radio',
+                            default: '1',
+                            helpText: 'Some setting help text',
+                        },
+                        {
+                            name: 'setting2',
+                            title: 'setting 2',
+                            options: [
+                                {
+                                    text: 'Option 1',
+                                    value: '1',
+                                    helpText: 'Some option help text',
+                                },
+                                {
+                                    text: 'Option 2',
+                                    value: '2',
+                                },
+                                {
+                                    text: 'Option 3',
+                                    value: '3',
+                                    helpText: 'Some option help text',
+                                },
+                            ],
+                            type: 'radio',
+                            default: '1',
+                        }
+                    ],
+                    title: 'Test section number 1',
+                    onSubmit: (v) => alert(`saving ${Object.keys(v).map((k) => `{${k}}: ${v[k]}`).join(' ')}`)
+                },
+                {
+                    settings: [{
+                        name: 'setting3',
+                        options: [
+                            {
+                                text: 'Option 1',
+                                value: '1',
+                                helpText: 'Some option help text',
+                            },
+                            {
+                                text: 'Option 2',
+                                value: '2',
+                            },
+                        ],
+                        type: 'radio',
+                        default: '2',
+                    }],
+                    title: 'Test section number 2',
+                    onSubmit: (v) => alert(`saving ${Object.keys(v).map((k) => `{${k}}: ${v[k]}`).join(' ')}`)
+                }
+            ],
+        });
     }
 
     uninitialize() {
