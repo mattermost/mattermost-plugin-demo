@@ -130,7 +130,7 @@ export default class DemoPlugin {
                 id='submenu.menu'
                 key='submenu.menu'
                 defaultMessage='Submenu Example'
-            />
+            />,
         );
 
         const firstItem = (
@@ -144,7 +144,7 @@ export default class DemoPlugin {
             firstItem,
             () => {
                 store.dispatch(postDropdownSubMenuAction(firstItem));
-            }
+            },
         );
 
         const secondItem = (
@@ -158,7 +158,7 @@ export default class DemoPlugin {
             secondItem,
             () => {
                 store.dispatch(postDropdownSubMenuAction(secondItem));
-            }
+            },
         );
 
         const thirdItem = (
@@ -172,7 +172,7 @@ export default class DemoPlugin {
             thirdItem,
             () => {
                 store.dispatch(postDropdownSubMenuAction(thirdItem));
-            }
+            },
         );
 
         registry.registerFileUploadMethod(
@@ -269,10 +269,10 @@ export default class DemoPlugin {
                             ],
                             type: 'radio',
                             default: '1',
-                        }
+                        },
                     ],
                     title: 'Test section number 1',
-                    onSubmit: (v) => alert(`saving ${Object.keys(v).map((k) => `{${k}}: ${v[k]}`).join(' ')}`)
+                    onSubmit: (v) => alert(`saving ${Object.keys(v).map((k) => `{${k}}: ${v[k]}`).join(' ')}`), // eslint-disable-line no-alert
                 },
                 {
                     settings: [{
@@ -292,14 +292,14 @@ export default class DemoPlugin {
                         default: '2',
                     }],
                     title: 'Test section number 2',
-                    onSubmit: (v) => alert(`saving ${Object.keys(v).map((k) => `{${k}}: ${v[k]}`).join(' ')}`)
-                }
+                    onSubmit: (v) => alert(`saving ${Object.keys(v).map((k) => `{${k}}: ${v[k]}`).join(' ')}`), // eslint-disable-line no-alert
+                },
             ],
         });
     }
 
     uninitialize() {
         //eslint-disable-next-line no-console
-        console.log(pluginId + '::uninitialize()');
+        console.log(manifest.id + '::uninitialize()');
     }
 }
