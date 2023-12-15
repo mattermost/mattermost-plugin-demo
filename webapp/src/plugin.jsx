@@ -227,6 +227,12 @@ export default class DemoPlugin {
             id: manifest.id,
             icon: `/plugins/${manifest.id}/public/icon.png`,
             uiName: manifest.name,
+            action: {
+                title: 'Example action',
+                text: 'This is an example action for this setting',
+                buttonText: 'Here is the button text',
+                onClick: () => alert('Button clicked'), // eslint-disable-line no-alert
+            },
             sections: [
                 {
                     settings: [
@@ -292,6 +298,27 @@ export default class DemoPlugin {
                         default: '2',
                     }],
                     title: 'Test section number 2',
+                    onSubmit: (v) => alert(`saving ${Object.keys(v).map((k) => `{${k}}: ${v[k]}`).join(' ')}`), // eslint-disable-line no-alert
+                },
+                {
+                    settings: [{
+                        name: 'setting4',
+                        options: [
+                            {
+                                text: 'Option 1',
+                                value: '1',
+                                helpText: 'Some option help text',
+                            },
+                            {
+                                text: 'Option 2',
+                                value: '2',
+                            },
+                        ],
+                        type: 'radio',
+                        default: '2',
+                    }],
+                    title: 'Test section disabled',
+                    disabled: true,
                     onSubmit: (v) => alert(`saving ${Object.keys(v).map((k) => `{${k}}: ${v[k]}`).join(' ')}`), // eslint-disable-line no-alert
                 },
             ],
