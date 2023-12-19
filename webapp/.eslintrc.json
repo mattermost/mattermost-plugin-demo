@@ -10,7 +10,7 @@
       "experimentalObjectRestSpread": true
     }
   },
-  "parser": "babel-eslint",
+  "parser": "@babel/eslint-parser",
   "plugins": [
     "react",
     "import"
@@ -32,7 +32,10 @@
     "beforeEach": true
   },
   "settings": {
-    "import/resolver": "webpack"
+    "import/resolver": "webpack",
+    "react": {
+      "version": "detect"
+    }
   },
   "rules": {
     "array-bracket-spacing": [
@@ -374,14 +377,7 @@
         "args": "after-used"
       }
     ],
-    "no-use-before-define": [
-      2,
-      {
-        "classes": false,
-        "functions": false,
-        "variables": false
-      }
-    ],
+    "no-use-before-define": "off",
     "no-useless-computed-key": 2,
     "no-useless-concat": 2,
     "no-useless-constructor": 2,
@@ -653,12 +649,6 @@
             "classes": false,
             "functions": false,
             "variables": false
-          }
-        ],
-        "@typescript-eslint/camelcase": [
-          2,
-          {
-            "properties": "never"
           }
         ],
         "react/jsx-filename-extension": [

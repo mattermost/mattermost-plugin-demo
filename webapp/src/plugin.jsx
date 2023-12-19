@@ -6,7 +6,7 @@ import en from 'i18n/en.json';
 
 import es from 'i18n/es.json';
 
-import {id as pluginId} from './manifest';
+import manifest from './manifest';
 
 import Root from './components/root';
 import BottomTeamSidebar from './components/bottom_team_sidebar';
@@ -104,7 +104,7 @@ export default class DemoPlugin {
                 window.openInteractiveDialog({
                     dialog: {
                         callback_id: 'somecallbackid',
-                        url: '/plugins/' + pluginId + '/dialog/2',
+                        url: '/plugins/' + manifest.id + '/dialog/2',
                         title: 'Sample Confirmation Dialog',
                         elements: [],
                         submit_label: 'Confirm',
@@ -130,7 +130,7 @@ export default class DemoPlugin {
                 id='submenu.menu'
                 key='submenu.menu'
                 defaultMessage='Submenu Example'
-            />
+            />,
         );
 
         const firstItem = (
@@ -144,7 +144,7 @@ export default class DemoPlugin {
             firstItem,
             () => {
                 store.dispatch(postDropdownSubMenuAction(firstItem));
-            }
+            },
         );
 
         const secondItem = (
@@ -158,7 +158,7 @@ export default class DemoPlugin {
             secondItem,
             () => {
                 store.dispatch(postDropdownSubMenuAction(secondItem));
-            }
+            },
         );
 
         const thirdItem = (
@@ -172,7 +172,7 @@ export default class DemoPlugin {
             thirdItem,
             () => {
                 store.dispatch(postDropdownSubMenuAction(thirdItem));
-            }
+            },
         );
 
         registry.registerFileUploadMethod(
@@ -197,7 +197,7 @@ export default class DemoPlugin {
         }
 
         registry.registerWebSocketEventHandler(
-            'custom_' + pluginId + '_status_change',
+            'custom_' + manifest.id + '_status_change',
             (message) => {
                 store.dispatch(websocketStatusChange(message));
             },
@@ -222,10 +222,111 @@ export default class DemoPlugin {
 
         registry.registerNeedsTeamRoute('/teamtest', RouterShowcase);
         registry.registerCustomRoute('/roottest', () => 'Demo plugin route.');
+
+        registry.registerUserSettings?.({
+            id: manifest.id,
+            icon: `/plugins/${manifest.id}/public/icon.png`,
+            uiName: manifest.name,
+            action: {
+                title: 'Example action',
+                text: 'This is an example action for this setting',
+                buttonText: 'Here is the button text',
+                onClick: () => alert('Button clicked'), // eslint-disable-line no-alert
+            },
+            sections: [
+                {
+                    settings: [
+                        {
+                            name: 'setting1',
+                            title: 'setting 1',
+                            options: [
+                                {
+                                    text: 'Option 1',
+                                    value: '1',
+                                    helpText: 'Some option help text',
+                                },
+                                {
+                                    text: 'Option 2',
+                                    value: '2',
+                                },
+                            ],
+                            type: 'radio',
+                            default: '1',
+                            helpText: 'Some setting help text',
+                        },
+                        {
+                            name: 'setting2',
+                            title: 'setting 2',
+                            options: [
+                                {
+                                    text: 'Option 1',
+                                    value: '1',
+                                    helpText: 'Some option help text',
+                                },
+                                {
+                                    text: 'Option 2',
+                                    value: '2',
+                                },
+                                {
+                                    text: 'Option 3',
+                                    value: '3',
+                                    helpText: 'Some option help text',
+                                },
+                            ],
+                            type: 'radio',
+                            default: '1',
+                        },
+                    ],
+                    title: 'Test section number 1',
+                    onSubmit: (v) => alert(`saving ${Object.keys(v).map((k) => `{${k}}: ${v[k]}`).join(' ')}`), // eslint-disable-line no-alert
+                },
+                {
+                    settings: [{
+                        name: 'setting3',
+                        options: [
+                            {
+                                text: 'Option 1',
+                                value: '1',
+                                helpText: 'Some option help text',
+                            },
+                            {
+                                text: 'Option 2',
+                                value: '2',
+                            },
+                        ],
+                        type: 'radio',
+                        default: '2',
+                    }],
+                    title: 'Test section number 2',
+                    onSubmit: (v) => alert(`saving ${Object.keys(v).map((k) => `{${k}}: ${v[k]}`).join(' ')}`), // eslint-disable-line no-alert
+                },
+                {
+                    settings: [{
+                        name: 'setting4',
+                        options: [
+                            {
+                                text: 'Option 1',
+                                value: '1',
+                                helpText: 'Some option help text',
+                            },
+                            {
+                                text: 'Option 2',
+                                value: '2',
+                            },
+                        ],
+                        type: 'radio',
+                        default: '2',
+                    }],
+                    title: 'Test section disabled',
+                    disabled: true,
+                    onSubmit: (v) => alert(`saving ${Object.keys(v).map((k) => `{${k}}: ${v[k]}`).join(' ')}`), // eslint-disable-line no-alert
+                },
+            ],
+        });
     }
 
     uninitialize() {
         //eslint-disable-next-line no-console
-        console.log(pluginId + '::uninitialize()');
+        console.log(manifest.id + '::uninitialize()');
     }
 }
