@@ -32,6 +32,10 @@ func (p *Plugin) initializeAPI() {
 	router.HandleFunc("/dynamic_arg_test_url", p.handleDynamicArgTest)
 	router.HandleFunc("/check_auth_header", p.handleCheckAuthHeader)
 
+	webhook := router.PathPrefix("/webhook").Subrouter()
+	webhook.Use(p.withDelay)
+	webhook.HandleFunc("/outgoing", p.handleOutgoingWebhook).Methods(http.MethodPost)
+
 	interativeRouter := router.PathPrefix("/interactive").Subrouter()
 	interativeRouter.Use(p.withDelay)
 	interativeRouter.HandleFunc("/button/1", p.handleInteractiveAction)
@@ -101,6 +105,30 @@ func (p *Plugin) handleCheckAuthHeader(w http.ResponseWriter, r *http.Request) {
 	if _, err := w.Write([]byte(responseMessage)); err != nil {
 		p.API.LogError("Failed to write checkAuthHeader message", "err", err.Error())
 	}
+}
+
+func (p *Plugin) handleOutgoingWebhook(w http.ResponseWriter, r *http.Request) {
+	var request model.OutgoingWebhookPayload
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		p.API.LogError("Failed to decode OutgoingWebhookPayload", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	s, err := PrettyJSON(request)
+	if err != nil {
+		p.API.LogError("Failed to Marshal payload back to JSON", "err", err.Error())
+		return
+	}
+
+	text := "```\n" + s + "\n```"
+	resp := model.OutgoingWebhookResponse{
+		Text: &text,
+	}
+
+	p.writeJSON(w, resp)
 }
 
 func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
