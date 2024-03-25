@@ -288,6 +288,10 @@ func (p *Plugin) ConfigurationWillBeSaved(newCfg *model.Config) (*model.Config, 
 		return nil, nil
 	}
 
+	if cfg == nil {
+		return newCfg, nil
+	}
+
 	invalidUsernameUsed := cfg.Username == "invalid"
 	replaceUsernameUsed := cfg.Username == "replaceme"
 
