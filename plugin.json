@@ -141,5 +141,8 @@
                 "default": 0
             }
         ]
+    },
+    "props": {
+        "support_packet": "Demo plugin support packet"
     }
 }
