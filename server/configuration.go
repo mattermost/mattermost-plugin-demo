@@ -47,6 +47,10 @@ type configuration struct {
 	// SecretNumber is an integer that, when mentioned in a message by a user, will trigger the demo user to post a message.
 	SecretNumber int
 
+	// A deplay in seconds that is applied to Slash Command responses, Post Actions responses and Interactive Dialog responses.
+	// It's useful for testing.
+	IntegrationRequestDelay int
+
 	// disabled tracks whether or not the plugin has been disabled after activation. It always starts enabled.
 	disabled bool
 
@@ -67,17 +71,19 @@ func (c *configuration) Clone() *configuration {
 	}
 
 	return &configuration{
-		Username:          c.Username,
-		ChannelName:       c.ChannelName,
-		LastName:          c.LastName,
-		TextStyle:         c.TextStyle,
-		RandomSecret:      c.RandomSecret,
-		SecretMessage:     c.SecretMessage,
-		EnableMentionUser: c.EnableMentionUser,
-		MentionUser:       c.MentionUser,
-		disabled:          c.disabled,
-		demoUserID:        c.demoUserID,
-		demoChannelIDs:    demoChannelIDs,
+		Username:                c.Username,
+		ChannelName:             c.ChannelName,
+		LastName:                c.LastName,
+		TextStyle:               c.TextStyle,
+		RandomSecret:            c.RandomSecret,
+		SecretMessage:           c.SecretMessage,
+		EnableMentionUser:       c.EnableMentionUser,
+		MentionUser:             c.MentionUser,
+		SecretNumber:            c.SecretNumber,
+		IntegrationRequestDelay: c.IntegrationRequestDelay,
+		disabled:                c.disabled,
+		demoUserID:              c.demoUserID,
+		demoChannelIDs:          demoChannelIDs,
 	}
 }
 
@@ -280,6 +286,10 @@ func (p *Plugin) ConfigurationWillBeSaved(newCfg *model.Config) (*model.Config, 
 			"error", err.Error(),
 		)
 		return nil, nil
+	}
+
+	if cfg == nil {
+		return newCfg, nil
 	}
 
 	invalidUsernameUsed := cfg.Username == "invalid"

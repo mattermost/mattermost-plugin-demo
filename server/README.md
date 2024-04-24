@@ -88,6 +88,17 @@ This demo implementation sends back whether or not the plugin hooks are currentl
 is used by the web app to recover from a network reconnection and synchronize the state of the
 plugin's hooks.
 
+It also implements a receiver for outgoing webhooks. To utilize that, create an Outgoing Webhook
+using the following configuration:
+- Title: Choose as you want
+- Content Type: `application/json`
+- Channel: Pick any channel
+- Callback URLs: `http://localhost:8065/plugins/com.mattermost.demo-plugin/webhook/outgoing`
+
+Leave the rest of the fields with their default value.
+
+Now post a message in the selected channel. You will see a webhook response, which contains the payload the plugin received.
+
 ## [message_hooks.go](message_hooks.go)
 
 ### MessageWillBePosted
