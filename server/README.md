@@ -120,6 +120,10 @@ unless by the demo plugin user itself.
 This demo implementation logs a message to the demo channel whenever a message is updated,
 unless by the demo plugin user itself.
 
+### MessagesWillBeConsumed
+
+This demo implementation replaces "[SECURE]" message prefix with "[ENCRYPTED]".
+
 ## [team_hooks.go](team_hooks.go)
 
 ### UserHasJoinedTeam

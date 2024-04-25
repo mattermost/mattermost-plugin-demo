@@ -281,3 +281,24 @@ func (p *Plugin) MessageHasBeenDeleted(c *plugin.Context, post *model.Post) {
 		)
 	}
 }
+
+// MessagesWillBeConsumed is invoked before a message is sent to the client. It allows plugins to
+// modify the message before it is sent to the client. Note that this method will be called for
+// posts created by plugins, including the plugin that created the post.
+//
+// This demo implementation replaces "SECURE" prefix in the messages with "ENCRYPTED" prefix.
+func (p *Plugin) MessagesWillBeConsumed(posts []*model.Post) []*model.Post {
+	configuration := p.getConfiguration()
+
+	if configuration.disabled {
+		return posts
+	}
+
+	for _, post := range posts {
+		// Replaces posts that include "SECURE" prefix with "ENCRYPTED" prefix.
+		if strings.HasPrefix(post.Message, "[SECURE]") {
+			post.Message = strings.Replace(post.Message, "[SECURE]", "[ENCRYPTED]", 1)
+		}
+	}
+	return posts
+}
