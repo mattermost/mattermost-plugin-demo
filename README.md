@@ -21,3 +21,44 @@ For details on getting started, see [mattermost-plugin-starter-template](https:/
 ## Releasing this plugin
 
 A new minor version of this plugin is released with every feature release of Mattermost. The new version should be cut until [Code complete](https://docs.mattermost.com/process/feature-release.html#f-t-minus-14-working-days-code-complete).
+
+## How to Release
+
+To trigger a release, follow these steps:
+
+1. **For Patch Release:** Run the following command:
+    ```
+    make patch
+    ```
+   This will release a patch change.
+
+2. **For Minor Release:** Run the following command:
+    ```
+    make minor
+    ```
+   This will release a minor change.
+
+3. **For Major Release:** Run the following command:
+    ```
+    make major
+    ```
+   This will release a major change.
+
+4. **For Patch Release Candidate (RC):** Run the following command:
+    ```
+    make patch-rc
+    ```
+   This will release a patch release candidate.
+
+5. **For Minor Release Candidate (RC):** Run the following command:
+    ```
+    make minor-rc
+    ```
+   This will release a minor release candidate.
+
+6. **For Major Release Candidate (RC):** Run the following command:
+    ```
+    make major-rc
+    ```
+   This will release a major release candidate.
+
