@@ -102,9 +102,9 @@ export default class DemoPlugin {
             />,
             () => {
                 window.openInteractiveDialog({
+                    url: '/plugins/' + manifest.id + '/dialog/2',
                     dialog: {
                         callback_id: 'somecallbackid',
-                        url: '/plugins/' + manifest.id + '/dialog/2',
                         title: 'Sample Confirmation Dialog',
                         elements: [],
                         submit_label: 'Confirm',
