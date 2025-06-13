@@ -6,7 +6,7 @@ linters-settings:
   gofmt:
     simplify: true
   goimports:
-    local-prefixes: github.com/mattermost/mattermost-plugin-demo
+    local-prefixes: github.com/mattermost/mattermost-starter-template
   govet:
     check-shadowing: true
     enable-all: true
@@ -14,10 +14,6 @@ linters-settings:
       - fieldalignment
   misspell:
     locale: US
-  revive:
-    rules:
-      - name: unused-parameter
-        disabled: true
 
 linters:
   disable-all: true

@@ -37,8 +37,6 @@ else
 	GO_BUILD_GCFLAGS =
 endif
 
-
-
 # ====================================================================================
 # Used for semver bumping
 PROTECTED_BRANCH := master
@@ -173,87 +171,46 @@ endif
 ## Builds the server, if it exists, for all supported architectures, unless MM_SERVICESETTINGS_ENABLEDEVELOPER is set.
 .PHONY: server
 server:
-ifneq ($(HAS_SERVER),)
-ifneq ($(MM_DEBUG),)
-	$(info DEBUG mode is on; to disable, unset MM_DEBUG)
-endif
-	mkdir -p server/dist;
-ifneq ($(MM_SERVICESETTINGS_ENABLEDEVELOPER),)
-	@echo Building plugin only for $(DEFAULT_GOOS)-$(DEFAULT_GOARCH) because MM_SERVICESETTINGS_ENABLEDEVELOPER is enabled
-	cd server && env CGO_ENABLED=0 $(GO) build $(GO_BUILD_FLAGS) $(GO_BUILD_GCFLAGS) -trimpath -o dist/plugin-$(DEFAULT_GOOS)-$(DEFAULT_GOARCH);
-else
-	cd server && env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO) build $(GO_BUILD_FLAGS) $(GO_BUILD_GCFLAGS) -trimpath -o dist/plugin-linux-amd64;
-	cd server && env CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GO) build $(GO_BUILD_FLAGS) $(GO_BUILD_GCFLAGS) -trimpath -o dist/plugin-linux-arm64;
-	cd server && env CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 $(GO) build $(GO_BUILD_FLAGS) $(GO_BUILD_GCFLAGS) -trimpath -o dist/plugin-darwin-amd64;
-	cd server && env CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 $(GO) build $(GO_BUILD_FLAGS) $(GO_BUILD_GCFLAGS) -trimpath -o dist/plugin-darwin-arm64;
-	cd server && env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GO) build $(GO_BUILD_FLAGS) $(GO_BUILD_GCFLAGS) -trimpath -o dist/plugin-windows-amd64.exe;
-endif
-endif
+	mage build:server
 
 ## Ensures NPM dependencies are installed without having to run this all the time.
-webapp/node_modules: $(wildcard webapp/package.json)
+webapp/node_modules:
 ifneq ($(HAS_WEBAPP),)
-	cd webapp && $(NPM) install
-	touch $@
+	mage webapp:dependencies
 endif
 
 ## Builds the webapp, if it exists.
 .PHONY: webapp
-webapp: webapp/node_modules
+webapp:
 ifneq ($(HAS_WEBAPP),)
-ifeq ($(MM_DEBUG),)
-	cd webapp && $(NPM) run build;
-else
-	cd webapp && $(NPM) run debug;
-endif
+	mage build:webapp
 endif
 
 ## Generates a tar bundle of the plugin for install.
 .PHONY: bundle
 bundle:
-	rm -rf dist/
-	mkdir -p dist/$(PLUGIN_ID)
-	cp $(MANIFEST_FILE) dist/$(PLUGIN_ID)/
-ifneq ($(wildcard $(ASSETS_DIR)/.),)
-	cp -r $(ASSETS_DIR) dist/$(PLUGIN_ID)/
-endif
-ifneq ($(HAS_PUBLIC),)
-	cp -r public dist/$(PLUGIN_ID)/
-endif
-ifneq ($(HAS_SERVER),)
-	mkdir -p dist/$(PLUGIN_ID)/server
-	cp -r server/dist dist/$(PLUGIN_ID)/server/
-endif
-ifneq ($(HAS_WEBAPP),)
-	mkdir -p dist/$(PLUGIN_ID)/webapp
-	cp -r webapp/dist dist/$(PLUGIN_ID)/webapp/
-endif
-	cd dist && tar -cvzf $(BUNDLE_NAME) $(PLUGIN_ID)
-
-	@echo plugin built at: dist/$(BUNDLE_NAME)
+	mage build:bundle
 
 ## Builds and bundles the plugin.
 .PHONY: dist
-dist:	server webapp bundle
-
-## Builds and installs the plugin to a server.
-.PHONY: deploy
-deploy: dist
-	./build/bin/pluginctl deploy $(PLUGIN_ID) dist/$(BUNDLE_NAME)
+dist:
+	mage build:all
+	mage build:bundle
 
 ## Builds and installs the plugin to a server, updating the webapp automatically when changed.
 .PHONY: watch
-watch: server bundle
-ifeq ($(MM_DEBUG),)
-	cd webapp && $(NPM) run build:watch
-else
-	cd webapp && $(NPM) run debug:watch
-endif
+watch:
+	mage webapp:watch
+
+## Builds and installs the plugin to a server.
+.PHONY: deploy
+deploy:
+	mage deploy:upload
 
 ## Installs a previous built plugin with updated webpack assets to a server.
 .PHONY: deploy-from-watch
 deploy-from-watch: bundle
-	./build/bin/pluginctl deploy $(PLUGIN_ID) dist/$(BUNDLE_NAME)
+	mage pluginctl:deploy
 
 ## Setup dlv for attaching, identifying the plugin PID for other targets.
 .PHONY: setup-attach
@@ -327,17 +284,17 @@ endif
 ## Disable the plugin.
 .PHONY: disable
 disable: detach
-	./build/bin/pluginctl disable $(PLUGIN_ID)
+	mage pluginctl:disable
 
 ## Enable the plugin.
 .PHONY: enable
 enable:
-	./build/bin/pluginctl enable $(PLUGIN_ID)
+	mage pluginctl:enable
 
 ## Reset the plugin, effectively disabling and re-enabling it on the server.
 .PHONY: reset
 reset: detach
-	./build/bin/pluginctl reset $(PLUGIN_ID)
+	mage pluginctl:reset
 
 ## Kill all instances of the plugin, detaching any existing dlv instance.
 .PHONY: kill

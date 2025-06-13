@@ -4,7 +4,7 @@ on:
     - cron: "0 0 * * *"
   push:
     branches:
-      - master
+      - main
     tags:
       - "v*"
   pull_request:
@@ -12,7 +12,12 @@ on:
 permissions:
   contents: read
 
+env:
+  IS_CI: true
+
 jobs:
   plugin-ci:
-    uses: mattermost/actions-workflows/.github/workflows/plugin-ci.yml@main
+    uses: mattermost/actions-workflows/.github/workflows/plugin-ci.yml@mage
     secrets: inherit
+    with:
+      mage-version: v1.15.0
