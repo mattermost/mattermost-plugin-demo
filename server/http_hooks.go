@@ -143,20 +143,16 @@ func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
 
 	if !request.Cancelled {
 		number, ok := request.Submission[dialogElementNameNumber].(float64)
-		if !ok {
-			p.API.LogError("Request is missing field", "field", dialogElementNameNumber)
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		if number != 42 {
-			response := &model.SubmitDialogResponse{
-				Errors: map[string]string{
-					dialogElementNameNumber: "This must be 42",
-				},
+		if ok {
+			if number != 42 {
+				response := &model.SubmitDialogResponse{
+					Errors: map[string]string{
+						dialogElementNameNumber: "This must be 42",
+					},
+				}
+				p.writeJSON(w, response)
+				return
 			}
-			p.writeJSON(w, response)
-			return
 		}
 	}
 
@@ -184,8 +180,9 @@ func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
 
 	if !request.Cancelled {
 		// Don't post the email address publicly
-		request.Submission[dialogElementNameEmail] = "xxxxxxxxxxx"
-
+		if request.Submission[dialogElementNameEmail] != nil {
+			request.Submission[dialogElementNameEmail] = "xxxxxxxxxxx"
+		}
 		if _, appErr = p.API.CreatePost(&model.Post{
 			UserId:    p.botID,
 			ChannelId: request.ChannelId,

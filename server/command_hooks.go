@@ -34,6 +34,7 @@ const (
 		"- `/dialog no-elements` - Open an Interactive Dialog with no elements. Once submitted, user's action is posted back into a channel.\n" +
 		"- `/dialog relative-callback-url` - Open an Interactive Dialog with relative callback URL. Once submitted, user's action is posted back into a channel.\n" +
 		"- `/dialog introduction-text` - Open an Interactive Dialog with optional introduction text. Once submitted, user's action is posted back into a channel.\n" +
+		"- `/dialog multi-select` - Open an Interactive Dialog with multi-select fields. Once submitted, user-entered input is posted back into a channel.\n" +
 		"- `/dialog error` - Open an Interactive Dialog which always returns an general error.\n" +
 		"- `/dialog error-no-elements` - Open an Interactive Dialog with no elements which always returns an general error.\n" +
 		"- `/dialog help` - Show this help text"
@@ -165,6 +166,9 @@ func getCommandDialogAutocompleteData() *model.AutocompleteData {
 	errorNoElements := model.NewAutocompleteData("error-no-elements", "", "Open an Interactive Dialog with error no elements.")
 	command.AddCommand(errorNoElements)
 
+	multiSelect := model.NewAutocompleteData("multi-select", "", "Open an Interactive Dialog with multi-select fields.")
+	command.AddCommand(multiSelect)
+
 	help := model.NewAutocompleteData("help", "", "")
 	command.AddCommand(help)
 
@@ -225,7 +229,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 	default:
 		return &model.CommandResponse{
 			ResponseType: model.CommandResponseTypeEphemeral,
-			Text:         fmt.Sprintf("Unknown command: " + args.Command),
+			Text:         fmt.Sprintf("Unknown command: %s", args.Command),
 		}, nil
 	}
 }
@@ -277,7 +281,7 @@ func (p *Plugin) executeCommandHooks(args *model.CommandArgs) *model.CommandResp
 
 	return &model.CommandResponse{
 		ResponseType: model.CommandResponseTypeEphemeral,
-		Text:         fmt.Sprintf("Unknown command action: " + args.Command),
+		Text:         fmt.Sprintf("Unknown command action: %s", args.Command),
 	}
 }
 
@@ -363,6 +367,12 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/1", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog:    getDialogWithIntroductionText(dialogIntroductionText),
 		}
+	case "multi-select":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/1", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogWithMultiSelectElements(),
+		}
 	case "error":
 		dialogRequest = model.OpenDialogRequest{
 			TriggerId: args.TriggerId,
@@ -378,7 +388,7 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 	default:
 		return &model.CommandResponse{
 			ResponseType: model.CommandResponseTypeEphemeral,
-			Text:         fmt.Sprintf("Unknown command: " + command),
+			Text:         fmt.Sprintf("Unknown command: %s", command),
 		}
 	}
 
@@ -568,6 +578,54 @@ func getDialogWithIntroductionText(introductionText string) model.Dialog {
 	return dialog
 }
 
+func getDialogWithMultiSelectElements() model.Dialog {
+	return model.Dialog{
+		CallbackId: "somecallbackid",
+		Title:      "Multi-Select Dialog Demo",
+		IconURL:    "http://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
+		Elements: []model.DialogElement{{
+			DisplayName: "Multi-Select Users",
+			Name:        "multiselect_users",
+			Type:        "select",
+			Placeholder: "Select multiple users...",
+			HelpText:    "Choose multiple users from the list.",
+			DataSource:  "users",
+			MultiSelect: true,
+		}, {
+			DisplayName: "Multi-Select Channels",
+			Name:        "multiselect_channels",
+			Type:        "select",
+			Placeholder: "Select multiple channels...",
+			HelpText:    "Choose multiple channels from the list.",
+			DataSource:  "channels",
+			MultiSelect: true,
+		}, {
+			DisplayName: "Multi-Select Options",
+			Name:        "multiselect_options",
+			Type:        "select",
+			Placeholder: "Select multiple options...",
+			HelpText:    "Choose multiple options from the list.",
+			MultiSelect: true,
+			Options: []*model.PostActionOptions{{
+				Text:  "Option A",
+				Value: "optA",
+			}, {
+				Text:  "Option B",
+				Value: "optB",
+			}, {
+				Text:  "Option C",
+				Value: "optC",
+			}, {
+				Text:  "Option D",
+				Value: "optD",
+			}},
+		}},
+		SubmitLabel:    "Submit Multi-Select",
+		NotifyOnCancel: true,
+		State:          dialogStateSome,
+	}
+}
+
 func (p *Plugin) executeCommandInteractive(args *model.CommandArgs) *model.CommandResponse {
 	post := &model.Post{
 		ChannelId: args.ChannelId,
@@ -724,6 +782,6 @@ func (p *Plugin) executeCommandListFiles(args *model.CommandArgs) *model.Command
 func (p *Plugin) executeAutocompleteTest(args *model.CommandArgs) *model.CommandResponse {
 	return &model.CommandResponse{
 		ResponseType: model.CommandResponseTypeEphemeral,
-		Text:         fmt.Sprintf("Executed command: " + args.Command),
+		Text:         fmt.Sprintf("Executed command: %s", args.Command),
 	}
 }
