@@ -34,6 +34,7 @@ const (
 		"- `/dialog no-elements` - Open an Interactive Dialog with no elements. Once submitted, user's action is posted back into a channel.\n" +
 		"- `/dialog relative-callback-url` - Open an Interactive Dialog with relative callback URL. Once submitted, user's action is posted back into a channel.\n" +
 		"- `/dialog introduction-text` - Open an Interactive Dialog with optional introduction text. Once submitted, user's action is posted back into a channel.\n" +
+		"- `/dialog dynamic-select` - Open an Interactive Dialog with dynamic select fields. Once submitted, user-entered input is posted back into a channel.\n" +
 		"- `/dialog error` - Open an Interactive Dialog which always returns an general error.\n" +
 		"- `/dialog error-no-elements` - Open an Interactive Dialog with no elements which always returns an general error.\n" +
 		"- `/dialog help` - Show this help text"
@@ -164,6 +165,9 @@ func getCommandDialogAutocompleteData() *model.AutocompleteData {
 
 	errorNoElements := model.NewAutocompleteData("error-no-elements", "", "Open an Interactive Dialog with error no elements.")
 	command.AddCommand(errorNoElements)
+
+	dynamicSelect := model.NewAutocompleteData("dynamic-select", "", "Open an Interactive Dialog with dynamic select fields.")
+	command.AddCommand(dynamicSelect)
 
 	help := model.NewAutocompleteData("help", "", "")
 	command.AddCommand(help)
@@ -362,6 +366,12 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/1", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog:    getDialogWithIntroductionText(dialogIntroductionText),
+		}
+	case "dynamic-select":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/1", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogWithDynamicSelectElements(),
 		}
 	case "error":
 		dialogRequest = model.OpenDialogRequest{
@@ -566,6 +576,43 @@ func getDialogWithIntroductionText(introductionText string) model.Dialog {
 	dialog := getDialogWithSampleElements()
 	dialog.IntroductionText = introductionText
 	return dialog
+}
+
+func getDialogWithDynamicSelectElements() model.Dialog {
+	return model.Dialog{
+		CallbackId: "somecallbackid",
+		Title:      "Dynamic Select Dialog Demo",
+		IconURL:    "http://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
+		Elements: []model.DialogElement{{
+			DisplayName:   "Dynamic Products",
+			Name:          "dynamic_products",
+			Type:          "select",
+			Placeholder:   "Type to search products...",
+			HelpText:      "Search for products dynamically from external API.",
+			DataSource:    "dynamic",
+			DataSourceURL: fmt.Sprintf("/plugins/%s/api/products", manifest.Id),
+		}, {
+			DisplayName:   "Dynamic Companies",
+			Name:          "dynamic_companies",
+			Type:          "select",
+			Placeholder:   "Type to search companies...",
+			HelpText:      "Search for companies dynamically based on your input.",
+			DataSource:    "dynamic",
+			DataSourceURL: fmt.Sprintf("/plugins/%s/api/companies", manifest.Id),
+		}, {
+			DisplayName:   "Dynamic Countries",
+			Name:          "dynamic_countries",
+			Type:          "select",
+			Placeholder:   "Type to search countries...",
+			HelpText:      "Search for countries dynamically with real-time filtering.",
+			DataSource:    "dynamic",
+			DataSourceURL: fmt.Sprintf("/plugins/%s/api/countries", manifest.Id),
+			Optional:      true,
+		}},
+		SubmitLabel:    "Submit Dynamic Select",
+		NotifyOnCancel: true,
+		State:          dialogStateSome,
+	}
 }
 
 func (p *Plugin) executeCommandInteractive(args *model.CommandArgs) *model.CommandResponse {
