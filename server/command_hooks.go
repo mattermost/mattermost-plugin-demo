@@ -36,6 +36,8 @@ const (
 		"- `/dialog introduction-text` - Open an Interactive Dialog with optional introduction text. Once submitted, user's action is posted back into a channel.\n" +
 		"- `/dialog error` - Open an Interactive Dialog which always returns an general error.\n" +
 		"- `/dialog error-no-elements` - Open an Interactive Dialog with no elements which always returns an general error.\n" +
+		"- `/dialog field-refresh` - **NEW:** Open an Interactive Dialog with field refresh functionality (requires Apps Form feature flag).\n" +
+		"- `/dialog multistep` - **NEW:** Open a multi-step Interactive Dialog demonstrating form refresh on submit (requires Apps Form feature flag).\n" +
 		"- `/dialog help` - Show this help text"
 )
 
@@ -164,6 +166,12 @@ func getCommandDialogAutocompleteData() *model.AutocompleteData {
 
 	errorNoElements := model.NewAutocompleteData("error-no-elements", "", "Open an Interactive Dialog with error no elements.")
 	command.AddCommand(errorNoElements)
+
+	fieldRefresh := model.NewAutocompleteData("field-refresh", "", "Open an Interactive Dialog with field refresh functionality.")
+	command.AddCommand(fieldRefresh)
+
+	multistep := model.NewAutocompleteData("multistep", "", "Open a multi-step Interactive Dialog with form refresh on submit.")
+	command.AddCommand(multistep)
 
 	help := model.NewAutocompleteData("help", "", "")
 	command.AddCommand(help)
@@ -374,6 +382,18 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("/plugins/%s/dialog/error", manifest.Id),
 			Dialog:    getDialogWithoutElements(dialogStateSome),
+		}
+	case "field-refresh":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/field-refresh", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogWithFieldRefresh(""), // Start with no project type selected
+		}
+	case "multistep":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/multistep", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogStep1(),
 		}
 	default:
 		return &model.CommandResponse{

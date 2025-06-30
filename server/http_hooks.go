@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
+	"github.com/mattermost/mattermost/server/public/shared/mlog"
 )
 
 // ServeHTTP allows the plugin to implement the http.Handler interface. Requests destined for the
@@ -45,6 +46,8 @@ func (p *Plugin) initializeAPI() {
 	dialogRouter.HandleFunc("/1", p.handleDialog1)
 	dialogRouter.HandleFunc("/2", p.handleDialog2)
 	dialogRouter.HandleFunc("/error", p.handleDialogWithError)
+	dialogRouter.HandleFunc("/field-refresh", p.handleDialogFieldRefresh)
+	dialogRouter.HandleFunc("/multistep", p.handleDialogMultistep)
 
 	ephemeralRouter := router.PathPrefix("/ephemeral").Subrouter()
 	ephemeralRouter.Use(p.withDelay)
@@ -398,6 +401,7 @@ func (p *Plugin) handleDynamicArgTest(w http.ResponseWriter, r *http.Request) {
 	for k, v := range argMap {
 		argMapString = fmt.Sprintf("%s  * %s:%s\n", argMapString, k, v)
 	}
+
 	result := fmt.Sprintf("dynamic argument was triggered by **%v** from team **%v** in the **%v** channel, with these arguments\n\n%v", user.GetFullName(), team.DisplayName, channel.DisplayName, argMapString)
 	post := &model.Post{
 		ChannelId: channelID,
@@ -412,25 +416,207 @@ func (p *Plugin) handleDynamicArgTest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	suggestions := []model.AutocompleteListItem{{
-		Item:     "suggestion 1",
-		HelpText: "help text 1",
-		Hint:     "(hint)",
-	}, {
-		Item:     "suggestion 2",
-		HelpText: "help text 2",
-		Hint:     "(hint)",
-	}}
+	// Create the response with autocomplete items
+	response := []model.AutocompleteListItem{
+		{
+			Item:     "apple",
+			Hint:     "A red fruit",
+			HelpText: "An apple is a red or green fruit",
+		},
+		{
+			Item:     "banana",
+			Hint:     "A yellow fruit",
+			HelpText: "A banana is a yellow fruit",
+		},
+		{
+			Item:     "cherry",
+			Hint:     "A small red fruit",
+			HelpText: "A cherry is a small red fruit",
+		},
+	}
 
-	jsonBytes, err := json.Marshal(suggestions)
+	p.writeJSON(w, response)
+}
+
+// handleDialogFieldRefresh handles the field refresh dialog functionality
+// This demonstrates how source_url is called when a field with refresh=true changes
+func (p *Plugin) handleDialogFieldRefresh(w http.ResponseWriter, r *http.Request) {
+	var request model.SubmitDialogRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Error getting dynamic args: %s", err.Error()), http.StatusInternalServerError)
+		p.API.LogError("Failed to decode SubmitDialogRequest for field refresh", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	mlog.Debug("handleDialogFieldRefresh called", mlog.String("requestType", request.Type))
+	// Check if this is a field refresh (source call) or a final submit
+	if request.Type == "refresh" {
+		mlog.Debug("Found header")
+
+		// This is a field refresh - return a new form based on the changed field
+		projectType := ""
+		if val, ok := request.Submission["project_type"]; ok {
+			projectType = interfaceToString(val)
+		}
+
+		dialog := getDialogWithFieldRefresh(projectType)
+		response := &model.SubmitDialogResponse{
+			Type: "form",
+			Form: &dialog,
+		}
+		p.writeJSON(w, response)
+		return
+	}
+	mlog.Debug("No header")
+
+	// This is a final submit - process the form data
+	user, appErr := p.API.GetUser(request.UserId)
+	if appErr != nil {
+		p.API.LogError("Failed to get user for field refresh dialog", "err", appErr.Error())
+		w.WriteHeader(http.StatusOK)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	if _, err = w.Write(jsonBytes); err != nil {
-		http.Error(w, fmt.Sprintf("Error getting dynamic args: %s", err.Error()), http.StatusInternalServerError)
+	// Create a summary of the project configuration
+	projectType := interfaceToString(request.Submission["project_type"])
+	projectName := interfaceToString(request.Submission["project_name"])
+
+	msg := fmt.Sprintf("@%v created a new **%s** project: **%s**", user.Username, projectType, projectName)
+
+	rootPost, appErr := p.API.CreatePost(&model.Post{
+		UserId:    p.botID,
+		ChannelId: request.ChannelId,
+		Message:   msg,
+	})
+	if appErr != nil {
+		p.API.LogError("Failed to post field refresh dialog result", "err", appErr.Error())
+		return
+	}
+
+	// Post the configuration details as a thread reply
+	configText := "**Project Configuration:**\n"
+	for key, value := range request.Submission {
+		if str := interfaceToString(value); str != "" {
+			configText += fmt.Sprintf("- **%s:** %s\n", key, str)
+		}
+	}
+
+	if _, appErr = p.API.CreatePost(&model.Post{
+		UserId:    p.botID,
+		ChannelId: request.ChannelId,
+		RootId:    rootPost.Id,
+		Message:   configText,
+	}); appErr != nil {
+		p.API.LogError("Failed to post field refresh dialog config", "err", appErr.Error())
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+// handleDialogMultistep handles the multi-step dialog functionality
+// This demonstrates how submit can return a new form instead of closing the dialog
+func (p *Plugin) handleDialogMultistep(w http.ResponseWriter, r *http.Request) {
+	var request model.SubmitDialogRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		p.API.LogError("Failed to decode SubmitDialogRequest for multistep", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	// Handle different steps based on the dialog state
+	switch request.State {
+	case "step1":
+		// Move to step 2 - client automatically accumulates values
+		userType := interfaceToString(request.Submission["user_type"])
+		useCase := interfaceToString(request.Submission["use_case"])
+
+		dialog := getDialogStep2(userType, useCase)
+		response := &model.SubmitDialogResponse{
+			Type: "form",
+			Form: &dialog,
+		}
+		p.writeJSON(w, response)
+		return
+
+	case "step2":
+		// Move to step 3 (final confirmation) - client has all values
+		dialog := getDialogStep3Summary(request.Submission)
+		response := &model.SubmitDialogResponse{
+			Type: "form",
+			Form: &dialog,
+		}
+		p.writeJSON(w, response)
+		return
+
+	case "final":
+		// Process final submission - all values are in request.Submission
+		user, appErr := p.API.GetUser(request.UserId)
+		if appErr != nil {
+			p.API.LogError("Failed to get user for multistep dialog", "err", appErr.Error())
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// Check if terms were accepted
+		acceptTerms := interfaceToString(request.Submission["accept_terms"])
+		acceptPrivacy := interfaceToString(request.Submission["accept_privacy"])
+
+		if acceptTerms != "true" || acceptPrivacy != "true" {
+			response := &model.SubmitDialogResponse{
+				Errors: map[string]string{
+					"accept_terms":   "You must accept the Terms & Conditions",
+					"accept_privacy": "You must accept the Privacy Policy",
+				},
+			}
+			p.writeJSON(w, response)
+			return
+		}
+
+		// Registration complete - create summary post with all collected data
+		msg := fmt.Sprintf("🎉 @%v successfully completed the multi-step registration process!", user.Username)
+
+		rootPost, appErr := p.API.CreatePost(&model.Post{
+			UserId:    p.botID,
+			ChannelId: request.ChannelId,
+			Message:   msg,
+		})
+		if appErr != nil {
+			p.API.LogError("Failed to post multistep completion message", "err", appErr.Error())
+			return
+		}
+
+		// Post summary of all collected data as a thread reply
+		summaryText := "**Complete Registration Data:**\n"
+		for key, value := range request.Submission {
+			if str := interfaceToString(value); str != "" {
+				summaryText += fmt.Sprintf("- **%s:** %s\n", key, str)
+			}
+		}
+
+		if _, appErr = p.API.CreatePost(&model.Post{
+			UserId:    p.botID,
+			ChannelId: request.ChannelId,
+			RootId:    rootPost.Id,
+			Message:   summaryText,
+		}); appErr != nil {
+			p.API.LogError("Failed to post registration summary", "err", appErr.Error())
+		}
+
+		// Dialog closes automatically when no response type is specified
+		w.WriteHeader(http.StatusOK)
+		return
+
+	default:
+		// Unknown state - return error
+		response := &model.SubmitDialogResponse{
+			Error: "Unknown dialog state",
+		}
+		p.writeJSON(w, response)
 		return
 	}
 }
