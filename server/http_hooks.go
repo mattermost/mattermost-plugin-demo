@@ -9,7 +9,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
-	"github.com/mattermost/mattermost/server/public/shared/mlog"
 )
 
 // ServeHTTP allows the plugin to implement the http.Handler interface. Requests destined for the
@@ -450,10 +449,8 @@ func (p *Plugin) handleDialogFieldRefresh(w http.ResponseWriter, r *http.Request
 	}
 	defer r.Body.Close()
 
-	mlog.Debug("handleDialogFieldRefresh called", mlog.String("requestType", request.Type))
 	// Check if this is a field refresh (source call) or a final submit
 	if request.Type == "refresh" {
-		mlog.Debug("Found header")
 
 		// This is a field refresh - return a new form based on the changed field
 		projectType := ""
@@ -469,7 +466,6 @@ func (p *Plugin) handleDialogFieldRefresh(w http.ResponseWriter, r *http.Request
 		p.writeJSON(w, response)
 		return
 	}
-	mlog.Debug("No header")
 
 	// This is a final submit - process the form data
 	user, appErr := p.API.GetUser(request.UserId)
