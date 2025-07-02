@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"html"
 	"net/http"
 	"time"
 
@@ -44,6 +45,7 @@ func (p *Plugin) initializeAPI() {
 	dialogRouter.Use(p.withDelay)
 	dialogRouter.HandleFunc("/1", p.handleDialog1)
 	dialogRouter.HandleFunc("/2", p.handleDialog2)
+	dialogRouter.HandleFunc("/date", p.handleDateDialog)
 	dialogRouter.HandleFunc("/error", p.handleDialogWithError)
 
 	ephemeralRouter := router.PathPrefix("/ephemeral").Subrouter()
@@ -231,6 +233,81 @@ func (p *Plugin) handleDialog2(w http.ResponseWriter, r *http.Request) {
 	}); appErr != nil {
 		p.API.LogError("Failed to post handleDialog2 message", "err", appErr.Error())
 		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (p *Plugin) handleDateDialog(w http.ResponseWriter, r *http.Request) {
+	var request model.SubmitDialogRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		p.API.LogError("Failed to decode SubmitDialogRequest", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	user, appErr := p.API.GetUser(request.UserId)
+	if appErr != nil {
+		p.API.LogError("Failed to get user for date dialog", "err", appErr.Error())
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	msg := "@%v submitted a Date Dialog"
+	if request.Cancelled {
+		msg = "@%v canceled a Date Dialog"
+	}
+
+	rootPost, appErr := p.API.CreatePost(&model.Post{
+		UserId:    p.botID,
+		ChannelId: request.ChannelId,
+		Message:   fmt.Sprintf(msg, user.Username),
+	})
+	if appErr != nil {
+		p.API.LogError("Failed to post handleDateDialog message", "err", appErr.Error())
+		return
+	}
+
+	if !request.Cancelled {
+		// Format the date and datetime values for display
+		submissionDisplay := make(map[string]interface{})
+		for key, value := range request.Submission {
+			submissionDisplay[key] = value
+		}
+
+		// Add formatted display for date values with validation
+		if dateVal, ok := request.Submission["somedate"].(string); ok && dateVal != "" {
+			// Validate date format for security
+			if _, err := time.Parse("2006-01-02", dateVal); err == nil {
+				submissionDisplay["somedate_formatted"] = fmt.Sprintf("📅 %s", html.EscapeString(dateVal))
+			} else {
+				p.API.LogWarn("Invalid date format provided", "date", dateVal)
+				submissionDisplay["somedate_formatted"] = "📅 Invalid date format"
+			}
+		}
+		if datetimeVal, ok := request.Submission["somedatetime"].(string); ok && datetimeVal != "" {
+			// Validate datetime format for security  
+			if _, err := time.Parse(time.RFC3339, datetimeVal); err == nil {
+				submissionDisplay["somedatetime_formatted"] = fmt.Sprintf("🕐 %s", html.EscapeString(datetimeVal))
+			} else {
+				p.API.LogWarn("Invalid datetime format provided", "datetime", datetimeVal)
+				submissionDisplay["somedatetime_formatted"] = "🕐 Invalid datetime format"
+			}
+		}
+
+		if _, appErr = p.API.CreatePost(&model.Post{
+			UserId:    p.botID,
+			ChannelId: request.ChannelId,
+			RootId:    rootPost.Id,
+			Message:   "**Event Created Successfully!** 🎉\n\nHere are the details:",
+			Type:      "custom_demo_plugin",
+			Props:     submissionDisplay,
+		}); appErr != nil {
+			p.API.LogError("Failed to post handleDateDialog message", "err", appErr.Error())
+			return
+		}
 	}
 
 	w.WriteHeader(http.StatusOK)

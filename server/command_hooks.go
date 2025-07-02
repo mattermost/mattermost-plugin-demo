@@ -24,6 +24,8 @@ const (
 
 	dialogElementNameNumber = "somenumber"
 	dialogElementNameEmail  = "someemail"
+	dialogElementNameDate   = "somedate"
+	dialogElementNameDatetime = "somedatetime"
 
 	dialogStateSome                = "somestate"
 	dialogStateRelativeCallbackURL = "relativecallbackstate"
@@ -34,6 +36,7 @@ const (
 		"- `/dialog no-elements` - Open an Interactive Dialog with no elements. Once submitted, user's action is posted back into a channel.\n" +
 		"- `/dialog relative-callback-url` - Open an Interactive Dialog with relative callback URL. Once submitted, user's action is posted back into a channel.\n" +
 		"- `/dialog introduction-text` - Open an Interactive Dialog with optional introduction text. Once submitted, user's action is posted back into a channel.\n" +
+		"- `/dialog date` - Open an Interactive Dialog with date and datetime fields for testing.\n" +
 		"- `/dialog error` - Open an Interactive Dialog which always returns an general error.\n" +
 		"- `/dialog error-no-elements` - Open an Interactive Dialog with no elements which always returns an general error.\n" +
 		"- `/dialog help` - Show this help text"
@@ -87,6 +90,7 @@ func (p *Plugin) registerCommands() error {
 	}); err != nil {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerDialog)
 	}
+
 
 	if err := p.API.RegisterCommand(&model.Command{
 		Trigger:          commandTriggerInteractive,
@@ -159,6 +163,9 @@ func getCommandDialogAutocompleteData() *model.AutocompleteData {
 	introText := model.NewAutocompleteData("introduction-text", "", "Open an Interactive Dialog with an introduction text.")
 	command.AddCommand(introText)
 
+	date := model.NewAutocompleteData("date", "", "Open an Interactive Dialog with date and datetime fields.")
+	command.AddCommand(date)
+
 	error := model.NewAutocompleteData("error", "", "Open an Interactive Dialog with error.")
 	command.AddCommand(error)
 
@@ -170,6 +177,7 @@ func getCommandDialogAutocompleteData() *model.AutocompleteData {
 
 	return command
 }
+
 
 func getAutocompleteTestAutocompleteData() *model.AutocompleteData {
 	command := model.NewAutocompleteData(commandTriggerAutocompleteTest, "", "Test an autocomplete.")
@@ -225,7 +233,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 	default:
 		return &model.CommandResponse{
 			ResponseType: model.CommandResponseTypeEphemeral,
-			Text:         fmt.Sprintf("Unknown command: " + args.Command),
+			Text:         "Unknown command. Use `/dialog help` for available commands.",
 		}, nil
 	}
 }
@@ -362,6 +370,12 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/1", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog:    getDialogWithIntroductionText(dialogIntroductionText),
+		}
+	case "date":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/date", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogWithDateElements(),
 		}
 	case "error":
 		dialogRequest = model.OpenDialogRequest{
@@ -568,6 +582,55 @@ func getDialogWithIntroductionText(introductionText string) model.Dialog {
 	return dialog
 }
 
+func getDialogWithDateElements() model.Dialog {
+	dialog := model.Dialog{
+		CallbackId: "datecallbackid",
+		Title:      "Date & DateTime Test Dialog",
+		IconURL:    "http://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
+		Elements: []model.DialogElement{{
+			DisplayName: "Meeting Date",
+			Name:        dialogElementNameDate,
+			Type:        "date",
+			Placeholder: "Select a meeting date",
+			HelpText:    "Choose a date for the meeting using the date picker.",
+		}, {
+			DisplayName: "Meeting Date & Time",
+			Name:        dialogElementNameDatetime,
+			Type:        "datetime",
+			Placeholder: "Select meeting date and time",
+			HelpText:    "Choose both date and time for the meeting start.",
+		}, {
+			DisplayName: "Event Title",
+			Name:        "eventtitle",
+			Type:        "text",
+			Default:     "Team Meeting",
+			Placeholder: "Enter event title",
+			HelpText:    "Give your event a descriptive title.",
+		}, {
+			DisplayName: "Event Description",
+			Name:        "eventdescription",
+			Type:        "textarea",
+			Placeholder: "Describe the event...",
+			Optional:    true,
+			MaxLength:   200,
+			HelpText:    "Optional: Add more details about the event.",
+		}, {
+			DisplayName: "All Day Event",
+			Name:        "alldayevent",
+			Type:        "bool",
+			Placeholder: "Is this an all-day event?",
+			HelpText:    "Check if this event lasts the entire day.",
+			Optional:    true,
+		}},
+		SubmitLabel:    "Create Event",
+		NotifyOnCancel: true,
+		State:          "datetest",
+		IntroductionText: "**Test Date and DateTime Pickers** \n\nThis dialog demonstrates the new date and datetime field types. Select dates using the integrated date pickers.",
+	}
+	
+	return dialog
+}
+
 func (p *Plugin) executeCommandInteractive(args *model.CommandArgs) *model.CommandResponse {
 	post := &model.Post{
 		ChannelId: args.ChannelId,
@@ -727,3 +790,4 @@ func (p *Plugin) executeAutocompleteTest(args *model.CommandArgs) *model.Command
 		Text:         fmt.Sprintf("Executed command: " + args.Command),
 	}
 }
+
