@@ -22,9 +22,9 @@ const (
 	commandTriggerListFiles         = "list_files"
 	commandTriggerAutocompleteTest  = "autocomplete_test"
 
-	dialogElementNameNumber = "somenumber"
-	dialogElementNameEmail  = "someemail"
-	dialogElementNameDate   = "somedate"
+	dialogElementNameNumber   = "somenumber"
+	dialogElementNameEmail    = "someemail"
+	dialogElementNameDate     = "somedate"
 	dialogElementNameDatetime = "somedatetime"
 
 	dialogStateSome                = "somestate"
@@ -90,7 +90,6 @@ func (p *Plugin) registerCommands() error {
 	}); err != nil {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerDialog)
 	}
-
 
 	if err := p.API.RegisterCommand(&model.Command{
 		Trigger:          commandTriggerInteractive,
@@ -177,7 +176,6 @@ func getCommandDialogAutocompleteData() *model.AutocompleteData {
 
 	return command
 }
-
 
 func getAutocompleteTestAutocompleteData() *model.AutocompleteData {
 	command := model.NewAutocompleteData(commandTriggerAutocompleteTest, "", "Test an autocomplete.")
@@ -622,12 +620,12 @@ func getDialogWithDateElements() model.Dialog {
 			HelpText:    "Check if this event lasts the entire day.",
 			Optional:    true,
 		}},
-		SubmitLabel:    "Create Event",
-		NotifyOnCancel: true,
-		State:          "datetest",
+		SubmitLabel:      "Create Event",
+		NotifyOnCancel:   true,
+		State:            "datetest",
 		IntroductionText: "**Test Date and DateTime Pickers** \n\nThis dialog demonstrates the new date and datetime field types. Select dates using the integrated date pickers.",
 	}
-	
+
 	return dialog
 }
 
@@ -790,4 +788,3 @@ func (p *Plugin) executeAutocompleteTest(args *model.CommandArgs) *model.Command
 		Text:         fmt.Sprintf("Executed command: " + args.Command),
 	}
 }
-
