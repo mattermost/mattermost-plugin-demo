@@ -5,16 +5,9 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
 	"github.com/mattermost/mattermost/server/public/pluginapi/cluster"
-
-	root "github.com/mattermost/mattermost-plugin-demo"
-)
-
-var (
-	manifest model.Manifest = root.Manifest
 )
 
 type Plugin struct {
