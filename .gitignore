@@ -5,3 +5,6 @@ dist
 
 # VSCode
 .vscode
+
+webapp/src/manifest.ts
+server/manifest.go
