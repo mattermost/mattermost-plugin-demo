@@ -1,52 +1,87 @@
-run:
-  timeout: 5m
-  modules-download-mode: readonly
-
-linters-settings:
-  gofmt:
-    simplify: true
-  goimports:
-    local-prefixes: github.com/mattermost/mattermost-plugin-demo
-  govet:
-    check-shadowing: true
-    enable-all: true
-    disable:
-      - fieldalignment
-  misspell:
-    locale: US
-  revive:
-    rules:
-      - name: unused-parameter
-        disabled: true
+version: "2"
 
 linters:
-  disable-all: true
   enable:
     - bodyclose
     - errcheck
     - gocritic
-    - gofmt
-    - goimports
     - gosec
-    - gosimple
-    - govet
     - ineffassign
     - misspell
     - nakedret
     - revive
-    - staticcheck
-    - stylecheck
-    - typecheck
+    - staticcheck # Now includes gosimple and stylecheck
     - unconvert
     - unused
     - whitespace
+    - govet # Ensure this is included
+
+  settings:
+    errcheck:
+      # Add any errcheck settings here
+      exclude-functions:
+        - io.Copy(*bytes.Buffer)
+
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - experimental
+        - opinionated
+        - performance
+        - style
+
+    gosec:
+      # Add gosec settings
+      excludes:
+        - G104 # Errors unhandled
+
+    staticcheck:
+      # Configure staticcheck (includes gosimple/stylecheck checks)
+      checks: ["all"]
+
+    revive:
+      # Add revive rules
+      rules:
+        - name: exported
+          disabled: false
+
+  exclusions:
+    presets:
+      - comments
+      - std-error-handling
+      - common-false-positives
+
+    rules:
+      - path: '_test\.go'
+        linters:
+          - errcheck
+          - gosec
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+
+  settings:
+    gofmt:
+      simplify: true
+
+    goimports:
+      local-prefixes:
+        - github.com/mattermost/mattermost-plugin-demo
+
+output:
+  formats:
+    text:
+      path: stdout
+      colors: true
+      print-linter-name: true
+
+run:
+  timeout: 5m
+  tests: true
 
 issues:
-  exclude-rules:
-    - path: server/configuration.go
-      linters:
-        - unused
-    - path: _test\.go
-      linters:
-        - bodyclose
-        - scopelint # https://github.com/kyoh86/scopelint/issues/4
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  fix: false
