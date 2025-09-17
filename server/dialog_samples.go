@@ -29,7 +29,7 @@ func getDialogWithFieldRefresh(projectType string) model.Dialog {
 				Text:  "Web Application",
 				Value: "web",
 			}, {
-				Text:  "Mobile Application", 
+				Text:  "Mobile Application",
 				Value: "mobile",
 			}, {
 				Text:  "Desktop Application",
@@ -201,7 +201,7 @@ func getDialogWithFieldRefresh(projectType string) model.Dialog {
 	return dialog
 }
 
-// Sample Dialog with Form Refresh (Multi-Step) Functionality  
+// Sample Dialog with Form Refresh (Multi-Step) Functionality
 // This demonstrates how submit can return a new form for multi-step workflows
 func getDialogStep1() model.Dialog {
 	return model.Dialog{
@@ -254,7 +254,7 @@ func getDialogStep1() model.Dialog {
 			MinLength:   2,
 			MaxLength:   50,
 		}, {
-			DisplayName: "Last Name", 
+			DisplayName: "Last Name",
 			Name:        "last_name",
 			Type:        "text",
 			Placeholder: "Enter your last name...",
@@ -441,7 +441,7 @@ func getDialogStep2(userType, useCase string) model.Dialog {
 func getDialogStep3Summary(formData map[string]interface{}) model.Dialog {
 	// Create a summary of the collected information from all accumulated values
 	summaryText := "## Registration Summary\n\n"
-	
+
 	// Add key information from accumulated form data
 	if userType, ok := formData["user_type"].(string); ok {
 		summaryText += fmt.Sprintf("**User Type:** %s\n", userType)
@@ -484,7 +484,7 @@ func getDialogStep3Summary(formData map[string]interface{}) model.Dialog {
 		}, {
 			DisplayName: "Privacy Policy",
 			Name:        "accept_privacy",
-			Type:        "bool", 
+			Type:        "bool",
 			Placeholder: "I accept the Privacy Policy",
 			HelpText:    "You must accept our privacy policy to complete registration.",
 		}},
