@@ -417,7 +417,7 @@ func getDialogWithSampleElements() model.Dialog {
 	return model.Dialog{
 		CallbackId: "somecallbackid",
 		Title:      "Test Title",
-		IconURL:    "http://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
+		IconURL:    "https://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
 		Elements: []model.DialogElement{{
 			DisplayName: "Display Name",
 			Name:        "realname",
@@ -574,7 +574,7 @@ func getDialogWithoutElements(state string) model.Dialog {
 	return model.Dialog{
 		CallbackId:     "somecallbackid",
 		Title:          "Sample Confirmation Dialog",
-		IconURL:        "http://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
+		IconURL:        "https://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
 		Elements:       nil,
 		SubmitLabel:    "Confirm",
 		NotifyOnCancel: true,
