@@ -15,6 +15,7 @@ export default class RHSView extends React.PureComponent {
             contacts: [
                 {id: 1, name: 'Alice Johnson', status: 'online', avatar: '👩', role: 'Developer'},
                 {id: 2, name: 'Bob Smith', status: 'away', avatar: '👨', role: 'Designer'},
+                {id: 3, name: 'Charlie Brown', status: 'busy', avatar: '👨‍💻', role: 'Product Manager'},
             ],
             unreadChannels: props.unreadChannels,
         };
@@ -36,40 +37,15 @@ export default class RHSView extends React.PureComponent {
     };
 
     renderContact = (contact) => {
-        const statusColor = this.getStatusColor(contact.status);
         return (
             <div
                 key={contact.id}
-                style={styles.contactItem}
+                style={styles.contactCard}
             >
-                <div style={styles.contactAvatar}>
-                    <span style={styles.avatarEmoji}>{contact.avatar}</span>
-                    <div
-                        style={{
-                            ...styles.statusIndicator,
-                            backgroundColor: statusColor,
-                        }}
-                    />
-                </div>
-                <div style={styles.contactInfo}>
-                    <div style={styles.contactName}>{contact.name}</div>
-                    <div style={styles.contactRole}>{contact.role}</div>
-                </div>
-                <div style={styles.contactActions}>
-                    <button
-                        style={styles.actionButton}
-                        onClick={() => this.handleMessage(contact)}
-                        title='Send message'
-                    >
-                        {'💬'}
-                    </button>
-                    <button
-                        style={styles.actionButton}
-                        onClick={() => this.handleCall(contact)}
-                        title='Call'
-                    >
-                        {'📞'}
-                    </button>
+                <div style={styles.contactInfo}
+                >
+                    <div style={styles.contactName}>{contact.name || ' '}</div>
+                    <div style={styles.contactRole}>{contact.role || ' '}</div>
                 </div>
             </div>
         );
@@ -269,17 +245,28 @@ const styles = {
     },
     contactsList: {
         marginBottom: '20px',
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '8px',
     },
     contactItem: {
         display: 'flex',
         alignItems: 'center',
-        padding: '10px 0',
+        padding: '8px 0',
         borderBottom: '1px solid #f0f0f0',
         transition: 'background-color 0.2s ease',
         cursor: 'pointer',
-        ':hover': {
-            backgroundColor: '#f8f8f8',
-        },
+        ':hover': { backgroundColor: '#f0f8ff' },
+    },
+    contactCard: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        padding: '8px',
+        border: '1px solid #f0f0f0',
+        borderRadius: '6px',
+        backgroundColor: '#fff',
+        boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
     },
     contactAvatar: {
         position: 'relative',
