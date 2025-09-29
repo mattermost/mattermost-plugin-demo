@@ -44,8 +44,12 @@ export default class RHSView extends React.PureComponent {
             >
                 <div style={styles.contactInfo}
                 >
-                    <div style={styles.contactName}>{contact.name || ' '}</div>
-                    <div style={styles.contactRole}>{contact.role || ' '}</div>
+                    <div style={styles.flexRow}>
+                        <span style={styles.avatarEmoji2}>{contact.avatar || '👤'}</span>
+                        
+                        <div style={styles.contactName}>{contact.name || ' '}</div>
+                        <div style={styles.contactRole}>{contact.role || ' '}</div>
+                    </div>
                 </div>
             </div>
         );
@@ -272,8 +276,18 @@ const styles = {
         position: 'relative',
         marginRight: '12px',
     },
+    flexRow: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: '8px',
+    },
     avatarEmoji: {
         fontSize: '32px',
+        display: 'block',
+    },
+    avatarEmoji2: {
+        fontSize: '24px',
         display: 'block',
     },
     statusIndicator: {
