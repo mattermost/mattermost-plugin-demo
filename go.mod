@@ -1,4 +1,4 @@
-module github.com/mattermost/mattermost-plugin-demo
+module github.com/itstar-tech/mattermost-plugin-demo
 
 go 1.24.3
 
