@@ -255,7 +255,7 @@ func (p *Plugin) OnConfigurationChange() error {
 		Username:    "whatsapp",
 		DisplayName: "WhatsApp Bot",
 		Description: "The WhatsApp Bot",
-	}, pluginapi.ProfileImagePath("/assets/icon.png"))
+	}, pluginapi.ProfileImagePath("/assets/whatsapp-icon.png"))
 	if ensureBotError != nil {
 		return errors.Wrap(ensureBotError, "failed to ensure demo bot")
 	}
