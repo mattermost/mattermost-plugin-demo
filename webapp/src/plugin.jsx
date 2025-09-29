@@ -62,7 +62,7 @@ export default class DemoPlugin {
             RHSView,
             <FormattedMessage
                 id='plugin.name'
-                defaultMessage='Demo Plugin'
+                defaultMessage='WhatsApp'
             />);
 
         registry.registerChannelHeaderButtonAction(
@@ -70,7 +70,7 @@ export default class DemoPlugin {
             () => store.dispatch(toggleRHSPlugin),
             <FormattedMessage
                 id='plugin.name'
-                defaultMessage='Demo Plugin'
+                defaultMessage='WhatsApp'
             />,
         );
 
@@ -80,7 +80,7 @@ export default class DemoPlugin {
         registry.registerMainMenuAction(
             <FormattedMessage
                 id='plugin.name'
-                defaultMessage='Demo Plugin'
+                defaultMessage='WhatsApp'
             />,
             () => store.dispatch(mainMenuAction()),
             <MainMenuMobileIcon/>,
@@ -89,7 +89,7 @@ export default class DemoPlugin {
         registry.registerChannelHeaderMenuAction(
             <FormattedMessage
                 id='plugin.name'
-                defaultMessage='Demo Plugin'
+                defaultMessage='WhatsApp'
             />,
             (channelId) => store.dispatch(channelHeaderMenuAction(channelId)),
             <MainMenuMobileIcon/>,
@@ -119,7 +119,7 @@ export default class DemoPlugin {
         registry.registerPostDropdownMenuAction(
             <FormattedMessage
                 id='plugin.name'
-                defaultMessage='Demo Plugin'
+                defaultMessage='WhatsApp'
             />,
             () => store.dispatch(postDropdownMenuAction()),
         );
@@ -180,7 +180,7 @@ export default class DemoPlugin {
             () => store.dispatch(fileUploadMethodAction()),
             <FormattedMessage
                 id='plugin.upload'
-                defaultMessage='Upload using Demo Plugin'
+                defaultMessage='WhatsApp: Notificar package'
             />,
         );
 
@@ -190,7 +190,7 @@ export default class DemoPlugin {
                 (fileInfo) => fileInfo.extension === 'demo',
                 <FormattedMessage
                     id='plugin.name'
-                    defaultMessage='Demo Plugin'
+                    defaultMessage='WhatsApp'
                 />,
                 () => store.dispatch(fileDropdownMenuAction()),
             );

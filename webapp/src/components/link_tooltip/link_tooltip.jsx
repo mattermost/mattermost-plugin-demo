@@ -24,7 +24,7 @@ export default class LinkTooltip extends React.PureComponent {
                 />
                 <FormattedMessage
                     id='tooltip.message'
-                    defaultMessage='This is a custom tooltip from the Demo Plugin'
+                    defaultMessage='This is a custom tooltip from the WhatsApp'
                 />
             </div>
         );

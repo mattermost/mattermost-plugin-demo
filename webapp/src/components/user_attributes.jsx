@@ -14,7 +14,7 @@ export default class UserAttributes extends React.PureComponent {
         return (
             <div>
                 <a onClick={this.onClick}>
-                    {'Demo Plugin: User Attributes'}
+                    {'Whatsapp: Si'}
                 </a>
             </div>
         );

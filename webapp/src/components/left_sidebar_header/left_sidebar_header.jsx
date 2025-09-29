@@ -28,7 +28,7 @@ export default class LeftSidebarHeader extends React.PureComponent {
                 />
                 <FormattedMessage
                     id='sidebar.demo'
-                    defaultMessage='Demo Plugin:'
+                    defaultMessage='WhatsApp:'
                 />
                 {' '}
                 {this.props.enabled ?

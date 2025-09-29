@@ -1,0 +1,78 @@
+version: '3.7'
+
+services:
+  postgres:
+    image: postgres:15
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 100
+    read_only: false
+    tmpfs:
+      - /tmp
+      - /var/run/postgresql
+    environment:
+      POSTGRES_USER: mmuser
+      POSTGRES_PASSWORD: mmuser_password
+      POSTGRES_DB: mattermost
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mattermost
+
+  mattermost:
+    depends_on:
+      - postgres
+    image: mattermost/mattermost-enterprise-edition:9.6.1
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 200
+    read_only: true
+    tmpfs:
+      - /tmp
+    ports:
+      - "8065:8065"
+    volumes:
+      - mattermost_config:/mattermost/config:rw
+      - mattermost_data:/mattermost/data:rw
+      - mattermost_logs:/mattermost/logs:rw
+      - mattermost_plugins:/mattermost/plugins:rw
+      - mattermost_client_plugins:/mattermost/client/plugins:rw
+      - ./dist/com.mattermost.demo-plugin:/mattermost/plugins-dev/com.mattermost.demo-plugin:rw
+    environment:
+      MM_SQLSETTINGS_DRIVERNAME: postgres
+      MM_SQLSETTINGS_DATASOURCE: "postgres://mmuser:mmuser_password@postgres:5432/mattermost?sslmode=disable&connect_timeout=10"
+
+      MM_SERVICESETTINGS_SITEURL: "http://localhost:8065"
+      MM_SERVICESETTINGS_ENABLEDEVELOPER: "true"
+      MM_SERVICESETTINGS_ENABLEINSECUREOUTGOINGCONNECTIONS: "true"
+      MM_SERVICESETTINGS_ALLOWCORSFROMANYWHERE: "true"
+      MM_SERVICESETTINGS_ENABLEGIFPICKER: "true"
+
+      MM_FILESETTINGS_ENABLEPUBLICLINK: "true"
+
+      MM_PLUGINSETTINGS_ENABLE: "true"
+      MM_PLUGINSETTINGS_ENABLEUPLOADS: "true"
+      MM_PLUGINSETTINGS_ENABLEREMOTEMARKETPLACE: "false"
+      MM_PLUGINSETTINGS_REQUIREPLUGINSIGNATURE: "false"
+
+      MM_LOGSETTINGS_ENABLECONSOLE: "true"
+      MM_LOGSETTINGS_CONSOLELEVEL: "DEBUG"
+      MM_LOGSETTINGS_ENABLEFILE: "true"
+      MM_LOGSETTINGS_FILELEVEL: "DEBUG"
+
+    networks:
+      - mattermost
+
+volumes:
+  postgres_data:
+  mattermost_data:
+  mattermost_logs:
+  mattermost_config:
+  mattermost_plugins:
+  mattermost_client_plugins:
+
+networks:
+  mattermost:
+    driver: bridge
