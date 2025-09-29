@@ -15,10 +15,6 @@ export default class RHSView extends React.PureComponent {
             contacts: [
                 {id: 1, name: 'Alice Johnson', status: 'online', avatar: '👩', role: 'Developer'},
                 {id: 2, name: 'Bob Smith', status: 'away', avatar: '👨', role: 'Designer'},
-                {id: 3, name: 'Carol Williams', status: 'busy', avatar: '👩‍💼', role: 'Manager'},
-                {id: 4, name: 'David Brown', status: 'offline', avatar: '👨‍💻', role: 'QA Engineer'},
-                {id: 5, name: 'Eva Davis', status: 'online', avatar: '👩‍🔬', role: 'Scientist'},
-                {id: 6, name: 'Frank Miller', status: 'away', avatar: '👨‍🎨', role: 'Artist'},
             ],
             unreadChannels: props.unreadChannels,
         };
@@ -182,33 +178,51 @@ ${JSON.stringify(channel, null, 2)}
                 <div style={styles.unreadList}>
                     {unreadChannels.map((channel) => {
                         const unreadCount = this.getUnreadCount(channel);
+                        const statusColor = this.getStatusColor('busy');
                         return (
                             <div
                                 key={channel.id}
-                                style={{...styles.unreadItem, ...styles.unreadItemClickable}}
-                                onClick={() => this.handleChannelClick(channel)}
+                                style={styles.contactItem}
+                                
                             >
-                                <span style={styles.channelName}>
-                                    {channel.display_name || channel.name}
-                                </span>
-                                <div style={styles.channelMeta}>
-                                    <span style={styles.channelType}>
-                                        {this.getChannelTypeLabel(channel.type)}
-                                    </span>
-                                    {unreadCount > 0 && (
-                                        <span style={styles.unreadBadge}>
-                                            {unreadCount > 99 ? '99+' : unreadCount}
-                                        </span>
-                                    )}
+                                <div style={styles.contactAvatar}>
+                                    <span style={styles.avatarEmoji}>{'👩'}</span>
+                                    <div
+                                        style={{
+                                            ...styles.statusIndicator,
+                                            backgroundColor: statusColor,
+                                        }}
+                                    />
+                                </div>
+                                <div style={styles.contactInfo}>
+                                    <div style={styles.contactName}>
+                                        {channel.display_name || channel.name}
+                                    </div>
+                                    <div style={styles.contactRole}>
+                                        {'New message'}
+                                        {unreadCount > 0 && (
+                                            <span style={styles.unreadBadge}>
+                                                {unreadCount > 99 ? '99+' : unreadCount}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                                <div style={styles.contactActions}>
                                     <button
                                         style={styles.actionButton}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            this.printChannelInfo(channel);
-                                        }}
-                                        title='Channel Info'
+                                        onClick={() => this.handleChannelClick(channel)}
+                                        title='Send message'
                                     >
-                                        {'ℹ️'}
+                                        {'👀'}
+                                    </button>
+                                    <button
+                                        style={styles.actionButton}
+                                        onClick={() => {
+                                            this.handleCall(channel);
+                                        }}
+                                        title='Call'
+                                    >
+                                        {'✅'}
                                     </button>
                                 </div>
                             </div>
@@ -228,7 +242,7 @@ ${JSON.stringify(channel, null, 2)}
                 data-testid='rhsView'
             >
 
-                <div style={styles.contactsList}>
+                <div style={{...styles.contactsList, maxHeight: '300px', overflowY: 'auto'}}>
                     {contacts.map(this.renderContact)}
                 </div>
                 {this.renderUnreadChannels()}
@@ -303,9 +317,9 @@ const styles = {
         background: 'none',
         border: 'none',
         cursor: 'pointer',
-        padding: '5px',
+        padding: '8px',
         borderRadius: '3px',
-        fontSize: '14px',
+        fontSize: '16px',
         transition: 'background-color 0.2s ease',
         ':hover': {
             backgroundColor: '#e6f3ff',
