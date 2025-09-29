@@ -146,7 +146,7 @@
                 "type": "text",
                 "help_text": "URL donde se enviarán las notificaciones de reacciones (debe ser una URL válida que comience con http:// o https://)",
                 "placeholder": "https://example.com/webhook",
-                "default": ""
+                "default": "http://n8n:5678/webhook/mattermost/"
             }
         ]
     },
