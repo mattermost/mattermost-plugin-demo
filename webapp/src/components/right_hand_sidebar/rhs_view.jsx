@@ -163,7 +163,7 @@ ${JSON.stringify(channel, null, 2)}
                             <div
                                 key={channel.id}
                                 style={styles.contactItem}
-                                
+                                onClick={() => this.handleChannelClick(channel)}                               
                             >
                                 <div style={styles.contactAvatar}>
                                     <span style={styles.avatarEmoji}>{'👩'}</span>
