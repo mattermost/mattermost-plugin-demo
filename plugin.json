@@ -1,6 +1,6 @@
 {
     "id": "com.mattermost.demo-plugin",
-    "name": "Demo Plugin",
+    "name": "Whatsapp",
     "description": "This plugin demonstrates the capabilities of a Mattermost plugin.",
     "homepage_url": "https://github.com/mattermost/mattermost-plugin-demo",
     "support_url": "https://github.com/mattermost/mattermost-plugin-demo/issues",

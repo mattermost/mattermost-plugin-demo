@@ -256,6 +256,7 @@ const style = {
     rhs: {
         padding: '10px',
         fontFamily: 'Open Sans, sans-serif',
+        overflowY: 'auto',
     },
 };
 

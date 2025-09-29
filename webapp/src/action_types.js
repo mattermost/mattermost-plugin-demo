@@ -7,3 +7,5 @@ export const OPEN_ROOT_MODAL = pluginId + '_open_root_modal';
 export const CLOSE_ROOT_MODAL = pluginId + '_close_root_modal';
 
 export const SUBMENU = pluginId + '_submenu';
+
+export const SET_WHATSAPP_PREF = pluginId + '_set_whats_pref';

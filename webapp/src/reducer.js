@@ -1,6 +1,6 @@
 import {combineReducers} from 'redux';
 
-import {STATUS_CHANGE, OPEN_ROOT_MODAL, CLOSE_ROOT_MODAL, SUBMENU} from './action_types';
+import {STATUS_CHANGE, OPEN_ROOT_MODAL, CLOSE_ROOT_MODAL, SUBMENU, SET_WHATSAPP_PREF} from './action_types';
 
 const enabled = (state = false, action) => {
     switch (action.type) {
@@ -33,9 +33,19 @@ const subMenu = (state = '', action) => {
     }
 };
 
+const receiveNotifications = (state = false, action) => {
+    switch (action.type) {
+    case 'SET_WHATSAPP_PREF':
+        return action.data;
+    default:
+        return state;
+    }
+};
+
 export default combineReducers({
     enabled,
     rootModalVisible,
     subMenu,
+    receiveNotifications,
 });
 
