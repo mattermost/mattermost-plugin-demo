@@ -66,6 +66,9 @@ type configuration struct {
 
 	// WhatsApp monitored channels
 	monitoredChannels map[string]bool
+
+	// AccessToken is the access token for the bot
+	AccessToken string
 }
 
 // Clone deep copies the configuration. Your implementation may only require a shallow copy if
@@ -98,7 +101,8 @@ func (c *configuration) Clone() *configuration {
 		disabled:                c.disabled,
 		demoUserID:              c.demoUserID,
 		demoChannelIDs:          demoChannelIDs,
-		monitoredChannels:       c.monitoredChannels,
+		monitoredChannels:       monitoredChannels,
+		AccessToken:             c.AccessToken,
 	}
 }
 
@@ -261,6 +265,15 @@ func (p *Plugin) OnConfigurationChange() error {
 	}
 
 	p.botID = botID
+
+	accessToken, err := p.API.CreateUserAccessToken(&model.UserAccessToken{
+		UserId:      botID,
+		Description: "whatsapp-bot-token",
+	})
+	if err != nil {
+		return errors.Wrap(err, "failed to create access token for bot")
+	}
+	configuration.AccessToken = accessToken.Token
 
 	configuration.demoChannelIDs, err = p.ensureDemoChannels(configuration)
 	if err != nil {
