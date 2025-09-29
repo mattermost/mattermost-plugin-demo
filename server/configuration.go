@@ -454,3 +454,31 @@ func (p *Plugin) setEnabled(enabled bool) {
 
 	p.setConfiguration(configuration)
 }
+
+// addChannelToMonitor adds a channel to the monitored list
+func (p *Plugin) addChannelToMonitor(channelID string) {
+	p.configurationLock.Lock()
+	defer p.configurationLock.Unlock()
+
+	if p.configuration == nil {
+		p.configuration = &configuration{
+			monitoredChannels: make(map[string]bool),
+		}
+	}
+
+	if p.configuration.monitoredChannels == nil {
+		p.configuration.monitoredChannels = make(map[string]bool)
+	}
+
+	p.configuration.monitoredChannels[channelID] = true
+}
+
+// removeChannelFromMonitor removes a channel from the monitored list
+func (p *Plugin) removeChannelFromMonitor(channelID string) {
+	p.configurationLock.Lock()
+	defer p.configurationLock.Unlock()
+
+	if p.configuration != nil && p.configuration.monitoredChannels != nil {
+		delete(p.configuration.monitoredChannels, channelID)
+	}
+}

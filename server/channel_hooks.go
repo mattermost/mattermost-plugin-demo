@@ -66,6 +66,24 @@ func (p *Plugin) UserHasJoinedChannel(c *plugin.Context, channelMember *model.Ch
 			"error", err.Error(),
 		)
 	}
+
+	if channelMember.UserId == p.botID {
+		p.addChannelToMonitor(channelMember.ChannelId)
+
+		channel, err := p.API.GetChannel(channelMember.ChannelId)
+		if err != nil {
+			p.API.LogError(
+				"Failed to query channel when bot joined",
+				"channel_id", channelMember.ChannelId,
+				"error", err.Error(),
+			)
+			return
+		}
+
+		p.API.LogInfo("Bot agregado al canal - comenzando monitoreo",
+			"channel_id", channelMember.ChannelId,
+			"channel_name", channel.Name)
+	}
 }
 
 // UserHasLeftChannel is invoked after the membership has been removed from the database. If
@@ -107,5 +125,23 @@ func (p *Plugin) UserHasLeftChannel(c *plugin.Context, channelMember *model.Chan
 			"user_id", channelMember.UserId,
 			"error", err.Error(),
 		)
+	}
+
+	if channelMember.UserId == p.botID {
+		p.removeChannelFromMonitor(channelMember.ChannelId)
+
+		channel, err := p.API.GetChannel(channelMember.ChannelId)
+		if err != nil {
+			p.API.LogError(
+				"Failed to query channel when bot left",
+				"channel_id", channelMember.ChannelId,
+				"error", err.Error(),
+			)
+			return
+		}
+
+		p.API.LogInfo("Bot removido del canal - deteniendo monitoreo",
+			"channel_id", channelMember.ChannelId,
+			"channel_name", channel.Name)
 	}
 }
