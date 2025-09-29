@@ -37,6 +37,7 @@ import {
     getStatus, saveWhatsAppPreference,
 } from './actions';
 import reducer from './reducer';
+import {isReceiveWhatsappMessages} from './selectors';
 
 function getTranslations(locale) {
     switch (locale) {
@@ -237,6 +238,8 @@ export default class DemoPlugin {
         registry.registerNeedsTeamRoute('/teamtest', RouterShowcase);
         registry.registerCustomRoute('/roottest', () => 'Demo plugin route.');
 
+        const defaultSettingOption = isReceiveWhatsappMessages(store.getState()) ? 'on' : 'off';
+
         registry.registerUserSettings?.({
             id: manifest.id,
             icon: `/plugins/${manifest.id}/public/whatsapp-icon-outline.png`,
@@ -245,7 +248,7 @@ export default class DemoPlugin {
                 {
                     settings: [
                         {
-                            name: 'setting1',
+                            name: 'whatsapp_preference',
                             title: 'Recibir notificaciones',
                             options: [
                                 {
@@ -258,14 +261,14 @@ export default class DemoPlugin {
                                 },
                             ],
                             type: 'radio',
-                            default: '1',
+                            default: defaultSettingOption,
                             helpText: 'Indica si recibirás notificaciones',
                         },
                     ],
                     title: 'Recibir mensajes',
                     onSubmit: (v) => {
-                        const enabled = v[0];
-                        saveWhatsAppPreference(enabled);
+                        const enabled = v.whatsapp_preference;
+                        store.dispatch(saveWhatsAppPreference(enabled));
                     }, // eslint-disable-line no-alert
                 },
             ],

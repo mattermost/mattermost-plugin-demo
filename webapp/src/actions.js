@@ -1,6 +1,6 @@
 import {getConfig} from 'mattermost-redux/selectors/entities/general';
-import {getCurrentUserId} from "mattermost-redux/selectors/entities/common";
-import {Client4} from "mattermost-redux/client";
+import {getCurrentUserId} from 'mattermost-redux/selectors/entities/common';
+import {Client4} from 'mattermost-redux/client';
 
 import {id as pluginId} from './manifest';
 import {STATUS_CHANGE, OPEN_ROOT_MODAL, CLOSE_ROOT_MODAL, SUBMENU, SET_WHATSAPP_PREF} from './action_types';
@@ -56,16 +56,16 @@ export const getStatus = () => async (dispatch, getState) => {
 export const saveWhatsAppPreference = (enabled) => async (dispatch, getState) => {
     const state = getState();
     const userId = getCurrentUserId(state);
-    Client4.doFetch(`${getPluginServerRoute(state)}/whatsapp/preference/${userId}}`, {
+    Client4.doFetch(`${getPluginServerRoute(state)}/whatsapp/preference`, {
         method: 'put',
         body: JSON.stringify({
             receive_notifications: enabled,
+            user_id: userId,
         }),
-    }).then((r) => r.json()).then(() => {
-        dispatch({
-            type: SET_WHATSAPP_PREF,
-            data: enabled,
-        });
+    });
+    dispatch({
+        type: SET_WHATSAPP_PREF,
+        data: enabled,
     });
 };
 

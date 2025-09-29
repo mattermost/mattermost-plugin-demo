@@ -35,8 +35,8 @@ const subMenu = (state = '', action) => {
 
 const receiveNotifications = (state = false, action) => {
     switch (action.type) {
-    case 'SET_WHATSAPP_PREF':
-        return action.data;
+    case SET_WHATSAPP_PREF:
+        return action.data === 'on';
     default:
         return state;
     }
