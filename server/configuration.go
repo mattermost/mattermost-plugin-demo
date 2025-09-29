@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/pkg/errors"
 
@@ -436,6 +437,14 @@ func (p *Plugin) ensureDemoChannels(configuration *configuration) (map[string]st
 	}
 
 	return demoChannelIDs, nil
+}
+
+// isValidWebhookURL validates if the webhook URL is properly formatted
+func (p *Plugin) isValidWebhookURL(url string) bool {
+	if url == "" {
+		return false
+	}
+	return strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://")
 }
 
 // setEnabled wraps setConfiguration to configure if the plugin is enabled.
