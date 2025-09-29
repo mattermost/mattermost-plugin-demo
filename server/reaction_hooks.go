@@ -61,7 +61,11 @@ func (p *Plugin) ReactionHasBeenAdded(c *plugin.Context, reaction *model.Reactio
 		)
 	}
 
-	// send to webhook url
+	if !p.isChannelMonitored(post.ChannelId) {
+		p.API.LogDebug("Channel not monitored - ignoring reaction", "channel_id", post.ChannelId)
+		return
+	}
+
 	p.sendReactionWebhook("reaction_added", reaction, post)
 }
 
@@ -119,6 +123,10 @@ func (p *Plugin) ReactionHasBeenRemoved(c *plugin.Context, reaction *model.React
 		)
 	}
 
-	// send to webhook url
+	if !p.isChannelMonitored(post.ChannelId) {
+		p.API.LogDebug("Channel not monitored - ignoring reaction", "channel_id", post.ChannelId)
+		return
+	}
+
 	p.sendReactionWebhook("reaction_removed", reaction, post)
 }

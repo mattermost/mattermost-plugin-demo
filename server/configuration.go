@@ -482,3 +482,9 @@ func (p *Plugin) removeChannelFromMonitor(channelID string) {
 		delete(p.configuration.monitoredChannels, channelID)
 	}
 }
+
+// isChannelMonitored checks if a channel is being monitored
+func (p *Plugin) isChannelMonitored(channelID string) bool {
+	config := p.getConfiguration()
+	return config.monitoredChannels[channelID]
+}
