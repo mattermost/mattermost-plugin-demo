@@ -8,3 +8,19 @@ dist
 
 # Claude Code guidance file
 CLAUDE.local.md
+/.idea/inspectionProfiles/profiles_settings.xml
+/.idea/inspectionProfiles/Project_Default.xml
+/.idea/.gitignore
+/.idea/aws.xml
+/.idea/ChatHistory_schema_v3.xml
+/.idea/golinter.xml
+/.idea/mattermost-plugin-demo.iml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/vcs.xml
+/server/.idea/.gitignore
+/server/.idea/ChatHistory_schema_v3.xml
+/server/.idea/golinter.xml
+/server/.idea/modules.xml
+/server/.idea/server.iml
+/server/.idea/vcs.xml

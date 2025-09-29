@@ -51,7 +51,10 @@ type configuration struct {
 	// It's useful for testing.
 	IntegrationRequestDelay int
 
-	// disabled tracks whether or not the plugin has been disabled after activation. It always starts enabled.
+	// WhatsApp outgoing reaction webhook
+	WebhookURL string
+
+	// disabled tracks whether the plugin has been disabled after activation. It always starts enabled.
 	disabled bool
 
 	// demoUserID is the id of the user specified above.
@@ -59,6 +62,9 @@ type configuration struct {
 
 	// demoChannelIDs maps team ids to the channels created for each using the channel name above.
 	demoChannelIDs map[string]string
+
+	// WhatsApp monitored channels
+	monitoredChannels map[string]bool
 }
 
 // Clone deep copies the configuration. Your implementation may only require a shallow copy if
@@ -68,6 +74,12 @@ func (c *configuration) Clone() *configuration {
 	demoChannelIDs := make(map[string]string)
 	for key, value := range c.demoChannelIDs {
 		demoChannelIDs[key] = value
+	}
+
+	// Deep copy monitoredChannels, a reference type.
+	monitoredChannels := make(map[string]bool)
+	for key, value := range c.monitoredChannels {
+		monitoredChannels[key] = value
 	}
 
 	return &configuration{
@@ -81,9 +93,11 @@ func (c *configuration) Clone() *configuration {
 		MentionUser:             c.MentionUser,
 		SecretNumber:            c.SecretNumber,
 		IntegrationRequestDelay: c.IntegrationRequestDelay,
+		WebhookURL:              c.WebhookURL,
 		disabled:                c.disabled,
 		demoUserID:              c.demoUserID,
 		demoChannelIDs:          demoChannelIDs,
+		monitoredChannels:       c.monitoredChannels,
 	}
 }
 
@@ -152,6 +166,24 @@ func (p *Plugin) diffConfiguration(newConfiguration *configuration) {
 	if newConfiguration.SecretNumber != oldConfiguration.SecretNumber {
 		configurationDiff["secret_number"] = newConfiguration.SecretNumber
 	}
+	if newConfiguration.WebhookURL != oldConfiguration.WebhookURL {
+		configurationDiff["webhook_url"] = newConfiguration.WebhookURL
+	}
+	// Compare monitoredChannels maps
+	if len(newConfiguration.monitoredChannels) != len(oldConfiguration.monitoredChannels) {
+		configurationDiff["monitored_channels"] = newConfiguration.monitoredChannels
+	} else {
+		changed := false
+		for k, v := range newConfiguration.monitoredChannels {
+			if oldVal, ok := oldConfiguration.monitoredChannels[k]; !ok || oldVal != v {
+				changed = true
+				break
+			}
+		}
+		if changed {
+			configurationDiff["monitored_channels"] = newConfiguration.monitoredChannels
+		}
+	}
 
 	if len(configurationDiff) == 0 {
 		return
@@ -219,9 +251,9 @@ func (p *Plugin) OnConfigurationChange() error {
 	configuration.demoUserID = demoUserID
 
 	botID, ensureBotError := p.client.Bot.EnsureBot(&model.Bot{
-		Username:    "demoplugin",
-		DisplayName: "Demo Plugin Bot",
-		Description: "A bot account created by the demo plugin.",
+		Username:    "whatsapp",
+		DisplayName: "WhatsApp Bot",
+		Description: "The WhatsApp Bot",
 	}, pluginapi.ProfileImagePath("/assets/icon.png"))
 	if ensureBotError != nil {
 		return errors.Wrap(ensureBotError, "failed to ensure demo bot")
@@ -327,14 +359,14 @@ func (p *Plugin) ensureDemoUser(configuration *configuration) (string, error) {
 	user, err := p.API.GetUserByUsername(configuration.Username)
 	if err != nil {
 		if err.StatusCode == http.StatusNotFound {
-			p.API.LogInfo("DemoUser doesn't exist. Trying to create it.")
+			p.API.LogInfo("WhatsApp User doesn't exist. Trying to create it.")
 
 			user, err = p.API.CreateUser(&model.User{
 				Username:  configuration.Username,
 				Password:  "Password_123",
 				Email:     fmt.Sprintf("%s@example.com", configuration.Username),
-				Nickname:  "Demo Day",
-				FirstName: "Demo",
+				Nickname:  "WhatsApp Day",
+				FirstName: "WhatsApp",
 				LastName:  configuration.LastName,
 				Position:  "Bot",
 			})

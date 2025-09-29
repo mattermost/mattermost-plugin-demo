@@ -203,6 +203,20 @@ export default class DemoPlugin {
             },
         );
 
+        registry.registerWebSocketEventHandler(
+            'channel_viewed',
+            () => {
+                // Force a re-render of the RHS component to update unread channels
+                // This is a simple approach - in a real app you might want to dispatch an action
+                const rhsComponent = document.querySelector('[data-testid="rhsView"]');
+                if (rhsComponent) {
+                    // Trigger a re-render by updating the component state
+                    // This is a workaround since we don't have direct access to the component instance
+                    window.postMessage({type: 'CHANNEL_VIEWED_UPDATE'}, '*');
+                }
+            },
+        );
+
         registry.registerAdminConsoleCustomSetting('SecretMessage', SecretMessageSetting, {showTitle: true});
         registry.registerAdminConsoleCustomSetting('CustomSetting', CustomSetting);
 

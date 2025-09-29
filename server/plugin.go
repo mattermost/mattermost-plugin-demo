@@ -10,7 +10,7 @@ import (
 	"github.com/mattermost/mattermost/server/public/pluginapi"
 	"github.com/mattermost/mattermost/server/public/pluginapi/cluster"
 
-	root "github.com/mattermost/mattermost-plugin-demo"
+	root "github.com/itstar-tech/mattermost-plugin-demo"
 )
 
 var (

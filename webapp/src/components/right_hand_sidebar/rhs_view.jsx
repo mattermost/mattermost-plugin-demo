@@ -1,11 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import {FormattedMessage} from 'react-intl';
-
 export default class RHSView extends React.PureComponent {
     static propTypes = {
         team: PropTypes.object.isRequired,
+        unreadChannels: PropTypes.array.isRequired,
+        myChannelMemberships: PropTypes.object.isRequired,
+        currentUserId: PropTypes.string.isRequired,
     }
 
     constructor(props) {
@@ -19,6 +20,7 @@ export default class RHSView extends React.PureComponent {
                 {id: 5, name: 'Eva Davis', status: 'online', avatar: '👩‍🔬', role: 'Scientist'},
                 {id: 6, name: 'Frank Miller', status: 'away', avatar: '👨‍🎨', role: 'Artist'},
             ],
+            unreadChannels: props.unreadChannels,
         };
     }
 
@@ -97,16 +99,140 @@ export default class RHSView extends React.PureComponent {
         }
     };
 
+    getChannelTypeLabel = (type) => {
+        switch (type) {
+        case 'O':
+            return 'Public';
+        case 'P':
+            return 'Private';
+        default:
+            return 'Direct';
+        }
+    };
+
+    handleChannelClick = (channel) => {
+        // Navigate to the channel
+        const teamName = this.props.team.name;
+        let channelPath = '';
+
+        // Determine the correct path based on channel type
+        if (channel.type === 'D') {
+            // Direct message - extract username from channel name
+            // Channel name format for DMs is usually like "username1__username2"
+            const usernames = channel.name.split('__');
+            const otherUsername = usernames.find((username) => (
+                username !== this.props.currentUserId &&
+                username !== 'system'
+            ));
+            if (otherUsername) {
+                channelPath = `/${teamName}/messages/@${otherUsername}`;
+            } else {
+                channelPath = `/${teamName}/messages/${channel.name}`;
+            }
+        } else if (channel.type === 'G') {
+            // Group message
+            channelPath = `/${teamName}/messages/${channel.name}`;
+        } else {
+            // Public/Private channel
+            channelPath = `/${teamName}/channels/${channel.name}`;
+        }
+
+        // Navigate to the channel
+        window.WebappUtils.browserHistory.push(channelPath);
+    };
+
+    printChannelInfo = (channel) => {
+        // Print the full channel object as JSON
+        // console.log('Channel Object:', JSON.stringify(channel, null, 2));
+
+        // Show channel info in a formatted way
+        const channelInfo = `
+Channel Information:
+==================
+${JSON.stringify(channel, null, 2)}
+        `.trim();
+
+        // For now, just log to console since alert is not allowed
+        // In a real implementation, you could show this in a modal or tooltip
+        console.log(channelInfo); // eslint-disable-line no-console
+    };
+
+    getUnreadCount = (channel) => {
+        // Get unread message count from channel membership
+        const membership = this.props.myChannelMemberships[channel.id];
+        if (membership) {
+            return Math.max(0, channel.total_msg_count - membership.msg_count);
+        }
+        return 0;
+    };
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.unreadChannels !== this.props.unreadChannels) {
+            this.setState({unreadChannels: this.props.unreadChannels});
+        }
+    }
+
+    renderUnreadChannels = () => {
+        const {unreadChannels} = this.state;
+        if (unreadChannels.length === 0) {
+            return null;
+        }
+        return (
+            <div style={styles.unreadSection}>
+                <div style={styles.unreadList}>
+                    {unreadChannels.map((channel) => {
+                        const unreadCount = this.getUnreadCount(channel);
+                        return (
+                            <div
+                                key={channel.id}
+                                style={{...styles.unreadItem, ...styles.unreadItemClickable}}
+                                onClick={() => this.handleChannelClick(channel)}
+                            >
+                                <span style={styles.channelName}>
+                                    {channel.display_name || channel.name}
+                                </span>
+                                <div style={styles.channelMeta}>
+                                    <span style={styles.channelType}>
+                                        {this.getChannelTypeLabel(channel.type)}
+                                    </span>
+                                    {unreadCount > 0 && (
+                                        <span style={styles.unreadBadge}>
+                                            {unreadCount > 99 ? '99+' : unreadCount}
+                                        </span>
+                                    )}
+                                    <button
+                                        style={styles.actionButton}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            this.printChannelInfo(channel);
+                                        }}
+                                        title='Channel Info'
+                                    >
+                                        {'ℹ️'}
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        );
+    };
+
     render() {
         const {contacts} = this.state;
 
         return (
-            <div style={style.rhs}>
+            <div
+                style={style.rhs}
+                data-testid='rhsView'
+            >
 
                 <div style={styles.contactsList}>
                     {contacts.map(this.renderContact)}
                 </div>
-                
+                {this.renderUnreadChannels()}
+
             </div>
         );
     }
@@ -214,5 +340,58 @@ const styles = {
         ':hover': {
             textDecoration: 'underline',
         },
+    },
+    unreadSection: {
+        marginTop: '20px',
+    },
+    unreadTitle: {
+        margin: '0',
+        fontSize: '16px',
+        color: '#333',
+        fontWeight: '500',
+    },
+    unreadList: {
+        listStyle: 'none',
+        padding: '0',
+        margin: '0',
+    },
+    unreadItem: {
+        padding: '10px',
+        borderBottom: '1px solid #f0f0f0',
+    },
+    unreadItemClickable: {
+        cursor: 'pointer',
+        transition: 'background-color 0.2s ease',
+        ':hover': {
+            backgroundColor: '#f0f8ff',
+        },
+    },
+    channelName: {
+        fontSize: '14px',
+        color: '#333',
+    },
+    channelType: {
+        fontSize: '12px',
+        color: '#666',
+    },
+    unreadCountBadge: {
+        fontSize: '12px',
+        color: '#666',
+        marginLeft: '5px',
+    },
+    channelMeta: {
+        fontSize: '12px',
+        color: '#666',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '5px',
+    },
+    unreadBadge: {
+        fontSize: '12px',
+        color: '#fff',
+        backgroundColor: '#ff4444',
+        padding: '2px 4px',
+        borderRadius: '3px',
+        marginLeft: '5px',
     },
 };

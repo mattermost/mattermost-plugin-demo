@@ -139,6 +139,14 @@
                 "help_text": "A deplay in seconds that is applied to Slash Command responses, Post Actions responses and Interactive Dialog responses. It's useful for testing.",
                 "placeholder": "A delay in seconds",
                 "default": 0
+            },
+            {
+                "key": "WebhookURL",
+                "display_name": "URL del Webhook Saliente",
+                "type": "text",
+                "help_text": "URL donde se enviarán las notificaciones de reacciones (debe ser una URL válida que comience con http:// o https://)",
+                "placeholder": "https://example.com/webhook",
+                "default": ""
             }
         ]
     },
