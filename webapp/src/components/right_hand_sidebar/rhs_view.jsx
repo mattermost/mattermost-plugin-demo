@@ -44,12 +44,17 @@ export default class RHSView extends React.PureComponent {
 
     renderContact = (contact) => {
         const statusColor = this.getStatusColor(contact.status);
+        const tooltip = [contact.name, contact.role].filter(Boolean).join(' — ');
         return (
             <div
                 key={contact.id}
                 style={styles.contactCard}
             >
-                <div style={styles.avatarCircle}>
+                <div
+                    style={styles.avatarCircle}
+                    title={tooltip}
+                    aria-label={tooltip}
+                >
                     <span style={styles.avatarEmoji2}>{contact.avatar || '👤'}</span>
                 </div>
             </div>
@@ -262,7 +267,7 @@ const styles = {
         borderBottom: '1px solid #f0f0f0',
         transition: 'background-color 0.2s ease',
         cursor: 'pointer',
-        ':hover': {backgroundColor: '#f0f8ff'},
+        ':hover': { backgroundColor: '#f0f8ff' },
     },
     contactCard: {
         display: 'flex',
@@ -272,6 +277,7 @@ const styles = {
         boxSizing: 'border-box',
     },
     avatarCircle: {
+        cursor: 'pointer',
         position: 'relative',
         width: '40px',
         height: '40px',
