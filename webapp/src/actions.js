@@ -4,7 +4,14 @@ import {getMyPreferences} from 'mattermost-redux/selectors/entities/preferences'
 
 import {id as PluginId} from './manifest';
 
-import {STATUS_CHANGE, OPEN_ROOT_MODAL, CLOSE_ROOT_MODAL, SUBMENU, SET_WHATSAPP_PREF} from './action_types';
+import {
+    STATUS_CHANGE,
+    OPEN_ROOT_MODAL,
+    CLOSE_ROOT_MODAL,
+    SUBMENU,
+    SET_WHATSAPP_PREF,
+    SET_ACTIVE_USERS,
+} from './action_types';
 import {PREFERENCE_NAME_WHATSAPP} from './constants';
 
 export const openRootModal = (subMenuText = '') => (dispatch) => {
@@ -98,6 +105,30 @@ export const syncWhatsappPreferences = () => async (dispatch, getState) => {
     dispatch({
         type: SET_WHATSAPP_PREF,
         data: whatsappSetting.value,
+    });
+};
+
+export const getActiveUsers = () => async (dispatch, getState) => {
+    const state = getState();
+    const url = `${getPluginServerRoute(state)}/whatsapp/enabled/users`;
+
+    return fetch(url, {method: 'GET'}).
+        then((r) => r.json()).
+        then((data) => {
+            dispatch({
+                type: SET_ACTIVE_USERS,
+                data: data.active_users,
+            });
+        }).
+        catch((error) => {
+            console.error('Error obteniendo los usuarios:', error);
+        });
+};
+
+export const syncActiveUsers = (users) => async (dispatch, _) => {
+    dispatch({
+        type: SET_ACTIVE_USERS,
+        data: users,
     });
 };
 

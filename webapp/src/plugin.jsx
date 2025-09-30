@@ -34,11 +34,12 @@ import {
     postDropdownSubMenuAction,
     channelHeaderMenuAction,
     websocketStatusChange,
-    getStatus, saveWhatsAppPreference, syncWhatsappPreferences,
+    getStatus, saveWhatsAppPreference, syncWhatsappPreferences, syncActiveUsers, getActiveUsers,
 } from './actions';
 import reducer from './reducer';
 import {isReceiveWhatsappMessages} from './selectors';
-import {PREFERENCE_NAME_WHATSAPP} from "./constants";
+import {PREFERENCE_NAME_WHATSAPP} from './constants';
+import {id as PluginId} from './manifest';
 
 function getTranslations(locale) {
     switch (locale) {
@@ -219,6 +220,21 @@ export default class DemoPlugin {
             },
         );
 
+        registry.registerWebSocketEventHandler(
+            'preferences_changed',
+            () => {
+                store.dispatch(syncWhatsappPreferences());
+            },
+        );
+
+        registry.registerWebSocketEventHandler(
+            'custom_' + manifest.id + '_whatsapp_preference_updated',
+            (message) => {
+                const payload = message.data;
+                store.dispatch(syncActiveUsers(payload?.active_users));
+            },
+        );
+
         registry.registerAdminConsoleCustomSetting('SecretMessage', SecretMessageSetting, {showTitle: true});
         registry.registerAdminConsoleCustomSetting('CustomSetting', CustomSetting);
 
@@ -232,9 +248,12 @@ export default class DemoPlugin {
         // Immediately sync user preferences
         store.dispatch(syncWhatsappPreferences());
 
+        store.dispatch(getActiveUsers());
+
         // Fetch the current status whenever we recover an internet connection.
         registry.registerReconnectHandler(() => {
             store.dispatch(getStatus());
+            store.dispatch(syncWhatsappPreferences());
         });
 
         registry.registerTranslations(getTranslations);

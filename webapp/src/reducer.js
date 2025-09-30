@@ -1,9 +1,21 @@
 import {combineReducers} from 'redux';
 
-import {STATUS_CHANGE, OPEN_ROOT_MODAL, CLOSE_ROOT_MODAL, SUBMENU, SET_WHATSAPP_PREF, SET_USER_PREFS} from './action_types';
+import {
+    STATUS_CHANGE,
+    OPEN_ROOT_MODAL,
+    CLOSE_ROOT_MODAL,
+    SUBMENU,
+    SET_WHATSAPP_PREF,
+    SET_USER_PREFS,
+    SET_ACTIVE_USERS,
+} from './action_types';
 
 const preferencesInitialState = {
     whatsapp: false,
+};
+
+const activeUsersInitialState = {
+    users: [],
 };
 
 const enabled = (state = false, action) => {
@@ -54,10 +66,23 @@ const preferences = (state = preferencesInitialState, action) => {
     }
 };
 
+const activeUsers = (state = activeUsersInitialState, action) => {
+    switch (action.type) {
+    case SET_ACTIVE_USERS:
+        return {
+            ...state,
+            users: action.data,
+        };
+    default:
+        return state;
+    }
+};
+
 export default combineReducers({
     enabled,
     rootModalVisible,
     subMenu,
     preferences,
+    activeUsers,
 });
 

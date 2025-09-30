@@ -12,6 +12,10 @@ import (
 	"github.com/mattermost/mattermost/server/public/plugin"
 )
 
+const (
+	WebsocketEventPreferenceUpdated = "whatsapp_preference_updated"
+)
+
 // ReactionWebhookPayload defines the structure of the webhook payload
 type ReactionWebhookPayload struct {
 	Action      string `json:"action"` // "reaction_added" or "reaction_removed"
@@ -147,6 +151,8 @@ func (p *Plugin) handleSetWhatsappPreference(w http.ResponseWriter, r *http.Requ
 		p.DisableUserByID(pref.UserID)
 	}
 
+	p.publishPreferenceUpdateEvent()
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	err := json.NewEncoder(w).Encode(map[string]string{
@@ -207,6 +213,34 @@ func (p *Plugin) getEnabledUsers(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
+}
+
+func (p *Plugin) publishPreferenceUpdateEvent() {
+	users, _ := p.GetEnabledUsers()
+
+	usersData := ActiveUsersResponse{
+		ActiveUsers: users,
+	}
+
+	jsonBytes, err := json.Marshal(usersData)
+	if err != nil {
+		p.API.LogError("Failed to marshal users data for WS event", "error", err.Error())
+		return
+	}
+
+	var payload map[string]interface{}
+	if err := json.Unmarshal(jsonBytes, &payload); err != nil {
+		p.API.LogError("Failed to unmarshal JSON to map for WS event", "error", err.Error())
+		return
+	}
+
+	p.API.LogError("Sending event", "event", payload)
+
+	p.API.PublishWebSocketEvent(
+		WebsocketEventPreferenceUpdated,
+		payload,
+		&model.WebsocketBroadcast{},
+	)
 }
 
 func (p *Plugin) handleHello(w http.ResponseWriter, r *http.Request) {

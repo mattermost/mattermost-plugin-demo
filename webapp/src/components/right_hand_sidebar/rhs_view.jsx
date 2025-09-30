@@ -48,10 +48,10 @@ export default class RHSView extends React.PureComponent {
             <div
                 key={contact.id}
                 style={styles.contactCard}
-            >            
+            >
                 <div style={styles.avatarCircle}>
                     <span style={styles.avatarEmoji2}>{contact.avatar || '👤'}</span>
-                </div>                                   
+                </div>
             </div>
         );
     };
@@ -164,7 +164,7 @@ ${JSON.stringify(channel, null, 2)}
                             <div
                                 key={channel.id}
                                 style={styles.contactItem}
-                                onClick={() => this.handleChannelClick(channel)}                               
+                                onClick={() => this.handleChannelClick(channel)}
                             >
                                 <div style={styles.contactAvatar}>
                                     <span style={styles.avatarEmoji}>{'👩'}</span>
@@ -262,7 +262,7 @@ const styles = {
         borderBottom: '1px solid #f0f0f0',
         transition: 'background-color 0.2s ease',
         cursor: 'pointer',
-        ':hover': { backgroundColor: '#f0f8ff' },
+        ':hover': {backgroundColor: '#f0f8ff'},
     },
     contactCard: {
         display: 'flex',

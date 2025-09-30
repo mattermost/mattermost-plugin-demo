@@ -11,3 +11,4 @@ export const subMenu = (state) => getPluginState(state).subMenu;
 export const isReceiveWhatsappMessages = (state) =>
     getPluginState(state).preferences.whatsapp;
 
+export const getActiveUsers = (state) => getPluginState(state).activeUsers.users;
