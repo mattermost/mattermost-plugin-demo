@@ -124,6 +124,7 @@ func (p *Plugin) handlePreferences(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Plugin) handleSetWhatsappPreference(w http.ResponseWriter, r *http.Request) {
+	configuration := p.getConfiguration()
 	var pref WhatsAppPreference
 
 	if err := json.NewDecoder(r.Body).Decode(&pref); err != nil {
@@ -131,14 +132,12 @@ func (p *Plugin) handleSetWhatsappPreference(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	p.API.LogInfo("WhatsApp preference received",
-		"user_id", pref.UserID,
-		"enabled", pref.ReceiveNotifications,
-	)
+	user, err_usr := p.API.GetUser(pref.UserID)
 
-	if err := p.API.KVSet("whatsapp_pref_"+pref.UserID, []byte(strconv.FormatBool(pref.ReceiveNotifications))); err != nil {
-		http.Error(w, "failed to save preference", http.StatusInternalServerError)
-		return
+	if pref.ReceiveNotifications {
+		p.addUser(user)
+	} else {
+		p.removeUserByID(pref.UserID)
 	}
 
 	w.Header().Set("Content-Type", "application/json")

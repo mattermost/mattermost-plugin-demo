@@ -69,6 +69,8 @@ type configuration struct {
 
 	// whatsAppAccessToken is the access token for the bot
 	whatsAppAccessToken string
+
+	userNotificationsEnabled []model.User
 }
 
 // Clone deep copies the configuration. Your implementation may only require a shallow copy if
@@ -502,4 +504,31 @@ func (p *Plugin) removeChannelFromMonitor(channelID string) {
 func (p *Plugin) isChannelMonitored(channelID string) bool {
 	config := p.getConfiguration()
 	return config.monitoredChannels[channelID]
+}
+
+func (p *Plugin) removeUserByID(id string) {
+	p.configurationLock.Lock()
+	defer p.configurationLock.Unlock()
+
+	users := p.configuration.userNotificationsEnabled
+	newUsers := make([]model.User, 0, len(users))
+	for _, u := range users {
+		if u.Id != id {
+			newUsers = append(newUsers, u)
+		}
+	}
+	p.configuration.userNotificationsEnabled = newUsers
+}
+
+func (p *Plugin) addUser(user *model.User) {
+	p.configurationLock.Lock()
+	defer p.configurationLock.Unlock()
+
+	for _, u := range p.configuration.userNotificationsEnabled {
+		if u.Id == user.Id {
+			return
+		}
+	}
+
+	p.configuration.userNotificationsEnabled = append(p.configuration.userNotificationsEnabled, user)
 }
