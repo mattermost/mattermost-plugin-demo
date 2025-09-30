@@ -14,6 +14,7 @@ export default class LeftSidebarHeader extends React.PureComponent {
         const iconStyle = {
             display: 'inline-block',
             marginRight: '8px',
+            marginLeft: '5px',
             color: enabled ? WHATSAPP_GREEN : 'rgba(255,255,255,0.4)',
         };
 
@@ -27,7 +28,7 @@ export default class LeftSidebarHeader extends React.PureComponent {
 
         const headerStyle = {
             margin: '0',
-            padding: '8px 12px 8px 15px',
+            padding: '7px 16px 7px 19px',
             color: 'rgba(255,255,255,0.7)',
             backgroundColor: 'transparent',
         };

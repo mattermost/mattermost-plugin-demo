@@ -1,9 +1,11 @@
 import {getConfig} from 'mattermost-redux/selectors/entities/general';
 import {getCurrentUserId} from 'mattermost-redux/selectors/entities/common';
-import {Client4} from 'mattermost-redux/client';
+import {getMyPreferences} from 'mattermost-redux/selectors/entities/preferences';
 
-import {id as pluginId} from './manifest';
-import {STATUS_CHANGE, OPEN_ROOT_MODAL, CLOSE_ROOT_MODAL, SUBMENU, SET_WHATSAPP_PREF, SET_USER_PREFS} from './action_types';
+import {id as PluginId} from './manifest';
+
+import {STATUS_CHANGE, OPEN_ROOT_MODAL, CLOSE_ROOT_MODAL, SUBMENU, SET_WHATSAPP_PREF} from './action_types';
+import {PREFERENCE_NAME_WHATSAPP} from './constants';
 
 export const openRootModal = (subMenuText = '') => (dispatch) => {
     dispatch({
@@ -41,7 +43,7 @@ export const getPluginServerRoute = (state) => {
         }
     }
 
-    return basePath + '/plugins/' + pluginId;
+    return basePath + '/plugins/' + PluginId;
 };
 
 export const getStatus = () => async (dispatch, getState) => {
@@ -56,34 +58,46 @@ export const getStatus = () => async (dispatch, getState) => {
 export const saveWhatsAppPreference = (enabled) => async (dispatch, getState) => {
     const state = getState();
     const userId = getCurrentUserId(state);
-    Client4.doFetch(`${getPluginServerRoute(state)}/whatsapp/preferences`, {
-        method: 'put',
-        body: JSON.stringify({
+    const url = `${getPluginServerRoute(state)}/whatsapp/preferences`;
+
+    try {
+        const body = JSON.stringify({
             receive_notifications: enabled === 'on',
             user_id: userId,
-        }),
-    });
-    dispatch({
-        type: SET_WHATSAPP_PREF,
-        data: enabled,
-    });
+        });
+
+        const response = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body,
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP Error ${response.status}: ${errorText}`);
+        }
+
+        dispatch({
+            type: SET_WHATSAPP_PREF,
+            data: enabled,
+        });
+    } catch (error) {
+        console.error('Error guardando la preferencia de WhatsApp:', error);
+    }
 };
 
 export const syncWhatsappPreferences = () => async (dispatch, getState) => {
-    console.log('syncWhatsappPreferences');
     const state = getState();
-    const userId = getCurrentUserId(state);
-    Client4.doFetch(`${getPluginServerRoute(state)}/whatsapp/preferences`, {
-        method: 'get',
-        body: JSON.stringify({
-            user_id: userId,
-        }),
-    }).then((r) => r.json()).then((r) => {
-        console.log(r);
-        dispatch({
-            type: SET_USER_PREFS,
-            data: r,
-        });
+
+    const PreSavedPreferenceList = getMyPreferences(state);
+
+    const whatsappSetting = PreSavedPreferenceList[`pp_${PluginId}--${PREFERENCE_NAME_WHATSAPP}`];
+
+    dispatch({
+        type: SET_WHATSAPP_PREF,
+        data: whatsappSetting.value,
     });
 };
 

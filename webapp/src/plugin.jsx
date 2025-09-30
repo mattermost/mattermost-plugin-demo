@@ -38,6 +38,7 @@ import {
 } from './actions';
 import reducer from './reducer';
 import {isReceiveWhatsappMessages} from './selectors';
+import {PREFERENCE_NAME_WHATSAPP} from "./constants";
 
 function getTranslations(locale) {
     switch (locale) {
@@ -251,7 +252,7 @@ export default class DemoPlugin {
                 {
                     settings: [
                         {
-                            name: 'whatsapp_preference',
+                            name: PREFERENCE_NAME_WHATSAPP,
                             title: 'Recibir notificaciones',
                             options: [
                                 {
@@ -270,7 +271,7 @@ export default class DemoPlugin {
                     ],
                     title: 'Recibir mensajes',
                     onSubmit: (v) => {
-                        const enabled = v.whatsapp_preference;
+                        const enabled = v[PREFERENCE_NAME_WHATSAPP];
                         store.dispatch(saveWhatsAppPreference(enabled));
                     }, // eslint-disable-line no-alert
                 },

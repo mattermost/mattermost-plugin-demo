@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -37,7 +36,11 @@ type WhatsAppPreference struct {
 }
 
 type UserPreferencesResponse struct {
-	WhatsAppPref bool `json:"whatsapp_pref"`
+	WhatsAppPref bool `json:"whatsapp"`
+}
+
+type ActiveUsersResponse struct {
+	ActiveUsers []*model.User `json:"active_users"`
 }
 
 // ServeHTTP allows the plugin to implement the http.Handler interface. Requests destined for the
@@ -58,6 +61,7 @@ func (p *Plugin) initializeAPI() {
 
 	router.HandleFunc("/status", p.handleStatus)
 	router.HandleFunc("/whatsapp/preferences", p.handlePreferences)
+	router.HandleFunc("/whatsapp/enabled/users", p.getEnabledUsers)
 	router.HandleFunc("/hello", p.handleHello)
 	router.HandleFunc("/dynamic_arg_test_url", p.handleDynamicArgTest)
 	router.HandleFunc("/check_auth_header", p.handleCheckAuthHeader)
@@ -124,7 +128,6 @@ func (p *Plugin) handlePreferences(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Plugin) handleSetWhatsappPreference(w http.ResponseWriter, r *http.Request) {
-	configuration := p.getConfiguration()
 	var pref WhatsAppPreference
 
 	if err := json.NewDecoder(r.Body).Decode(&pref); err != nil {
@@ -132,12 +135,16 @@ func (p *Plugin) handleSetWhatsappPreference(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	user, err_usr := p.API.GetUser(pref.UserID)
+	user, errUsr := p.API.GetUser(pref.UserID)
+
+	if errUsr != nil {
+		http.Error(w, errUsr.Error(), http.StatusBadRequest)
+	}
 
 	if pref.ReceiveNotifications {
-		p.addUser(user)
+		p.EnableUser(user)
 	} else {
-		p.removeUserByID(pref.UserID)
+		p.DisableUserByID(pref.UserID)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -151,36 +158,49 @@ func (p *Plugin) handleSetWhatsappPreference(w http.ResponseWriter, r *http.Requ
 }
 
 func (p *Plugin) getUserPreferences(w http.ResponseWriter, r *http.Request) {
-	var req UserPreferencesRequest
-
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "invalid request body", http.StatusBadRequest)
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	if req.UserID == "" {
+	query := r.URL.Query()
+
+	userId := query.Get("user_id")
+
+	if userId == "" {
 		http.Error(w, "user_id is required", http.StatusBadRequest)
 		return
 	}
 
-	val, appErr := p.API.KVGet("whatsapp_pref_" + req.UserID)
-	if appErr != nil {
-		http.Error(w, "failed to read preferences", http.StatusInternalServerError)
-		return
-	}
+	user, _ := p.GetEnabledUserByID(userId)
 
 	pref := false
-	if val != nil {
-		parsed, err := strconv.ParseBool(string(val))
-		if err == nil {
-			pref = parsed
-		}
+	if user != nil {
+		pref = true
 	}
 
 	resp := UserPreferencesResponse{
 		WhatsAppPref: pref,
 	}
 
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err := json.NewEncoder(w).Encode(resp)
+	if err != nil {
+		return
+	}
+}
+
+func (p *Plugin) getEnabledUsers(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	users, _ := p.GetEnabledUsers()
+	resp := ActiveUsersResponse{
+		ActiveUsers: users,
+	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	err := json.NewEncoder(w).Encode(resp)
