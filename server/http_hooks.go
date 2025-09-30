@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -26,6 +27,19 @@ type ReactionWebhookPayload struct {
 	Timestamp   int64  `json:"timestamp"`
 }
 
+type UserPreferencesRequest struct {
+	UserID string `json:"user_id"`
+}
+
+type WhatsAppPreference struct {
+	ReceiveNotifications bool   `json:"receive_notifications"`
+	UserID               string `json:"user_id"`
+}
+
+type UserPreferencesResponse struct {
+	WhatsAppPref bool `json:"whatsapp_pref"`
+}
+
 // ServeHTTP allows the plugin to implement the http.Handler interface. Requests destined for the
 // /plugins/{id} path will be routed to the plugin.
 //
@@ -43,6 +57,7 @@ func (p *Plugin) initializeAPI() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/status", p.handleStatus)
+	router.HandleFunc("/whatsapp/preferences", p.handlePreferences)
 	router.HandleFunc("/hello", p.handleHello)
 	router.HandleFunc("/dynamic_arg_test_url", p.handleDynamicArgTest)
 	router.HandleFunc("/check_auth_header", p.handleCheckAuthHeader)
@@ -94,6 +109,84 @@ func (p *Plugin) handleStatus(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if _, err := w.Write(responseJSON); err != nil {
 		p.API.LogError("Failed to write status", "err", err.Error())
+	}
+}
+
+func (p *Plugin) handlePreferences(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodPut:
+		p.handleSetWhatsappPreference(w, r)
+	case http.MethodGet:
+		p.getUserPreferences(w, r)
+	default:
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+
+func (p *Plugin) handleSetWhatsappPreference(w http.ResponseWriter, r *http.Request) {
+	var pref WhatsAppPreference
+
+	if err := json.NewDecoder(r.Body).Decode(&pref); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	p.API.LogInfo("WhatsApp preference received",
+		"user_id", pref.UserID,
+		"enabled", pref.ReceiveNotifications,
+	)
+
+	if err := p.API.KVSet("whatsapp_pref_"+pref.UserID, []byte(strconv.FormatBool(pref.ReceiveNotifications))); err != nil {
+		http.Error(w, "failed to save preference", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err := json.NewEncoder(w).Encode(map[string]string{
+		"Status": "OK",
+	})
+	if err != nil {
+		return
+	}
+}
+
+func (p *Plugin) getUserPreferences(w http.ResponseWriter, r *http.Request) {
+	var req UserPreferencesRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if req.UserID == "" {
+		http.Error(w, "user_id is required", http.StatusBadRequest)
+		return
+	}
+
+	val, appErr := p.API.KVGet("whatsapp_pref_" + req.UserID)
+	if appErr != nil {
+		http.Error(w, "failed to read preferences", http.StatusInternalServerError)
+		return
+	}
+
+	pref := false
+	if val != nil {
+		parsed, err := strconv.ParseBool(string(val))
+		if err == nil {
+			pref = parsed
+		}
+	}
+
+	resp := UserPreferencesResponse{
+		WhatsAppPref: pref,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err := json.NewEncoder(w).Encode(resp)
+	if err != nil {
+		return
 	}
 }
 

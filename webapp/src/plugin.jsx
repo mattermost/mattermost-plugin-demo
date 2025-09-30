@@ -34,7 +34,7 @@ import {
     postDropdownSubMenuAction,
     channelHeaderMenuAction,
     websocketStatusChange,
-    getStatus, saveWhatsAppPreference,
+    getStatus, saveWhatsAppPreference, syncWhatsappPreferences,
 } from './actions';
 import reducer from './reducer';
 import {isReceiveWhatsappMessages} from './selectors';
@@ -227,6 +227,9 @@ export default class DemoPlugin {
 
         // Immediately fetch the current plugin status.
         store.dispatch(getStatus());
+
+        // Immediately sync user preferences
+        store.dispatch(syncWhatsappPreferences());
 
         // Fetch the current status whenever we recover an internet connection.
         registry.registerReconnectHandler(() => {

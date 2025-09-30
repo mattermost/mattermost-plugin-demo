@@ -9,3 +9,5 @@ export const CLOSE_ROOT_MODAL = pluginId + '_close_root_modal';
 export const SUBMENU = pluginId + '_submenu';
 
 export const SET_WHATSAPP_PREF = pluginId + '_set_whats_pref';
+
+export const SET_USER_PREFS = pluginId + '_set_user_pref';

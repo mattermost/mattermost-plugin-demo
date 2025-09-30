@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const WHATSAPP_GREEN = '#25D366';
-const WHATSAPP_DARK_GREEN = '#075E54';
 
 export default class LeftSidebarHeader extends React.PureComponent {
     static propTypes = {
@@ -14,49 +13,35 @@ export default class LeftSidebarHeader extends React.PureComponent {
 
         const iconStyle = {
             display: 'inline-block',
-            margin: '0 7px 0 1px',
-            color: enabled ? WHATSAPP_GREEN : '#3f4350b8',
+            marginRight: '8px',
+            color: enabled ? WHATSAPP_GREEN : 'rgba(255,255,255,0.4)',
+        };
+
+        const statusTextStyle = {
+            fontSize: '12px',
+            fontWeight: 'bold',
+            marginLeft: '5px',
+            color: enabled ? WHATSAPP_GREEN : 'rgba(255,255,255,0.4)',
+            textShadow: enabled ? `0 0 3px ${WHATSAPP_GREEN}, 0 0 1px #000` : 'none',
         };
 
         const headerStyle = {
-            margin: '.5em 0 .5em',
-            padding: '4px 12px 4px 15px',
-            borderRadius: '4px',
-            fontWeight: '600',
-            transition: 'all 0.3s ease',
+            margin: '0',
+            padding: '8px 12px 8px 15px',
+            color: 'rgba(255,255,255,0.7)',
+            backgroundColor: 'transparent',
         };
 
-        let backgroundStyle;
-        if (enabled) {
-            backgroundStyle = {
-                backgroundColor: WHATSAPP_DARK_GREEN,
-                color: '#FFFFFF',
-            };
-        } else {
-            backgroundStyle = {
-                backgroundColor: 'rgba(177,187,208,0.72)',
-                color: '#3f4350',
-            };
-        }
-
-        const finalStyle = {...headerStyle, ...backgroundStyle};
-
         return (
-            <div style={finalStyle}>
+            <div style={headerStyle}>
                 <i
                     className='icon fa fa-brands fa-whatsapp'
                     style={iconStyle}
                 />
                 {'WhatsApp:'}
-                {' '}
-                {enabled ?
-                    <span style={{color: WHATSAPP_GREEN, marginLeft: '5px'}}>
-                        <b>{'ON'}</b>
-                    </span> :
-                    <span style={{color: '#3f4350', marginLeft: '5px'}}>
-                        <b>{'OFF'}</b>
-                    </span>
-                }
+                <span style={statusTextStyle}>
+                    {enabled ? 'ON' : 'OFF'}
+                </span>
             </div>
         );
     }
