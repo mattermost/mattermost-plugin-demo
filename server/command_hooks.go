@@ -572,7 +572,7 @@ func (p *Plugin) executeCommandInteractive(args *model.CommandArgs) *model.Comma
 	post := &model.Post{
 		ChannelId: args.ChannelId,
 		RootId:    args.RootId,
-		UserId:    p.botID,
+		UserId:    p.whatsappBotID,
 		Message:   "Test interactive button",
 		Props: model.StringInterface{
 			"attachments": []*model.SlackAttachment{{
@@ -633,7 +633,7 @@ func (p *Plugin) executeCommandMentions(args *model.CommandArgs) *model.CommandR
 	post := &model.Post{
 		ChannelId: args.ChannelId,
 		RootId:    args.RootId,
-		UserId:    p.botID,
+		UserId:    p.whatsappBotID,
 		Message:   message,
 	}
 

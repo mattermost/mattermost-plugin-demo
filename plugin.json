@@ -147,6 +147,15 @@
                 "help_text": "URL donde se enviarán las notificaciones de reacciones (debe ser una URL válida que comience con http:// o https://)",
                 "placeholder": "https://example.com/webhook",
                 "default": "http://n8n:5678/webhook/mattermost/"
+            },
+            {
+                "key": "whatsAppAccessToken",
+                "display_name": "WhatsApp Access Token",
+                "type": "text",
+                "help_text": "El token de acceso del bot WhatsApp generado para la integración. El valor solo se muestra si existe en la configuración.",
+                "regenerate_help_text": "El token solo se genera automáticamente la primera vez. Para regenerarlo, elimínalo manualmente desde la base de datos o reinicia la configuración.",
+                "placeholder": "",
+                "default": ""
             }
         ]
     },

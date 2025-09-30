@@ -188,7 +188,7 @@ func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rootPost, appErr := p.API.CreatePost(&model.Post{
-		UserId:    p.botID,
+		UserId:    p.whatsappBotID,
 		ChannelId: request.ChannelId,
 		Message:   fmt.Sprintf(msg, user.Username),
 	})
@@ -202,7 +202,7 @@ func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
 		request.Submission[dialogElementNameEmail] = "xxxxxxxxxxx"
 
 		if _, appErr = p.API.CreatePost(&model.Post{
-			UserId:    p.botID,
+			UserId:    p.whatsappBotID,
 			ChannelId: request.ChannelId,
 			RootId:    rootPost.Id,
 			Message:   "Data:",
@@ -240,7 +240,7 @@ func (p *Plugin) handleDialog2(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, appErr = p.API.CreatePost(&model.Post{
-		UserId:    p.botID,
+		UserId:    p.whatsappBotID,
 		ChannelId: request.ChannelId,
 		Message:   fmt.Sprintf("@%v confirmed an Interactive Dialog %v", user.Username, suffix),
 	}); appErr != nil {
@@ -356,7 +356,7 @@ func (p *Plugin) handleInteractiveAction(w http.ResponseWriter, r *http.Request)
 
 	msg := "@%v clicked an interactive button.\n```json\n%v\n```"
 	if _, appErr := p.API.CreatePost(&model.Post{
-		UserId:    p.botID,
+		UserId:    p.whatsappBotID,
 		ChannelId: request.ChannelId,
 		RootId:    rootID,
 		Message:   fmt.Sprintf(msg, user.Username, string(requestJSON)),
@@ -417,7 +417,7 @@ func (p *Plugin) handleDynamicArgTest(w http.ResponseWriter, r *http.Request) {
 	post := &model.Post{
 		ChannelId: channelID,
 		RootId:    rootID,
-		UserId:    p.botID,
+		UserId:    p.whatsappBotID,
 		Message:   result,
 	}
 
