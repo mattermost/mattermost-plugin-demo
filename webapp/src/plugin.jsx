@@ -39,7 +39,6 @@ import {
 import reducer from './reducer';
 import {isReceiveWhatsappMessages} from './selectors';
 import {PREFERENCE_NAME_WHATSAPP} from './constants';
-import {id as PluginId} from './manifest';
 
 function getTranslations(locale) {
     switch (locale) {

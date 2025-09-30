@@ -1,5 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import {getStatusForUserId} from 'mattermost-redux/selectors/entities/users';
+
+import {getBasePath} from '../../actions';
 
 export default class RHSView extends React.PureComponent {
     static propTypes = {
@@ -7,44 +10,40 @@ export default class RHSView extends React.PureComponent {
         unreadChannels: PropTypes.array.isRequired,
         myChannelMemberships: PropTypes.object.isRequired,
         currentUserId: PropTypes.string.isRequired,
+        activeUsers: PropTypes.array.isRequired,
+        reduxState: PropTypes.object.isRequired,
     }
 
     constructor(props) {
         super(props);
         this.state = {
-            contacts: [
-                {id: 1, name: 'Alice Johnson', status: 'online', avatar: '👩', role: 'Developer'},
-                {id: 2, name: 'Bob Smith', status: 'away', avatar: '👨', role: 'Designer'},
-                {id: 3, name: 'Charlie Brown', status: 'busy', avatar: '👨‍💻', role: 'Product Manager'},
-                {id: 4, name: 'David Wilson', status: 'offline', avatar: '👨‍🎤', role: 'Musician'},
-                {id: 5, name: 'Bob Smith', status: 'away', avatar: '👨', role: 'Designer'},
-                {id: 6, name: 'Charlie Brown', status: 'busy', avatar: '👨‍💻', role: 'Product Manager'},
-                {id: 7, name: 'Alice Johnson', status: 'online', avatar: '👩', role: 'Developer'},
-                {id: 8, name: 'Alice Johnson', status: 'online', avatar: '👩', role: 'Developer'},
-                {id: 9, name: 'Alice Johnson', status: 'online', avatar: '👩', role: 'Developer'},
-            ],
             unreadChannels: props.unreadChannels,
         };
     }
 
-    getStatusColor = (status) => {
+    getStatusStyle = (status) => {
         switch (status) {
         case 'online':
-            return '#00d100';
+            return 'sc-dkrFOg jcrjOR sc-kgTSHT dKNYAk icon-check-circle';
         case 'away':
-            return '#ffaa00';
-        case 'busy':
-            return '#ff4444';
+            return 'sc-dkrFOg jcrjOR sc-kgTSHT iEyIcE icon-clock';
+        case 'dnd':
+            return 'sc-dkrFOg jcrjOR sc-kgTSHT fFlKgj icon-minus-circle';
         case 'offline':
-            return '#888888';
+            return 'sc-dkrFOg jcrjOR sc-kgTSHT hRRwBM icon-circle-outline';
         default:
             return '#888888';
         }
     };
 
     renderContact = (contact) => {
-        const statusColor = this.getStatusColor(contact.status);
-        const tooltip = [contact.name, contact.role].filter(Boolean).join(' — ');
+        const state = this.props.reduxState;
+        const userStatus = getStatusForUserId(state, contact.id);
+        const statusStyle = this.getStatusStyle(userStatus);
+        const defaultStatusStyle = {
+            border: '8px solid white',
+            borderRadius: '50%',
+        };
         return (
             <div
                 key={contact.id}
@@ -52,11 +51,23 @@ export default class RHSView extends React.PureComponent {
             >
                 <div
                     style={styles.avatarCircle}
-                    title={tooltip}
-                    aria-label={tooltip}
+                    title={contact.username}
+                    aria-label={contact.username}
                 >
-                    <span style={styles.avatarEmoji2}>{contact.avatar || '👤'}</span>
+                    <a href={`${getBasePath(this.props.reduxState)}/${this.props.team?.name}/messages/@${contact.username}`}>
+                        <img
+                            src={`${getBasePath(this.props.reduxState)}/api/v4/users/${contact.id}/image?_=0`}
+                            style={styles.avatar}
+                        />
+                    </a>
+                    <div style={styles.ballStatusStyle}>
+                        <i
+                            className={statusStyle}
+                            style={defaultStatusStyle}
+                        />
+                    </div>
                 </div>
+                <span style={styles.contactCardTitle}>{contact.username}</span>
             </div>
         );
     };
@@ -164,7 +175,7 @@ ${JSON.stringify(channel, null, 2)}
                 <div style={styles.unreadList}>
                     {unreadChannels.map((channel) => {
                         const unreadCount = this.getUnreadCount(channel);
-                        const statusColor = this.getStatusColor('busy');
+                        const statusColor = '#ff4444';
                         return (
                             <div
                                 key={channel.id}
@@ -220,19 +231,19 @@ ${JSON.stringify(channel, null, 2)}
     };
 
     render() {
-        const {contacts} = this.state;
+        const {activeUsers} = this.props;
 
         return (
             <div
                 style={style.rhs}
                 data-testid='rhsView'
             >
-
-                <div style={{...styles.contactsList, maxHeight: '300px', overflowY: 'auto'}}>
-                    {contacts.map(this.renderContact)}
+                <h3 style={styles.viewTitle}>{'Atención al cliente'}</h3>
+                <div style={{...styles.contactsList, maxHeight: '300px', overflowY: 'auto', borderBottom: '1px solid #dddddd'}}>
+                    {activeUsers?.map(this.renderContact)}
                 </div>
+                <h4 style={styles.chatsTitle}>{'Chats'}</h4>
                 {this.renderUnreadChannels()}
-
             </div>
         );
     }
@@ -255,10 +266,11 @@ const styles = {
     },
     contactsList: {
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(40px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(60px, 1fr))',
         gap: '4px',
         alignItems: 'stretch',
         justifyItems: 'stretch',
+        padding: '1rem 0',
     },
     contactItem: {
         display: 'flex',
@@ -267,32 +279,63 @@ const styles = {
         borderBottom: '1px solid #f0f0f0',
         transition: 'background-color 0.2s ease',
         cursor: 'pointer',
-        ':hover': { backgroundColor: '#f0f8ff' },
+        ':hover': {backgroundColor: '#f0f8ff'},
     },
     contactCard: {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         width: '100%',
+        flexDirection: 'column',
         boxSizing: 'border-box',
+    },
+    viewTitle: {
+        fontSize: '18px',
+        margin: '0',
+        textAlign: 'center',
+        marginBottom: '.6rem',
+        fontFamily: 'inherit',
+        fontWeight: '600',
+    },
+    ballStatusStyle: {
+        position: 'absolute',
+        top: 'auto',
+        right: '-4px',
+        bottom: '-4px',
+        width: '25px',
+        height: '25px',
+        color: 'white',
+        display: 'inline-flex',
+        borderRadius: '50%',
+        zIndex: 5,
+    },
+    chatsTitle: {
+        fontSize: '14px',
+        fontFamily: 'inherit',
+        fontWeight: '900',
+    },
+    contactCardTitle: {
+        fontSize: '14px',
     },
     avatarCircle: {
         cursor: 'pointer',
         position: 'relative',
-        width: '40px',
-        height: '40px',
-        borderRadius: '50%',
-        backgroundColor: '#f0f0f0',
+        width: '60px',
+        height: '60px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
     },
     contactAvatar: {
         position: 'relative',
         marginRight: '12px',
     },
-
+    avatar: {
+        width: '100%',
+        height: '100%',
+        borderRadius: '50%',
+        objectFit: 'cover',
+    },
     avatarEmoji: {
         fontSize: '32px',
         display: 'block',

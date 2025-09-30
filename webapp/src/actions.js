@@ -1,16 +1,17 @@
 import {getConfig} from 'mattermost-redux/selectors/entities/general';
 import {getCurrentUserId} from 'mattermost-redux/selectors/entities/common';
 import {getMyPreferences} from 'mattermost-redux/selectors/entities/preferences';
+import {getCurrentTeamUrl} from 'mattermost-redux/selectors/entities/teams';
 
 import {id as PluginId} from './manifest';
 
 import {
-    STATUS_CHANGE,
-    OPEN_ROOT_MODAL,
     CLOSE_ROOT_MODAL,
-    SUBMENU,
-    SET_WHATSAPP_PREF,
+    OPEN_ROOT_MODAL,
     SET_ACTIVE_USERS,
+    SET_WHATSAPP_PREF,
+    STATUS_CHANGE,
+    SUBMENU,
 } from './action_types';
 import {PREFERENCE_NAME_WHATSAPP} from './constants';
 
@@ -38,7 +39,8 @@ export const channelHeaderMenuAction = openRootModal;
 export const fileDropdownMenuAction = openRootModal;
 
 // TODO: Move this into mattermost-redux or mattermost-webapp.
-export const getPluginServerRoute = (state) => {
+
+export const getBasePath = (state) => {
     const config = getConfig(state);
 
     let basePath = '/';
@@ -49,8 +51,11 @@ export const getPluginServerRoute = (state) => {
             basePath = basePath.substr(0, basePath.length - 1);
         }
     }
+    return basePath;
+};
 
-    return basePath + '/plugins/' + PluginId;
+export const getPluginServerRoute = (state) => {
+    return getBasePath(state) + '/plugins/' + PluginId;
 };
 
 export const getStatus = () => async (dispatch, getState) => {
