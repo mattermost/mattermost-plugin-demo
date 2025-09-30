@@ -70,6 +70,9 @@ type configuration struct {
 	// whatsAppAccessToken is the access token for the bot
 	whatsAppAccessToken string
 
+	// assistantAccessToken is the access token for the Assistant bot
+	assistantAccessToken string
+
 	enabledUsers map[string]*model.User
 }
 
@@ -105,6 +108,7 @@ func (c *configuration) Clone() *configuration {
 		demoChannelIDs:          demoChannelIDs,
 		monitoredChannels:       monitoredChannels,
 		whatsAppAccessToken:     c.whatsAppAccessToken,
+		assistantAccessToken:    c.assistantAccessToken,
 	}
 }
 

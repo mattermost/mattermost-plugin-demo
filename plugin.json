@@ -156,6 +156,15 @@
                 "regenerate_help_text": "El token solo se genera automáticamente la primera vez. Para regenerarlo, elimínalo manualmente desde la base de datos o reinicia la configuración.",
                 "placeholder": "",
                 "default": ""
+            },
+            {
+                "key": "assistantAccessToken",
+                "display_name": "Violet Access Token",
+                "type": "text",
+                "help_text": "El token de acceso del bot Violet generado para la integración. El valor solo se muestra si existe en la configuración.",
+                "regenerate_help_text": "El token solo se genera automáticamente la primera vez. Para regenerarlo, elimínalo manualmente desde la base de datos o reinicia la configuración.",
+                "placeholder": "",
+                "default": ""
             }
         ]
     },

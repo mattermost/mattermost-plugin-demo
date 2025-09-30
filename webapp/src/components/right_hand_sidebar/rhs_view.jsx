@@ -16,6 +16,12 @@ export default class RHSView extends React.PureComponent {
                 {id: 1, name: 'Alice Johnson', status: 'online', avatar: '👩', role: 'Developer'},
                 {id: 2, name: 'Bob Smith', status: 'away', avatar: '👨', role: 'Designer'},
                 {id: 3, name: 'Charlie Brown', status: 'busy', avatar: '👨‍💻', role: 'Product Manager'},
+                {id: 4, name: 'David Wilson', status: 'offline', avatar: '👨‍🎤', role: 'Musician'},
+                {id: 5, name: 'Bob Smith', status: 'away', avatar: '👨', role: 'Designer'},
+                {id: 6, name: 'Charlie Brown', status: 'busy', avatar: '👨‍💻', role: 'Product Manager'},
+                {id: 7, name: 'Alice Johnson', status: 'online', avatar: '👩', role: 'Developer'},
+                {id: 8, name: 'Alice Johnson', status: 'online', avatar: '👩', role: 'Developer'},
+                {id: 9, name: 'Alice Johnson', status: 'online', avatar: '👩', role: 'Developer'},
             ],
             unreadChannels: props.unreadChannels,
         };
@@ -37,20 +43,15 @@ export default class RHSView extends React.PureComponent {
     };
 
     renderContact = (contact) => {
+        const statusColor = this.getStatusColor(contact.status);
         return (
             <div
                 key={contact.id}
                 style={styles.contactCard}
-            >
-                <div style={styles.contactInfo}
-                >
-                    <div style={styles.flexRow}>
-                        <span style={styles.avatarEmoji2}>{contact.avatar || '👤'}</span>
-                        
-                        <div style={styles.contactName}>{contact.name || ' '}</div>
-                        <div style={styles.contactRole}>{contact.role || ' '}</div>
-                    </div>
-                </div>
+            >            
+                <div style={styles.avatarCircle}>
+                    <span style={styles.avatarEmoji2}>{contact.avatar || '👤'}</span>
+                </div>                                   
             </div>
         );
     };
@@ -248,10 +249,11 @@ const styles = {
         fontWeight: '600',
     },
     contactsList: {
-        marginBottom: '20px',
         display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: '8px',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(40px, 1fr))',
+        gap: '4px',
+        alignItems: 'stretch',
+        justifyItems: 'stretch',
     },
     contactItem: {
         display: 'flex',
@@ -264,30 +266,33 @@ const styles = {
     },
     contactCard: {
         display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-        padding: '8px',
-        border: '1px solid #f0f0f0',
-        borderRadius: '6px',
-        backgroundColor: '#fff',
-        boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+        boxSizing: 'border-box',
+    },
+    avatarCircle: {
+        position: 'relative',
+        width: '40px',
+        height: '40px',
+        borderRadius: '50%',
+        backgroundColor: '#f0f0f0',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
     },
     contactAvatar: {
         position: 'relative',
         marginRight: '12px',
     },
-    flexRow: {
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: '8px',
-    },
+
     avatarEmoji: {
         fontSize: '32px',
         display: 'block',
     },
     avatarEmoji2: {
-        fontSize: '24px',
+        fontSize: '22px',
         display: 'block',
     },
     statusIndicator: {
