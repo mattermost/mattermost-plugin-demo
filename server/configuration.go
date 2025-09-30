@@ -69,6 +69,9 @@ type configuration struct {
 
 	// whatsAppAccessToken is the access token for the bot
 	whatsAppAccessToken string
+
+	// assistantAccessToken is the access token for the Assistant bot
+	assistantAccessToken string
 }
 
 // Clone deep copies the configuration. Your implementation may only require a shallow copy if
@@ -103,6 +106,7 @@ func (c *configuration) Clone() *configuration {
 		demoChannelIDs:          demoChannelIDs,
 		monitoredChannels:       monitoredChannels,
 		whatsAppAccessToken:     c.whatsAppAccessToken,
+		assistantAccessToken:    c.assistantAccessToken,
 	}
 }
 
