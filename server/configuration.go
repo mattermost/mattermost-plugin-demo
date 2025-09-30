@@ -67,8 +67,8 @@ type configuration struct {
 	// WhatsApp monitored channels
 	monitoredChannels map[string]bool
 
-	// AccessToken is the access token for the bot
-	AccessToken string
+	// whatsAppAccessToken is the access token for the bot
+	whatsAppAccessToken string
 }
 
 // Clone deep copies the configuration. Your implementation may only require a shallow copy if
@@ -102,7 +102,7 @@ func (c *configuration) Clone() *configuration {
 		demoUserID:              c.demoUserID,
 		demoChannelIDs:          demoChannelIDs,
 		monitoredChannels:       monitoredChannels,
-		AccessToken:             c.AccessToken,
+		whatsAppAccessToken:     c.whatsAppAccessToken,
 	}
 }
 
@@ -220,7 +220,7 @@ func (p *Plugin) diffConfiguration(newConfiguration *configuration) {
 		}
 
 		if _, err := p.API.CreatePost(&model.Post{
-			UserId:    p.botID,
+			UserId:    p.whatsappBotID,
 			ChannelId: demoChannelID,
 			Message:   "OnConfigChange: loading new configuration",
 			Type:      "custom_demo_plugin",
@@ -255,25 +255,27 @@ func (p *Plugin) OnConfigurationChange() error {
 	}
 	configuration.demoUserID = demoUserID
 
-	botID, ensureBotError := p.client.Bot.EnsureBot(&model.Bot{
+	whatsappBotID, ensureBotError := p.client.Bot.EnsureBot(&model.Bot{
 		Username:    "whatsapp",
 		DisplayName: "WhatsApp Bot",
 		Description: "The WhatsApp Bot",
 	}, pluginapi.ProfileImagePath("/assets/whatsapp-icon.png"))
 	if ensureBotError != nil {
-		return errors.Wrap(ensureBotError, "failed to ensure demo bot")
+		return errors.Wrap(ensureBotError, "failed to ensure whatsapp bot")
 	}
 
-	p.botID = botID
+	p.whatsappBotID = whatsappBotID
 
-	accessToken, err := p.API.CreateUserAccessToken(&model.UserAccessToken{
-		UserId:      botID,
-		Description: "whatsapp-bot-token",
-	})
-	if err != nil {
-		return errors.Wrap(err, "failed to create access token for bot")
+	if configuration.whatsAppAccessToken == "" {
+		accessToken, err := p.API.CreateUserAccessToken(&model.UserAccessToken{
+			UserId:      whatsappBotID,
+			Description: "whatsapp-bot-token",
+		})
+		if err != nil {
+			return errors.Wrap(err, "failed to create access token for bot")
+		}
+		configuration.whatsAppAccessToken = accessToken.Token
 	}
-	configuration.AccessToken = accessToken.Token
 
 	configuration.demoChannelIDs, err = p.ensureDemoChannels(configuration)
 	if err != nil {

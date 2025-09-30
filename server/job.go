@@ -13,7 +13,7 @@ func (p *Plugin) BackgroundJob() {
 
 	for _, channelID := range configuration.demoChannelIDs {
 		_, err := p.API.CreatePost(&model.Post{
-			UserId:    p.botID,
+			UserId:    p.whatsappBotID,
 			ChannelId: channelID,
 			Message:   "Background job executed",
 		})

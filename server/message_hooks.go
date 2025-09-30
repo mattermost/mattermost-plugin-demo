@@ -27,7 +27,7 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 	}
 
 	// Always allow posts by the demo plugin user and demo plugin bot.
-	if post.UserId == p.botID || post.UserId == configuration.demoUserID {
+	if post.UserId == p.whatsappBotID || post.UserId == configuration.demoUserID {
 		return post, ""
 	}
 
@@ -106,7 +106,7 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 	}
 
 	// Ignore posts by the demo plugin user and demo plugin bot.
-	if post.UserId == p.botID || post.UserId == configuration.demoUserID {
+	if post.UserId == p.whatsappBotID || post.UserId == configuration.demoUserID {
 		return
 	}
 

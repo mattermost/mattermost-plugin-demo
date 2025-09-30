@@ -31,7 +31,7 @@ type Plugin struct {
 	router *mux.Router
 
 	// BotId of the created bot account.
-	botID string
+	whatsappBotID string
 
 	// backgroundJob is a job that executes periodically on only one plugin instance at a time
 	backgroundJob *cluster.Job

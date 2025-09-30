@@ -67,7 +67,7 @@ func (p *Plugin) UserHasJoinedChannel(c *plugin.Context, channelMember *model.Ch
 		)
 	}
 
-	if channelMember.UserId == p.botID {
+	if channelMember.UserId == p.whatsappBotID {
 		p.addChannelToMonitor(channelMember.ChannelId)
 
 		channel, err := p.API.GetChannel(channelMember.ChannelId)
@@ -127,7 +127,7 @@ func (p *Plugin) UserHasLeftChannel(c *plugin.Context, channelMember *model.Chan
 		)
 	}
 
-	if channelMember.UserId == p.botID {
+	if channelMember.UserId == p.whatsappBotID {
 		p.removeChannelFromMonitor(channelMember.ChannelId)
 
 		channel, err := p.API.GetChannel(channelMember.ChannelId)

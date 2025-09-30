@@ -23,7 +23,7 @@ func (p *Plugin) postPluginMessage(teamID, msg string) *model.AppError {
 
 	if teamID != "" {
 		_, err := p.API.CreatePost(&model.Post{
-			UserId:    p.botID,
+			UserId:    p.whatsappBotID,
 			ChannelId: configuration.demoChannelIDs[teamID],
 			Message:   msg,
 		})
@@ -32,7 +32,7 @@ func (p *Plugin) postPluginMessage(teamID, msg string) *model.AppError {
 
 	for _, channelID := range configuration.demoChannelIDs {
 		_, err := p.API.CreatePost(&model.Post{
-			UserId:    p.botID,
+			UserId:    p.whatsappBotID,
 			ChannelId: channelID,
 			Message:   msg,
 		})
