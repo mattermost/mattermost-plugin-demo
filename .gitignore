@@ -18,6 +18,7 @@ CLAUDE.local.md
 /.idea/misc.xml
 /.idea/modules.xml
 /.idea/vcs.xml
+.idea/jsLinters
 /server/.idea/.gitignore
 /server/.idea/ChatHistory_schema_v3.xml
 /server/.idea/golinter.xml
