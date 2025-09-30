@@ -38,6 +38,7 @@ import {
 } from './actions';
 import reducer from './reducer';
 import {isReceiveWhatsappMessages} from './selectors';
+import ChartsDialog from './components/ChartsDialog';
 
 function getTranslations(locale) {
     switch (locale) {
@@ -77,13 +78,15 @@ export default class DemoPlugin {
 
         registry.registerPostTypeComponent('custom_demo_plugin', PostType);
         registry.registerPostTypeComponent('custom_demo_plugin_ephemeral', EphemeralPostType);
-
+        registry.registerCustomRoute('/dialog/charts', ChartsDialog);
         registry.registerMainMenuAction(
             <FormattedMessage
-                id='plugin.name'
-                defaultMessage='WhatsApp'
+                id='plugin.charts.dialog'
+                defaultMessage='WhatsApp Charts'
             />,
-            () => store.dispatch(mainMenuAction()),
+            () => {
+                store.dispatch(mainMenuAction(<ChartsDialog/>));
+            },
             <MainMenuMobileIcon/>,
         );
 
@@ -207,12 +210,8 @@ export default class DemoPlugin {
         registry.registerWebSocketEventHandler(
             'channel_viewed',
             () => {
-                // Force a re-render of the RHS component to update unread channels
-                // This is a simple approach - in a real app you might want to dispatch an action
                 const rhsComponent = document.querySelector('[data-testid="rhsView"]');
                 if (rhsComponent) {
-                    // Trigger a re-render by updating the component state
-                    // This is a workaround since we don't have direct access to the component instance
                     window.postMessage({type: 'CHANNEL_VIEWED_UPDATE'}, '*');
                 }
             },
@@ -225,10 +224,8 @@ export default class DemoPlugin {
 
         registry.registerReducer(reducer);
 
-        // Immediately fetch the current plugin status.
         store.dispatch(getStatus());
 
-        // Fetch the current status whenever we recover an internet connection.
         registry.registerReconnectHandler(() => {
             store.dispatch(getStatus());
         });
@@ -269,14 +266,13 @@ export default class DemoPlugin {
                     onSubmit: (v) => {
                         const enabled = v.whatsapp_preference;
                         store.dispatch(saveWhatsAppPreference(enabled));
-                    }, // eslint-disable-line no-alert
+                    },
                 },
             ],
         });
     }
 
     uninitialize() {
-        //eslint-disable-next-line no-console
         console.log(manifest.id + '::uninitialize()');
     }
 }
