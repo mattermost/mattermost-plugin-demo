@@ -1,5 +1,7 @@
 package models
 
-type Channel struct {
-	channelId string
+type WhatsappChannel struct {
+	channelId     string
+	phoneNumber   string
+	phoneNumberId string
 }
