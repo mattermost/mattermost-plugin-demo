@@ -1,19 +1,9 @@
 import {getConfig} from 'mattermost-redux/selectors/entities/general';
 import {getCurrentUserId} from 'mattermost-redux/selectors/entities/common';
-import {getMyPreferences} from 'mattermost-redux/selectors/entities/preferences';
-import {getCurrentTeamUrl} from 'mattermost-redux/selectors/entities/teams';
+import {Client4} from 'mattermost-redux/client';
 
-import {id as PluginId} from './manifest';
-
-import {
-    CLOSE_ROOT_MODAL,
-    OPEN_ROOT_MODAL,
-    SET_ACTIVE_USERS,
-    SET_WHATSAPP_PREF,
-    STATUS_CHANGE,
-    SUBMENU,
-} from './action_types';
-import {PREFERENCE_NAME_WHATSAPP} from './constants';
+import {id as pluginId} from './manifest';
+import {STATUS_CHANGE, OPEN_ROOT_MODAL, CLOSE_ROOT_MODAL, SUBMENU, SET_WHATSAPP_PREF} from './action_types';
 
 export const openRootModal = (subMenuText = '') => (dispatch) => {
     dispatch({
@@ -39,8 +29,7 @@ export const channelHeaderMenuAction = openRootModal;
 export const fileDropdownMenuAction = openRootModal;
 
 // TODO: Move this into mattermost-redux or mattermost-webapp.
-
-export const getBasePath = (state) => {
+export const getPluginServerRoute = (state) => {
     const config = getConfig(state);
 
     let basePath = '/';
@@ -51,11 +40,8 @@ export const getBasePath = (state) => {
             basePath = basePath.substr(0, basePath.length - 1);
         }
     }
-    return basePath;
-};
 
-export const getPluginServerRoute = (state) => {
-    return getBasePath(state) + '/plugins/' + PluginId;
+    return basePath + '/plugins/' + pluginId;
 };
 
 export const getStatus = () => async (dispatch, getState) => {
@@ -70,70 +56,16 @@ export const getStatus = () => async (dispatch, getState) => {
 export const saveWhatsAppPreference = (enabled) => async (dispatch, getState) => {
     const state = getState();
     const userId = getCurrentUserId(state);
-    const url = `${getPluginServerRoute(state)}/whatsapp/preferences`;
-
-    try {
-        const body = JSON.stringify({
-            receive_notifications: enabled === 'on',
+    Client4.doFetch(`${getPluginServerRoute(state)}/whatsapp/preference`, {
+        method: 'put',
+        body: JSON.stringify({
+            receive_notifications: enabled,
             user_id: userId,
-        });
-
-        const response = await fetch(url, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body,
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`HTTP Error ${response.status}: ${errorText}`);
-        }
-
-        dispatch({
-            type: SET_WHATSAPP_PREF,
-            data: enabled,
-        });
-    } catch (error) {
-        console.error('Error guardando la preferencia de WhatsApp:', error);
-    }
-};
-
-export const syncWhatsappPreferences = () => async (dispatch, getState) => {
-    const state = getState();
-
-    const PreSavedPreferenceList = getMyPreferences(state);
-
-    const whatsappSetting = PreSavedPreferenceList[`pp_${PluginId}--${PREFERENCE_NAME_WHATSAPP}`];
-
+        }),
+    });
     dispatch({
         type: SET_WHATSAPP_PREF,
-        data: whatsappSetting.value,
-    });
-};
-
-export const getActiveUsers = () => async (dispatch, getState) => {
-    const state = getState();
-    const url = `${getPluginServerRoute(state)}/whatsapp/enabled/users`;
-
-    return fetch(url, {method: 'GET'}).
-        then((r) => r.json()).
-        then((data) => {
-            dispatch({
-                type: SET_ACTIVE_USERS,
-                data: data.active_users,
-            });
-        }).
-        catch((error) => {
-            console.error('Error obteniendo los usuarios:', error);
-        });
-};
-
-export const syncActiveUsers = (users) => async (dispatch, _) => {
-    dispatch({
-        type: SET_ACTIVE_USERS,
-        data: users,
+        data: enabled,
     });
 };
 
