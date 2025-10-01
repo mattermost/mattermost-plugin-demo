@@ -7,46 +7,46 @@ const Root = ({visible, close, theme, subMenu}) => {
         return null;
     }
 
-    let extraContent = '';
-    let extraContentTitle = '';
-    if (subMenu) {
-        extraContentTitle = (
-            <FormattedMessage
-                id='demo.triggeredby'
-                defaultMessage='Element clicked in the menu: '
-            />
-        );
-        extraContent = subMenu;
-    }
-
     const style = getStyle(theme);
+
+    const isNode = React.isValidElement(subMenu);
 
     return (
         <div
             style={style.backdrop}
             onClick={close}
         >
-            <div style={style.modal}>
-                <FormattedMessage
-                    id='root.triggered'
-                    defaultMessage='You have triggered the root component of the demo plugin.'
-                />
-                <br/>
-                <br/>
-                <FormattedMessage
-                    id='root.clicktoclose'
-                    defaultMessage='Click anywhere to close.'
-                />
-                <br/>
-                <br/>
-                <FormattedMessage
-                    id='demo.testintl'
-                    defaultMessage='This is the default string'
-                />
-                <br/>
-                <br/>
-                {extraContentTitle}
-                {extraContent}
+            <div
+                style={style.modal}
+                onClick={(e) => e.stopPropagation()}
+            >
+                {isNode ? (
+                    subMenu
+                ) : (
+                    <>
+                        <FormattedMessage
+                            id='root.triggered'
+                            defaultMessage='You have triggered the root component of the demo plugin.'
+                        />
+                        <br/>
+                        <br/>
+                        <FormattedMessage
+                            id='root.clicktoclose'
+                            defaultMessage='Click anywhere to close.'
+                        />
+                        <br/>
+                        <br/>
+                        {subMenu ? (
+                            <>
+                                <FormattedMessage
+                                    id='demo.triggeredby'
+                                    defaultMessage='Element clicked in the menu: '
+                                />
+                                {subMenu}
+                            </>
+                        ) : null}
+                    </>
+                )}
             </div>
         </div>
     );
@@ -61,23 +61,27 @@ Root.propTypes = {
 
 const getStyle = (theme) => ({
     backdrop: {
-        position: 'absolute',
+        position: 'fixed',
         display: 'flex',
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.50)',
+        backgroundColor: 'rgba(0, 0, 0, 0.45)',
         zIndex: 2000,
         alignItems: 'center',
         justifyContent: 'center',
+        padding: 16,
     },
     modal: {
-        height: '250px',
-        width: '400px',
-        padding: '1em',
+        maxHeight: '90vh',
+        width: 'min(92vw, 920px)',
+        padding: 16,
         color: theme.centerChannelColor,
         backgroundColor: theme.centerChannelBg,
+        borderRadius: 8,
+        boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+        overflowY: 'auto',
     },
 });
 
