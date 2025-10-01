@@ -64,11 +64,13 @@ func (p *Plugin) initializeAPI() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/status", p.handleStatus)
-	router.HandleFunc("/whatsapp/preferences", p.handlePreferences)
-	router.HandleFunc("/whatsapp/enabled/users", p.getEnabledUsers)
 	router.HandleFunc("/hello", p.handleHello)
 	router.HandleFunc("/dynamic_arg_test_url", p.handleDynamicArgTest)
 	router.HandleFunc("/check_auth_header", p.handleCheckAuthHeader)
+
+	whatsapp := router.PathPrefix("/whatsapp").Subrouter()
+	whatsapp.HandleFunc("/preferences", p.handlePreferences)
+	whatsapp.HandleFunc("/enabled/users", p.getEnabledUsers)
 
 	webhook := router.PathPrefix("/webhook").Subrouter()
 	webhook.Use(p.withDelay)

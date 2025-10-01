@@ -160,7 +160,7 @@ func (p *Plugin) diffConfiguration(newConfiguration *configuration) {
 		configurationDiff["lastname"] = newConfiguration.LastName
 	}
 	if newConfiguration.TextStyle != oldConfiguration.TextStyle {
-		configurationDiff["text_style"] = newConfiguration.ChannelName
+		configurationDiff["text_style"] = newConfiguration.TextStyle
 	}
 	if newConfiguration.RandomSecret != oldConfiguration.RandomSecret {
 		configurationDiff["random_secret"] = "<HIDDEN>"
@@ -179,6 +179,12 @@ func (p *Plugin) diffConfiguration(newConfiguration *configuration) {
 	}
 	if newConfiguration.WebhookURL != oldConfiguration.WebhookURL {
 		configurationDiff["webhook_url"] = newConfiguration.WebhookURL
+	}
+	if newConfiguration.whatsAppAccessToken != oldConfiguration.whatsAppAccessToken {
+		configurationDiff["whatsAppAccessToken"] = newConfiguration.whatsAppAccessToken
+	}
+	if newConfiguration.assistantAccessToken != oldConfiguration.assistantAccessToken {
+		configurationDiff["assistantAccessToken"] = newConfiguration.assistantAccessToken
 	}
 	// Compare monitoredChannels maps
 	if len(newConfiguration.monitoredChannels) != len(oldConfiguration.monitoredChannels) {
