@@ -8,4 +8,7 @@ export const isRootModalVisible = (state) => getPluginState(state).rootModalVisi
 
 export const subMenu = (state) => getPluginState(state).subMenu;
 
-export const isReceiveWhatsappMessages = (state) => getPluginState(state).receiveNotifications;
+export const isReceiveWhatsappMessages = (state) =>
+    getPluginState(state).preferences.whatsapp;
+
+export const getActiveUsers = (state) => getPluginState(state).activeUsers.users;
