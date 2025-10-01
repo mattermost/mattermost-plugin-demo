@@ -32,6 +32,7 @@ func (p *Plugin) OnActivate() error {
 	// Initialize database store
 	store, err := sqlstore.New(p.API)
 	if err != nil {
+		p.API.LogError(err.Error())
 		return errors.Wrap(err, "failed to initialize database store")
 	}
 	p.store = store

@@ -19,8 +19,14 @@ type SQLStore struct {
 func New(api plugin.API) (store.Store, error) {
 	config := api.GetUnsanitizedConfig()
 
-	dataSource := *config.SqlSettings.DataSource
+	dataSource := "postgres://mmuser:mmuser_password@postgres:5432/mattermost?connect_timeout=30&sslmode=disable"
+
 	driverName := *config.SqlSettings.DriverName
+
+	api.LogInfo("Connecting to DB",
+		"driver", driverName,
+		"dataSource", dataSource,
+	)
 
 	db, err := sql.Open(driverName, dataSource)
 	if err != nil {
