@@ -8,8 +8,6 @@ import (
 
 	"github.com/mattermost/mattermost/server/public/pluginapi"
 	"github.com/mattermost/mattermost/server/public/pluginapi/cluster"
-
-	"github.com/itstar-tech/mattermost-plugin-demo/server/store/sqlstore"
 )
 
 // OnActivate is invoked when the plugin is activated.
@@ -29,13 +27,13 @@ func (p *Plugin) OnActivate() error {
 		return err
 	}
 
-	// Initialize database store
-	store, err := sqlstore.New(p.API)
-	if err != nil {
-		p.API.LogError(err.Error())
-		return errors.Wrap(err, "failed to initialize database store")
-	}
-	p.store = store
+	// TODO: Initialize database store
+	//store, err := sqlstore.New(p.API)
+	//if err != nil {
+	//	p.API.LogError(err.Error())
+	//	return errors.Wrap(err, "failed to initialize database store")
+	//}
+	//p.store = store
 
 	p.initializeAPI()
 
@@ -84,14 +82,14 @@ func (p *Plugin) OnActivate() error {
 func (p *Plugin) OnDeactivate() error {
 	configuration := p.getConfiguration()
 
-	// Close database store
-	if p.store != nil {
-		if sqlStore, ok := p.store.(*sqlstore.SQLStore); ok {
-			if err := sqlStore.Close(); err != nil {
-				p.API.LogError("Failed to close database store", "err", err)
-			}
-		}
-	}
+	// TODO: Close database store
+	//if p.store != nil {
+	//	if sqlStore, ok := p.store.(*store.SQLStore); ok {
+	//		if err := sqlStore.Close(); err != nil {
+	//			p.API.LogError("Failed to close database store", "err", err)
+	//		}
+	//	}
+	//}
 
 	if p.backgroundJob != nil {
 		if err := p.backgroundJob.Close(); err != nil {

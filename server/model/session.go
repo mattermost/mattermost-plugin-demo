@@ -1,8 +1,8 @@
-package models
+package model
 
 import "time"
 
-type Session struct {
+type WhatsappSession struct {
 	ID        string
 	UserID    string
 	CreatedAt time.Time

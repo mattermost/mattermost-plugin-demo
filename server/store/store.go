@@ -1,14 +1,14 @@
 package store
 
-import "github.com/itstar-tech/mattermost-plugin-demo/server/models"
+import "github.com/itstar-tech/mattermost-plugin-demo/server/model"
 
 type Store interface {
-	GetSession(sessionId string) (*models.Session, error)
-	CreateSession(userId string) (*models.Session, error)
-	CloseSession(sessionId string) (*models.Session, error)
-	GetSessionByUserId(userId string) (*models.Session, error)
-	GetSessionsUnclosed() ([]models.Session, error)
-	GetWhatsappChannels() ([]models.WhatsappChannel, error)
-	CreateWhatsappChannel(channelId string) (*models.WhatsappChannel, error)
+	GetSession(sessionId string) (*model.WhatsappSession, error)
+	CreateSession(userId string) (*model.WhatsappSession, error)
+	CloseSession(sessionId string) (*model.WhatsappSession, error)
+	GetSessionByUserId(userId string) (*model.WhatsappSession, error)
+	GetSessionsUnclosed() ([]model.WhatsappSession, error)
+	GetWhatsappChannels() ([]model.WhatsappChannel, error)
+	CreateWhatsappChannel(channelId string) (*model.WhatsappChannel, error)
 	Close() error
 }
