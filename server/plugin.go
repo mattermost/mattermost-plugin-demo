@@ -11,6 +11,7 @@ import (
 	"github.com/mattermost/mattermost/server/public/pluginapi/cluster"
 
 	root "github.com/itstar-tech/mattermost-plugin-demo"
+	"github.com/itstar-tech/mattermost-plugin-demo/server/store"
 )
 
 var (
@@ -38,4 +39,7 @@ type Plugin struct {
 
 	// backgroundJob is a job that executes periodically on only one plugin instance at a time
 	backgroundJob *cluster.Job
+
+	// store provides access to the database
+	store store.Store
 }

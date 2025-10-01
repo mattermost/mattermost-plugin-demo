@@ -140,6 +140,17 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 		)
 	}
 
+	// Save message to database store
+	if err := p.SaveMessageToStore(post); err != nil {
+		p.API.LogError(
+			"Failed to save message to store",
+			"post_id", post.Id,
+			"channel_id", post.ChannelId,
+			"user_id", post.UserId,
+			"error", err.Error(),
+		)
+	}
+
 	// Check if the Random Secret was posted
 	if strings.Contains(post.Message, configuration.RandomSecret) {
 		msg = fmt.Sprintf("The random secret %q has been entered by @%s!\n%s",
@@ -207,6 +218,17 @@ func (p *Plugin) MessageHasBeenUpdated(c *plugin.Context, newPost, oldPost *mode
 		return
 	}
 
+	// Update message in database store
+	if err := p.SaveMessageToStore(newPost); err != nil {
+		p.API.LogError(
+			"Failed to update message in store",
+			"post_id", newPost.Id,
+			"channel_id", newPost.ChannelId,
+			"user_id", newPost.UserId,
+			"error", err.Error(),
+		)
+	}
+
 	msg := fmt.Sprintf("MessageHasBeenUpdated: @%s, ~%s", user.Username, channel.Name)
 	if err := p.postPluginMessage(channel.TeamId, msg); err != nil {
 		p.API.LogError(
@@ -269,6 +291,17 @@ func (p *Plugin) MessageHasBeenDeleted(c *plugin.Context, post *model.Post) {
 			"error", err.Error(),
 		)
 		return
+	}
+
+	// Delete message from database store
+	if err := p.DeleteMessageFromStore(post.Id); err != nil {
+		p.API.LogError(
+			"Failed to delete message from store",
+			"post_id", post.Id,
+			"channel_id", post.ChannelId,
+			"user_id", post.UserId,
+			"error", err.Error(),
+		)
 	}
 
 	msg := fmt.Sprintf("MessageHasBeenDeleted: @%s, ~%s", user.Username, channel.Name)

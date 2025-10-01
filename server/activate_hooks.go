@@ -8,6 +8,8 @@ import (
 
 	"github.com/mattermost/mattermost/server/public/pluginapi"
 	"github.com/mattermost/mattermost/server/public/pluginapi/cluster"
+
+	"github.com/itstar-tech/mattermost-plugin-demo/server/store/sqlstore"
 )
 
 // OnActivate is invoked when the plugin is activated.
@@ -26,6 +28,13 @@ func (p *Plugin) OnActivate() error {
 	if err := p.OnConfigurationChange(); err != nil {
 		return err
 	}
+
+	// Initialize database store
+	store, err := sqlstore.New(p.API)
+	if err != nil {
+		return errors.Wrap(err, "failed to initialize database store")
+	}
+	p.store = store
 
 	p.initializeAPI()
 
@@ -73,6 +82,15 @@ func (p *Plugin) OnActivate() error {
 // This demo implementation logs a message to the demo channel whenever the plugin is deactivated.
 func (p *Plugin) OnDeactivate() error {
 	configuration := p.getConfiguration()
+
+	// Close database store
+	if p.store != nil {
+		if sqlStore, ok := p.store.(*sqlstore.SQLStore); ok {
+			if err := sqlStore.Close(); err != nil {
+				p.API.LogError("Failed to close database store", "err", err)
+			}
+		}
+	}
 
 	if p.backgroundJob != nil {
 		if err := p.backgroundJob.Close(); err != nil {
