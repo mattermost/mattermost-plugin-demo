@@ -1,6 +1,0 @@
-CREATE TABLE IF NOT EXISTS whatsapp_plugin_session (
-    id VARCHAR(26) PRIMARY KEY,
-    user_id VARCHAR(26) NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    closed_at TIMESTAMP WITH TIME ZONE
-);

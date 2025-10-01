@@ -200,10 +200,56 @@ func (s *SQLStore) runMigrations(engine *morph.Morph, driver drivers.Driver) err
 		return err
 	}
 
-	s.pluginAPI.LogDebug("Applying all remaining migrations...", "current_version", len(appliedMigrations))
+	// Get available migrations from our embedded assets
+	assetList, err := Assets.ReadDir(migrationAssetsDir)
+	if err != nil {
+		s.pluginAPI.LogError("Failed to read migration asset dir for cleanup", "error", err.Error())
+		return err
+	}
+
+	// Create a map of available migration names (without .up.sql/.down.sql suffix)
+	availableMap := make(map[string]bool)
+	for _, asset := range assetList {
+		name := asset.Name()
+		// Extract migration name without extension (e.g., "000001_create_whatsapp_session" from "000001_create_whatsapp_session.up.sql")
+		if len(name) > 7 && name[len(name)-7:] == ".up.sql" {
+			migrationName := name[:len(name)-7]
+			availableMap[migrationName] = true
+		}
+	}
+
+	// Clean up orphaned migrations (applied but not in source)
+	var migrationsToRemove []string
+	for _, applied := range appliedMigrations {
+		// applied is *models.Migration, Version is uint32, format as 6-digit string
+		migrationName := fmt.Sprintf("%06d", applied.Version)
+		if !availableMap[migrationName] {
+			migrationsToRemove = append(migrationsToRemove, migrationName)
+		}
+	}
+
+	if len(migrationsToRemove) > 0 {
+		s.pluginAPI.LogWarn("Found orphaned migrations, cleaning up", "orphaned", migrationsToRemove)
+		for _, migration := range migrationsToRemove {
+			// Use direct SQL to remove from schema_migrations table
+			tableName := fmt.Sprintf("%sschema_migrations", s.tablePrefix)
+			query := fmt.Sprintf("DELETE FROM %s WHERE version = ?", tableName)
+			if s.dbType == model.DBTypePostgres {
+				query = fmt.Sprintf("DELETE FROM %s WHERE version = $1", tableName)
+			}
+
+			_, err := s.db.Exec(query, migration)
+			if err != nil {
+				s.pluginAPI.LogError("Failed to remove orphaned migration", "migration", migration, "error", err.Error())
+				return err
+			}
+		}
+	}
+
+	s.pluginAPI.LogDebug("Applying all remaining migrations...", "current_version", len(appliedMigrations)-len(migrationsToRemove))
 
 	if err := engine.ApplyAll(); err != nil {
-		s.pluginAPI.LogError("Failed to apply migrations", "current_version", len(appliedMigrations), "error", err.Error())
+		s.pluginAPI.LogError("Failed to apply migrations", "current_version", len(appliedMigrations)-len(migrationsToRemove), "error", err.Error())
 		return err
 	}
 
