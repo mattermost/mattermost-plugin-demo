@@ -67,7 +67,6 @@ export default class RHSView extends React.PureComponent {
                         />
                     </div>
                 </div>
-                <span style={styles.contactCardTitle}>{contact.username}</span>
             </div>
         );
     };
@@ -267,10 +266,10 @@ const styles = {
     contactsList: {
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(60px, 1fr))',
-        gap: '4px',
+        gap: '10px',
         alignItems: 'stretch',
         justifyItems: 'stretch',
-        padding: '1rem 0',
+        padding: '0 0 1.8rem 0px',
     },
     contactItem: {
         display: 'flex',
@@ -320,8 +319,8 @@ const styles = {
     avatarCircle: {
         cursor: 'pointer',
         position: 'relative',
-        width: '60px',
-        height: '60px',
+        width: '50px',
+        height: '50px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
