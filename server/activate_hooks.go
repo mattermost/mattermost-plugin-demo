@@ -1,9 +1,11 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
+	"github.com/itstar-tech/mattermost-plugin-demo/server/store"
 	"github.com/pkg/errors"
 
 	"github.com/mattermost/mattermost/server/public/pluginapi"
@@ -14,6 +16,46 @@ import (
 //
 // This demo implementation logs a message to the demo channel whenever the plugin is activated.
 // It also creates a demo bot account
+
+func (p *Plugin) initStore() (store.Store, error) {
+	storeParams, err := p.createStoreParams()
+	if err != nil {
+		return nil, err
+	}
+
+	return store.New(*storeParams)
+}
+
+func (p *Plugin) createStoreParams() (*store.Params, error) {
+	mmConfig := p.API.GetUnsanitizedConfig()
+	db, err := p.getMasterDB()
+	if err != nil {
+		return nil, err
+	}
+
+	return &store.Params{
+		DBType:                  *mmConfig.SqlSettings.DriverName,
+		ConnectionString:        *mmConfig.SqlSettings.DataSource,
+		TablePrefix:             store.TablePrefix,
+		SkipMigrations:          false,
+		PluginAPI:               p.API,
+		DB:                      db,
+		Driver:                  p.Driver,
+		MigrationTimeoutSeconds: *mmConfig.SqlSettings.MigrationsStatementTimeoutSeconds,
+	}, nil
+}
+
+func (p *Plugin) getMasterDB() (*sql.DB, error) {
+	client := pluginapi.NewClient(p.API, p.Driver)
+	db, err := client.Store.GetMasterDB()
+	if err != nil {
+		p.API.LogError("failed to get master DB", "error", err.Error())
+		return nil, err
+	}
+
+	return db, nil
+}
+
 func (p *Plugin) OnActivate() error {
 	if p.client == nil {
 		p.client = pluginapi.NewClient(p.API, p.Driver)
@@ -27,13 +69,12 @@ func (p *Plugin) OnActivate() error {
 		return err
 	}
 
-	// TODO: Initialize database store
-	//store, err := sqlstore.New(p.API)
-	//if err != nil {
-	//	p.API.LogError(err.Error())
-	//	return errors.Wrap(err, "failed to initialize database store")
-	//}
-	//p.store = store
+	sqlStore, err := p.initStore()
+	if err != nil {
+		return err
+	}
+
+	p.store = sqlStore
 
 	p.initializeAPI()
 

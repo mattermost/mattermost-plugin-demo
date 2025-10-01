@@ -3,6 +3,8 @@ package store
 import "github.com/itstar-tech/mattermost-plugin-demo/server/model"
 
 type Store interface {
+	Shutdown() error
+	Migrate(migrationTimeoutSeconds int) error
 	GetSession(sessionId string) (*model.WhatsappSession, error)
 	CreateSession(userId string) (*model.WhatsappSession, error)
 	CloseSession(sessionId string) (*model.WhatsappSession, error)
@@ -10,5 +12,4 @@ type Store interface {
 	GetSessionsUnclosed() ([]model.WhatsappSession, error)
 	GetWhatsappChannels() ([]model.WhatsappChannel, error)
 	CreateWhatsappChannel(channelId string) (*model.WhatsappChannel, error)
-	Close() error
 }
