@@ -72,6 +72,8 @@ type configuration struct {
 
 	// assistantAccessToken is the access token for the Assistant bot
 	assistantAccessToken string
+
+	enabledUsers map[string]*model.User
 }
 
 // Clone deep copies the configuration. Your implementation may only require a shallow copy if
@@ -506,4 +508,49 @@ func (p *Plugin) removeChannelFromMonitor(channelID string) {
 func (p *Plugin) isChannelMonitored(channelID string) bool {
 	config := p.getConfiguration()
 	return config.monitoredChannels[channelID]
+}
+
+func (p *Plugin) DisableUserByID(userID string) {
+	p.configurationLock.Lock()
+	defer p.configurationLock.Unlock()
+
+	if p.configuration.enabledUsers == nil {
+		return
+	}
+
+	delete(p.configuration.enabledUsers, userID)
+}
+
+func (p *Plugin) GetEnabledUserByID(userID string) (*model.User, error) {
+	p.configurationLock.Lock()
+	defer p.configurationLock.Unlock()
+
+	if user, ok := p.configuration.enabledUsers[userID]; ok {
+		return user, nil
+	}
+
+	return nil, fmt.Errorf("user with ID %s not found among enabled users", userID)
+}
+
+func (p *Plugin) GetEnabledUsers() ([]*model.User, error) {
+	p.configurationLock.Lock()
+	defer p.configurationLock.Unlock()
+
+	users := make([]*model.User, 0, len(p.configuration.enabledUsers))
+	for _, user := range p.configuration.enabledUsers {
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
+func (p *Plugin) EnableUser(user *model.User) {
+	p.configurationLock.Lock()
+	defer p.configurationLock.Unlock()
+
+	if p.configuration.enabledUsers == nil {
+		p.configuration.enabledUsers = make(map[string]*model.User)
+	}
+
+	p.configuration.enabledUsers[user.Id] = user
 }

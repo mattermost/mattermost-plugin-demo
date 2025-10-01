@@ -7,46 +7,46 @@ const Root = ({visible, close, theme, subMenu}) => {
         return null;
     }
 
-    const style = getStyle(theme);
+    let extraContent = '';
+    let extraContentTitle = '';
+    if (subMenu) {
+        extraContentTitle = (
+            <FormattedMessage
+                id='demo.triggeredby'
+                defaultMessage='Element clicked in the menu: '
+            />
+        );
+        extraContent = subMenu;
+    }
 
-    const isNode = React.isValidElement(subMenu);
+    const style = getStyle(theme);
 
     return (
         <div
             style={style.backdrop}
             onClick={close}
         >
-            <div
-                style={style.modal}
-                onClick={(e) => e.stopPropagation()}
-            >
-                {isNode ? (
-                    subMenu
-                ) : (
-                    <>
-                        <FormattedMessage
-                            id='root.triggered'
-                            defaultMessage='You have triggered the root component of the demo plugin.'
-                        />
-                        <br/>
-                        <br/>
-                        <FormattedMessage
-                            id='root.clicktoclose'
-                            defaultMessage='Click anywhere to close.'
-                        />
-                        <br/>
-                        <br/>
-                        {subMenu ? (
-                            <>
-                                <FormattedMessage
-                                    id='demo.triggeredby'
-                                    defaultMessage='Element clicked in the menu: '
-                                />
-                                {subMenu}
-                            </>
-                        ) : null}
-                    </>
-                )}
+            <div style={style.modal}>
+                <FormattedMessage
+                    id='root.triggered'
+                    defaultMessage='You have triggered the root component of the demo plugin.'
+                />
+                <br/>
+                <br/>
+                <FormattedMessage
+                    id='root.clicktoclose'
+                    defaultMessage='Click anywhere to close.'
+                />
+                <br/>
+                <br/>
+                <FormattedMessage
+                    id='demo.testintl'
+                    defaultMessage='This is the default string'
+                />
+                <br/>
+                <br/>
+                {extraContentTitle}
+                {extraContent}
             </div>
         </div>
     );
@@ -61,27 +61,23 @@ Root.propTypes = {
 
 const getStyle = (theme) => ({
     backdrop: {
-        position: 'fixed',
+        position: 'absolute',
         display: 'flex',
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.45)',
+        backgroundColor: 'rgba(0, 0, 0, 0.50)',
         zIndex: 2000,
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 16,
     },
     modal: {
-        maxHeight: '90vh',
-        width: 'min(92vw, 920px)',
-        padding: 16,
+        height: '250px',
+        width: '400px',
+        padding: '1em',
         color: theme.centerChannelColor,
         backgroundColor: theme.centerChannelBg,
-        borderRadius: 8,
-        boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
-        overflowY: 'auto',
     },
 });
 
