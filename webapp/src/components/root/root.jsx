@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {FormattedMessage} from 'react-intl';
 
+import ChartsDialog from 'components/ChartsDialog';
+
 const Root = ({visible, close, theme, subMenu}) => {
     if (!visible) {
         return null;
@@ -23,29 +25,7 @@ const Root = ({visible, close, theme, subMenu}) => {
                 {isNode ? (
                     subMenu
                 ) : (
-                    <>
-                        <FormattedMessage
-                            id='root.triggered'
-                            defaultMessage='You have triggered the root component of the demo plugin.'
-                        />
-                        <br/>
-                        <br/>
-                        <FormattedMessage
-                            id='root.clicktoclose'
-                            defaultMessage='Click anywhere to close.'
-                        />
-                        <br/>
-                        <br/>
-                        {subMenu ? (
-                            <>
-                                <FormattedMessage
-                                    id='demo.triggeredby'
-                                    defaultMessage='Element clicked in the menu: '
-                                />
-                                {subMenu}
-                            </>
-                        ) : null}
-                    </>
+                    <ChartsDialog/>
                 )}
             </div>
         </div>

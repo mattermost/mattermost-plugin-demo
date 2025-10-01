@@ -34,10 +34,11 @@ import {
     postDropdownSubMenuAction,
     channelHeaderMenuAction,
     websocketStatusChange,
-    getStatus, saveWhatsAppPreference,
+    getStatus, saveWhatsAppPreference, syncWhatsappPreferences, syncActiveUsers, getActiveUsers,
 } from './actions';
 import reducer from './reducer';
 import {isReceiveWhatsappMessages} from './selectors';
+import {PREFERENCE_NAME_WHATSAPP} from './constants';
 
 function getTranslations(locale) {
     switch (locale) {
