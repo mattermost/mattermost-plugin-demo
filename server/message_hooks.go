@@ -22,40 +22,10 @@ import (
 func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*model.Post, string) {
 	configuration := p.getConfiguration()
 
-	if configuration.disabled {
+	if configuration.Disabled {
 		return post, ""
 	}
 
-	// Always allow posts by the demo plugin user and demo plugin bot.
-	if post.UserId == p.whatsappBotID || post.UserId == configuration.demoUserID {
-		return post, ""
-	}
-
-	// Reject posts by other users in the demo channels, effectively making it read-only.
-	for _, channelID := range configuration.demoChannelIDs {
-		if channelID == post.ChannelId {
-			p.API.SendEphemeralPost(post.UserId, &model.Post{
-				UserId:    configuration.demoUserID,
-				ChannelId: channelID,
-				Message:   "Posting is not allowed in this channel.",
-			})
-
-			return nil, "disallowing post in demo channel"
-		}
-	}
-
-	// Reject posts mentioning the demo plugin user.
-	if strings.Contains(post.Message, fmt.Sprintf("@%s", configuration.Username)) {
-		p.API.SendEphemeralPost(post.UserId, &model.Post{
-			UserId:    configuration.demoUserID,
-			ChannelId: post.ChannelId,
-			Message:   "Shh! You must not talk about the demo plugin user.",
-		})
-
-		return nil, plugin.DismissPostError
-	}
-
-	// Otherwise, allow the post through.
 	return post, ""
 }
 
@@ -73,22 +43,10 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 func (p *Plugin) MessageWillBeUpdated(c *plugin.Context, newPost, oldPost *model.Post) (*model.Post, string) {
 	configuration := p.getConfiguration()
 
-	if configuration.disabled {
+	if configuration.Disabled {
 		return newPost, ""
 	}
 
-	// Reject posts mentioning the demo plugin user.
-	if strings.Contains(newPost.Message, fmt.Sprintf("@%s", configuration.Username)) {
-		p.API.SendEphemeralPost(newPost.UserId, &model.Post{
-			UserId:    configuration.demoUserID,
-			ChannelId: newPost.ChannelId,
-			Message:   "You must not talk about the demo plugin user.",
-		})
-
-		return nil, "disallowing mention of demo plugin user"
-	}
-
-	// Otherwise, allow the post through.
 	return newPost, ""
 }
 
@@ -101,14 +59,11 @@ func (p *Plugin) MessageWillBeUpdated(c *plugin.Context, newPost, oldPost *model
 func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 	configuration := p.getConfiguration()
 
-	if configuration.disabled {
+	if configuration.Disabled {
 		return
 	}
 
 	// Ignore posts by the demo plugin user and demo plugin bot.
-	if post.UserId == p.whatsappBotID || post.UserId == configuration.demoUserID {
-		return
-	}
 
 	user, err := p.API.GetUser(post.UserId)
 	if err != nil {
@@ -178,12 +133,7 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 func (p *Plugin) MessageHasBeenUpdated(c *plugin.Context, newPost, oldPost *model.Post) {
 	configuration := p.getConfiguration()
 
-	if configuration.disabled {
-		return
-	}
-
-	// Ignore updates by the demo plugin user.
-	if newPost.UserId == configuration.demoUserID {
+	if configuration.Disabled {
 		return
 	}
 
@@ -242,12 +192,7 @@ func (p *Plugin) MessageHasBeenUpdated(c *plugin.Context, newPost, oldPost *mode
 func (p *Plugin) MessageHasBeenDeleted(c *plugin.Context, post *model.Post) {
 	configuration := p.getConfiguration()
 
-	if configuration.disabled {
-		return
-	}
-
-	// Ignore updates by the demo plugin user.
-	if post.UserId == configuration.demoUserID {
+	if configuration.Disabled {
 		return
 	}
 
@@ -290,7 +235,7 @@ func (p *Plugin) MessageHasBeenDeleted(c *plugin.Context, post *model.Post) {
 func (p *Plugin) MessagesWillBeConsumed(posts []*model.Post) []*model.Post {
 	configuration := p.getConfiguration()
 
-	if configuration.disabled {
+	if configuration.Disabled {
 		return posts
 	}
 

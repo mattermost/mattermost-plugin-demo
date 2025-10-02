@@ -15,7 +15,7 @@ import (
 func (p *Plugin) UserHasJoinedTeam(c *plugin.Context, teamMember *model.TeamMember, actor *model.User) {
 	configuration := p.getConfiguration()
 
-	if configuration.disabled {
+	if configuration.Disabled {
 		return
 	}
 
@@ -47,7 +47,7 @@ func (p *Plugin) UserHasJoinedTeam(c *plugin.Context, teamMember *model.TeamMemb
 func (p *Plugin) UserHasLeftTeam(c *plugin.Context, teamMember *model.TeamMember, actor *model.User) {
 	configuration := p.getConfiguration()
 
-	if configuration.disabled {
+	if configuration.Disabled {
 		return
 	}
 

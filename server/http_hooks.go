@@ -7,16 +7,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost/server/public/model"
-	"github.com/mattermost/mattermost/server/public/plugin"
 )
 
-const (
-	WebsocketEventPreferenceUpdated = "whatsapp_preference_updated"
-)
-
-// ReactionWebhookPayload defines the structure of the webhook payload
 type ReactionWebhookPayload struct {
 	Action      string `json:"action"` // "reaction_added" or "reaction_removed"
 	UserID      string `json:"user_id"`
@@ -30,67 +23,6 @@ type ReactionWebhookPayload struct {
 	Timestamp   int64  `json:"timestamp"`
 }
 
-type UserPreferencesRequest struct {
-	UserID string `json:"user_id"`
-}
-
-type WhatsAppPreference struct {
-	ReceiveNotifications bool   `json:"receive_notifications"`
-	UserID               string `json:"user_id"`
-}
-
-type UserPreferencesResponse struct {
-	WhatsAppPref bool `json:"whatsapp"`
-}
-
-type ActiveUsersResponse struct {
-	ActiveUsers []*model.User `json:"active_users"`
-}
-
-// ServeHTTP allows the plugin to implement the http.Handler interface. Requests destined for the
-// /plugins/{id} path will be routed to the plugin.
-//
-// The Mattermost-User-Id header will be present if (and only if) the request is by an
-// authenticated user.
-//
-// This demo implementation sends back whether or not the plugin hooks are currently enabled. It
-// is used by the web app to recover from a network reconnection and synchronize the state of the
-// plugin's hooks.
-
-func (p *Plugin) initializeAPI() {
-	router := mux.NewRouter()
-
-	router.HandleFunc("/status", p.handleStatus)
-	router.HandleFunc("/hello", p.handleHello)
-	router.HandleFunc("/dynamic_arg_test_url", p.handleDynamicArgTest)
-	router.HandleFunc("/check_auth_header", p.handleCheckAuthHeader)
-
-	whatsapp := router.PathPrefix("/whatsapp").Subrouter()
-	whatsapp.HandleFunc("/preferences", p.handlePreferences)
-	whatsapp.HandleFunc("/enabled/users", p.getEnabledUsers)
-
-	webhook := router.PathPrefix("/webhook").Subrouter()
-	webhook.Use(p.withDelay)
-	webhook.HandleFunc("/outgoing", p.handleOutgoingWebhook).Methods(http.MethodPost)
-
-	interativeRouter := router.PathPrefix("/interactive").Subrouter()
-	interativeRouter.Use(p.withDelay)
-	interativeRouter.HandleFunc("/button/1", p.handleInteractiveAction)
-
-	dialogRouter := router.PathPrefix("/dialog").Subrouter()
-	dialogRouter.Use(p.withDelay)
-	dialogRouter.HandleFunc("/1", p.handleDialog1)
-	dialogRouter.HandleFunc("/2", p.handleDialog2)
-	dialogRouter.HandleFunc("/error", p.handleDialogWithError)
-
-	ephemeralRouter := router.PathPrefix("/ephemeral").Subrouter()
-	ephemeralRouter.Use(p.withDelay)
-	ephemeralRouter.HandleFunc("/update", p.handleEphemeralUpdate)
-	ephemeralRouter.HandleFunc("/delete", p.handleEphemeralDelete)
-
-	p.router = router
-}
-
 func (p *Plugin) withDelay(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		delay := p.getConfiguration().IntegrationRequestDelay
@@ -102,154 +34,12 @@ func (p *Plugin) withDelay(next http.Handler) http.Handler {
 	})
 }
 
-func (p *Plugin) handleStatus(w http.ResponseWriter, r *http.Request) {
-	configuration := p.getConfiguration()
-
-	var response = struct {
-		Enabled bool `json:"enabled"`
-	}{
-		Enabled: !configuration.disabled,
-	}
-
-	responseJSON, _ := json.Marshal(response)
-
-	w.Header().Set("Content-Type", "application/json")
-	if _, err := w.Write(responseJSON); err != nil {
-		p.API.LogError("Failed to write status", "err", err.Error())
-	}
-}
-
-func (p *Plugin) handlePreferences(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodPut:
-		p.handleSetWhatsappPreference(w, r)
-	case http.MethodGet:
-		p.getUserPreferences(w, r)
-	default:
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-	}
-}
-
-func (p *Plugin) handleSetWhatsappPreference(w http.ResponseWriter, r *http.Request) {
-	var pref WhatsAppPreference
-
-	if err := json.NewDecoder(r.Body).Decode(&pref); err != nil {
-		http.Error(w, "invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	user, errUsr := p.API.GetUser(pref.UserID)
-
-	if errUsr != nil {
-		http.Error(w, errUsr.Error(), http.StatusBadRequest)
-	}
-
-	if pref.ReceiveNotifications {
-		p.EnableUser(user)
-	} else {
-		p.DisableUserByID(pref.UserID)
-	}
-
-	p.publishPreferenceUpdateEvent()
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	err := json.NewEncoder(w).Encode(map[string]string{
-		"Status": "OK",
-	})
-	if err != nil {
-		return
-	}
-}
-
-func (p *Plugin) getUserPreferences(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	query := r.URL.Query()
-
-	userId := query.Get("user_id")
-
-	if userId == "" {
-		http.Error(w, "user_id is required", http.StatusBadRequest)
-		return
-	}
-
-	user, _ := p.GetEnabledUserByID(userId)
-
-	pref := false
-	if user != nil {
-		pref = true
-	}
-
-	resp := UserPreferencesResponse{
-		WhatsAppPref: pref,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	err := json.NewEncoder(w).Encode(resp)
-	if err != nil {
-		return
-	}
-}
-
-func (p *Plugin) getEnabledUsers(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	users, _ := p.GetEnabledUsers()
-	resp := ActiveUsersResponse{
-		ActiveUsers: users,
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	err := json.NewEncoder(w).Encode(resp)
-	if err != nil {
-		return
-	}
-}
-
-func (p *Plugin) publishPreferenceUpdateEvent() {
-	users, _ := p.GetEnabledUsers()
-
-	usersData := ActiveUsersResponse{
-		ActiveUsers: users,
-	}
-
-	jsonBytes, err := json.Marshal(usersData)
-	if err != nil {
-		p.API.LogError("Failed to marshal users data for WS event", "error", err.Error())
-		return
-	}
-
-	var payload map[string]interface{}
-	if err := json.Unmarshal(jsonBytes, &payload); err != nil {
-		p.API.LogError("Failed to unmarshal JSON to map for WS event", "error", err.Error())
-		return
-	}
-
-	p.API.LogError("Sending event", "event", payload)
-
-	p.API.PublishWebSocketEvent(
-		WebsocketEventPreferenceUpdated,
-		payload,
-		&model.WebsocketBroadcast{},
-	)
-}
-
 func (p *Plugin) handleHello(w http.ResponseWriter, r *http.Request) {
 	if _, err := w.Write([]byte("Hello World!")); err != nil {
 		p.API.LogError("Failed to write hello world", "err", err.Error())
 	}
 }
 
-// The Authorization header should be an empty string if the request is by an
-// authenticated user.
 func (p *Plugin) handleCheckAuthHeader(w http.ResponseWriter, r *http.Request) {
 	isAuthenticatedUser := r.Header.Get("Mattermost-User-ID") != ""
 	authHeader := r.Header.Get(model.HeaderAuth)
@@ -595,7 +385,6 @@ func (p *Plugin) handleDynamicArgTest(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// sendReactionWebhook sends a webhook notification for a reaction event
 func (p *Plugin) sendReactionWebhook(action string, reaction *model.Reaction, post *model.Post) {
 	configuration := p.getConfiguration()
 
@@ -643,7 +432,6 @@ func (p *Plugin) sendReactionWebhook(action string, reaction *model.Reaction, po
 	go p.sendHTTPWebhook(configuration.WebhookURL, payload)
 }
 
-// sendHTTPWebhook sends the HTTP request to the configured webhook URL
 func (p *Plugin) sendHTTPWebhook(webhookURL string, payload ReactionWebhookPayload) {
 	// Marshal payload to JSON
 	jsonData, err := json.Marshal(payload)

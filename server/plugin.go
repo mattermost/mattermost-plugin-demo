@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	root "github.com/itstar-tech/mattermost-plugin-demo"
+	mmModel "github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/pluginapi/cluster"
 
 	"github.com/itstar-tech/mattermost-plugin-demo/server/api"
@@ -19,7 +20,7 @@ import (
 )
 
 var (
-	manifest model.Manifest = root.Manifest
+	manifest mmModel.Manifest = root.Manifest
 )
 
 type Plugin struct {

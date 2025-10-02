@@ -1,6 +1,10 @@
 package store
 
-import "github.com/itstar-tech/mattermost-plugin-demo/server/model"
+import (
+	"text/template"
+
+	"github.com/itstar-tech/mattermost-plugin-demo/server/model"
+)
 
 type Store interface {
 	Shutdown() error
@@ -12,4 +16,7 @@ type Store interface {
 	GetSessionsUnclosed() ([]model.WhatsappSession, error)
 	GetWhatsappChannels() ([]model.WhatsappChannel, error)
 	CreateWhatsappChannel(channelId string) (*model.WhatsappChannel, error)
+
+	GetTemplateHelperFuncs() template.FuncMap
+	GetSchemaName() (string, error)
 }

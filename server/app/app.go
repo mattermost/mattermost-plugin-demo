@@ -35,6 +35,5 @@ func New(
 		debugBuild: debugBuild,
 	}
 
-	err := app.ensureSurveyBot()
-	return app, err
+	return app, nil
 }

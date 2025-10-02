@@ -16,10 +16,6 @@ import (
 
 const (
 	headerMattermostUserID = "Mattermost-User-ID"
-
-	// TODO - potential improvement - use Mattermost's configured payload
-	//  size limit if available, else this value default
-	maxPayloadSizeBytes = 300000 // 300 Kb
 )
 
 type Handlers struct {
@@ -40,9 +36,19 @@ func New(app *app.WhatsappApp, pluginAPI plugin.API) *Handlers {
 
 func (api *Handlers) initRoutes() {
 	api.Router = mux.NewRouter()
-	root := api.Router.PathPrefix("/api/v1").Subrouter()
 
-	root.HandleFunc("/ping", api.handlePing).Methods(http.MethodGet)
+	whatsapp := api.Router.PathPrefix("/whatsapp").Subrouter()
+
+	// Endpoints de sesión Whatsapp
+	whatsapp.HandleFunc("/session/{sessionID}", api.handleGetSession).Methods("GET")
+	whatsapp.HandleFunc("/session", api.handleCreateSession).Methods("POST")
+	whatsapp.HandleFunc("/session/{sessionID}/close", api.handleCloseSession).Methods("POST")
+	whatsapp.HandleFunc("/session/by_user/{userID}", api.handleGetSessionByUserId).Methods("GET")
+	whatsapp.HandleFunc("/session/unclosed", api.handleGetSessionsUnclosed).Methods("GET")
+
+	// Endpoints de canales Whatsapp
+	whatsapp.HandleFunc("/channels", api.handleGetChannels).Methods("GET")
+	whatsapp.HandleFunc("/channels", api.handleCreateChannel).Methods("POST")
 }
 
 func (api *Handlers) handlePing(w http.ResponseWriter, r *http.Request) {
