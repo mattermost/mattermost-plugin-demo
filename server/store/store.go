@@ -13,4 +13,6 @@ type Store interface {
 	GetSchemaName() (string, error)
 	GetSessions() ([]*model.Session, error)
 	CreateSession(session *model.Session) error
+	GetSessionByID(id string) (*model.Session, error)
+	UpdateSession(session *model.Session) error
 }

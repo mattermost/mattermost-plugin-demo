@@ -45,6 +45,8 @@ func (p *Plugin) ExecuteCommand(ctx *plugin.Context, args *model.CommandArgs) (*
 	switch command {
 	case "/" + createSessionCommand:
 		return p.executeCreateSessionCommand(ctx, args)
+	case "/" + closeSessionCommand:
+		return p.executeCloseSessionCommand(ctx, args)
 	case "/" + listSessionsCommand:
 		return p.executeListSessionsCommand(ctx, args)
 	}
@@ -74,4 +76,32 @@ func (p *Plugin) executeCreateSessionCommand(ctx *plugin.Context, args *model.Co
 	}
 
 	return &model.CommandResponse{Text: "Session created successfully with ID: " + session.ID}, nil
+}
+
+func (p *Plugin) executeCloseSessionCommand(ctx *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
+	split := strings.Fields(args.Command)
+	if len(split) < 2 {
+		return &model.CommandResponse{Text: "Usage: /closesession <session_id>"}, nil
+	}
+
+	sessionID := split[1]
+
+	session, err := p.store.GetSessionByID(sessionID)
+	if err != nil {
+		return &model.CommandResponse{Text: "Failed to get session: " + err.Error()}, nil
+	}
+
+	if session.ClosedAt != nil {
+		return &model.CommandResponse{Text: "Session is already closed"}, nil
+	}
+
+	now := model.GetMillis()
+	session.ClosedAt = &now
+
+	err = p.store.UpdateSession(session)
+	if err != nil {
+		return &model.CommandResponse{Text: "Failed to close session: " + err.Error()}, nil
+	}
+
+	return &model.CommandResponse{Text: "Session " + sessionID + " closed successfully"}, nil
 }

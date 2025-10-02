@@ -14,6 +14,7 @@ type Session struct {
 	ID       string `json:"id"`
 	UserID   string `json:"userID"`
 	CreateAt int64  `json:"createAt"`
+	ClosedAt *int64 `json:"closedAt,omitempty"`
 }
 
 func (s *Session) SetDefaults() {

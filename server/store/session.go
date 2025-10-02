@@ -16,6 +16,7 @@ func (s *SQLStore) sessionColumns() []string {
 		"id",
 		"user_id",
 		"create_at",
+		"closed_at",
 	}
 }
 
@@ -43,14 +44,20 @@ func (s *SQLStore) SessionsFromRows(rows *sql.Rows) ([]*model.Session, error) {
 
 	for rows.Next() {
 		var session model.Session
+		var closedAt sql.NullInt64
 
 		err := rows.Scan(
 			&session.ID,
 			&session.UserID,
 			&session.CreateAt,
+			&closedAt,
 		)
 		if err != nil {
 			return nil, errors.Wrap(err, "SessionsFromRows failed to scan session row")
+		}
+
+		if closedAt.Valid {
+			session.ClosedAt = &closedAt.Int64
 		}
 
 		sessions = append(sessions, &session)
@@ -73,11 +80,64 @@ func (s *SQLStore) CreateSession(session *model.Session) error {
 			session.ID,
 			session.UserID,
 			session.CreateAt,
+			session.ClosedAt,
 		).
 		Exec()
 
 	if err != nil {
 		return errors.Wrap(err, "CreateSession: failed to insert session into database")
+	}
+
+	return nil
+}
+
+func (s *SQLStore) GetSessionByID(id string) (*model.Session, error) {
+	row := s.getQueryBuilder().
+		Select(s.sessionColumns()...).
+		From(s.tablePrefix+"session").
+		Where("id = ?", id).
+		QueryRow()
+
+	var session model.Session
+	var closedAt sql.NullInt64
+
+	err := row.Scan(
+		&session.ID,
+		&session.UserID,
+		&session.CreateAt,
+		&closedAt,
+	)
+
+	if err == sql.ErrNoRows {
+		return nil, errors.New("session not found")
+	}
+
+	if err != nil {
+		return nil, errors.Wrap(err, "GetSessionByID: failed to scan session")
+	}
+
+	if closedAt.Valid {
+		session.ClosedAt = &closedAt.Int64
+	}
+
+	return &session, nil
+}
+
+func (s *SQLStore) UpdateSession(session *model.Session) error {
+	if err := session.IsValid(); err != nil {
+		return errors.Wrap(err, "UpdateSession: invalid session")
+	}
+
+	_, err := s.getQueryBuilder().
+		Update(s.tablePrefix+"session").
+		Set("user_id", session.UserID).
+		Set("create_at", session.CreateAt).
+		Set("closed_at", session.ClosedAt).
+		Where("id = ?", session.ID).
+		Exec()
+
+	if err != nil {
+		return errors.Wrap(err, "UpdateSession: failed to update session in database")
 	}
 
 	return nil
