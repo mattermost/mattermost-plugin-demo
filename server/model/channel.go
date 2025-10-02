@@ -7,8 +7,10 @@ import (
 )
 
 type Channel struct {
-	ID        string `json:"id"`
-	ChannelID string `json:"channel_id"`
+	ID            string `json:"id"`
+	ChannelID     string `json:"channel_id"`
+	PhoneNumber   string `json:"phone_number"`
+	PhoneNumberID string `json:"phone_number_id"`
 }
 
 func (c *Channel) SetDefaults() {
@@ -24,6 +26,12 @@ func (c *Channel) IsValid() error {
 	}
 	if c.ChannelID == "" {
 		return errors.New("channel ChannelID cannot be empty")
+	}
+	if c.PhoneNumber == "" {
+		return errors.New("channel PhoneNumber cannot be empty")
+	}
+	if c.PhoneNumberID == "" {
+		return errors.New("channel PhoneNumberID cannot be empty")
 	}
 	return nil
 }

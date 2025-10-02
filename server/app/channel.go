@@ -6,15 +6,17 @@ import (
 	"github.com/itstar-tech/mattermost-plugin-demo/server/model"
 )
 
-func (a *WhatsappApp) CreateChannel(channelID string) (*model.Channel, error) {
+func (a *WhatsappApp) CreateChannel(channelID string, phoneNumber string, phoneNumberId string) (*model.Channel, error) {
 	channel := &model.Channel{
-		ChannelID: channelID,
+		ChannelID:     channelID,
+		PhoneNumber:   phoneNumber,
+		PhoneNumberID: phoneNumberId,
 	}
 	channel.SetDefaults()
 	if err := channel.IsValid(); err != nil {
 		return nil, errors.Wrap(err, "CreateChannel: channel is not valid")
 	}
-	if err := a.store.CreateChannel(channel, channelID); err != nil {
+	if err := a.store.CreateChannel(channel); err != nil {
 		return nil, errors.Wrap(err, "CreateChannel: failed to create channel")
 	}
 	return channel, nil

@@ -110,10 +110,12 @@ func (p *Plugin) executeCloseSessionCommand(ctx *plugin.Context, args *model.Com
 func (p *Plugin) executeCreateChannelCommand(ctx *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	split := strings.Fields(args.Command)
 	if len(split) < 2 {
-		return &model.CommandResponse{Text: "Usage: /createchannel <channel_id>"}, nil
+		return &model.CommandResponse{Text: "Usage: /createchannel <channel_id> <phone_number> <phone_number_id>"}, nil
 	}
 	channelID := split[1]
-	channel, err := p.app.CreateChannel(channelID)
+	phoneNumber := split[2]
+	phoneNumberId := split[3]
+	channel, err := p.app.CreateChannel(channelID, phoneNumber, phoneNumberId)
 	if err != nil {
 		return &model.CommandResponse{Text: "Failed to create channel: " + err.Error()}, nil
 	}

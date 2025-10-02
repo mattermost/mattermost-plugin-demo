@@ -11,6 +11,8 @@ func (s *SQLStore) channelColumns() []string {
 	return []string{
 		"id",
 		"channel_id",
+		"phone_number",
+		"phone_number_id",
 	}
 }
 
@@ -30,9 +32,8 @@ func (s *SQLStore) GetChannels() ([]*model.Channel, error) {
 	return channels, nil
 }
 
-func (s *SQLStore) CreateChannel(channel *model.Channel, channelId string) error {
+func (s *SQLStore) CreateChannel(channel *model.Channel) error {
 	channel.SetDefaults()
-	channel.ChannelID = channelId
 	if err := channel.IsValid(); err != nil {
 		return err
 	}
@@ -43,6 +44,8 @@ func (s *SQLStore) CreateChannel(channel *model.Channel, channelId string) error
 		Values(
 			channel.ID,
 			channel.ChannelID,
+			channel.PhoneNumber,
+			channel.PhoneNumberID,
 		).
 		Exec()
 	if err != nil {
@@ -59,6 +62,8 @@ func (s *SQLStore) ChannelsFromRows(rows *sql.Rows) ([]*model.Channel, error) {
 		err := rows.Scan(
 			&channel.ID,
 			&channel.ChannelID,
+			&channel.PhoneNumber,
+			&channel.PhoneNumberID,
 		)
 		if err != nil {
 			return nil, err
