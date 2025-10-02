@@ -129,7 +129,7 @@ func (p *Plugin) emitStatusChange() {
 	configuration := p.getConfiguration()
 
 	p.API.PublishWebSocketEvent("status_change", map[string]interface{}{
-		"enabled": !configuration.disabled,
+		"enabled": !configuration.Disabled,
 	}, &model.WebsocketBroadcast{})
 }
 
@@ -242,7 +242,7 @@ func (p *Plugin) executeCommandHooks(args *model.CommandArgs) *model.CommandResp
 	configuration := p.getConfiguration()
 
 	if strings.HasSuffix(args.Command, "true") {
-		if !configuration.disabled {
+		if !configuration.Disabled {
 			return &model.CommandResponse{
 				ResponseType: model.CommandResponseTypeEphemeral,
 				Text:         "The demo plugin hooks are already enabled.",
@@ -259,7 +259,7 @@ func (p *Plugin) executeCommandHooks(args *model.CommandArgs) *model.CommandResp
 	}
 
 	if strings.HasSuffix(args.Command, "false") {
-		if configuration.disabled {
+		if configuration.Disabled {
 			return &model.CommandResponse{
 				ResponseType: model.CommandResponseTypeEphemeral,
 				Text:         "The demo plugin hooks are already disabled.",

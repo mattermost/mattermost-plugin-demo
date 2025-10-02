@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	TablePrefix = "user_survey_"
+	TablePrefix = "demo_plugin_"
 )
 
 type SQLStore struct {

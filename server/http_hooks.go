@@ -56,9 +56,6 @@ type ActiveUsersResponse struct {
 // This demo implementation sends back whether or not the plugin hooks are currently enabled. It
 // is used by the web app to recover from a network reconnection and synchronize the state of the
 // plugin's hooks.
-func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
-	p.router.ServeHTTP(w, r)
-}
 
 func (p *Plugin) initializeAPI() {
 	router := mux.NewRouter()
