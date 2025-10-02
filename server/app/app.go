@@ -12,12 +12,11 @@ import (
 )
 
 type WhatsappApp struct {
-	api        plugin.API
-	store      store.Store
-	getConfig  func() *model.Config
-	apiClient  *pluginapi.Client
-	botID      string
-	debugBuild bool
+	api       plugin.API
+	store     store.Store
+	getConfig func() *model.Config
+	apiClient *pluginapi.Client
+	botID     string
 }
 
 func New(
@@ -25,14 +24,12 @@ func New(
 	store store.Store,
 	getConfigFunc func() *model.Config,
 	driver plugin.Driver,
-	debugBuild bool,
 ) (*WhatsappApp, error) {
 	app := &WhatsappApp{
-		api:        api,
-		store:      store,
-		getConfig:  getConfigFunc,
-		apiClient:  pluginapi.NewClient(api, driver),
-		debugBuild: debugBuild,
+		api:       api,
+		store:     store,
+		getConfig: getConfigFunc,
+		apiClient: pluginapi.NewClient(api, driver),
 	}
 
 	return app, nil

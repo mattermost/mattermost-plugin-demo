@@ -61,7 +61,6 @@ func (p *Plugin) ReactionHasBeenAdded(c *plugin.Context, reaction *model.Reactio
 		)
 	}
 
-	p.sendReactionWebhook("reaction_added", reaction, post)
 }
 
 // ReactionHasBeenRemoved is invoked after the removal of the reaction has been committed to the database.
@@ -118,5 +117,4 @@ func (p *Plugin) ReactionHasBeenRemoved(c *plugin.Context, reaction *model.React
 		)
 	}
 
-	p.sendReactionWebhook("reaction_removed", reaction, post)
 }

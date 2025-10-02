@@ -1,3 +1,6 @@
+// Copyright (c) 2024-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
+
 package main
 
 import (
@@ -5,8 +8,6 @@ import (
 	"net/http"
 	"sync"
 
-	root "github.com/itstar-tech/mattermost-plugin-demo"
-	mmModel "github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/pluginapi/cluster"
 
 	"github.com/itstar-tech/mattermost-plugin-demo/server/api"
@@ -16,16 +17,13 @@ import (
 
 	"github.com/itstar-tech/mattermost-plugin-demo/server/app"
 	"github.com/itstar-tech/mattermost-plugin-demo/server/store"
+
 	"github.com/mattermost/mattermost/server/public/plugin"
 )
 
-var (
-	manifest mmModel.Manifest = root.Manifest
-)
-
+// Plugin implements the interface expected by the Mattermost server to communicate between the server and plugin processes.
 type Plugin struct {
 	plugin.MattermostPlugin
-	client *pluginapi.Client
 
 	// configurationLock synchronizes access to the configuration.
 	configurationLock sync.RWMutex
@@ -38,8 +36,6 @@ type Plugin struct {
 	app         *app.WhatsappApp
 	apiHandlers *api.Handlers
 
-	whatsappBotID string
-
 	jobs []*cluster.Job
 }
 
@@ -48,15 +44,12 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 }
 
 func (p *Plugin) OnActivate() error {
-	buildMode := "Production"
-	p.API.LogInfo("Starting up User Survey Plugin, build mode: " + buildMode)
-
 	sqlStore, err := p.initStore()
 	if err != nil {
 		return err
 	}
 
-	_app, err := p.initApp(sqlStore, false)
+	_app, err := p.initApp(sqlStore)
 	if err != nil {
 		return err
 	}
@@ -66,6 +59,10 @@ func (p *Plugin) OnActivate() error {
 	p.store = sqlStore
 	p.app = _app
 	p.apiHandlers = _api
+
+	if err := p.registerDebugCommands(); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -119,12 +116,12 @@ func (p *Plugin) getMasterDB() (*sql.DB, error) {
 	return db, nil
 }
 
-func (p *Plugin) initApp(store store.Store, debugBuild bool) (*app.WhatsappApp, error) {
+func (p *Plugin) initApp(store store.Store) (*app.WhatsappApp, error) {
 	getConfigFunc := func() *model.Config {
 		return p.getConfiguration()
 	}
 
-	return app.New(p.API, store, getConfigFunc, p.Driver, debugBuild)
+	return app.New(p.API, store, getConfigFunc, p.Driver)
 }
 
 func (p *Plugin) initAPI(app *app.WhatsappApp) *api.Handlers {
