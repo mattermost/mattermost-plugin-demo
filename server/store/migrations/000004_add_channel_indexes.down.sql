@@ -1,1 +1,1 @@
-{{ dropIndexIfNeeded "channel" "user_id" }}
+{{ dropIndexIfNeeded "channel" "channel_id" }}
