@@ -12,7 +12,7 @@ import (
 func (p *Plugin) postPluginMessage(teamID, msg string) *model.AppError {
 	configuration := p.getConfiguration()
 
-	if configuration.disabled {
+	if configuration.Disabled {
 		return nil
 	}
 
@@ -20,26 +20,6 @@ func (p *Plugin) postPluginMessage(teamID, msg string) *model.AppError {
 		msg = fmt.Sprintf("tag @%s | %s", configuration.MentionUser, msg)
 	}
 	msg = fmt.Sprintf("%s%s%s", configuration.TextStyle, msg, configuration.TextStyle)
-
-	if teamID != "" {
-		_, err := p.API.CreatePost(&model.Post{
-			UserId:    p.whatsappBotID,
-			ChannelId: configuration.demoChannelIDs[teamID],
-			Message:   msg,
-		})
-		return err
-	}
-
-	for _, channelID := range configuration.demoChannelIDs {
-		_, err := p.API.CreatePost(&model.Post{
-			UserId:    p.whatsappBotID,
-			ChannelId: channelID,
-			Message:   msg,
-		})
-		if err != nil {
-			return err
-		}
-	}
 
 	return nil
 }

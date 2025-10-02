@@ -16,7 +16,7 @@ import (
 func (p *Plugin) ReactionHasBeenAdded(c *plugin.Context, reaction *model.Reaction) {
 	configuration := p.getConfiguration()
 
-	if configuration.disabled {
+	if configuration.Disabled {
 		return
 	}
 
@@ -61,12 +61,6 @@ func (p *Plugin) ReactionHasBeenAdded(c *plugin.Context, reaction *model.Reactio
 		)
 	}
 
-	if !p.isChannelMonitored(post.ChannelId) {
-		p.API.LogDebug("Channel not monitored - ignoring reaction", "channel_id", post.ChannelId)
-		return
-	}
-
-	p.sendReactionWebhook("reaction_added", reaction, post)
 }
 
 // ReactionHasBeenRemoved is invoked after the removal of the reaction has been committed to the database.
@@ -78,7 +72,7 @@ func (p *Plugin) ReactionHasBeenAdded(c *plugin.Context, reaction *model.Reactio
 func (p *Plugin) ReactionHasBeenRemoved(c *plugin.Context, reaction *model.Reaction) {
 	configuration := p.getConfiguration()
 
-	if configuration.disabled {
+	if configuration.Disabled {
 		return
 	}
 
@@ -123,10 +117,4 @@ func (p *Plugin) ReactionHasBeenRemoved(c *plugin.Context, reaction *model.React
 		)
 	}
 
-	if !p.isChannelMonitored(post.ChannelId) {
-		p.API.LogDebug("Channel not monitored - ignoring reaction", "channel_id", post.ChannelId)
-		return
-	}
-
-	p.sendReactionWebhook("reaction_removed", reaction, post)
 }
