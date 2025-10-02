@@ -58,3 +58,27 @@ func (s *SQLStore) SessionsFromRows(rows *sql.Rows) ([]*model.Session, error) {
 
 	return sessions, nil
 }
+
+func (s *SQLStore) CreateSession(session *model.Session) error {
+	session.SetDefaults()
+
+	if err := session.IsValid(); err != nil {
+		return errors.Wrap(err, "CreateSession: invalid session")
+	}
+
+	_, err := s.getQueryBuilder().
+		Insert(s.tablePrefix+"session").
+		Columns(s.sessionColumns()...).
+		Values(
+			session.ID,
+			session.UserID,
+			session.CreateAt,
+		).
+		Exec()
+
+	if err != nil {
+		return errors.Wrap(err, "CreateSession: failed to insert session into database")
+	}
+
+	return nil
+}

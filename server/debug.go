@@ -9,6 +9,8 @@ import (
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
 	"github.com/pkg/errors"
+
+	pluginModel "github.com/itstar-tech/mattermost-plugin-demo/server/model"
 )
 
 var (
@@ -41,6 +43,8 @@ func (p *Plugin) ExecuteCommand(ctx *plugin.Context, args *model.CommandArgs) (*
 	command := split[0]
 
 	switch command {
+	case "/" + createSessionCommand:
+		return p.executeCreateSessionCommand(ctx, args)
 	case "/" + listSessionsCommand:
 		return p.executeListSessionsCommand(ctx, args)
 	}
@@ -57,4 +61,17 @@ func (p *Plugin) executeListSessionsCommand(ctx *plugin.Context, args *model.Com
 		ids = append(ids, s.ID)
 	}
 	return &model.CommandResponse{Text: "Unclosed session IDs: " + strings.Join(ids, ", ")}, nil
+}
+
+func (p *Plugin) executeCreateSessionCommand(ctx *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
+	session := &pluginModel.Session{
+		UserID: args.UserId,
+	}
+
+	err := p.store.CreateSession(session)
+	if err != nil {
+		return &model.CommandResponse{Text: "Failed to create session: " + err.Error()}, nil
+	}
+
+	return &model.CommandResponse{Text: "Session created successfully with ID: " + session.ID}, nil
 }

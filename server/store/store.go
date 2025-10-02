@@ -12,4 +12,5 @@ type Store interface {
 	GetTemplateHelperFuncs() template.FuncMap
 	GetSchemaName() (string, error)
 	GetSessions() ([]*model.Session, error)
+	CreateSession(session *model.Session) error
 }
