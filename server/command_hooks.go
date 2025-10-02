@@ -31,6 +31,10 @@ const (
 
 	commandDialogHelp = "###### Interactive Dialog Slash Command Help\n" +
 		"- `/dialog` - Open an Interactive Dialog. Once submitted, user-entered input is posted back into a channel.\n" +
+		"- `/dialog basic` - Open a simple Interactive Dialog with one optional text field for basic testing.\n" +
+		"- `/dialog boolean` - Open an Interactive Dialog with boolean fields for testing toggle functionality.\n" +
+		"- `/dialog textfields` - Open an Interactive Dialog with various text field types for testing input validation.\n" +
+		"- `/dialog selectfields` - Open an Interactive Dialog with select, radio, user, and channel selectors.\n" +
 		"- `/dialog no-elements` - Open an Interactive Dialog with no elements. Once submitted, user's action is posted back into a channel.\n" +
 		"- `/dialog relative-callback-url` - Open an Interactive Dialog with relative callback URL. Once submitted, user's action is posted back into a channel.\n" +
 		"- `/dialog introduction-text` - Open an Interactive Dialog with optional introduction text. Once submitted, user's action is posted back into a channel.\n" +
@@ -345,6 +349,30 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/1", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog:    getDialogWithSampleElements(),
 		}
+	case "basic":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogBasic(),
+		}
+	case "boolean":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogBoolean(),
+		}
+	case "textfields":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogTextFields(),
+		}
+	case "selectfields":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogSelectFields(),
+		}
 	case "no-elements":
 		dialogRequest = model.OpenDialogRequest{
 			TriggerId: args.TriggerId,
@@ -367,7 +395,7 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 		dialogRequest = model.OpenDialogRequest{
 			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("/plugins/%s/dialog/error", manifest.Id),
-			Dialog:    getDialogWithSampleElements(),
+			Dialog:    getDialogBasic(),
 		}
 	case "error-no-elements":
 		dialogRequest = model.OpenDialogRequest{
@@ -391,6 +419,207 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 		}
 	}
 	return &model.CommandResponse{}
+}
+
+func getDialogBasic() model.Dialog {
+	return model.Dialog{
+		CallbackId:     "basiccallbackid",
+		Title:          "Simple Dialog Test",
+		IconURL:        "http://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
+		SubmitLabel:    "Submit Test",
+		NotifyOnCancel: true,
+		State:          "somestate",
+		Elements: []model.DialogElement{{
+			DisplayName: "Optional Text Field",
+			Name:        "optional_text",
+			Type:        "text",
+			Default:     "",
+			Placeholder: "Enter some text (optional)...",
+			HelpText:    "This field is optional for basic testing",
+			Optional:    true,
+			MinLength:   0,
+			MaxLength:   100,
+		}},
+	}
+}
+
+func getDialogBoolean() model.Dialog {
+	return model.Dialog{
+		CallbackId:     "booleancallbackid",
+		Title:          "Boolean Fields Dialog Test",
+		IconURL:        "http://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
+		SubmitLabel:    "Submit Test",
+		NotifyOnCancel: true,
+		State:          "somestate",
+		Elements: []model.DialogElement{{
+			DisplayName: "Required Boolean",
+			Name:        "required_boolean",
+			Type:        "bool",
+			Placeholder: "This field is required",
+			HelpText:    "This boolean field is required and has no default (initially false)",
+			Optional:    false,
+		}, {
+			DisplayName: "Optional Boolean",
+			Name:        "optional_boolean",
+			Type:        "bool",
+			Placeholder: "This field is optional",
+			HelpText:    "This boolean field is optional and has no default (initially false)",
+			Optional:    true,
+		}, {
+			DisplayName: "Boolean Default True",
+			Name:        "boolean_default_true",
+			Type:        "bool",
+			Placeholder: "This defaults to true",
+			HelpText:    "This boolean field has default value true",
+			Default:     "true",
+			Optional:    false,
+		}, {
+			DisplayName: "Boolean Default False",
+			Name:        "boolean_default_false",
+			Type:        "bool",
+			Placeholder: "This defaults to false",
+			HelpText:    "This boolean field has default value false",
+			Default:     "false",
+			Optional:    false,
+		}},
+	}
+}
+
+func getDialogTextFields() model.Dialog {
+	return model.Dialog{
+		CallbackId:     "textfieldscallbackid",
+		Title:          "Text Fields Dialog Test",
+		IconURL:        "http://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
+		SubmitLabel:    "Submit Test",
+		NotifyOnCancel: true,
+		State:          "somestate",
+		Elements: []model.DialogElement{{
+			DisplayName: "Regular Text Field",
+			Name:        "text_field",
+			Type:        "text",
+			Default:     "",
+			Placeholder: "Enter some text...",
+			HelpText:    "This is a regular text input",
+			Optional:    true,
+			MinLength:   0,
+			MaxLength:   100,
+		}, {
+			DisplayName: "Required Text Field",
+			Name:        "required_text",
+			Type:        "text",
+			Default:     "",
+			Placeholder: "This field is required",
+			HelpText:    "This field must be filled",
+			Optional:    false,
+			MinLength:   1,
+			MaxLength:   50,
+		}, {
+			DisplayName: "Email Field",
+			Name:        "email_field",
+			Type:        "text",
+			SubType:     "email",
+			Default:     "",
+			Placeholder: "user@example.com",
+			HelpText:    "Enter a valid email address",
+			Optional:    true,
+			MinLength:   0,
+			MaxLength:   100,
+		}, {
+			DisplayName: "Number Field",
+			Name:        "number_field",
+			Type:        "text",
+			SubType:     "number",
+			Default:     "",
+			Placeholder: "123",
+			HelpText:    "Enter a number",
+			Optional:    true,
+			MinLength:   0,
+			MaxLength:   10,
+		}, {
+			DisplayName: "Password Field",
+			Name:        "password_field",
+			Type:        "text",
+			SubType:     "password",
+			Default:     "",
+			Placeholder: "Enter password...",
+			HelpText:    "Password field test",
+			Optional:    true,
+			MinLength:   0,
+			MaxLength:   50,
+		}, {
+			DisplayName: "Text Area Field",
+			Name:        "textarea_field",
+			Type:        "text",
+			SubType:     "textarea",
+			Default:     "",
+			Placeholder: "Enter multiline text...",
+			HelpText:    "Text area for longer content",
+			Optional:    true,
+			MinLength:   0,
+			MaxLength:   500,
+		}},
+	}
+}
+
+func getDialogSelectFields() model.Dialog {
+	return model.Dialog{
+		CallbackId:     "selectfieldscallbackid",
+		Title:          "Select Fields Dialog Test",
+		IconURL:        "http://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
+		SubmitLabel:    "Submit Test",
+		NotifyOnCancel: true,
+		State:          "somestate",
+		Elements: []model.DialogElement{{
+			DisplayName: "Radio Option Selector",
+			Name:        "someradiooptions",
+			Type:        "radio",
+			HelpText:    "Choose your department",
+			Optional:    false,
+			Options: []*model.PostActionOptions{{
+				Text:  "Engineering",
+				Value: "engineering",
+			}, {
+				Text:  "Sales",
+				Value: "sales",
+			}},
+		}, {
+			DisplayName: "Option Selector",
+			Name:        "someoptionselector",
+			Type:        "select",
+			Default:     "",
+			Placeholder: "Select an option...",
+			HelpText:    "",
+			Optional:    false,
+			Options: []*model.PostActionOptions{{
+				Text:  "Option1",
+				Value: "opt1",
+			}, {
+				Text:  "Option2",
+				Value: "opt2",
+			}, {
+				Text:  "Option3",
+				Value: "opt3",
+			}},
+		}, {
+			DisplayName: "User Selector",
+			Name:        "someuserselector",
+			Type:        "select",
+			Default:     "",
+			Placeholder: "Select a user...",
+			HelpText:    "",
+			Optional:    false,
+			DataSource:  "users",
+		}, {
+			DisplayName: "Channel Selector",
+			Name:        "somechannelselector",
+			Type:        "select",
+			Default:     "",
+			Placeholder: "Select a channel...",
+			HelpText:    "Choose a channel from the list.",
+			Optional:    true,
+			DataSource:  "channels",
+		}},
+	}
 }
 
 func getDialogWithSampleElements() model.Dialog {
