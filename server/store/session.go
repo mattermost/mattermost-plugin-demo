@@ -142,3 +142,25 @@ func (s *SQLStore) UpdateSession(session *model.Session) error {
 
 	return nil
 }
+
+func (s *SQLStore) DeleteSession(id string) error {
+	result, err := s.getQueryBuilder().
+		Delete(s.tablePrefix+"session").
+		Where("id = ?", id).
+		Exec()
+
+	if err != nil {
+		return errors.Wrap(err, "DeleteSession: failed to delete session from database")
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return errors.Wrap(err, "DeleteSession: failed to get rows affected")
+	}
+
+	if rowsAffected == 0 {
+		return errors.New("DeleteSession: session not found")
+	}
+
+	return nil
+}

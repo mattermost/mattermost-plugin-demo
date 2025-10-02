@@ -36,6 +36,12 @@ func New(app *app.WhatsappApp, pluginAPI plugin.API) *Handlers {
 
 func (api *Handlers) initRoutes() {
 	api.Router = mux.NewRouter()
+	sessionsRouter := api.Router.PathPrefix("/sessions").Subrouter()
+	sessionsRouter.HandleFunc("", api.handleListSessions).Methods(http.MethodGet)
+	sessionsRouter.HandleFunc("", api.handleCreateSession).Methods(http.MethodPost)
+	sessionsRouter.HandleFunc("/{sessionID}", api.handleGetSession).Methods(http.MethodGet)
+	sessionsRouter.HandleFunc("/{sessionID}", api.handleUpdateSession).Methods(http.MethodPut)
+	sessionsRouter.HandleFunc("/{sessionID}", api.handleDeleteSession).Methods(http.MethodDelete)
 }
 
 func (api *Handlers) handlePing(w http.ResponseWriter, r *http.Request) {

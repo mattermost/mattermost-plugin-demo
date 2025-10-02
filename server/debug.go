@@ -9,8 +9,6 @@ import (
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
 	"github.com/pkg/errors"
-
-	pluginModel "github.com/itstar-tech/mattermost-plugin-demo/server/model"
 )
 
 var (
@@ -54,7 +52,7 @@ func (p *Plugin) ExecuteCommand(ctx *plugin.Context, args *model.CommandArgs) (*
 }
 
 func (p *Plugin) executeListSessionsCommand(ctx *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
-	sessions, err := p.store.GetSessions()
+	sessions, err := p.app.GetSessions()
 	if err != nil {
 		return &model.CommandResponse{Text: "Failed to list sessions: " + err.Error()}, nil
 	}
@@ -66,11 +64,7 @@ func (p *Plugin) executeListSessionsCommand(ctx *plugin.Context, args *model.Com
 }
 
 func (p *Plugin) executeCreateSessionCommand(ctx *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
-	session := &pluginModel.Session{
-		UserID: args.UserId,
-	}
-
-	err := p.store.CreateSession(session)
+	session, err := p.app.CreateSession(args.UserId)
 	if err != nil {
 		return &model.CommandResponse{Text: "Failed to create session: " + err.Error()}, nil
 	}
@@ -86,7 +80,7 @@ func (p *Plugin) executeCloseSessionCommand(ctx *plugin.Context, args *model.Com
 
 	sessionID := split[1]
 
-	session, err := p.store.GetSessionByID(sessionID)
+	session, err := p.app.GetSessionByID(sessionID)
 	if err != nil {
 		return &model.CommandResponse{Text: "Failed to get session: " + err.Error()}, nil
 	}
@@ -98,7 +92,7 @@ func (p *Plugin) executeCloseSessionCommand(ctx *plugin.Context, args *model.Com
 	now := model.GetMillis()
 	session.ClosedAt = &now
 
-	err = p.store.UpdateSession(session)
+	err = p.app.UpdateSession(session)
 	if err != nil {
 		return &model.CommandResponse{Text: "Failed to close session: " + err.Error()}, nil
 	}
