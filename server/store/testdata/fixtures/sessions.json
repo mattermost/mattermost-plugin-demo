@@ -1,0 +1,32 @@
+[
+    {
+        "id": "session-fixture-001",
+        "user_id": "user-001",
+        "create_at": 1704067200000,
+        "closed_at": null
+    },
+    {
+        "id": "session-fixture-002",
+        "user_id": "user-002",
+        "create_at": 1704153600000,
+        "closed_at": null
+    },
+    {
+        "id": "session-fixture-003",
+        "user_id": "user-001",
+        "create_at": 1704240000000,
+        "closed_at": 1704326400000
+    },
+    {
+        "id": "session-fixture-004",
+        "user_id": "user-003",
+        "create_at": 1704412800000,
+        "closed_at": null
+    },
+    {
+        "id": "session-fixture-005",
+        "user_id": "user-002",
+        "create_at": 1704499200000,
+        "closed_at": 1704585600000
+    }
+]

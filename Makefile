@@ -305,6 +305,28 @@ ifneq ($(HAS_WEBAPP),)
 	cd webapp && $(NPM) run test;
 endif
 
+## Runs store tests with PostgreSQL.
+.PHONY: test-store
+test-store:
+	@echo "Running store tests with PostgreSQL..."
+	@echo "Make sure PostgreSQL is running (docker-compose up -d postgres)"
+	cd server/store && $(GO) test -v -race -count=1
+
+## Runs store tests with coverage report.
+.PHONY: test-store-coverage
+test-store-coverage:
+	@echo "Running store tests with coverage..."
+	@echo "Make sure PostgreSQL is running (docker-compose up -d postgres)"
+	cd server/store && $(GO) test -v -coverprofile=coverage.out
+	cd server/store && $(GO) tool cover -html=coverage.out -o coverage.html
+	@echo "Coverage report generated: server/store/coverage.html"
+
+## Runs integration tests with dedicated PostgreSQL instance and real migrations.
+.PHONY: test-integration
+test-integration:
+	@echo "Running integration tests..."
+	./scripts/test-integration.sh
+
 ## Creates a coverage report for the server code.
 .PHONY: coverage
 coverage: webapp/node_modules

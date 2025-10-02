@@ -115,6 +115,24 @@ services:
       - mattermost
     restart: unless-stopped
 
+  postgres_test:
+    image: postgres:15
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 100
+    read_only: false
+    tmpfs:
+      - /tmp
+      - /var/run/postgresql
+    environment:
+      POSTGRES_USER: mmuser
+      POSTGRES_PASSWORD: mmuser_password
+      POSTGRES_DB: mattermost_test
+    networks:
+      - testing
+    command: [ "postgres", "-c", "log_statement=all", "-c", "log_destination=stderr" ]
+
 volumes:
   postgres_data:
   mattermost_data:
@@ -128,3 +146,6 @@ volumes:
 networks:
   mattermost:
     driver: bridge
+  testing:
+    driver: bridge
+    name: mattermost_plugin_testing

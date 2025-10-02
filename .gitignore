@@ -10,3 +10,8 @@ dist
 CLAUDE.local.md
 .idea
 /vendor
+
+# tests
+
+/server/store/coverage.html
+/server/store/coverage.out
