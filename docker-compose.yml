@@ -19,6 +19,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - mattermost
+    command: [ "postgres", "-c", "log_statement=all", "-c", "log_destination=stderr" ]
 
   mattermost:
     depends_on:
