@@ -288,10 +288,17 @@ export default class DemoPlugin {
                         },
                     ],
                     title: 'Recibir mensajes',
-                    onSubmit: (v) => {
+                    onSubmit: async (v) => {
                         const enabled = v[PREFERENCE_NAME_WHATSAPP];
-                        store.dispatch(saveWhatsAppPreference(enabled));
-                    }, // eslint-disable-line no-alert
+                        const finalValue = await store.dispatch(saveWhatsAppPreference(enabled));
+
+                        if (finalValue !== enabled && finalValue === 'off') {
+                            const offInput = document.querySelector(`input[name="${PREFERENCE_NAME_WHATSAPP}"][value="off"]`);
+                            if (offInput && !offInput.checked) {
+                                offInput.click();
+                            }
+                        }
+                    },
                 },
             ],
         });

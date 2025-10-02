@@ -13,3 +13,7 @@ export const SET_WHATSAPP_PREF = pluginId + '_set_whats_pref';
 export const SET_USER_PREFS = pluginId + '_set_user_pref';
 
 export const SET_ACTIVE_USERS = pluginId + '_set_active_users';
+
+export const SET_SESSION = pluginId + '_set_session';
+export const SET_SESSION_ERROR = pluginId + '_set_session_error';
+export const CLEAR_SESSION = pluginId + '_clear_session';

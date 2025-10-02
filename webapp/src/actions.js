@@ -1,7 +1,6 @@
 import {getConfig} from 'mattermost-redux/selectors/entities/general';
 import {getCurrentUserId} from 'mattermost-redux/selectors/entities/common';
 import {getMyPreferences} from 'mattermost-redux/selectors/entities/preferences';
-import {getCurrentTeamUrl} from 'mattermost-redux/selectors/entities/teams';
 
 import {id as PluginId} from './manifest';
 
@@ -12,6 +11,9 @@ import {
     SET_WHATSAPP_PREF,
     STATUS_CHANGE,
     SUBMENU,
+    SET_SESSION,
+    SET_SESSION_ERROR,
+    CLEAR_SESSION,
 } from './action_types';
 import {PREFERENCE_NAME_WHATSAPP} from './constants';
 
@@ -67,22 +69,58 @@ export const getStatus = () => async (dispatch, getState) => {
     });
 };
 
-export const saveWhatsAppPreference = (enabled) => async (dispatch, getState) => {
+export const getMyActiveSession = () => async (dispatch, getState) => {
+    const state = getState();
+    const url = `${getPluginServerRoute(state)}/sessions/active`;
+    try {
+        const res = await fetch(url, {method: 'GET'});
+        if (res.status === 404) {
+            dispatch({type: SET_SESSION, data: null});
+            dispatch({type: SET_SESSION_ERROR, error: 'not_found'});
+            return null;
+        }
+        if (!res.ok) {
+            const text = await res.text();
+            dispatch({type: SET_SESSION_ERROR, error: `http_${res.status}: ${text}`});
+            return null;
+        }
+        const data = await res.json();
+        dispatch({type: SET_SESSION, data});
+        dispatch({type: SET_SESSION_ERROR, error: null});
+        return data;
+    } catch (err) {
+        dispatch({type: SET_SESSION_ERROR, error: String(err)});
+        return null;
+    }
+};
+
+export const saveWhatsAppPreference = (enabled, options = {}) => async (dispatch, getState) => {
     const state = getState();
     const userId = getCurrentUserId(state);
     const url = `${getPluginServerRoute(state)}/whatsapp/preferences`;
 
+    let enabledToSave = enabled;
+    if (enabled === 'on') {
+        const session = await dispatch(getMyActiveSession());
+        const isActive = Boolean(session && !session.closedAt);
+        if (!isActive) {
+            // eslint-disable-next-line no-alert
+            alert('No hay una sesión activa. La preferencia se mantendrá en Off.');
+            enabledToSave = 'off';
+            dispatch({type: SET_WHATSAPP_PREF, data: enabledToSave});
+            return enabledToSave;
+        }
+    }
+
     try {
         const body = JSON.stringify({
-            receive_notifications: enabled === 'on',
+            receive_notifications: enabledToSave === 'on',
             user_id: userId,
         });
 
         const response = await fetch(url, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: {'Content-Type': 'application/json'},
             body,
         });
 
@@ -91,12 +129,12 @@ export const saveWhatsAppPreference = (enabled) => async (dispatch, getState) =>
             throw new Error(`HTTP Error ${response.status}: ${errorText}`);
         }
 
-        dispatch({
-            type: SET_WHATSAPP_PREF,
-            data: enabled,
-        });
+        dispatch({type: SET_WHATSAPP_PREF, data: enabledToSave});
+        return enabledToSave;
     } catch (error) {
+        // eslint-disable-next-line no-console
         console.error('Error guardando la preferencia de WhatsApp:', error);
+        return enabledToSave;
     }
 };
 
@@ -130,7 +168,7 @@ export const getActiveUsers = () => async (dispatch, getState) => {
         });
 };
 
-export const syncActiveUsers = (users) => async (dispatch, _) => {
+export const syncActiveUsers = (users) => async (dispatch) => {
     dispatch({
         type: SET_ACTIVE_USERS,
         data: users,

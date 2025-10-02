@@ -8,6 +8,9 @@ import {
     SET_WHATSAPP_PREF,
     SET_USER_PREFS,
     SET_ACTIVE_USERS,
+    SET_SESSION,
+    SET_SESSION_ERROR,
+    CLEAR_SESSION,
 } from './action_types';
 
 const preferencesInitialState = {
@@ -16,6 +19,11 @@ const preferencesInitialState = {
 
 const activeUsersInitialState = {
     users: [],
+};
+
+const sessionInitialState = {
+    data: null,
+    error: null,
 };
 
 const enabled = (state = false, action) => {
@@ -78,11 +86,30 @@ const activeUsers = (state = activeUsersInitialState, action) => {
     }
 };
 
+const session = (state = sessionInitialState, action) => {
+    switch (action.type) {
+    case SET_SESSION:
+        return {
+            ...state,
+            data: action.data,
+        };
+    case SET_SESSION_ERROR:
+        return {
+            ...state,
+            error: action.error,
+        };
+    case CLEAR_SESSION:
+        return sessionInitialState;
+    default:
+        return state;
+    }
+};
+
 export default combineReducers({
     enabled,
     rootModalVisible,
     subMenu,
     preferences,
     activeUsers,
+    session,
 });
-

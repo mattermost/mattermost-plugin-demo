@@ -21,4 +21,5 @@ type Store interface {
 	GetChannelByID(id string) (*model.Channel, error)
 	UpdateChannel(channel *model.Channel) error
 	DeleteChannel(id string) error
+	GetActiveSessionByUserID(userID string) (*model.Session, error)
 }

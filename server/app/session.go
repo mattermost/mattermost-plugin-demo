@@ -63,3 +63,11 @@ func (a *WhatsappApp) DeleteSession(sessionID string) error {
 
 	return nil
 }
+
+func (a *WhatsappApp) GetActiveSessionByUserID(userID string) (*model.Session, error) {
+	session, err := a.store.GetActiveSessionByUserID(userID)
+	if err != nil {
+		return nil, errors.Wrap(err, "GetActiveSessionByUserID: failed to get active session")
+	}
+	return session, nil
+}

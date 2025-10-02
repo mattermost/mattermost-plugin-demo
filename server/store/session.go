@@ -164,3 +164,37 @@ func (s *SQLStore) DeleteSession(id string) error {
 
 	return nil
 }
+
+func (s *SQLStore) GetActiveSessionByUserID(userID string) (*model.Session, error) {
+	row := s.getQueryBuilder().
+		Select(s.sessionColumns()...).
+		From(s.tablePrefix+"session").
+		Where("user_id = ? AND closed_at IS NULL", userID).
+		OrderBy("create_at DESC").
+		Limit(1).
+		QueryRow()
+
+	var session model.Session
+	var closedAt sql.NullInt64
+
+	err := row.Scan(
+		&session.ID,
+		&session.UserID,
+		&session.CreateAt,
+		&closedAt,
+	)
+
+	if err == sql.ErrNoRows {
+		return nil, errors.New("session not found")
+	}
+
+	if err != nil {
+		return nil, errors.Wrap(err, "GetActiveSessionByUserID: failed to scan session")
+	}
+
+	if closedAt.Valid {
+		session.ClosedAt = &closedAt.Int64
+	}
+
+	return &session, nil
+}

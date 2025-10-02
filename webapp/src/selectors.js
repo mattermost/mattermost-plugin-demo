@@ -12,3 +12,6 @@ export const isReceiveWhatsappMessages = (state) =>
     getPluginState(state).preferences.whatsapp;
 
 export const getActiveUsers = (state) => getPluginState(state).activeUsers.users;
+
+export const getSession = (state) => getPluginState(state).session?.data;
+export const getSessionError = (state) => getPluginState(state).session?.error;
