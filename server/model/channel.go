@@ -15,6 +15,7 @@ func (c *Channel) SetDefaults() {
 	if c.ID == "" {
 		c.ID = utils.NewID()
 	}
+
 }
 
 func (c *Channel) IsValid() error {
