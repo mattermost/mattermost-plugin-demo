@@ -63,14 +63,6 @@ func (api *Handlers) handleUpdateSession(w http.ResponseWriter, r *http.Request)
 }
 
 func (api *Handlers) handleCreateSession(w http.ResponseWriter, r *http.Request) {
-	if err := api.RequireAuthentication(w, r); err != nil {
-		return
-	}
-
-	if err := api.RequireSystemAdmin(w, r); err != nil {
-		return
-	}
-
 	var requestData struct {
 		UserID string `json:"userID"`
 	}
@@ -90,7 +82,7 @@ func (api *Handlers) handleCreateSession(w http.ResponseWriter, r *http.Request)
 		http.Error(w, "Failed to create session: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
-	err = api.PublishPreferenceUpdateEvent()
+	err = api.PublishPreferenceUpdateEvent(&requestData.UserID)
 	if err != nil {
 		return
 	}
@@ -99,13 +91,6 @@ func (api *Handlers) handleCreateSession(w http.ResponseWriter, r *http.Request)
 }
 
 func (api *Handlers) handleGetSessionByUserID(w http.ResponseWriter, r *http.Request) {
-	if err := api.RequireAuthentication(w, r); err != nil {
-		return
-	}
-	if err := api.RequireSystemAdmin(w, r); err != nil {
-		return
-	}
-
 	vars := mux.Vars(r)
 	userID, ok := vars["userID"]
 	if !ok || userID == "" {
@@ -122,7 +107,7 @@ func (api *Handlers) handleGetSessionByUserID(w http.ResponseWriter, r *http.Req
 		http.Error(w, "failed to get session by user: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
-	api.PublishPreferenceUpdateEventForUser(userID)
+	api.PublishPreferenceUpdateEvent(&userID)
 
 	jsonResponse(w, http.StatusOK, sess)
 }
@@ -152,7 +137,7 @@ func (api *Handlers) handleCloseSession(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "Failed to close session(s): "+err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if err := api.PublishPreferenceUpdateEvent(); err != nil {
+	if err := api.PublishPreferenceUpdateEvent(nil); err != nil {
 		return
 	}
 
@@ -169,10 +154,17 @@ func (api *Handlers) handleCloseSession(w http.ResponseWriter, r *http.Request) 
 	})
 }
 
-func (api *Handlers) PublishPreferenceUpdateEvent() error {
+func (api *Handlers) PublishPreferenceUpdateEvent(userID *string) error {
 	sessions, err := api.app.GetSessions()
 	if err != nil {
 		return errors.Wrap(err, "failed to get sessions from Mattermost API")
+	}
+	var broadcast MattermostModel.WebsocketBroadcast
+
+	if userID != nil {
+		broadcast = MattermostModel.WebsocketBroadcast{
+			UserId: *userID,
+		}
 	}
 
 	var activeUsers []*MattermostModel.User
@@ -201,18 +193,7 @@ func (api *Handlers) PublishPreferenceUpdateEvent() error {
 	api.pluginAPI.PublishWebSocketEvent(
 		WebsocketEventPreferenceUpdated,
 		payload,
-		&MattermostModel.WebsocketBroadcast{},
-	)
-	return nil
-}
-
-func (api *Handlers) PublishPreferenceUpdateEventForUser(userID string) error {
-	api.pluginAPI.PublishWebSocketEvent(
-		WebsocketEventPreferenceUpdated,
-		map[string]interface{}{},
-		&MattermostModel.WebsocketBroadcast{
-			UserId: userID,
-		},
+		&broadcast,
 	)
 	return nil
 }
