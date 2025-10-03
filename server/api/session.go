@@ -8,9 +8,20 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
 
 	"github.com/itstar-tech/mattermost-plugin-demo/server/model"
+
+	MattermostModel "github.com/mattermost/mattermost/server/public/model"
 )
+
+const (
+	WebsocketEventPreferenceUpdated = "whatsapp_preference_updated"
+)
+
+type SessionsResponse struct {
+	ActiveUsers []*MattermostModel.User `json:"active_users"`
+}
 
 func (api *Handlers) handleUpdateSession(w http.ResponseWriter, r *http.Request) {
 	if err := api.RequireAuthentication(w, r); err != nil {
@@ -108,22 +119,35 @@ func (api *Handlers) handleGetSession(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, http.StatusOK, session)
 }
 
-func (api *Handlers) handleListSessions(w http.ResponseWriter, r *http.Request) {
-	if err := api.RequireAuthentication(w, r); err != nil {
-		return
-	}
-
-	if err := api.RequireSystemAdmin(w, r); err != nil {
-		return
-	}
+func (api *Handlers) handleListSessions(w http.ResponseWriter, _ *http.Request) {
 
 	sessions, err := api.app.GetSessions()
+
 	if err != nil {
 		http.Error(w, "Failed to list sessions: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	jsonResponse(w, http.StatusOK, sessions)
+	var activeUsers []*MattermostModel.User
+	for _, session := range sessions {
+		user, err := api.pluginAPI.GetUser(session.UserID)
+		if err != nil || user == nil {
+			http.Error(w, "Failed to get user: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		activeUsers = append(activeUsers, user)
+	}
+
+	resp := SessionsResponse{
+		ActiveUsers: activeUsers,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(resp)
+	if err != nil {
+		return
+	}
 }
 
 func (api *Handlers) handleDeleteSession(w http.ResponseWriter, r *http.Request) {
@@ -148,4 +172,41 @@ func (api *Handlers) handleDeleteSession(w http.ResponseWriter, r *http.Request)
 	}
 
 	ReturnStatusOK(w)
+}
+
+func (api *Handlers) PublishPreferenceUpdateEvent() error {
+	sessions, err := api.app.GetSessions()
+	if err != nil {
+		return errors.Wrap(err, "failed to get sessions from Mattermost API")
+	}
+
+	var activeUsers []*MattermostModel.User
+	for _, session := range sessions {
+		user, err := api.pluginAPI.GetUser(session.UserID)
+		if err != nil {
+			continue
+		}
+		activeUsers = append(activeUsers, user)
+	}
+
+	activeUsersJson := SessionsResponse{
+		ActiveUsers: activeUsers,
+	}
+
+	jsonData, err := json.Marshal(activeUsersJson)
+	if err != nil {
+		return errors.Wrap(err, "failed to marshal active users to JSON")
+	}
+
+	var payload map[string]interface{}
+	if err := json.Unmarshal(jsonData, &payload); err != nil {
+		return errors.Wrap(err, "failed to unmarshal active users to JSON")
+	}
+
+	api.pluginAPI.PublishWebSocketEvent(
+		WebsocketEventPreferenceUpdated,
+		payload,
+		&MattermostModel.WebsocketBroadcast{},
+	)
+	return nil
 }

@@ -25,15 +25,16 @@ func (s *SQLStore) GetSessions() ([]*model.Session, error) {
 	rows, err := s.getQueryBuilder().
 		Select(s.sessionColumns()...).
 		From(s.tablePrefix + "session").
+		Where("closed_at IS NULL").
 		Query()
 
 	if err != nil {
-		return nil, errors.Wrap(err, "SQLStore.GetInProgressSurvey failed to fetch survey by status from database")
+		return nil, errors.Wrap(err, "SQLStore.GetSessions failed to fetch sessions from database")
 	}
 
 	sessions, err := s.SessionsFromRows(rows)
 	if err != nil {
-		return nil, errors.Wrap(err, "GetSurveysByStatus: failed to map survey rows to surveys")
+		return nil, errors.Wrap(err, "SQLStore.GetSessions: failed to map session rows to sessions")
 	}
 
 	return sessions, nil

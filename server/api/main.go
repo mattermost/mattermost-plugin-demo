@@ -42,6 +42,9 @@ func (api *Handlers) initRoutes() {
 	sessionsRouter.HandleFunc("/{sessionID}", api.handleGetSession).Methods(http.MethodGet)
 	sessionsRouter.HandleFunc("/{sessionID}", api.handleUpdateSession).Methods(http.MethodPut)
 	sessionsRouter.HandleFunc("/{sessionID}", api.handleDeleteSession).Methods(http.MethodDelete)
+	webhooksRouter := api.Router.PathPrefix("/webhooks").Subrouter()
+	webhooksRouter.HandleFunc("/whatsapp", api.handleWhatsAppWebhook).Methods(http.MethodPost)
+
 }
 
 func (api *Handlers) handlePing(w http.ResponseWriter, r *http.Request) {

@@ -115,7 +115,7 @@ export const syncWhatsappPreferences = () => async (dispatch, getState) => {
 
 export const getActiveUsers = () => async (dispatch, getState) => {
     const state = getState();
-    const url = `${getPluginServerRoute(state)}/whatsapp/enabled/users`;
+    const url = `${getPluginServerRoute(state)}/sessions`;
 
     return fetch(url, {method: 'GET'}).
         then((r) => r.json()).
