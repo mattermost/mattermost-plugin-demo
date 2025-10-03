@@ -68,7 +68,6 @@ export const getStatus = () => async (dispatch, getState) => {
 };
 
 async function getSessionIdByUserId(baseUrl, userId) {
-    
     const res = await fetch(`${baseUrl}/sessions/${encodeURIComponent(userId)}`, {method: 'GET'});
     if (!res.ok) {
         return null;
@@ -138,7 +137,6 @@ export const syncWhatsappPreferences = () => async (dispatch, getState) => {
         console.error('Error sincronizando preferencia WhatsApp:', e);
     }
 
-    
     const PreSavedPreferenceList = getMyPreferences(state);
     const whatsappSetting = PreSavedPreferenceList[`pp_${PluginId}--${PREFERENCE_NAME_WHATSAPP}`];
     if (whatsappSetting?.value) {
@@ -147,7 +145,7 @@ export const syncWhatsappPreferences = () => async (dispatch, getState) => {
             data: whatsappSetting.value,
         });
     }
-};// caniar y crear un fech al servido para preguntar si el usuario tiene una session
+};
 
 export const getActiveUsers = () => async (dispatch, getState) => {
     const state = getState();
