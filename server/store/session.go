@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/itstar-tech/mattermost-plugin-demo/server/model"
+	MattermostModel "github.com/mattermost/mattermost/server/public/model"
 )
 
 func (s *SQLStore) sessionColumns() []string {
@@ -38,6 +39,38 @@ func (s *SQLStore) GetSessions() ([]*model.Session, error) {
 	}
 
 	return sessions, nil
+}
+
+func (s *SQLStore) GetActiveUsers() ([]*MattermostModel.User, error) {
+
+	rows, err := s.getQueryBuilder().
+		Select("user_id").
+		From(s.tablePrefix + "session").
+		Where("closed_at IS NULL").
+		Query()
+
+	if err != nil {
+		return nil, errors.Wrap(err, "SQLStore.GetSessions failed to fetch sessions from database")
+	}
+
+	var userIDs []string
+	for rows.Next() {
+		var userID string
+		if err := rows.Scan(&userID); err != nil {
+			return nil, errors.Wrap(err, "SQLStore.GetActiveUsers failed to scan user ID from row")
+		}
+		userIDs = append(userIDs, userID)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, errors.Wrap(err, "SQLStore.GetActiveUsers rows iteration failed")
+	}
+	users, err := s.pluginAPI.GetUsersByIds(userIDs)
+	if err != nil {
+		return nil, errors.Wrap(err, "SQLStore.GetActiveUsers failed to fetch users by IDs from plugin API")
+	}
+
+	return users, nil
 }
 
 func (s *SQLStore) SessionsFromRows(rows *sql.Rows) ([]*model.Session, error) {
@@ -92,11 +125,11 @@ func (s *SQLStore) CreateSession(session *model.Session) error {
 	return nil
 }
 
-func (s *SQLStore) GetSessionByID(id string) (*model.Session, error) {
+func (s *SQLStore) GetSessionByUserId(id string) (*model.Session, error) {
 	row := s.getQueryBuilder().
 		Select(s.sessionColumns()...).
 		From(s.tablePrefix+"session").
-		Where("id = ?", id).
+		Where("user_id = ?", id).
 		QueryRow()
 
 	var session model.Session
@@ -144,23 +177,15 @@ func (s *SQLStore) UpdateSession(session *model.Session) error {
 	return nil
 }
 
-func (s *SQLStore) DeleteSession(id string) error {
-	result, err := s.getQueryBuilder().
-		Delete(s.tablePrefix+"session").
-		Where("id = ?", id).
+func (s *SQLStore) CloseSessionsFromUserId(id string) error {
+	_, err := s.getQueryBuilder().
+		Update(s.tablePrefix+"session").
+		Set("closed_at", MattermostModel.GetMillis()).
+		Where("user_id = ? AND closed_at IS NULL", id).
 		Exec()
 
 	if err != nil {
-		return errors.Wrap(err, "DeleteSession: failed to delete session from database")
-	}
-
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return errors.Wrap(err, "DeleteSession: failed to get rows affected")
-	}
-
-	if rowsAffected == 0 {
-		return errors.New("DeleteSession: session not found")
+		return errors.Wrap(err, "CloseSessionsFromUserId: failed to close sessions in database")
 	}
 
 	return nil

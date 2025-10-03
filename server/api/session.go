@@ -33,13 +33,13 @@ func (api *Handlers) handleUpdateSession(w http.ResponseWriter, r *http.Request)
 	}
 
 	vars := mux.Vars(r)
-	sessionID, ok := vars["sessionID"]
+	userID, ok := vars["userID"]
 	if !ok {
-		http.Error(w, "missing session ID in request", http.StatusBadRequest)
+		http.Error(w, "missing user ID in request", http.StatusBadRequest)
 		return
 	}
 
-	session, err := api.app.GetSessionByID(sessionID)
+	session, err := api.app.GetSessionByUserId(userID)
 	if err != nil {
 		http.Error(w, "Failed to get session: "+err.Error(), http.StatusNotFound)
 		return
@@ -94,7 +94,7 @@ func (api *Handlers) handleCreateSession(w http.ResponseWriter, r *http.Request)
 	jsonResponse(w, http.StatusCreated, session)
 }
 
-func (api *Handlers) handleGetSession(w http.ResponseWriter, r *http.Request) {
+func (api *Handlers) handleGetSessionByUserID(w http.ResponseWriter, r *http.Request) {
 	if err := api.RequireAuthentication(w, r); err != nil {
 		return
 	}
@@ -104,13 +104,13 @@ func (api *Handlers) handleGetSession(w http.ResponseWriter, r *http.Request) {
 	}
 
 	vars := mux.Vars(r)
-	sessionID, ok := vars["sessionID"]
+	userID, ok := vars["userID"]
 	if !ok {
 		http.Error(w, "missing session ID in request", http.StatusBadRequest)
 		return
 	}
 
-	session, err := api.app.GetSessionByID(sessionID)
+	session, err := api.app.GetSessionByUserId(userID)
 	if err != nil {
 		http.Error(w, "Failed to get session: "+err.Error(), http.StatusNotFound)
 		return
@@ -119,23 +119,13 @@ func (api *Handlers) handleGetSession(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, http.StatusOK, session)
 }
 
-func (api *Handlers) handleListSessions(w http.ResponseWriter, _ *http.Request) {
+func (api *Handlers) handleListActiveUsers(w http.ResponseWriter, _ *http.Request) {
 
-	sessions, err := api.app.GetSessions()
+	activeUsers, err := api.app.GetActiveUsers()
 
 	if err != nil {
 		http.Error(w, "Failed to list sessions: "+err.Error(), http.StatusInternalServerError)
 		return
-	}
-
-	var activeUsers []*MattermostModel.User
-	for _, session := range sessions {
-		user, err := api.pluginAPI.GetUser(session.UserID)
-		if err != nil || user == nil {
-			http.Error(w, "Failed to get user: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-		activeUsers = append(activeUsers, user)
 	}
 
 	resp := SessionsResponse{
@@ -150,7 +140,7 @@ func (api *Handlers) handleListSessions(w http.ResponseWriter, _ *http.Request) 
 	}
 }
 
-func (api *Handlers) handleDeleteSession(w http.ResponseWriter, r *http.Request) {
+func (api *Handlers) handleCloseSession(w http.ResponseWriter, r *http.Request) {
 	if err := api.RequireAuthentication(w, r); err != nil {
 		return
 	}
@@ -160,13 +150,13 @@ func (api *Handlers) handleDeleteSession(w http.ResponseWriter, r *http.Request)
 	}
 
 	vars := mux.Vars(r)
-	sessionID, ok := vars["sessionID"]
+	userID, ok := vars["userID"]
 	if !ok {
 		http.Error(w, "missing session ID in request", http.StatusBadRequest)
 		return
 	}
 
-	if err := api.app.DeleteSession(sessionID); err != nil {
+	if err := api.app.CloseSessionsFromUserId(userID); err != nil {
 		http.Error(w, "Failed to delete session: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -175,18 +165,9 @@ func (api *Handlers) handleDeleteSession(w http.ResponseWriter, r *http.Request)
 }
 
 func (api *Handlers) PublishPreferenceUpdateEvent() error {
-	sessions, err := api.app.GetSessions()
+	activeUsers, err := api.app.GetActiveUsers()
 	if err != nil {
 		return errors.Wrap(err, "failed to get sessions from Mattermost API")
-	}
-
-	var activeUsers []*MattermostModel.User
-	for _, session := range sessions {
-		user, err := api.pluginAPI.GetUser(session.UserID)
-		if err != nil {
-			continue
-		}
-		activeUsers = append(activeUsers, user)
 	}
 
 	activeUsersJson := SessionsResponse{

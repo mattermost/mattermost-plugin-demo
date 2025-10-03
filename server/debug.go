@@ -92,34 +92,16 @@ func (p *Plugin) executeCreateSessionCommand(ctx *plugin.Context, args *model.Co
 }
 
 func (p *Plugin) executeCloseSessionCommand(ctx *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
-	split := strings.Fields(args.Command)
-	if len(split) < 2 {
-		return &model.CommandResponse{Text: "Usage: /closesession <session_id>"}, nil
-	}
-
-	sessionID := split[1]
-
-	session, err := p.app.GetSessionByID(sessionID)
+	err := p.app.CloseSessionsFromUserId(args.UserId)
 	if err != nil {
 		return &model.CommandResponse{Text: "Failed to get session: " + err.Error()}, nil
 	}
 
-	if session.ClosedAt != nil {
-		return &model.CommandResponse{Text: "Session is already closed"}, nil
-	}
-
-	now := model.GetMillis()
-	session.ClosedAt = &now
-
-	err = p.app.UpdateSession(session)
-	if err != nil {
-		return &model.CommandResponse{Text: "Failed to close session: " + err.Error()}, nil
-	}
 	err = p.apiHandlers.PublishPreferenceUpdateEvent()
 	if err != nil {
 		return &model.CommandResponse{Text: "Failed to publish preference update event: " + err.Error()}, nil
 	}
-	return &model.CommandResponse{Text: "Session " + sessionID + " closed successfully"}, nil
+	return &model.CommandResponse{Text: "Sessions closed successfully"}, nil
 }
 
 func (p *Plugin) executeCreateChannelCommand(ctx *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {

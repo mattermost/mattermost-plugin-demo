@@ -7,6 +7,8 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/itstar-tech/mattermost-plugin-demo/server/model"
+
+	MattermostModel "github.com/mattermost/mattermost/server/public/model"
 )
 
 func (app *WhatsappApp) CreateSession(userID string) (*model.Session, error) {
@@ -26,8 +28,8 @@ func (app *WhatsappApp) CreateSession(userID string) (*model.Session, error) {
 	return session, nil
 }
 
-func (app *WhatsappApp) GetSessionByID(sessionID string) (*model.Session, error) {
-	session, err := app.store.GetSessionByID(sessionID)
+func (app *WhatsappApp) GetSessionByUserId(sessionID string) (*model.Session, error) {
+	session, err := app.store.GetSessionByUserId(sessionID)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetSessionByID: failed to get session")
 	}
@@ -47,6 +49,15 @@ func (app *WhatsappApp) UpdateSession(session *model.Session) error {
 	return nil
 }
 
+func (app *WhatsappApp) GetActiveUsers() ([]*MattermostModel.User, error) {
+	users, err := app.store.GetActiveUsers()
+	if err != nil {
+		return nil, errors.Wrap(err, "GetSessions: failed to get sessions")
+	}
+
+	return users, nil
+}
+
 func (app *WhatsappApp) GetSessions() ([]*model.Session, error) {
 	sessions, err := app.store.GetSessions()
 	if err != nil {
@@ -56,8 +67,8 @@ func (app *WhatsappApp) GetSessions() ([]*model.Session, error) {
 	return sessions, nil
 }
 
-func (app *WhatsappApp) DeleteSession(sessionID string) error {
-	if err := app.store.DeleteSession(sessionID); err != nil {
+func (app *WhatsappApp) CloseSessionsFromUserId(userID string) error {
+	if err := app.store.CloseSessionsFromUserId(userID); err != nil {
 		return errors.Wrap(err, "DeleteSession: failed to delete session")
 	}
 

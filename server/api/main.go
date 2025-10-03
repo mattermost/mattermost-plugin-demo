@@ -37,11 +37,11 @@ func New(app *app.WhatsappApp, pluginAPI plugin.API) *Handlers {
 func (api *Handlers) initRoutes() {
 	api.Router = mux.NewRouter()
 	sessionsRouter := api.Router.PathPrefix("/sessions").Subrouter()
-	sessionsRouter.HandleFunc("", api.handleListSessions).Methods(http.MethodGet)
+	sessionsRouter.HandleFunc("", api.handleListActiveUsers).Methods(http.MethodGet)
 	sessionsRouter.HandleFunc("", api.handleCreateSession).Methods(http.MethodPost)
-	sessionsRouter.HandleFunc("/{sessionID}", api.handleGetSession).Methods(http.MethodGet)
-	sessionsRouter.HandleFunc("/{sessionID}", api.handleUpdateSession).Methods(http.MethodPut)
-	sessionsRouter.HandleFunc("/{sessionID}", api.handleDeleteSession).Methods(http.MethodDelete)
+	sessionsRouter.HandleFunc("/{userID}", api.handleGetSessionByUserID).Methods(http.MethodGet)
+	sessionsRouter.HandleFunc("/{userID}", api.handleUpdateSession).Methods(http.MethodPut)
+	sessionsRouter.HandleFunc("/{userID}", api.handleCloseSession).Methods(http.MethodDelete)
 	webhooksRouter := api.Router.PathPrefix("/webhooks").Subrouter()
 	webhooksRouter.HandleFunc("/whatsapp", api.handleWhatsAppWebhook).Methods(http.MethodPost)
 
