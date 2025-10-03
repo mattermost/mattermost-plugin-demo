@@ -122,12 +122,12 @@ func (api *Handlers) handleGetSessionByUserID(w http.ResponseWriter, r *http.Req
 		http.Error(w, "failed to get session by user: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+	api.PublishPreferenceUpdateEventForUser(userID)
 
 		jsonResponse(w, http.StatusOK, sess)
 }
 
-	// yo necesito obtenerlo por el  user ID, tengo que hacer un endpoint que va optener la session pero por el id del usuario,
-	// creare una funcion cada cre se
+
 
 func (api *Handlers) handleListActiveUsers(w http.ResponseWriter, _ *http.Request) {
 	users, err := api.app.GetActiveUsers()
@@ -163,14 +163,23 @@ func (api *Handlers) handleCloseSession(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	if err := api.PublishPreferenceUpdateEvent(); err != nil {
-		// Best-effort websocket broadcast; do not fail the request
+		return
 	}
 
-	ReturnStatusOK(w)
+	var closedAt interface{} = nil
+	if sess, err := api.app.GetSessionByUserId(userID); err == nil {
+		if sess.ClosedAt != nil {
+			closedAt = *sess.ClosedAt
+		}
+	}
+
+	jsonResponse(w, http.StatusOK, map[string]interface{}{
+		"status":    "OK",
+		"closed_at": closedAt,
+	})
 }
 
-// escribir un websocker hara  casi lo mismo de publus reference update event
-// el web socket solo sevvirar que serraste la session notificara eso y debe actualizar su storage
+
 func (api *Handlers) PublishPreferenceUpdateEvent() error {
 	sessions, err := api.app.GetSessions()
 	if err != nil {

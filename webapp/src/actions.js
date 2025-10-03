@@ -114,18 +114,39 @@ export const saveWhatsAppPreference = (enabled) => async (dispatch, getState) =>
 // cuando elimino por nerlo en null  si el objero session exite deber ser en on
 
 export const syncWhatsappPreferences = () => async (dispatch, getState) => {
-    //mado a llamar al endopoint que acabo de hacer, y traigo la session si es que tiene
-    //luego mando la session en el storage
     const state = getState();
+    const baseUrl = getPluginServerRoute(state);
+    const userId = getCurrentUserId(state);
 
+    try {
+        const res = await fetch(`${baseUrl}/sessions/${encodeURIComponent(userId)}`, {method: 'GET'});
+        if (res.ok) {
+            dispatch({
+                type: SET_WHATSAPP_PREF,
+                data: 'on',
+            });
+            return;
+        }
+        if (res.status === 404) {
+            dispatch({
+                type: SET_WHATSAPP_PREF,
+                data: 'off',
+            });
+            return;
+        }
+    } catch (e) {
+        console.error('Error sincronizando preferencia WhatsApp:', e);
+    }
+
+    
     const PreSavedPreferenceList = getMyPreferences(state);
-
     const whatsappSetting = PreSavedPreferenceList[`pp_${PluginId}--${PREFERENCE_NAME_WHATSAPP}`];
-
-    dispatch({
-        type: SET_WHATSAPP_PREF,
-        data: whatsappSetting.value,
-    });
+    if (whatsappSetting?.value) {
+        dispatch({
+            type: SET_WHATSAPP_PREF,
+            data: whatsappSetting.value,
+        });
+    }
 };// caniar y crear un fech al servido para preguntar si el usuario tiene una session
 
 export const getActiveUsers = () => async (dispatch, getState) => {
