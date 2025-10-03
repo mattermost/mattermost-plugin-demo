@@ -8,7 +8,9 @@ import (
 	"net/http"
 	"sync"
 
+	mmModel "github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/pluginapi/cluster"
+	"github.com/pkg/errors"
 
 	"github.com/itstar-tech/mattermost-plugin-demo/server/api"
 	"github.com/itstar-tech/mattermost-plugin-demo/server/model"
@@ -35,6 +37,8 @@ type Plugin struct {
 	store       store.Store
 	app         *app.WhatsappApp
 	apiHandlers *api.Handlers
+
+	client *pluginapi.Client
 
 	jobs []*cluster.Job
 }
@@ -117,11 +121,23 @@ func (p *Plugin) getMasterDB() (*sql.DB, error) {
 }
 
 func (p *Plugin) initApp(store store.Store) (*app.WhatsappApp, error) {
+	if p.client == nil {
+		p.client = pluginapi.NewClient(p.API, p.Driver)
+	}
 	getConfigFunc := func() *model.Config {
 		return p.getConfiguration()
 	}
 
-	return app.New(p.API, store, getConfigFunc, p.Driver)
+	whatsappBotID, ensureBotError := p.client.Bot.EnsureBot(&mmModel.Bot{
+		Username:    "whatsapp",
+		DisplayName: "WhatsApp Bot",
+		Description: "The WhatsApp Bot",
+	}, pluginapi.ProfileImagePath("/assets/whatsapp-icon.png"))
+	if ensureBotError != nil {
+		return nil, errors.Wrap(ensureBotError, "failed to ensure whatsapp bot")
+	}
+
+	return app.New(p.API, store, getConfigFunc, p.Driver, whatsappBotID)
 }
 
 func (p *Plugin) initAPI(app *app.WhatsappApp) *api.Handlers {

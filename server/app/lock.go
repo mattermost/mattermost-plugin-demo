@@ -9,22 +9,22 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (a *WhatsappApp) TryLock(key string, value []byte) (bool, error) {
-	locked, appErr := a.api.KVCompareAndSet(key, nil, value)
+func (app *WhatsappApp) TryLock(key string, value []byte) (bool, error) {
+	locked, appErr := app.api.KVCompareAndSet(key, nil, value)
 	if appErr != nil {
 		msg := fmt.Sprintf("TryLock: failed to save value in KV store via KVCompareAndSet, key: %s, value: %s, error: %s", key, value, appErr.Error())
-		a.api.LogError(msg)
+		app.api.LogError(msg)
 		return false, errors.New(msg)
 	}
 
 	return locked, nil
 }
 
-func (a *WhatsappApp) Unlock(key string, value []byte) (bool, error) {
-	unlocked, appErr := a.api.KVCompareAndDelete(key, value)
+func (app *WhatsappApp) Unlock(key string, value []byte) (bool, error) {
+	unlocked, appErr := app.api.KVCompareAndDelete(key, value)
 	if appErr != nil {
 		msg := fmt.Sprintf("Unlock: failed to delete KV store entry, key: %s, error: %s", key, appErr.Error())
-		a.api.LogError(msg)
+		app.api.LogError(msg)
 		return false, errors.New(msg)
 	}
 

@@ -9,7 +9,7 @@ import (
 	"github.com/itstar-tech/mattermost-plugin-demo/server/model"
 )
 
-func (a *WhatsappApp) CreateSession(userID string) (*model.Session, error) {
+func (app *WhatsappApp) CreateSession(userID string) (*model.Session, error) {
 	session := &model.Session{
 		UserID: userID,
 	}
@@ -19,15 +19,15 @@ func (a *WhatsappApp) CreateSession(userID string) (*model.Session, error) {
 		return nil, errors.Wrap(err, "CreateSession: session is not valid")
 	}
 
-	if err := a.store.CreateSession(session); err != nil {
+	if err := app.store.CreateSession(session); err != nil {
 		return nil, err
 	}
 
 	return session, nil
 }
 
-func (a *WhatsappApp) GetSessionByID(sessionID string) (*model.Session, error) {
-	session, err := a.store.GetSessionByID(sessionID)
+func (app *WhatsappApp) GetSessionByID(sessionID string) (*model.Session, error) {
+	session, err := app.store.GetSessionByID(sessionID)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetSessionByID: failed to get session")
 	}
@@ -35,20 +35,20 @@ func (a *WhatsappApp) GetSessionByID(sessionID string) (*model.Session, error) {
 	return session, nil
 }
 
-func (a *WhatsappApp) UpdateSession(session *model.Session) error {
+func (app *WhatsappApp) UpdateSession(session *model.Session) error {
 	if err := session.IsValid(); err != nil {
 		return errors.Wrap(err, "UpdateSession: session is not valid")
 	}
 
-	if err := a.store.UpdateSession(session); err != nil {
+	if err := app.store.UpdateSession(session); err != nil {
 		return errors.Wrap(err, "UpdateSession: failed to update session")
 	}
 
 	return nil
 }
 
-func (a *WhatsappApp) GetSessions() ([]*model.Session, error) {
-	sessions, err := a.store.GetSessions()
+func (app *WhatsappApp) GetSessions() ([]*model.Session, error) {
+	sessions, err := app.store.GetSessions()
 	if err != nil {
 		return nil, errors.Wrap(err, "GetSessions: failed to get sessions")
 	}
@@ -56,8 +56,8 @@ func (a *WhatsappApp) GetSessions() ([]*model.Session, error) {
 	return sessions, nil
 }
 
-func (a *WhatsappApp) DeleteSession(sessionID string) error {
-	if err := a.store.DeleteSession(sessionID); err != nil {
+func (app *WhatsappApp) DeleteSession(sessionID string) error {
+	if err := app.store.DeleteSession(sessionID); err != nil {
 		return errors.Wrap(err, "DeleteSession: failed to delete session")
 	}
 

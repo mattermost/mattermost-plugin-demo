@@ -24,13 +24,19 @@ func New(
 	store store.Store,
 	getConfigFunc func() *model.Config,
 	driver plugin.Driver,
+	botId string,
 ) (*WhatsappApp, error) {
 	app := &WhatsappApp{
 		api:       api,
 		store:     store,
 		getConfig: getConfigFunc,
 		apiClient: pluginapi.NewClient(api, driver),
+		botID:     botId,
 	}
 
 	return app, nil
+}
+
+func (app *WhatsappApp) GetBotId() string {
+	return app.botID
 }

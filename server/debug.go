@@ -19,10 +19,12 @@ var (
 
 	createChannelCommand = "createchannel"
 	listChannelsCommand  = "listchannels"
+	getBotId             = "getbotid"
+	getTeamId            = "getteamid"
 )
 
 func (p *Plugin) registerDebugCommands() error {
-	commands := []string{createSessionCommand, closeSessionCommand, getSessionCommand, listSessionsCommand, createChannelCommand, listChannelsCommand}
+	commands := []string{createSessionCommand, closeSessionCommand, getSessionCommand, listSessionsCommand, createChannelCommand, listChannelsCommand, getBotId, getTeamId}
 	for _, cmd := range commands {
 		err := p.API.RegisterCommand(&model.Command{
 			Trigger:      cmd,
@@ -54,6 +56,10 @@ func (p *Plugin) ExecuteCommand(ctx *plugin.Context, args *model.CommandArgs) (*
 		return p.executeCreateChannelCommand(ctx, args)
 	case "/" + listChannelsCommand:
 		return p.executeListChannelsCommand(ctx, args)
+	case "/" + getBotId:
+		return p.executePrintBotId(ctx, args)
+	case "/" + getTeamId:
+		return p.executeTeamId(ctx, args)
 	}
 	return nil, nil
 }
@@ -74,6 +80,12 @@ func (p *Plugin) executeCreateSessionCommand(ctx *plugin.Context, args *model.Co
 	session, err := p.app.CreateSession(args.UserId)
 	if err != nil {
 		return &model.CommandResponse{Text: "Failed to create session: " + err.Error()}, nil
+	}
+
+	err = p.apiHandlers.PublishPreferenceUpdateEvent()
+
+	if err != nil {
+		return &model.CommandResponse{Text: "Failed to publish preference update event: " + err.Error()}, nil
 	}
 
 	return &model.CommandResponse{Text: "Session created successfully with ID: " + session.ID}, nil
@@ -103,7 +115,10 @@ func (p *Plugin) executeCloseSessionCommand(ctx *plugin.Context, args *model.Com
 	if err != nil {
 		return &model.CommandResponse{Text: "Failed to close session: " + err.Error()}, nil
 	}
-
+	err = p.apiHandlers.PublishPreferenceUpdateEvent()
+	if err != nil {
+		return &model.CommandResponse{Text: "Failed to publish preference update event: " + err.Error()}, nil
+	}
 	return &model.CommandResponse{Text: "Session " + sessionID + " closed successfully"}, nil
 }
 
@@ -120,6 +135,21 @@ func (p *Plugin) executeCreateChannelCommand(ctx *plugin.Context, args *model.Co
 		return &model.CommandResponse{Text: "Failed to create channel: " + err.Error()}, nil
 	}
 	return &model.CommandResponse{Text: "Channel created successfully with ID: " + channel.ID}, nil
+}
+
+func (p *Plugin) executePrintBotId(ctx *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
+	return &model.CommandResponse{Text: "BotId: " + p.app.GetBotId()}, nil
+}
+
+func (p *Plugin) executeTeamId(ctx *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
+	teams, err := p.API.GetTeams()
+	if err != nil {
+		return &model.CommandResponse{Text: "Failed to get teams: " + err.Error()}, nil
+	}
+	if len(teams) == 0 {
+		return &model.CommandResponse{Text: "No teams found."}, nil
+	}
+	return &model.CommandResponse{Text: "TeamId: " + teams[0].Id}, nil
 }
 
 func (p *Plugin) executeListChannelsCommand(ctx *plugin.Context, args *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
