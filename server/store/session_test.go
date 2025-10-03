@@ -37,10 +37,9 @@ func TestSessionCRUD(t *testing.T) {
 		count := GetTableRowCount(t, store, "session")
 		assert.Equal(t, 1, count)
 
-		// Get session by ID
-		retrieved, err := store.GetSessionByID(session.ID)
+		// Get session by UserID
+		retrieved, err := store.GetSessionByUserId(session.UserID)
 		require.NoError(t, err)
-		assert.Equal(t, session.ID, retrieved.ID)
 		assert.Equal(t, session.UserID, retrieved.UserID)
 		assert.Greater(t, retrieved.CreateAt, int64(0))
 		assert.Nil(t, retrieved.ClosedAt)
@@ -68,7 +67,7 @@ func TestSessionCRUD(t *testing.T) {
 		require.NoError(t, err)
 
 		// Verify update
-		retrieved, err := store.GetSessionByID(session.ID)
+		retrieved, err := store.GetSessionByUserId(session.UserID)
 		require.NoError(t, err)
 		assert.Equal(t, "user2-updated", retrieved.UserID)
 		assert.NotNil(t, retrieved.ClosedAt)
@@ -89,7 +88,7 @@ func TestSessionCRUD(t *testing.T) {
 		require.NoError(t, err)
 
 		// Delete session
-		err = store.DeleteSession(session.ID)
+		err = store.CloseSessionsFromUserId(session.UserID)
 		require.NoError(t, err)
 
 		// Verify deletion
@@ -97,7 +96,7 @@ func TestSessionCRUD(t *testing.T) {
 		assert.Equal(t, 0, count)
 
 		// Try to get deleted session
-		_, err = store.GetSessionByID(session.ID)
+		_, err = store.GetSessionByUserId(session.UserID)
 		assert.Error(t, err)
 	})
 
@@ -126,7 +125,7 @@ func TestSessionCRUD(t *testing.T) {
 	t.Run("Session Not Found", func(t *testing.T) {
 		TruncateTable(t, store, "session")
 
-		_, err := store.GetSessionByID("non-existent-id")
+		_, err := store.GetSessionByUserId("non-existent-id")
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "not found")
 	})
@@ -134,7 +133,7 @@ func TestSessionCRUD(t *testing.T) {
 	t.Run("Delete Non-Existent Session", func(t *testing.T) {
 		TruncateTable(t, store, "session")
 
-		err := store.DeleteSession("non-existent-id")
+		err := store.CloseSessionsFromUserId("non-existent-id")
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "not found")
 	})
@@ -160,7 +159,7 @@ func TestSessionValidation(t *testing.T) {
 		assert.NotEmpty(t, session.ID)
 
 		// Clean up
-		_ = store.DeleteSession(session.ID)
+		_ = store.CloseSessionsFromUserId(session.UserID)
 	})
 
 	t.Run("Create Session Without UserID", func(t *testing.T) {
@@ -250,9 +249,8 @@ func TestSessionWithBinaryParams(t *testing.T) {
 		require.NoError(t, err)
 
 		// Read
-		retrieved, err := store.GetSessionByID(session.ID)
+		retrieved, err := store.GetSessionByUserId(session.UserID)
 		require.NoError(t, err)
-		assert.Equal(t, session.ID, retrieved.ID)
 		assert.Equal(t, session.UserID, retrieved.UserID)
 
 		// Update
@@ -262,13 +260,13 @@ func TestSessionWithBinaryParams(t *testing.T) {
 		require.NoError(t, err)
 
 		// Verify update
-		updated, err := store.GetSessionByID(session.ID)
+		updated, err := store.GetSessionByUserId(session.UserID)
 		require.NoError(t, err)
 		assert.NotNil(t, updated.ClosedAt)
 		assert.Equal(t, closedAt, *updated.ClosedAt)
 
 		// Delete
-		err = store.DeleteSession(session.ID)
+		err = store.CloseSessionsFromUserId(session.UserID)
 		require.NoError(t, err)
 	})
 }
