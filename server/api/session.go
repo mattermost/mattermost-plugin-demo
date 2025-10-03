@@ -153,19 +153,9 @@ func (api *Handlers) handleCloseSession(w http.ResponseWriter, r *http.Request) 
 }
 
 func (api *Handlers) PublishPreferenceUpdateEvent() error {
-	sessions, err := api.app.GetSessions()
+	activeUsers, err := api.app.GetActiveUsers()
 	if err != nil {
 		return errors.Wrap(err, "failed to get sessions from Mattermost API")
-	}
-	var broadcast MattermostModel.WebsocketBroadcast
-
-	var activeUsers []*MattermostModel.User
-	for _, session := range sessions {
-		user, err := api.pluginAPI.GetUser(session.UserID)
-		if err != nil {
-			continue
-		}
-		activeUsers = append(activeUsers, user)
 	}
 
 	activeUsersJson := SessionsResponse{
@@ -185,7 +175,7 @@ func (api *Handlers) PublishPreferenceUpdateEvent() error {
 	api.pluginAPI.PublishWebSocketEvent(
 		WebsocketEventPreferenceUpdated,
 		payload,
-		&broadcast,
+		&MattermostModel.WebsocketBroadcast{},
 	)
 	return nil
 }
