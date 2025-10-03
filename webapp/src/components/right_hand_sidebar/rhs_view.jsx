@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import {getStatusForUserId} from 'mattermost-redux/selectors/entities/users';
 
 import {getBasePath} from '../../actions';
+import {isReceiveWhatsappMessages} from '../../selectors';
+import {id as PluginId} from '../../manifest';
 
 export default class RHSView extends React.PureComponent {
     static propTypes = {
@@ -166,6 +168,23 @@ ${JSON.stringify(channel, null, 2)}
 
     renderUnreadChannels = () => {
         const {unreadChannels} = this.state;
+        const enabled = isReceiveWhatsappMessages(this.props.reduxState);
+
+        if (!enabled) {
+            return (
+                <div style={styles.disabledContainer}>
+                    <img
+                        src={`${getBasePath(this.props.reduxState)}/plugins/${PluginId}/public/whatsapp-icon-outline.png`}
+                        alt='WhatsApp'
+                        style={styles.disabledIcon}
+                    />
+                    <div style={styles.disabledMessage}>
+                        {'Inicia sesión para poder recibir notificaciones en este plugin.'}
+                    </div>
+                </div>
+            );
+        }
+
         if (unreadChannels.length === 0) {
             return null;
         }
@@ -462,5 +481,29 @@ const styles = {
         padding: '2px 4px',
         borderRadius: '3px',
         marginLeft: '5px',
+    },
+    disabledContainer: {
+        marginTop: '12px',
+        padding: '24px 10px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        border: '1px dashed #ccc',
+        borderRadius: '6px',
+    },
+    disabledIcon: {
+        width: '120px',
+        height: '120px',
+        opacity: '0.9',
+        marginBottom: '12px',
+    },
+    disabledMessage: {
+        fontSize: '16px',
+        lineHeight: '1.4',
+        maxWidth: '220px',
+        fontWeight: '500',
+        fontFamily: 'inherit',
     },
 };
