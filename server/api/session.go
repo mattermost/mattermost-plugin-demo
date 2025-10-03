@@ -34,7 +34,7 @@ func (api *Handlers) handleUpdateSession(w http.ResponseWriter, r *http.Request)
 
 	vars := mux.Vars(r)
 	userID, ok := vars["userID"]
-	if !ok {
+	if !ok || userID == "" {
 		http.Error(w, "missing user ID in request", http.StatusBadRequest)
 		return
 	}
@@ -90,6 +90,10 @@ func (api *Handlers) handleCreateSession(w http.ResponseWriter, r *http.Request)
 		http.Error(w, "Failed to create session: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+	err = api.PublishPreferenceUpdateEvent()
+	if err != nil {
+		return
+	}
 
 	jsonResponse(w, http.StatusCreated, session)
 }
@@ -98,46 +102,44 @@ func (api *Handlers) handleGetSessionByUserID(w http.ResponseWriter, r *http.Req
 	if err := api.RequireAuthentication(w, r); err != nil {
 		return
 	}
-
 	if err := api.RequireSystemAdmin(w, r); err != nil {
 		return
 	}
 
 	vars := mux.Vars(r)
 	userID, ok := vars["userID"]
-	if !ok {
-		http.Error(w, "missing session ID in request", http.StatusBadRequest)
+	if !ok || userID == "" {
+		http.Error(w, "missing user ID in request", http.StatusBadRequest)
 		return
 	}
 
-	session, err := api.app.GetSessionByUserId(userID)
+	sess, err := api.app.GetSessionByUserId(userID)
 	if err != nil {
-		http.Error(w, "Failed to get session: "+err.Error(), http.StatusNotFound)
+		if err.Error() == "session not found" {
+			http.Error(w, "session not found", http.StatusNotFound)
+			return
+		}
+		http.Error(w, "failed to get session by user: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	jsonResponse(w, http.StatusOK, session)
+		jsonResponse(w, http.StatusOK, sess)
 }
 
+	// yo necesito obtenerlo por el  user ID, tengo que hacer un endpoint que va optener la session pero por el id del usuario,
+	// creare una funcion cada cre se
+
 func (api *Handlers) handleListActiveUsers(w http.ResponseWriter, _ *http.Request) {
-
-	activeUsers, err := api.app.GetActiveUsers()
-
+	users, err := api.app.GetActiveUsers()
 	if err != nil {
-		http.Error(w, "Failed to list sessions: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to list active users: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	resp := SessionsResponse{
-		ActiveUsers: activeUsers,
-	}
-
+	resp := SessionsResponse{ActiveUsers: users}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(resp)
-	if err != nil {
-		return
-	}
+	_ = json.NewEncoder(w).Encode(resp)
 }
 
 func (api *Handlers) handleCloseSession(w http.ResponseWriter, r *http.Request) {
@@ -151,23 +153,37 @@ func (api *Handlers) handleCloseSession(w http.ResponseWriter, r *http.Request) 
 
 	vars := mux.Vars(r)
 	userID, ok := vars["userID"]
-	if !ok {
-		http.Error(w, "missing session ID in request", http.StatusBadRequest)
+	if !ok || userID == "" {
+		http.Error(w, "missing user ID in request", http.StatusBadRequest)
 		return
 	}
 
 	if err := api.app.CloseSessionsFromUserId(userID); err != nil {
-		http.Error(w, "Failed to delete session: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to close session(s): "+err.Error(), http.StatusInternalServerError)
 		return
+	}
+	if err := api.PublishPreferenceUpdateEvent(); err != nil {
+		// Best-effort websocket broadcast; do not fail the request
 	}
 
 	ReturnStatusOK(w)
 }
 
+// escribir un websocker hara  casi lo mismo de publus reference update event
+// el web socket solo sevvirar que serraste la session notificara eso y debe actualizar su storage
 func (api *Handlers) PublishPreferenceUpdateEvent() error {
-	activeUsers, err := api.app.GetActiveUsers()
+	sessions, err := api.app.GetSessions()
 	if err != nil {
 		return errors.Wrap(err, "failed to get sessions from Mattermost API")
+	}
+
+	var activeUsers []*MattermostModel.User
+	for _, session := range sessions {
+		user, err := api.pluginAPI.GetUser(session.UserID)
+		if err != nil {
+			continue
+		}
+		activeUsers = append(activeUsers, user)
 	}
 
 	activeUsersJson := SessionsResponse{
@@ -188,6 +204,17 @@ func (api *Handlers) PublishPreferenceUpdateEvent() error {
 		WebsocketEventPreferenceUpdated,
 		payload,
 		&MattermostModel.WebsocketBroadcast{},
+	)
+	return nil
+}
+
+func (api *Handlers) PublishPreferenceUpdateEventForUser(userID string) error {
+	api.pluginAPI.PublishWebSocketEvent(
+		WebsocketEventPreferenceUpdated,
+		map[string]interface{}{},
+		&MattermostModel.WebsocketBroadcast{
+			UserId: userID,
+		},
 	)
 	return nil
 }

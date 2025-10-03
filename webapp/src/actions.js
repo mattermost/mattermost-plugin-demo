@@ -67,40 +67,55 @@ export const getStatus = () => async (dispatch, getState) => {
     });
 };
 
+async function getSessionIdByUserId(baseUrl, userId) {
+    
+    const res = await fetch(`${baseUrl}/sessions/${encodeURIComponent(userId)}`, {method: 'GET'});
+    if (!res.ok) {
+        return null;
+    }
+    const data = await res.json();
+    return data?.id || null;
+}
+
 export const saveWhatsAppPreference = (enabled) => async (dispatch, getState) => {
     const state = getState();
     const userId = getCurrentUserId(state);
-    const url = `${getPluginServerRoute(state)}/whatsapp/preferences`;
-
+    const baseUrl = getPluginServerRoute(state);
+    const isOn = enabled === 'on';
     try {
-        const body = JSON.stringify({
-            receive_notifications: enabled === 'on',
-            user_id: userId,
-        });
-
-        const response = await fetch(url, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body,
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`HTTP Error ${response.status}: ${errorText}`);
+        if (isOn) {
+            const res = await fetch(`${baseUrl}/sessions`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({userID: userId}),
+            });
+            if (!res.ok) {
+                const errText = await res.text().catch(() => '');
+                throw new Error(`Error creando sesión: ${errText || res.statusText}`);
+            }
+        } else {
+            // Close by userID directly per server API
+            const delRes = await fetch(`${baseUrl}/sessions/${encodeURIComponent(userId)}`, {method: 'DELETE'});
+            if (!delRes.ok && delRes.status !== 404) {
+                const errText = await delRes.text().catch(() => '');
+                throw new Error(`Error eliminando sesión: ${errText || delRes.statusText}`);
+            }
         }
-
         dispatch({
             type: SET_WHATSAPP_PREF,
             data: enabled,
         });
     } catch (error) {
-        console.error('Error guardando la preferencia de WhatsApp:', error);
+        // eslint-disable-next-line no-console
+        console.error('Error guardando preferencia WhatsApp:', error);
     }
 };
 
+// cuando elimino por nerlo en null  si el objero session exite deber ser en on
+
 export const syncWhatsappPreferences = () => async (dispatch, getState) => {
+    //mado a llamar al endopoint que acabo de hacer, y traigo la session si es que tiene
+    //luego mando la session en el storage
     const state = getState();
 
     const PreSavedPreferenceList = getMyPreferences(state);
@@ -111,7 +126,7 @@ export const syncWhatsappPreferences = () => async (dispatch, getState) => {
         type: SET_WHATSAPP_PREF,
         data: whatsappSetting.value,
     });
-};
+};// caniar y crear un fech al servido para preguntar si el usuario tiene una session
 
 export const getActiveUsers = () => async (dispatch, getState) => {
     const state = getState();
