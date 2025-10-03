@@ -17,6 +17,7 @@ import (
 
 const (
 	WebsocketEventPreferenceUpdated = "whatsapp_preference_updated"
+	WebSocketEventSessionUpdated    = "whatsapp_session_updated"
 )
 
 type SessionsResponse struct {
@@ -82,7 +83,7 @@ func (api *Handlers) handleCreateSession(w http.ResponseWriter, r *http.Request)
 		http.Error(w, "Failed to create session: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
-	err = api.PublishPreferenceUpdateEvent(&requestData.UserID)
+	err = api.PublishSessionUpdateEvent(requestData.UserID)
 	if err != nil {
 		return
 	}
@@ -100,14 +101,10 @@ func (api *Handlers) handleGetSessionByUserID(w http.ResponseWriter, r *http.Req
 
 	sess, err := api.app.GetSessionByUserId(userID)
 	if err != nil {
-		if err.Error() == "session not found" {
-			http.Error(w, "session not found", http.StatusNotFound)
-			return
-		}
-		http.Error(w, "failed to get session by user: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "session not found", http.StatusNotFound)
+		jsonResponse(w, http.StatusOK, nil)
 		return
 	}
-	api.PublishPreferenceUpdateEvent(&userID)
 
 	jsonResponse(w, http.StatusOK, sess)
 }
@@ -137,7 +134,8 @@ func (api *Handlers) handleCloseSession(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "Failed to close session(s): "+err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if err := api.PublishPreferenceUpdateEvent(nil); err != nil {
+
+	if err := api.PublishSessionUpdateEvent(userID); err != nil {
 		return
 	}
 
@@ -154,18 +152,12 @@ func (api *Handlers) handleCloseSession(w http.ResponseWriter, r *http.Request) 
 	})
 }
 
-func (api *Handlers) PublishPreferenceUpdateEvent(userID *string) error {
+func (api *Handlers) PublishPreferenceUpdateEvent() error {
 	sessions, err := api.app.GetSessions()
 	if err != nil {
 		return errors.Wrap(err, "failed to get sessions from Mattermost API")
 	}
 	var broadcast MattermostModel.WebsocketBroadcast
-
-	if userID != nil {
-		broadcast = MattermostModel.WebsocketBroadcast{
-			UserId: *userID,
-		}
-	}
 
 	var activeUsers []*MattermostModel.User
 	for _, session := range sessions {
@@ -194,6 +186,35 @@ func (api *Handlers) PublishPreferenceUpdateEvent(userID *string) error {
 		WebsocketEventPreferenceUpdated,
 		payload,
 		&broadcast,
+	)
+	return nil
+}
+
+func (api *Handlers) PublishSessionUpdateEvent(userID string) error {
+	session, _ := api.app.GetSessionByUserId(userID)
+
+	var payload map[string]interface{}
+
+	if session == nil {
+		payload = map[string]interface{}{
+			"session": nil,
+			"user_id": userID,
+		}
+	} else {
+		jsonData, err := json.Marshal(session)
+		if err != nil {
+			return errors.Wrap(err, "failed to marshal session to JSON")
+		}
+
+		if err := json.Unmarshal(jsonData, &payload); err != nil {
+			return errors.Wrap(err, "failed to unmarshal session to JSON")
+		}
+	}
+
+	api.pluginAPI.PublishWebSocketEvent(
+		WebSocketEventSessionUpdated,
+		payload,
+		&MattermostModel.WebsocketBroadcast{UserId: userID},
 	)
 	return nil
 }

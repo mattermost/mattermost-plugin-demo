@@ -82,7 +82,7 @@ func (p *Plugin) executeCreateSessionCommand(ctx *plugin.Context, args *model.Co
 		return &model.CommandResponse{Text: "Failed to create session: " + err.Error()}, nil
 	}
 
-	err = p.apiHandlers.PublishPreferenceUpdateEvent(nil)
+	err = p.apiHandlers.PublishPreferenceUpdateEvent()
 
 	if err != nil {
 		return &model.CommandResponse{Text: "Failed to publish preference update event: " + err.Error()}, nil
@@ -97,7 +97,7 @@ func (p *Plugin) executeCloseSessionCommand(ctx *plugin.Context, args *model.Com
 		return &model.CommandResponse{Text: "Failed to get session: " + err.Error()}, nil
 	}
 
-	err = p.apiHandlers.PublishPreferenceUpdateEvent(nil)
+	err = p.apiHandlers.PublishPreferenceUpdateEvent()
 	if err != nil {
 		return &model.CommandResponse{Text: "Failed to publish preference update event: " + err.Error()}, nil
 	}

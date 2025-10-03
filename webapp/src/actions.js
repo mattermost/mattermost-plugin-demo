@@ -120,17 +120,19 @@ export const syncWhatsappPreferences = () => async (dispatch, getState) => {
     try {
         const res = await fetch(`${baseUrl}/sessions/${encodeURIComponent(userId)}`, {method: 'GET'});
         if (res.ok) {
-            dispatch({
-                type: SET_WHATSAPP_PREF,
-                data: 'on',
-            });
-            return;
-        }
-        if (res.status === 404) {
-            dispatch({
-                type: SET_WHATSAPP_PREF,
-                data: 'off',
-            });
+            const data = await res.json();
+            if (data?.id) {
+                console.log('on');
+                dispatch({
+                    type: SET_WHATSAPP_PREF,
+                    data: 'on',
+                });
+            } else {
+                dispatch({
+                    type: SET_WHATSAPP_PREF,
+                    data: 'off',
+                });
+            }
             return;
         }
     } catch (e) {
