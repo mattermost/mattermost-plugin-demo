@@ -44,7 +44,7 @@ func (s *SQLStore) GetSessions() ([]*model.Session, error) {
 func (s *SQLStore) GetActiveUsers() ([]*MattermostModel.User, error) {
 
 	rows, err := s.getQueryBuilder().
-		Select("user_id").
+		Select([]string{"user_id"}...).
 		From(s.tablePrefix + "session").
 		Where("closed_at IS NULL").
 		Query()
@@ -65,9 +65,17 @@ func (s *SQLStore) GetActiveUsers() ([]*MattermostModel.User, error) {
 	if err = rows.Err(); err != nil {
 		return nil, errors.Wrap(err, "SQLStore.GetActiveUsers rows iteration failed")
 	}
-	users, err := s.pluginAPI.GetUsersByIds(userIDs)
-	if err != nil {
-		return nil, errors.Wrap(err, "SQLStore.GetActiveUsers failed to fetch users by IDs from plugin API")
+
+	var users []*MattermostModel.User
+
+	if len(userIDs) != 0 {
+		for _, userID := range userIDs {
+			user, err := s.pluginAPI.GetUser(userID)
+			if err != nil {
+				return []*MattermostModel.User{}, nil
+			}
+			users = append(users, user)
+		}
 	}
 
 	return users, nil

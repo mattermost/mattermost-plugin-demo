@@ -123,6 +123,8 @@ func (api *Handlers) handleListActiveUsers(w http.ResponseWriter, _ *http.Reques
 
 	activeUsers, err := api.app.GetActiveUsers()
 
+	api.pluginAPI.LogInfo("Serialize active users", "count", len(activeUsers))
+
 	if err != nil {
 		http.Error(w, "Failed to list sessions: "+err.Error(), http.StatusInternalServerError)
 		return
