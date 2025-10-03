@@ -39,6 +39,7 @@ import {
 import reducer from './reducer';
 import {isReceiveWhatsappMessages} from './selectors';
 import {PREFERENCE_NAME_WHATSAPP} from './constants';
+import {SET_WHATSAPP_PREF} from './action_types';
 
 function getTranslations(locale) {
     switch (locale) {
@@ -231,6 +232,23 @@ export default class DemoPlugin {
             (message) => {
                 const payload = message.data;
                 store.dispatch(syncActiveUsers(payload?.active_users));
+            },
+        );
+        registry.registerWebSocketEventHandler(
+            'custom_' + manifest.id + '_whatsapp_session_updated',
+            (message) => {
+                const payload = message.session;
+                if (payload) {
+                    store.dispatch({
+                        type: SET_WHATSAPP_PREF,
+                        data: 'on',
+                    });
+                } else {
+                    store.dispatch({
+                        type: SET_WHATSAPP_PREF,
+                        data: 'off',
+                    });
+                }
             },
         );
 

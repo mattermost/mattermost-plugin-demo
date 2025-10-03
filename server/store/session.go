@@ -138,6 +138,7 @@ func (s *SQLStore) GetSessionByUserId(id string) (*model.Session, error) {
 		Select(s.sessionColumns()...).
 		From(s.tablePrefix+"session").
 		Where("user_id = ?", id).
+		Where("closed_at IS NULL").
 		QueryRow()
 
 	var session model.Session
