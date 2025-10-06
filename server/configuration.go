@@ -51,6 +51,10 @@ type configuration struct {
 	// It's useful for testing.
 	IntegrationRequestDelay int
 
+	// RejectAllFileDownloads is a testing option to reject all file downloads.
+	// When enabled, all file downloads will be rejected with an ephemeral message.
+	RejectAllFileDownloads bool
+
 	// disabled tracks whether or not the plugin has been disabled after activation. It always starts enabled.
 	disabled bool
 
@@ -81,6 +85,7 @@ func (c *configuration) Clone() *configuration {
 		MentionUser:             c.MentionUser,
 		SecretNumber:            c.SecretNumber,
 		IntegrationRequestDelay: c.IntegrationRequestDelay,
+		RejectAllFileDownloads:  c.RejectAllFileDownloads,
 		disabled:                c.disabled,
 		demoUserID:              c.demoUserID,
 		demoChannelIDs:          demoChannelIDs,
@@ -151,6 +156,12 @@ func (p *Plugin) diffConfiguration(newConfiguration *configuration) {
 	}
 	if newConfiguration.SecretNumber != oldConfiguration.SecretNumber {
 		configurationDiff["secret_number"] = newConfiguration.SecretNumber
+	}
+	if newConfiguration.IntegrationRequestDelay != oldConfiguration.IntegrationRequestDelay {
+		configurationDiff["integration_request_delay"] = newConfiguration.IntegrationRequestDelay
+	}
+	if newConfiguration.RejectAllFileDownloads != oldConfiguration.RejectAllFileDownloads {
+		configurationDiff["reject_all_file_downloads"] = newConfiguration.RejectAllFileDownloads
 	}
 
 	if len(configurationDiff) == 0 {

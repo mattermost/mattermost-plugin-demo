@@ -139,6 +139,14 @@
                 "help_text": "A deplay in seconds that is applied to Slash Command responses, Post Actions responses and Interactive Dialog responses. It's useful for testing.",
                 "placeholder": "A delay in seconds",
                 "default": 0
+            },
+            {
+                "key": "RejectAllFileDownloads",
+                "display_name": "Reject All File Downloads:",
+                "type": "bool",
+                "help_text": "When enabled, all file downloads will be rejected with an ephemeral message. This is useful for testing the plugin's file download hook logic.",
+                "placeholder": "",
+                "default": false
             }
         ]
     },
