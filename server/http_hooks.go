@@ -480,6 +480,9 @@ func (p *Plugin) handleDialogFieldRefresh(w http.ResponseWriter, r *http.Request
 	projectName := interfaceToString(request.Submission["project_name"])
 
 	msg := fmt.Sprintf("@%v created a new **%s** project: **%s**", user.Username, projectType, projectName)
+	if request.Cancelled {
+		msg = fmt.Sprintf("@%v cancelled project dialog", user.Username)
+	}
 
 	rootPost, appErr := p.API.CreatePost(&model.Post{
 		UserId:    p.botID,
