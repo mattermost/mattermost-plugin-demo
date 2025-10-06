@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"strings"
 
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
@@ -81,25 +80,6 @@ func (p *Plugin) FileWillBeDownloaded(c *plugin.Context, fileInfo *model.FileInf
 		}
 
 		return "All file downloads are currently disabled for testing"
-	}
-
-	// Check if the file has a .mp4 extension (case-insensitive)
-	if strings.HasSuffix(strings.ToLower(fileInfo.Name), ".mp4") {
-		p.API.LogWarn("MP4 file download rejected",
-			"file_name", fileInfo.Name,
-			"user_id", userId)
-
-		// Send an ephemeral message to the user who tried to download the file
-		rejectionMessage := fmt.Sprintf("Download of file '%s' was rejected. MP4 files are not allowed to be downloaded.", fileInfo.Name)
-		if err := p.sendEphemeralMessage(userId, fileInfo.ChannelId, rejectionMessage); err != nil {
-			p.API.LogError("Failed to send download rejection message",
-				"user_id", userId,
-				"file_name", fileInfo.Name,
-				"channel_id", fileInfo.ChannelId,
-				"error", err.Error())
-		}
-
-		return "Downloading MP4 files is not allowed"
 	}
 
 	// Allow the download for other files
