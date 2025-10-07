@@ -41,8 +41,8 @@ const (
 		"- `/dialog dynamic-select` - Open an Interactive Dialog with dynamic select fields. Once submitted, user-entered input is posted back into a channel.\n" +
 		"- `/dialog error` - Open an Interactive Dialog which always returns an general error.\n" +
 		"- `/dialog error-no-elements` - Open an Interactive Dialog with no elements which always returns an general error.\n" +
-		"- `/dialog field-refresh` - **NEW:** Open an Interactive Dialog with field refresh functionality (requires Apps Form feature flag).\n" +
-		"- `/dialog multistep` - **NEW:** Open a multi-step Interactive Dialog demonstrating form refresh on submit (requires Apps Form feature flag).\n" +
+		"- `/dialog field-refresh` - Open an Interactive Dialog with field refresh functionality.\n" +
+		"- `/dialog multistep` - Open a multi-step Interactive Dialog demonstrating form refresh on submit.\n" +
 		"- `/dialog help` - Show this help text"
 )
 

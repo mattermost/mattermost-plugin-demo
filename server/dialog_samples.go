@@ -430,14 +430,14 @@ func getDialogWithFieldRefresh(projectType string) model.Dialog {
 		SubmitLabel:    "Create Project",
 		NotifyOnCancel: true,
 		State:          "field_refresh_state",
-		SourceURL:      fmt.Sprintf("/plugins/%s/dialog/field-refresh", manifest.Id), // NEW: Source URL for refreshing
+		SourceURL:      fmt.Sprintf("/plugins/%s/dialog/field-refresh", manifest.Id),
 		Elements: []model.DialogElement{{
 			DisplayName: "Project Type",
 			Name:        "project_type",
 			Type:        "select",
 			Placeholder: "Select a project type...",
 			HelpText:    "Choose the type of project you want to create.",
-			Refresh:     true, // NEW: This field will refresh the form when changed
+			Refresh:     true,
 			Options: []*model.PostActionOptions{{
 				Text:  "Web Application",
 				Value: "web",
