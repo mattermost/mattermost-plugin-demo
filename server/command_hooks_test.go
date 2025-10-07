@@ -79,7 +79,7 @@ func TestExecuteCommandDialog_MultiSelect(t *testing.T) {
 	// This tests the case that would be executed in the real handler
 	if command == "multi-select" {
 		dialog := getDialogWithMultiSelectElements()
-		
+
 		// Verify it's the correct dialog
 		assert.Equal(t, "Multi-Select Dialog Demo", dialog.Title)
 		assert.Len(t, dialog.Elements, 3)
