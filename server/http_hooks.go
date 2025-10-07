@@ -48,11 +48,9 @@ func (p *Plugin) initializeAPI() {
 	dialogRouter.HandleFunc("/3", p.handleDialog3)
 	dialogRouter.HandleFunc("/error", p.handleDialogWithError)
 
-	apiRouter := router.PathPrefix("/api").Subrouter()
-	apiRouter.Use(p.withDelay)
-	apiRouter.HandleFunc("/products", p.handleDynamicProducts).Methods(http.MethodPost)
-	apiRouter.HandleFunc("/companies", p.handleDynamicCompanies).Methods(http.MethodPost)
-	apiRouter.HandleFunc("/countries", p.handleDynamicCountries).Methods(http.MethodPost)
+	dialogRouter.HandleFunc("/products", p.handleDynamicProducts).Methods(http.MethodPost)
+	dialogRouter.HandleFunc("/companies", p.handleDynamicCompanies).Methods(http.MethodPost)
+	dialogRouter.HandleFunc("/countries", p.handleDynamicCountries).Methods(http.MethodPost)
 
 	ephemeralRouter := router.PathPrefix("/ephemeral").Subrouter()
 	ephemeralRouter.Use(p.withDelay)
@@ -480,28 +478,8 @@ func (p *Plugin) handleDynamicArgTest(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Dynamic select lookup request structure
-type DialogLookupRequest struct {
-	Type       string                 `json:"type"`
-	URL        string                 `json:"url"`
-	UserID     string                 `json:"user_id"`
-	ChannelID  string                 `json:"channel_id"`
-	TeamID     string                 `json:"team_id"`
-	Submission map[string]interface{} `json:"submission"`
-}
-
-// Dynamic select lookup response structure
-type DialogLookupResponse struct {
-	Items []DialogLookupItem `json:"items"`
-}
-
-type DialogLookupItem struct {
-	Text  string `json:"text"`
-	Value string `json:"value"`
-}
-
 func (p *Plugin) handleDynamicProducts(w http.ResponseWriter, r *http.Request) {
-	var request DialogLookupRequest
+	var request model.SubmitDialogRequest
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		p.API.LogError("Failed to decode DialogLookupRequest for products", "err", err)
@@ -521,7 +499,7 @@ func (p *Plugin) handleDynamicProducts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Sample product data
-	allProducts := []DialogLookupItem{
+	allProducts := []model.DialogSelectOption{
 		{Text: "MacBook Pro 16-inch", Value: "mbp-16"},
 		{Text: "MacBook Air 13-inch", Value: "mba-13"},
 		{Text: "iPhone 15 Pro", Value: "iphone-15-pro"},
@@ -537,7 +515,7 @@ func (p *Plugin) handleDynamicProducts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Filter products based on query
-	var filteredProducts []DialogLookupItem
+	var filteredProducts []model.DialogSelectOption
 	for _, product := range allProducts {
 		if query == "" || strings.Contains(strings.ToLower(product.Text), query) {
 			filteredProducts = append(filteredProducts, product)
@@ -549,12 +527,12 @@ func (p *Plugin) handleDynamicProducts(w http.ResponseWriter, r *http.Request) {
 		filteredProducts = filteredProducts[:10]
 	}
 
-	response := DialogLookupResponse{Items: filteredProducts}
+	response := model.LookupDialogResponse{Items: filteredProducts}
 	p.writeJSON(w, response)
 }
 
 func (p *Plugin) handleDynamicCompanies(w http.ResponseWriter, r *http.Request) {
-	var request DialogLookupRequest
+	var request model.SubmitDialogRequest
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		p.API.LogError("Failed to decode DialogLookupRequest for companies", "err", err)
@@ -574,7 +552,7 @@ func (p *Plugin) handleDynamicCompanies(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Sample company data
-	allCompanies := []DialogLookupItem{
+	allCompanies := []model.DialogSelectOption{
 		{Text: "Apple Inc.", Value: "apple"},
 		{Text: "Microsoft Corporation", Value: "microsoft"},
 		{Text: "Google LLC", Value: "google"},
@@ -593,7 +571,7 @@ func (p *Plugin) handleDynamicCompanies(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Filter companies based on query
-	var filteredCompanies []DialogLookupItem
+	var filteredCompanies []model.DialogSelectOption
 	for _, company := range allCompanies {
 		if query == "" || strings.Contains(strings.ToLower(company.Text), query) {
 			filteredCompanies = append(filteredCompanies, company)
@@ -605,12 +583,12 @@ func (p *Plugin) handleDynamicCompanies(w http.ResponseWriter, r *http.Request) 
 		filteredCompanies = filteredCompanies[:10]
 	}
 
-	response := DialogLookupResponse{Items: filteredCompanies}
+	response := model.LookupDialogResponse{Items: filteredCompanies}
 	p.writeJSON(w, response)
 }
 
 func (p *Plugin) handleDynamicCountries(w http.ResponseWriter, r *http.Request) {
-	var request DialogLookupRequest
+	var request model.SubmitDialogRequest
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		p.API.LogError("Failed to decode DialogLookupRequest for countries", "err", err)
@@ -630,7 +608,7 @@ func (p *Plugin) handleDynamicCountries(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Sample country data
-	allCountries := []DialogLookupItem{
+	allCountries := []model.DialogSelectOption{
 		{Text: "United States", Value: "us"},
 		{Text: "Canada", Value: "ca"},
 		{Text: "United Kingdom", Value: "uk"},
@@ -654,7 +632,7 @@ func (p *Plugin) handleDynamicCountries(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Filter countries based on query
-	var filteredCountries []DialogLookupItem
+	var filteredCountries []model.DialogSelectOption
 	for _, country := range allCountries {
 		if query == "" || strings.Contains(strings.ToLower(country.Text), query) {
 			filteredCountries = append(filteredCountries, country)
@@ -666,6 +644,6 @@ func (p *Plugin) handleDynamicCountries(w http.ResponseWriter, r *http.Request) 
 		filteredCountries = filteredCountries[:10]
 	}
 
-	response := DialogLookupResponse{Items: filteredCountries}
+	response := model.LookupDialogResponse{Items: filteredCountries}
 	p.writeJSON(w, response)
 }

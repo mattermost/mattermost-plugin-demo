@@ -395,7 +395,7 @@ func getDialogWithDynamicSelectElements() model.Dialog {
 			Placeholder:   "Type to search products...",
 			HelpText:      "Search for products dynamically from external API.",
 			DataSource:    "dynamic",
-			DataSourceURL: fmt.Sprintf("/plugins/%s/api/products", manifest.Id),
+			DataSourceURL: fmt.Sprintf("/plugins/%s/dialog/products", manifest.Id),
 		}, {
 			DisplayName:   "Dynamic Companies",
 			Name:          "dynamic_companies",
@@ -403,7 +403,7 @@ func getDialogWithDynamicSelectElements() model.Dialog {
 			Placeholder:   "Type to search companies...",
 			HelpText:      "Search for companies dynamically based on your input.",
 			DataSource:    "dynamic",
-			DataSourceURL: fmt.Sprintf("/plugins/%s/api/companies", manifest.Id),
+			DataSourceURL: fmt.Sprintf("/plugins/%s/dialog/companies", manifest.Id),
 		}, {
 			DisplayName:   "Dynamic Countries",
 			Name:          "dynamic_countries",
@@ -411,7 +411,7 @@ func getDialogWithDynamicSelectElements() model.Dialog {
 			Placeholder:   "Type to search countries...",
 			HelpText:      "Search for countries dynamically with real-time filtering.",
 			DataSource:    "dynamic",
-			DataSourceURL: fmt.Sprintf("/plugins/%s/api/countries", manifest.Id),
+			DataSourceURL: fmt.Sprintf("/plugins/%s/dialog/countries", manifest.Id),
 			Optional:      true,
 		}},
 		SubmitLabel:    "Submit Dynamic Select",
