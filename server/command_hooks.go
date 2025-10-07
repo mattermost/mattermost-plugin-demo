@@ -38,6 +38,7 @@ const (
 		"- `/dialog no-elements` - Open an Interactive Dialog with no elements. Once submitted, user's action is posted back into a channel.\n" +
 		"- `/dialog relative-callback-url` - Open an Interactive Dialog with relative callback URL. Once submitted, user's action is posted back into a channel.\n" +
 		"- `/dialog introduction-text` - Open an Interactive Dialog with optional introduction text. Once submitted, user's action is posted back into a channel.\n" +
+		"- `/dialog dynamic-select` - Open an Interactive Dialog with dynamic select fields. Once submitted, user-entered input is posted back into a channel.\n" +
 		"- `/dialog error` - Open an Interactive Dialog which always returns an general error.\n" +
 		"- `/dialog error-no-elements` - Open an Interactive Dialog with no elements which always returns an general error.\n" +
 		"- `/dialog help` - Show this help text"
@@ -168,6 +169,9 @@ func getCommandDialogAutocompleteData() *model.AutocompleteData {
 
 	errorNoElements := model.NewAutocompleteData("error-no-elements", "", "Open an Interactive Dialog with error no elements.")
 	command.AddCommand(errorNoElements)
+
+	dynamicSelect := model.NewAutocompleteData("dynamic-select", "", "Open an Interactive Dialog with dynamic select fields.")
+	command.AddCommand(dynamicSelect)
 
 	help := model.NewAutocompleteData("help", "", "")
 	command.AddCommand(help)
@@ -390,6 +394,12 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/1", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog:    getDialogWithIntroductionText(dialogIntroductionText),
+		}
+	case "dynamic-select":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/1", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogWithDynamicSelectElements(),
 		}
 	case "error":
 		dialogRequest = model.OpenDialogRequest{

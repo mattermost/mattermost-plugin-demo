@@ -383,6 +383,43 @@ func getDialogSelectFields() model.Dialog {
 	}
 }
 
+func getDialogWithDynamicSelectElements() model.Dialog {
+	return model.Dialog{
+		CallbackId: "somecallbackid",
+		Title:      "Dynamic Select Dialog Demo",
+		IconURL:    "http://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
+		Elements: []model.DialogElement{{
+			DisplayName:   "Dynamic Products",
+			Name:          "dynamic_products",
+			Type:          "select",
+			Placeholder:   "Type to search products...",
+			HelpText:      "Search for products dynamically from external API.",
+			DataSource:    "dynamic",
+			DataSourceURL: fmt.Sprintf("/plugins/%s/dialog/products", manifest.Id),
+		}, {
+			DisplayName:   "Dynamic Companies",
+			Name:          "dynamic_companies",
+			Type:          "select",
+			Placeholder:   "Type to search companies...",
+			HelpText:      "Search for companies dynamically based on your input.",
+			DataSource:    "dynamic",
+			DataSourceURL: fmt.Sprintf("/plugins/%s/dialog/companies", manifest.Id),
+		}, {
+			DisplayName:   "Dynamic Countries",
+			Name:          "dynamic_countries",
+			Type:          "select",
+			Placeholder:   "Type to search countries...",
+			HelpText:      "Search for countries dynamically with real-time filtering.",
+			DataSource:    "dynamic",
+			DataSourceURL: fmt.Sprintf("/plugins/%s/dialog/countries", manifest.Id),
+			Optional:      true,
+		}},
+		SubmitLabel:    "Submit Dynamic Select",
+		NotifyOnCancel: true,
+		State:          dialogStateSome,
+	}
+}
+
 // Helper function to convert interface{} to string safely
 func interfaceToString(value interface{}) string {
 	switch v := value.(type) {
