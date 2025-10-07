@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -45,8 +46,13 @@ func (p *Plugin) initializeAPI() {
 	dialogRouter.Use(p.withDelay)
 	dialogRouter.HandleFunc("/1", p.handleDialog1)
 	dialogRouter.HandleFunc("/2", p.handleDialog2)
+	dialogRouter.HandleFunc("/3", p.handleDialog3)
 	dialogRouter.HandleFunc("/date", p.handleDateDialog)
 	dialogRouter.HandleFunc("/error", p.handleDialogWithError)
+
+	dialogRouter.HandleFunc("/products", p.handleDynamicProducts).Methods(http.MethodPost)
+	dialogRouter.HandleFunc("/companies", p.handleDynamicCompanies).Methods(http.MethodPost)
+	dialogRouter.HandleFunc("/countries", p.handleDynamicCountries).Methods(http.MethodPost)
 
 	ephemeralRouter := router.PathPrefix("/ephemeral").Subrouter()
 	ephemeralRouter.Use(p.withDelay)
@@ -238,6 +244,43 @@ func (p *Plugin) handleDialog2(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func (p *Plugin) handleDialog3(w http.ResponseWriter, r *http.Request) {
+	var request model.SubmitDialogRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		p.API.LogError("Failed to decode SubmitDialogRequest", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	var message string
+	if request.Cancelled {
+		message = "Dialog cancelled"
+	} else {
+		submission := request.Submission
+
+		// Generic approach - format submission data as structured lines
+		message = "Dialog Submitted:"
+		for key, value := range submission {
+			valueStr := fmt.Sprintf("%v", value)
+			message += fmt.Sprintf("\n- %s: %s", key, valueStr)
+		}
+	}
+
+	// Post the message to the channel
+	if _, appErr := p.API.CreatePost(&model.Post{
+		UserId:    p.botID,
+		ChannelId: request.ChannelId,
+		Message:   message,
+	}); appErr != nil {
+		p.API.LogError("Failed to post handleDialog3 message", "err", appErr.Error())
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
 func (p *Plugin) handleDateDialog(w http.ResponseWriter, r *http.Request) {
 	var request model.SubmitDialogRequest
 	err := json.NewDecoder(r.Body).Decode(&request)
@@ -288,7 +331,7 @@ func (p *Plugin) handleDateDialog(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		if datetimeVal, ok := request.Submission["somedatetime"].(string); ok && datetimeVal != "" {
-			// Validate datetime format for security  
+			// Validate datetime format for security
 			if _, err := time.Parse(time.RFC3339, datetimeVal); err == nil {
 				submissionDisplay["somedatetime_formatted"] = fmt.Sprintf("🕐 %s", html.EscapeString(datetimeVal))
 			} else {
@@ -510,4 +553,174 @@ func (p *Plugin) handleDynamicArgTest(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Error getting dynamic args: %s", err.Error()), http.StatusInternalServerError)
 		return
 	}
+}
+
+func (p *Plugin) handleDynamicProducts(w http.ResponseWriter, r *http.Request) {
+	var request model.SubmitDialogRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		p.API.LogError("Failed to decode DialogLookupRequest for products", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	// Extract the query term from the submission
+	query := ""
+	if request.Submission != nil {
+		if queryVal, ok := request.Submission["query"]; ok {
+			if queryStr, ok := queryVal.(string); ok {
+				query = strings.ToLower(queryStr)
+			}
+		}
+	}
+
+	// Sample product data
+	allProducts := []model.DialogSelectOption{
+		{Text: "MacBook Pro 16-inch", Value: "mbp-16"},
+		{Text: "MacBook Air 13-inch", Value: "mba-13"},
+		{Text: "iPhone 15 Pro", Value: "iphone-15-pro"},
+		{Text: "iPad Pro 12.9-inch", Value: "ipad-pro-12"},
+		{Text: "Apple Watch Series 9", Value: "watch-s9"},
+		{Text: "AirPods Pro", Value: "airpods-pro"},
+		{Text: "Mac Studio", Value: "mac-studio"},
+		{Text: "Studio Display", Value: "studio-display"},
+		{Text: "Microsoft Surface Pro", Value: "surface-pro"},
+		{Text: "Dell XPS 13", Value: "dell-xps-13"},
+		{Text: "ThinkPad X1 Carbon", Value: "thinkpad-x1"},
+		{Text: "Samsung Galaxy S24", Value: "galaxy-s24"},
+	}
+
+	// Filter products based on query
+	var filteredProducts []model.DialogSelectOption
+	for _, product := range allProducts {
+		if query == "" || strings.Contains(strings.ToLower(product.Text), query) {
+			filteredProducts = append(filteredProducts, product)
+		}
+	}
+
+	// Limit to first 10 results
+	if len(filteredProducts) > 10 {
+		filteredProducts = filteredProducts[:10]
+	}
+
+	response := model.LookupDialogResponse{Items: filteredProducts}
+	p.writeJSON(w, response)
+}
+
+func (p *Plugin) handleDynamicCompanies(w http.ResponseWriter, r *http.Request) {
+	var request model.SubmitDialogRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		p.API.LogError("Failed to decode DialogLookupRequest for companies", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	// Extract the query term from the submission
+	query := ""
+	if request.Submission != nil {
+		if queryVal, ok := request.Submission["query"]; ok {
+			if queryStr, ok := queryVal.(string); ok {
+				query = strings.ToLower(queryStr)
+			}
+		}
+	}
+
+	// Sample company data
+	allCompanies := []model.DialogSelectOption{
+		{Text: "Apple Inc.", Value: "apple"},
+		{Text: "Microsoft Corporation", Value: "microsoft"},
+		{Text: "Google LLC", Value: "google"},
+		{Text: "Amazon.com Inc.", Value: "amazon"},
+		{Text: "Meta Platforms Inc.", Value: "meta"},
+		{Text: "Tesla Inc.", Value: "tesla"},
+		{Text: "Netflix Inc.", Value: "netflix"},
+		{Text: "Spotify Technology SA", Value: "spotify"},
+		{Text: "Adobe Inc.", Value: "adobe"},
+		{Text: "Salesforce Inc.", Value: "salesforce"},
+		{Text: "Oracle Corporation", Value: "oracle"},
+		{Text: "IBM Corporation", Value: "ibm"},
+		{Text: "Intel Corporation", Value: "intel"},
+		{Text: "NVIDIA Corporation", Value: "nvidia"},
+		{Text: "Mattermost Inc.", Value: "mattermost"},
+	}
+
+	// Filter companies based on query
+	var filteredCompanies []model.DialogSelectOption
+	for _, company := range allCompanies {
+		if query == "" || strings.Contains(strings.ToLower(company.Text), query) {
+			filteredCompanies = append(filteredCompanies, company)
+		}
+	}
+
+	// Limit to first 10 results
+	if len(filteredCompanies) > 10 {
+		filteredCompanies = filteredCompanies[:10]
+	}
+
+	response := model.LookupDialogResponse{Items: filteredCompanies}
+	p.writeJSON(w, response)
+}
+
+func (p *Plugin) handleDynamicCountries(w http.ResponseWriter, r *http.Request) {
+	var request model.SubmitDialogRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		p.API.LogError("Failed to decode DialogLookupRequest for countries", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	// Extract the query term from the submission
+	query := ""
+	if request.Submission != nil {
+		if queryVal, ok := request.Submission["query"]; ok {
+			if queryStr, ok := queryVal.(string); ok {
+				query = strings.ToLower(queryStr)
+			}
+		}
+	}
+
+	// Sample country data
+	allCountries := []model.DialogSelectOption{
+		{Text: "United States", Value: "us"},
+		{Text: "Canada", Value: "ca"},
+		{Text: "United Kingdom", Value: "uk"},
+		{Text: "Germany", Value: "de"},
+		{Text: "France", Value: "fr"},
+		{Text: "Italy", Value: "it"},
+		{Text: "Spain", Value: "es"},
+		{Text: "Netherlands", Value: "nl"},
+		{Text: "Sweden", Value: "se"},
+		{Text: "Norway", Value: "no"},
+		{Text: "Denmark", Value: "dk"},
+		{Text: "Finland", Value: "fi"},
+		{Text: "Australia", Value: "au"},
+		{Text: "New Zealand", Value: "nz"},
+		{Text: "Japan", Value: "jp"},
+		{Text: "South Korea", Value: "kr"},
+		{Text: "Singapore", Value: "sg"},
+		{Text: "India", Value: "in"},
+		{Text: "Brazil", Value: "br"},
+		{Text: "Mexico", Value: "mx"},
+	}
+
+	// Filter countries based on query
+	var filteredCountries []model.DialogSelectOption
+	for _, country := range allCountries {
+		if query == "" || strings.Contains(strings.ToLower(country.Text), query) {
+			filteredCountries = append(filteredCountries, country)
+		}
+	}
+
+	// Limit to first 10 results
+	if len(filteredCountries) > 10 {
+		filteredCountries = filteredCountries[:10]
+	}
+
+	response := model.LookupDialogResponse{Items: filteredCountries}
+	p.writeJSON(w, response)
 }
