@@ -31,6 +31,10 @@ const (
 
 	commandDialogHelp = "###### Interactive Dialog Slash Command Help\n" +
 		"- `/dialog` - Open an Interactive Dialog. Once submitted, user-entered input is posted back into a channel.\n" +
+		"- `/dialog basic` - Open a simple Interactive Dialog with one optional text field for basic testing.\n" +
+		"- `/dialog boolean` - Open an Interactive Dialog with boolean fields for testing toggle functionality.\n" +
+		"- `/dialog textfields` - Open an Interactive Dialog with various text field types for testing input validation.\n" +
+		"- `/dialog selectfields` - Open an Interactive Dialog with select, radio, user, and channel selectors.\n" +
 		"- `/dialog no-elements` - Open an Interactive Dialog with no elements. Once submitted, user's action is posted back into a channel.\n" +
 		"- `/dialog relative-callback-url` - Open an Interactive Dialog with relative callback URL. Once submitted, user's action is posted back into a channel.\n" +
 		"- `/dialog introduction-text` - Open an Interactive Dialog with optional introduction text. Once submitted, user's action is posted back into a channel.\n" +
@@ -349,6 +353,30 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/1", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog:    getDialogWithSampleElements(),
 		}
+	case "basic":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogBasic(),
+		}
+	case "boolean":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogBoolean(),
+		}
+	case "textfields":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogTextFields(),
+		}
+	case "selectfields":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogSelectFields(),
+		}
 	case "no-elements":
 		dialogRequest = model.OpenDialogRequest{
 			TriggerId: args.TriggerId,
@@ -377,7 +405,7 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 		dialogRequest = model.OpenDialogRequest{
 			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("/plugins/%s/dialog/error", manifest.Id),
-			Dialog:    getDialogWithSampleElements(),
+			Dialog:    getDialogBasic(),
 		}
 	case "error-no-elements":
 		dialogRequest = model.OpenDialogRequest{
@@ -401,218 +429,6 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 		}
 	}
 	return &model.CommandResponse{}
-}
-
-func getDialogWithSampleElements() model.Dialog {
-	return model.Dialog{
-		CallbackId: "somecallbackid",
-		Title:      "Test Title",
-		IconURL:    "https://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
-		Elements: []model.DialogElement{{
-			DisplayName: "Display Name",
-			Name:        "realname",
-			Type:        "text",
-			Default:     "default text",
-			Placeholder: "placeholder",
-			HelpText:    "This a regular input in an interactive dialog triggered by a test integration.",
-		}, {
-			DisplayName: "Email",
-			Name:        dialogElementNameEmail,
-			Type:        "text",
-			SubType:     "email",
-			Placeholder: "placeholder@bladekick.com",
-			HelpText:    "This a regular email input in an interactive dialog triggered by a test integration.",
-		}, {
-			DisplayName: "Password",
-			Name:        "somepassword",
-			Type:        "text",
-			SubType:     "password",
-			Placeholder: "Password",
-			HelpText:    "This a password input in an interactive dialog triggered by a test integration.",
-		}, {
-			DisplayName: "Number",
-			Name:        dialogElementNameNumber,
-			Type:        "text",
-			SubType:     "number",
-		}, {
-			DisplayName: "Display Name Long Text Area",
-			Name:        "realnametextarea",
-			Type:        "textarea",
-			Placeholder: "placeholder",
-			Optional:    true,
-			MinLength:   5,
-			MaxLength:   100,
-		}, {
-			DisplayName: "User Selector",
-			Name:        "someuserselector",
-			Type:        "select",
-			Placeholder: "Select a user...",
-			HelpText:    "Choose a user from the list.",
-			Optional:    true,
-			MinLength:   5,
-			MaxLength:   100,
-			DataSource:  "users",
-		}, {
-			DisplayName: "Channel Selector",
-			Name:        "somechannelselector",
-			Type:        "select",
-			Placeholder: "Select a channel...",
-			HelpText:    "Choose a channel from the list.",
-			Optional:    true,
-			MinLength:   5,
-			MaxLength:   100,
-			DataSource:  "channels",
-		}, {
-			DisplayName: "Option Selector",
-			Name:        "someoptionselector",
-			Type:        "select",
-			Placeholder: "Select an option...",
-			HelpText:    "Choose an option from the list.",
-			Options: []*model.PostActionOptions{{
-				Text:  "Option1",
-				Value: "opt1",
-			}, {
-				Text:  "Option2",
-				Value: "opt2",
-			}, {
-				Text:  "Option3",
-				Value: "opt3",
-			}},
-		}, {
-			DisplayName: "Option Selector with default",
-			Name:        "someoptionselector2",
-			Type:        "select",
-			Default:     "opt2",
-			Placeholder: "Select an option...",
-			HelpText:    "Choose an option from the list.",
-			Options: []*model.PostActionOptions{{
-				Text:  "Option1",
-				Value: "opt1",
-			}, {
-				Text:  "Option2",
-				Value: "opt2",
-			}, {
-				Text:  "Option3",
-				Value: "opt3",
-			}},
-		}, {
-			DisplayName: "Boolean Selector",
-			Name:        "someboolean",
-			Type:        "bool",
-			Placeholder: "Agree to the terms of service",
-			HelpText:    "You must agree to the terms of service to proceed.",
-		}, {
-			DisplayName: "Boolean Selector",
-			Name:        "someboolean_optional",
-			Type:        "bool",
-			Placeholder: "Sign up for monthly emails?",
-			HelpText:    "It's up to you if you want to get monthly emails.",
-			Optional:    true,
-		}, {
-			DisplayName: "Boolean Selector (default true)",
-			Name:        "someboolean_default_true",
-			Type:        "bool",
-			Placeholder: "Enable secure login",
-			HelpText:    "You must enable secure login to proceed.",
-			Default:     "true",
-		}, {
-			DisplayName: "Boolean Selector (default true)",
-			Name:        "someboolean_default_true_optional",
-			Type:        "bool",
-			Placeholder: "Enable painfully secure login",
-			HelpText:    "You may optionally enable painfully secure login.",
-			Default:     "true",
-			Optional:    true,
-		}, {
-			DisplayName: "Boolean Selector (default false)",
-			Name:        "someboolean_default_false",
-			Type:        "bool",
-			Placeholder: "Agree to the annoying terms of service",
-			HelpText:    "You must also agree to the annoying terms of service to proceed.",
-			Default:     "false",
-		}, {
-			DisplayName: "Boolean Selector (default false)",
-			Name:        "someboolean_default_false_optional",
-			Type:        "bool",
-			Placeholder: "Throw-away account",
-			HelpText:    "A throw-away account will be deleted after 24 hours.",
-			Default:     "false",
-			Optional:    true,
-		}, {
-			DisplayName: "Radio Option Selector",
-			Name:        "someradiooptionselector",
-			Type:        "radio",
-			HelpText:    "Choose an option from the list.",
-			Options: []*model.PostActionOptions{{
-				Text:  "Option1",
-				Value: "opt1",
-			}, {
-				Text:  "Option2",
-				Value: "opt2",
-			}, {
-				Text:  "Option3",
-				Value: "opt3",
-			}},
-		}},
-		SubmitLabel:    "Submit",
-		NotifyOnCancel: true,
-		State:          dialogStateSome,
-	}
-}
-
-func getDialogWithoutElements(state string) model.Dialog {
-	return model.Dialog{
-		CallbackId:     "somecallbackid",
-		Title:          "Sample Confirmation Dialog",
-		IconURL:        "https://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
-		Elements:       nil,
-		SubmitLabel:    "Confirm",
-		NotifyOnCancel: true,
-		State:          state,
-	}
-}
-
-func getDialogWithIntroductionText(introductionText string) model.Dialog {
-	dialog := getDialogWithSampleElements()
-	dialog.IntroductionText = introductionText
-	return dialog
-}
-
-func getDialogWithDynamicSelectElements() model.Dialog {
-	return model.Dialog{
-		CallbackId: "somecallbackid",
-		Title:      "Dynamic Select Dialog Demo",
-		IconURL:    "http://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
-		Elements: []model.DialogElement{{
-			DisplayName:   "Dynamic Products",
-			Name:          "dynamic_products",
-			Type:          "select",
-			Placeholder:   "Type to search products...",
-			HelpText:      "Search for products dynamically from external API.",
-			DataSource:    "dynamic",
-			DataSourceURL: fmt.Sprintf("/plugins/%s/api/products", manifest.Id),
-		}, {
-			DisplayName:   "Dynamic Companies",
-			Name:          "dynamic_companies",
-			Type:          "select",
-			Placeholder:   "Type to search companies...",
-			HelpText:      "Search for companies dynamically based on your input.",
-			DataSource:    "dynamic",
-			DataSourceURL: fmt.Sprintf("/plugins/%s/api/companies", manifest.Id),
-		}, {
-			DisplayName:   "Dynamic Countries",
-			Name:          "dynamic_countries",
-			Type:          "select",
-			Placeholder:   "Type to search countries...",
-			HelpText:      "Search for countries dynamically with real-time filtering.",
-			DataSource:    "dynamic",
-			DataSourceURL: fmt.Sprintf("/plugins/%s/api/countries", manifest.Id),
-			Optional:      true,
-		}},
-		SubmitLabel:    "Submit Dynamic Select",
-		NotifyOnCancel: true,
-		State:          dialogStateSome,
-	}
 }
 
 func (p *Plugin) executeCommandInteractive(args *model.CommandArgs) *model.CommandResponse {

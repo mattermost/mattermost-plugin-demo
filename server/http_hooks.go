@@ -45,6 +45,7 @@ func (p *Plugin) initializeAPI() {
 	dialogRouter.Use(p.withDelay)
 	dialogRouter.HandleFunc("/1", p.handleDialog1)
 	dialogRouter.HandleFunc("/2", p.handleDialog2)
+	dialogRouter.HandleFunc("/3", p.handleDialog3)
 	dialogRouter.HandleFunc("/error", p.handleDialogWithError)
 
 	apiRouter := router.PathPrefix("/api").Subrouter()
@@ -237,6 +238,43 @@ func (p *Plugin) handleDialog2(w http.ResponseWriter, r *http.Request) {
 		Message:   fmt.Sprintf("@%v confirmed an Interactive Dialog %v", user.Username, suffix),
 	}); appErr != nil {
 		p.API.LogError("Failed to post handleDialog2 message", "err", appErr.Error())
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (p *Plugin) handleDialog3(w http.ResponseWriter, r *http.Request) {
+	var request model.SubmitDialogRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		p.API.LogError("Failed to decode SubmitDialogRequest", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	var message string
+	if request.Cancelled {
+		message = "Dialog cancelled"
+	} else {
+		submission := request.Submission
+
+		// Generic approach - format submission data as structured lines
+		message = "Dialog Submitted:"
+		for key, value := range submission {
+			valueStr := fmt.Sprintf("%v", value)
+			message += fmt.Sprintf("\n- %s: %s", key, valueStr)
+		}
+	}
+
+	// Post the message to the channel
+	if _, appErr := p.API.CreatePost(&model.Post{
+		UserId:    p.botID,
+		ChannelId: request.ChannelId,
+		Message:   message,
+	}); appErr != nil {
+		p.API.LogError("Failed to post handleDialog3 message", "err", appErr.Error())
 		return
 	}
 
