@@ -252,9 +252,6 @@ func (p *Plugin) handleDialog3(w http.ResponseWriter, r *http.Request) {
 		message = "Dialog cancelled"
 	} else {
 		submission := request.Submission
-		if submission == nil {
-			submission = make(map[string]interface{})
-		}
 
 		// Generic approach - format submission data as structured lines
 		message = "Dialog Submitted:"
