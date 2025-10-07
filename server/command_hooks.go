@@ -41,6 +41,8 @@ const (
 		"- `/dialog dynamic-select` - Open an Interactive Dialog with dynamic select fields. Once submitted, user-entered input is posted back into a channel.\n" +
 		"- `/dialog error` - Open an Interactive Dialog which always returns an general error.\n" +
 		"- `/dialog error-no-elements` - Open an Interactive Dialog with no elements which always returns an general error.\n" +
+		"- `/dialog field-refresh` - Open an Interactive Dialog with field refresh functionality.\n" +
+		"- `/dialog multistep` - Open a multi-step Interactive Dialog demonstrating form refresh on submit.\n" +
 		"- `/dialog help` - Show this help text"
 )
 
@@ -172,6 +174,12 @@ func getCommandDialogAutocompleteData() *model.AutocompleteData {
 
 	dynamicSelect := model.NewAutocompleteData("dynamic-select", "", "Open an Interactive Dialog with dynamic select fields.")
 	command.AddCommand(dynamicSelect)
+
+	fieldRefresh := model.NewAutocompleteData("field-refresh", "", "Open an Interactive Dialog with field refresh functionality.")
+	command.AddCommand(fieldRefresh)
+
+	multistep := model.NewAutocompleteData("multistep", "", "Open a multi-step Interactive Dialog with form refresh on submit.")
+	command.AddCommand(multistep)
 
 	help := model.NewAutocompleteData("help", "", "")
 	command.AddCommand(help)
@@ -412,6 +420,18 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("/plugins/%s/dialog/error", manifest.Id),
 			Dialog:    getDialogWithoutElements(dialogStateSome),
+		}
+	case "field-refresh":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/field-refresh", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogWithFieldRefresh(""), // Start with no project type selected
+		}
+	case "multistep":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/multistep", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogStep1(),
 		}
 	default:
 		return &model.CommandResponse{
