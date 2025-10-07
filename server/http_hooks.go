@@ -291,6 +291,36 @@ func (p *Plugin) handleDateDialog(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
+	// Validate date fields if not cancelled
+	if !request.Cancelled {
+		validationErrors := map[string]string{}
+
+		// Validate somedate field
+		if dateVal, ok := request.Submission["somedate"].(string); ok && dateVal != "" {
+			if _, err := time.Parse("2006-01-02", dateVal); err != nil {
+				p.API.LogWarn("Invalid date format in submission", "date", dateVal, "err", err)
+				validationErrors["somedate"] = "Invalid date format. Expected YYYY-MM-DD."
+			}
+		}
+
+		// Validate somedatetime field
+		if datetimeVal, ok := request.Submission["somedatetime"].(string); ok && datetimeVal != "" {
+			if _, err := time.Parse(time.RFC3339, datetimeVal); err != nil {
+				p.API.LogWarn("Invalid datetime format in submission", "datetime", datetimeVal, "err", err)
+				validationErrors["somedatetime"] = "Invalid datetime format. Expected RFC3339."
+			}
+		}
+
+		// Return validation errors to user
+		if len(validationErrors) > 0 {
+			response := &model.SubmitDialogResponse{
+				Errors: validationErrors,
+			}
+			p.writeJSON(w, response)
+			return
+		}
+	}
+
 	user, appErr := p.API.GetUser(request.UserId)
 	if appErr != nil {
 		p.API.LogError("Failed to get user for date dialog", "err", appErr.Error())
@@ -320,24 +350,12 @@ func (p *Plugin) handleDateDialog(w http.ResponseWriter, r *http.Request) {
 			submissionDisplay[key] = value
 		}
 
-		// Add formatted display for date values with validation
+		// Add formatted display for date values (already validated above)
 		if dateVal, ok := request.Submission["somedate"].(string); ok && dateVal != "" {
-			// Validate date format for security
-			if _, err := time.Parse("2006-01-02", dateVal); err == nil {
-				submissionDisplay["somedate_formatted"] = fmt.Sprintf("📅 %s", html.EscapeString(dateVal))
-			} else {
-				p.API.LogWarn("Invalid date format provided", "date", dateVal)
-				submissionDisplay["somedate_formatted"] = "📅 Invalid date format"
-			}
+			submissionDisplay["somedate_formatted"] = fmt.Sprintf("📅 %s", html.EscapeString(dateVal))
 		}
 		if datetimeVal, ok := request.Submission["somedatetime"].(string); ok && datetimeVal != "" {
-			// Validate datetime format for security
-			if _, err := time.Parse(time.RFC3339, datetimeVal); err == nil {
-				submissionDisplay["somedatetime_formatted"] = fmt.Sprintf("🕐 %s", html.EscapeString(datetimeVal))
-			} else {
-				p.API.LogWarn("Invalid datetime format provided", "datetime", datetimeVal)
-				submissionDisplay["somedatetime_formatted"] = "🕐 Invalid datetime format"
-			}
+			submissionDisplay["somedatetime_formatted"] = fmt.Sprintf("🕐 %s", html.EscapeString(datetimeVal))
 		}
 
 		if _, appErr = p.API.CreatePost(&model.Post{

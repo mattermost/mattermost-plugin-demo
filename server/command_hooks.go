@@ -239,7 +239,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 	default:
 		return &model.CommandResponse{
 			ResponseType: model.CommandResponseTypeEphemeral,
-			Text:         "Unknown command. Use `/dialog help` for available commands.",
+			Text:         fmt.Sprintf("Unknown command: " + args.Command + ". Use `/dialog help` for available commands."),
 		}, nil
 	}
 }
@@ -441,55 +441,6 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 		}
 	}
 	return &model.CommandResponse{}
-}
-
-func getDialogWithDateElements() model.Dialog {
-	dialog := model.Dialog{
-		CallbackId: "datecallbackid",
-		Title:      "Date & DateTime Test Dialog",
-		IconURL:    "http://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
-		Elements: []model.DialogElement{{
-			DisplayName: "Meeting Date",
-			Name:        dialogElementNameDate,
-			Type:        "date",
-			Placeholder: "Select a meeting date",
-			HelpText:    "Choose a date for the meeting using the date picker.",
-		}, {
-			DisplayName: "Meeting Date & Time",
-			Name:        dialogElementNameDatetime,
-			Type:        "datetime",
-			Placeholder: "Select meeting date and time",
-			HelpText:    "Choose both date and time for the meeting start.",
-		}, {
-			DisplayName: "Event Title",
-			Name:        "eventtitle",
-			Type:        "text",
-			Default:     "Team Meeting",
-			Placeholder: "Enter event title",
-			HelpText:    "Give your event a descriptive title.",
-		}, {
-			DisplayName: "Event Description",
-			Name:        "eventdescription",
-			Type:        "textarea",
-			Placeholder: "Describe the event...",
-			Optional:    true,
-			MaxLength:   200,
-			HelpText:    "Optional: Add more details about the event.",
-		}, {
-			DisplayName: "All Day Event",
-			Name:        "alldayevent",
-			Type:        "bool",
-			Placeholder: "Is this an all-day event?",
-			HelpText:    "Check if this event lasts the entire day.",
-			Optional:    true,
-		}},
-		SubmitLabel:      "Create Event",
-		NotifyOnCancel:   true,
-		State:            "datetest",
-		IntroductionText: "**Test Date and DateTime Pickers** \n\nThis dialog demonstrates the new date and datetime field types. Select dates using the integrated date pickers.",
-	}
-
-	return dialog
 }
 
 func (p *Plugin) executeCommandInteractive(args *model.CommandArgs) *model.CommandResponse {
