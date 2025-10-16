@@ -28,8 +28,7 @@
     "@types/enzyme": "3.10.17",
     "@types/jest": "29.5.10",
     "@types/node": "12.12.24",
-    "@types/react": "16.9.17",
-    "@types/react-dom": "16.9.4",
+    "@types/react": "18.2.64",
     "@types/react-intl": "2.3.18",
     "@types/react-redux": "7.1.31",
     "@types/react-router-dom": "5.3.3",
@@ -54,11 +53,13 @@
     "webpack-cli": "5.1.4"
   },
   "dependencies": {
+    "@mattermost/client": "11.1.0-2",
+    "@mattermost/types": "11.1.0-2",
     "core-js": "3.33.3",
-    "mattermost-redux": "5.33.1",
-    "react": "^16.14.0",
-    "react-redux": "8.1.3",
-    "redux": "4.2.1",
+    "mattermost-redux": "11.1.0-2",
+    "react": "18.2.0",
+    "react-redux": "9.2.0",
+    "redux": "5.0.1",
     "typescript": "4.6.4"
   },
   "jest": {
