@@ -1,8 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {FormattedMessage} from 'react-intl';
+import {Toggle} from '@mattermost/design-system';
 
 const Root = ({visible, close, theme, subMenu}) => {
+    const [toggled, setToggle] = useState(false);
+    const toggleToggle = useCallback(() => setToggle((val) => !val), []);
     if (!visible) {
         return null;
     }
@@ -26,28 +29,51 @@ const Root = ({visible, close, theme, subMenu}) => {
             style={style.backdrop}
             onClick={close}
         >
-            <div style={style.modal}>
-                <FormattedMessage
-                    id='root.triggered'
-                    defaultMessage='You have triggered the root component of the demo plugin.'
+            <h2>{'Toggles'}</h2>
+            <label>
+                {'Toggle'}
+                <Toggle
+                    onToggle={toggleToggle}
+                    toggled={toggled}
+                    onText='On!'
+                    offText='Off!'
                 />
-                <br/>
-                <br/>
-                <FormattedMessage
-                    id='root.clicktoclose'
-                    defaultMessage='Click anywhere to close.'
+            </label>
+            <label>
+                {'Disabled toggle'}
+                <Toggle
+                    onToggle={toggleToggle}
+                    toggled={toggled}
+                    disabled={true}
+                    onText='On!'
+                    offText='Off!'
                 />
-                <br/>
-                <br/>
-                <FormattedMessage
-                    id='demo.testintl'
-                    defaultMessage='This is the default string'
+            </label>
+            <label>
+                {'Big toggle'}
+                <Toggle
+                    onToggle={toggleToggle}
+                    toggled={toggled}
+                    size='btn-lg'
+                    onText='On!'
+                    offText='Off!'
                 />
-                <br/>
-                <br/>
-                {extraContentTitle}
-                {extraContent}
-            </div>
+            </label>
+
+            <h2>{'Buttons'}</h2>
+
+            <span>
+                <Button
+                    size='xs'
+                >
+                    {'Extra small'}
+                </Button>
+                <Button
+                    size='sm'
+                >
+                    {'Small'}
+                </Button>
+            </span>
         </div>
     );
 };
