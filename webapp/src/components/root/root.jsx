@@ -1,10 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {FormattedMessage} from 'react-intl';
-import {Toggle} from '@mattermost/design-system';
+import {Toggle, Button, Input, PasswordInput, CheckInput} from '@mattermost/design-system';
+import { useState, useCallback} from 'react';
 
 const Root = ({visible, close, theme, subMenu}) => {
     const [toggled, setToggle] = useState(false);
+    const [checked, setChecked] = useState(false);
     const toggleToggle = useCallback(() => setToggle((val) => !val), []);
     if (!visible) {
         return null;
@@ -73,7 +75,80 @@ const Root = ({visible, close, theme, subMenu}) => {
                 >
                     {'Small'}
                 </Button>
+                <Button
+                    size='md'
+                >
+                    {'Medium'}
+                </Button>
+                <Button
+                    size='lg'
+                >
+                    {'Large'}
+                </Button>
             </span>
+
+            <h2>{'Checkbox'}</h2>
+            <label>
+                {'Checkbox'}
+                <CheckInput
+                    checked={checked}
+                    onChange={setChecked}
+                />
+            </label>
+            <label>
+                {'Big checkbox'}
+                <CheckInput
+                    checked={checked}
+                    onChange={setChecked}
+                />
+            </label>
+            <label>
+                {'Extra large checkbox'}
+                <CheckInput
+                    checked={checked}
+                    onChange={setChecked}
+                />
+            </label>
+            <label>
+                {'Disabled extra large checkbox'}
+                <CheckInput
+                    checked={checked}
+                    onChange={setChecked}
+                />
+            </label>
+            <label>
+                {'Extra small checkbox'}
+                <CheckInput
+                    checked={checked}
+                    onChange={setChecked}
+                />
+            </label>
+            <label>
+                {'Disabled extra small checkbox'}
+                <CheckInput
+                    checked={checked}
+                    onChange={setChecked}
+                />
+            </label>
+
+            <h2>{'Input'}</h2>
+            <Input
+                type='text'
+                placeholder='Enter text...'
+            />
+            <Input
+                type='text'
+                textArea={true}
+                multiline={true}
+                rows={3}
+                placeholder='Enter long text in this areas...'
+            />
+            <PasswordInput
+                placeholder='Enter password...'
+            />
+           {/* <UrlInput
+                placeholder='Enter URL...'
+            />*/}
         </div>
     );
 };
