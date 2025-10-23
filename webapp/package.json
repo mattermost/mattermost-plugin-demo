@@ -3,6 +3,7 @@
   "description": "This plugin demonstrates the capabilities of a Mattermost plugin.",
   "main": "src/index.js",
   "scripts": {
+    "postinstall": "npm link @mattermost/design-system",
     "build": "webpack --mode=production",
     "build:watch": "webpack --mode=production --watch",
     "debug": "webpack --mode=none",
