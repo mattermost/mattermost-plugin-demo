@@ -79,7 +79,7 @@ func (p *Plugin) FileWillBeDownloaded(c *plugin.Context, fileInfo *model.FileInf
 				"error", err.Error())
 		}
 
-		return "All file downloads are currently disabled for testing"
+		return "All file downloads are currently disabled by the demo plugin"
 	}
 
 	// Allow the download for other files
