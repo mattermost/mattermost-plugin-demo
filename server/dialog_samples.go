@@ -901,6 +901,51 @@ func getDialogStep3Summary(formData map[string]interface{}) model.Dialog {
 			Placeholder: "I accept the Privacy Policy",
 			HelpText:    "You must accept our privacy policy to complete registration.",
 		}},
+func getDialogWithMultiSelectElements() model.Dialog {
+	return model.Dialog{
+		CallbackId: "somecallbackid",
+		Title:      "Multi-Select Dialog Demo",
+		IconURL:    "http://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
+		Elements: []model.DialogElement{{
+			DisplayName: "Multi-Select Users",
+			Name:        "multiselect_users",
+			Type:        "select",
+			Placeholder: "Select multiple users...",
+			HelpText:    "Choose multiple users from the list.",
+			DataSource:  "users",
+			MultiSelect: true,
+		}, {
+			DisplayName: "Multi-Select Channels",
+			Name:        "multiselect_channels",
+			Type:        "select",
+			Placeholder: "Select multiple channels...",
+			HelpText:    "Choose multiple channels from the list.",
+			DataSource:  "channels",
+			MultiSelect: true,
+		}, {
+			DisplayName: "Multi-Select Options",
+			Name:        "multiselect_options",
+			Type:        "select",
+			Placeholder: "Select multiple options...",
+			HelpText:    "Choose multiple options from the list.",
+			MultiSelect: true,
+			Options: []*model.PostActionOptions{{
+				Text:  "Option A",
+				Value: "optA",
+			}, {
+				Text:  "Option B",
+				Value: "optB",
+			}, {
+				Text:  "Option C",
+				Value: "optC",
+			}, {
+				Text:  "Option D",
+				Value: "optD",
+			}},
+		}},
+		SubmitLabel:    "Submit Multi-Select",
+		NotifyOnCancel: true,
+		State:          dialogStateSome,
 	}
 }
 
