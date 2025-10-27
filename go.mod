@@ -4,7 +4,7 @@ go 1.24.6
 
 require (
 	github.com/gorilla/mux v1.8.1
-	github.com/mattermost/mattermost/server/public v0.1.19
+	github.com/mattermost/mattermost/server/public v0.1.20-0.20251007151112-535d93ee9859
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.11.1
 )
