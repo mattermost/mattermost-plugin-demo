@@ -5,7 +5,7 @@
     "homepage_url": "https://github.com/mattermost/mattermost-plugin-demo",
     "support_url": "https://github.com/mattermost/mattermost-plugin-demo/issues",
     "icon_path": "assets/icon.svg",
-    "version": "0.10.1",
+    "version": "0.10.3",
     "min_server_version": "7.9.0",
     "server": {
         "executables": {
