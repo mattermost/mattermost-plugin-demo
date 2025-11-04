@@ -21,6 +21,7 @@ const (
 	commandTriggerMentions          = "show_mentions"
 	commandTriggerListFiles         = "list_files"
 	commandTriggerAutocompleteTest  = "autocomplete_test"
+	commandTriggerToast             = "toast"
 
 	dialogElementNameNumber = "somenumber"
 	dialogElementNameEmail  = "someemail"
@@ -122,6 +123,15 @@ func (p *Plugin) registerCommands() error {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerDialog)
 	}
 
+	if err := p.API.RegisterCommand(&model.Command{
+		Trigger:          commandTriggerToast,
+		AutoComplete:     true,
+		AutoCompleteDesc: "Demonstrates the toast notification API.",
+		AutocompleteData: getCommandToastAutocompleteData(),
+	}); err != nil {
+		return errors.Wrapf(err, "failed to register %s command", commandTriggerToast)
+	}
+
 	return nil
 }
 
@@ -190,6 +200,37 @@ func getAutocompleteTestAutocompleteData() *model.AutocompleteData {
 	return command
 }
 
+func getCommandToastAutocompleteData() *model.AutocompleteData {
+	command := model.NewAutocompleteData(commandTriggerToast, "[position] [message]", "Send a toast notification.")
+
+	// Add position options
+	topLeft := model.NewAutocompleteData("top-left", "[message]", "Show toast at top-left")
+	topLeft.AddTextArgument("Message to display", "[message]", "")
+	command.AddCommand(topLeft)
+
+	topCenter := model.NewAutocompleteData("top-center", "[message]", "Show toast at top-center")
+	topCenter.AddTextArgument("Message to display", "[message]", "")
+	command.AddCommand(topCenter)
+
+	topRight := model.NewAutocompleteData("top-right", "[message]", "Show toast at top-right")
+	topRight.AddTextArgument("Message to display", "[message]", "")
+	command.AddCommand(topRight)
+
+	bottomLeft := model.NewAutocompleteData("bottom-left", "[message]", "Show toast at bottom-left")
+	bottomLeft.AddTextArgument("Message to display", "[message]", "")
+	command.AddCommand(bottomLeft)
+
+	bottomCenter := model.NewAutocompleteData("bottom-center", "[message]", "Show toast at bottom-center")
+	bottomCenter.AddTextArgument("Message to display", "[message]", "")
+	command.AddCommand(bottomCenter)
+
+	bottomRight := model.NewAutocompleteData("bottom-right", "[message]", "Show toast at bottom-right (default)")
+	bottomRight.AddTextArgument("Message to display", "[message]", "")
+	command.AddCommand(bottomRight)
+
+	return command
+}
+
 // ExecuteCommand executes a command that has been previously registered via the RegisterCommand
 // API.
 //
@@ -221,6 +262,8 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		return p.executeCommandMentions(args), nil
 	case commandTriggerAutocompleteTest:
 		return p.executeAutocompleteTest(args), nil
+	case commandTriggerToast:
+		return p.executeCommandToast(args), nil
 
 	default:
 		return &model.CommandResponse{
@@ -725,5 +768,41 @@ func (p *Plugin) executeAutocompleteTest(args *model.CommandArgs) *model.Command
 	return &model.CommandResponse{
 		ResponseType: model.CommandResponseTypeEphemeral,
 		Text:         fmt.Sprintf("Executed command: " + args.Command),
+	}
+}
+
+func (p *Plugin) executeCommandToast(args *model.CommandArgs) *model.CommandResponse {
+	fields := strings.Fields(args.Command)
+
+	// Default values
+	position := "bottom-right"
+	message := "This is a demo toast notification!"
+
+	// Parse command arguments: /toast [position] [message]
+	if len(fields) >= 2 {
+		position = fields[1]
+	}
+	if len(fields) >= 3 {
+		// Join all remaining fields as the message
+		message = strings.Join(fields[2:], " ")
+	}
+
+	// Send the toast message using the plugin API
+	options := model.SendToastMessageOptions{
+		Position: position,
+	}
+
+	if err := p.client.Frontend.SendToastMessage(args.UserId, message, options); err != nil {
+		errorMessage := "Failed to send toast notification"
+		p.API.LogError(errorMessage, "err", err.Error())
+		return &model.CommandResponse{
+			ResponseType: model.CommandResponseTypeEphemeral,
+			Text:         errorMessage,
+		}
+	}
+
+	return &model.CommandResponse{
+		ResponseType: model.CommandResponseTypeEphemeral,
+		Text:         fmt.Sprintf("Toast notification sent to position: %s", position),
 	}
 }
