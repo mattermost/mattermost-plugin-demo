@@ -1,157 +1,149 @@
-import React from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
-import {FormattedMessage} from 'react-intl';
-import {Toggle, Button, Input, PasswordInput, CheckInput} from '@mattermost/design-system';
-import { useState, useCallback} from 'react';
+
+import {
+    Button,
+    CheckInput,
+    IconButton,
+    Input,
+    PasswordInput,
+} from '@mattermost/design-system';
 
 const Root = ({visible, close, theme, subMenu}) => {
-    const [toggled, setToggle] = useState(false);
-    const [checked, setChecked] = useState(false);
-    const toggleToggle = useCallback(() => setToggle((val) => !val), []);
+    const [checked1, toggleCheck1] = useToggle();
+    const [checked2, toggleCheck2] = useToggle();
+
+    const [toggled1, toggleToggle1] = useToggle();
+    const [toggled2, toggleToggle2] = useToggle();
+    const [toggled3, toggleToggle3] = useToggle();
+    const [toggled4, toggleToggle4] = useToggle();
+
+    useEffect(() => {
+        const closeOnEscape = (e) => {
+            console.log(e.key);
+            if (e.key === 'Escape') {
+                close();
+            }
+        };
+
+        if (visible) {
+            document.addEventListener('keydown', closeOnEscape);
+
+            return () => {
+                document.removeEventListener('keydown', closeOnEscape);
+            }
+        } else {
+            return () => {};
+        }
+    }, [visible, close]);
+
     if (!visible) {
         return null;
-    }
-
-    let extraContent = '';
-    let extraContentTitle = '';
-    if (subMenu) {
-        extraContentTitle = (
-            <FormattedMessage
-                id='demo.triggeredby'
-                defaultMessage='Element clicked in the menu: '
-            />
-        );
-        extraContent = subMenu;
     }
 
     const style = getStyle(theme);
 
     return (
-        <div
-            style={style.backdrop}
-            onClick={close}
-        >
-            <h2>{'Toggles'}</h2>
-            <label>
-                {'Toggle'}
-                <Toggle
-                    onToggle={toggleToggle}
-                    toggled={toggled}
-                    onText='On!'
-                    offText='Off!'
-                />
-            </label>
-            <label>
-                {'Disabled toggle'}
-                <Toggle
-                    onToggle={toggleToggle}
-                    toggled={toggled}
-                    disabled={true}
-                    onText='On!'
-                    offText='Off!'
-                />
-            </label>
-            <label>
-                {'Big toggle'}
-                <Toggle
-                    onToggle={toggleToggle}
-                    toggled={toggled}
-                    size='btn-lg'
-                    onText='On!'
-                    offText='Off!'
-                />
-            </label>
+        <div style={style.backdrop}>
+            <div style={style.modal}>
+                <div style={style.modalContent}>
 
-            <h2>{'Buttons'}</h2>
+                    <h2>{'Buttons'}</h2>
 
-            <span>
-                <Button
-                    size='xs'
-                >
-                    {'Extra small'}
-                </Button>
-                <Button
-                    size='sm'
-                >
-                    {'Small'}
-                </Button>
-                <Button
-                    size='md'
-                >
-                    {'Medium'}
-                </Button>
-                <Button
-                    size='lg'
-                >
-                    {'Large'}
-                </Button>
-            </span>
+                    <div style={style.row}>
+                        <Button size='xs'>
+                            {'Extra small'}
+                        </Button>
+                        <Button size='sm'>
+                            {'Small'}
+                        </Button>
+                        <Button size='md'>
+                            {'Medium'}
+                        </Button>
+                        <Button
+                            size='lg'
+                            destructive={true}
+                        >
+                            {'Large'}
+                        </Button>
+                    </div>
 
-            <h2>{'Checkbox'}</h2>
-            <label>
-                {'Checkbox'}
-                <CheckInput
-                    checked={checked}
-                    onChange={setChecked}
-                />
-            </label>
-            <label>
-                {'Big checkbox'}
-                <CheckInput
-                    checked={checked}
-                    onChange={setChecked}
-                />
-            </label>
-            <label>
-                {'Extra large checkbox'}
-                <CheckInput
-                    checked={checked}
-                    onChange={setChecked}
-                />
-            </label>
-            <label>
-                {'Disabled extra large checkbox'}
-                <CheckInput
-                    checked={checked}
-                    onChange={setChecked}
-                />
-            </label>
-            <label>
-                {'Extra small checkbox'}
-                <CheckInput
-                    checked={checked}
-                    onChange={setChecked}
-                />
-            </label>
-            <label>
-                {'Disabled extra small checkbox'}
-                <CheckInput
-                    checked={checked}
-                    onChange={setChecked}
-                />
-            </label>
+                    <h2>{'Checkbox'}</h2>
+                        <div style={style.row}>
+                        <label>
+                            {'Checkbox'}
+                            <CheckInput
+                                checked={checked1}
+                                onChange={toggleCheck1}
+                            />
+                        </label>
+                        <label>
+                            {'Disabled checkbox'}
+                            <CheckInput
+                                checked={checked2}
+                                onChange={toggleCheck2}
+                                disabled={true}
+                            />
+                        </label>
+                    </div>
 
-            <h2>{'Input'}</h2>
-            <Input
-                type='text'
-                placeholder='Enter text...'
-            />
-            <Input
-                type='text'
-                textArea={true}
-                multiline={true}
-                rows={3}
-                placeholder='Enter long text in this areas...'
-            />
-            <PasswordInput
-                placeholder='Enter password...'
-            />
-           {/* <UrlInput
-                placeholder='Enter URL...'
-            />*/}
+                    <h2>{'Input'}</h2>
+                    <Input
+                        type='text'
+                        placeholder='Enter text...'
+                    />
+                    <PasswordInput
+                        placeholder='Enter password...'
+                    />
+
+                    <h2>{'Icon button'}</h2>
+                    <div style={style.row}>
+                        <IconButton
+                            icon={<span style={{fontSize: 20}}>{'≤'}</span>}
+                            size='lg'
+                            inverted={false}
+                            onClick={toggleToggle1}
+                            toggled={toggled1}
+                        />
+                        <div style={{backgroundColor: 'darkblue'}}>
+                            <IconButton
+                                icon={<span style={{fontSize: 20}}>{'≤'}</span>}
+                                size='lg'
+                                inverted={true}
+                                onClick={toggleToggle2}
+                                toggled={toggled2}
+                            />
+                        </div>
+                        <IconButton
+                            icon={<span style={{fontSize: 20}}>{'☹'}</span>}
+                            size='lg'
+                            destructive={true}
+                            onClick={toggleToggle3}
+                            toggled={toggled3}
+                        />
+                        <div style={{backgroundColor: 'darkblue'}}>
+                            <IconButton
+                                icon={<span style={{fontSize: 20}}>{'☹'}</span>}
+                                size='lg'
+                                destructive={true}
+                                inverted={true}
+                                onClick={toggleToggle4}
+                                toggled={toggled4}
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };
+
+function useToggle() {
+    const [toggled, setToggle] = useState(false);
+    const toggleToggle = useCallback(() => setToggle((val) => !val), []);
+
+    return [toggled, toggleToggle];
+}
 
 Root.propTypes = {
     visible: PropTypes.bool.isRequired,
@@ -174,12 +166,22 @@ const getStyle = (theme) => ({
         justifyContent: 'center',
     },
     modal: {
-        height: '250px',
-        width: '400px',
-        padding: '1em',
+        height: '80vh',
+        width: '80vw',
+        overflowY: 'scroll',
         color: theme.centerChannelColor,
         backgroundColor: theme.centerChannelBg,
+        display: 'flex',
     },
+    modalContent: {
+        padding: '1em',
+        width: '60%',
+    },
+    row: {
+        display: 'flex',
+        flexDirection: 'row',
+        'gap': '16px',
+    }
 });
 
 export default Root;
