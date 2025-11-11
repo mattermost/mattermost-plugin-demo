@@ -22,8 +22,10 @@ const (
 	commandTriggerListFiles         = "list_files"
 	commandTriggerAutocompleteTest  = "autocomplete_test"
 
-	dialogElementNameNumber = "somenumber"
-	dialogElementNameEmail  = "someemail"
+	dialogElementNameNumber   = "somenumber"
+	dialogElementNameEmail    = "someemail"
+	dialogElementNameDate     = "somedate"
+	dialogElementNameDatetime = "somedatetime"
 
 	dialogStateSome                = "somestate"
 	dialogStateRelativeCallbackURL = "relativecallbackstate"
@@ -39,8 +41,12 @@ const (
 		"- `/dialog relative-callback-url` - Open an Interactive Dialog with relative callback URL. Once submitted, user's action is posted back into a channel.\n" +
 		"- `/dialog introduction-text` - Open an Interactive Dialog with optional introduction text. Once submitted, user's action is posted back into a channel.\n" +
 		"- `/dialog dynamic-select` - Open an Interactive Dialog with dynamic select fields. Once submitted, user-entered input is posted back into a channel.\n" +
+		"- `/dialog date` - Open an Interactive Dialog with date and datetime fields for testing.\n" +
+		"- `/dialog multi-select` - Open an Interactive Dialog with multi-select fields. Once submitted, user-entered input is posted back into a channel.\n" +
 		"- `/dialog error` - Open an Interactive Dialog which always returns an general error.\n" +
 		"- `/dialog error-no-elements` - Open an Interactive Dialog with no elements which always returns an general error.\n" +
+		"- `/dialog field-refresh` - Open an Interactive Dialog with field refresh functionality.\n" +
+		"- `/dialog multistep` - Open a multi-step Interactive Dialog demonstrating form refresh on submit.\n" +
 		"- `/dialog help` - Show this help text"
 )
 
@@ -164,6 +170,9 @@ func getCommandDialogAutocompleteData() *model.AutocompleteData {
 	introText := model.NewAutocompleteData("introduction-text", "", "Open an Interactive Dialog with an introduction text.")
 	command.AddCommand(introText)
 
+	date := model.NewAutocompleteData("date", "", "Open an Interactive Dialog with date and datetime fields.")
+	command.AddCommand(date)
+
 	error := model.NewAutocompleteData("error", "", "Open an Interactive Dialog with error.")
 	command.AddCommand(error)
 
@@ -172,6 +181,15 @@ func getCommandDialogAutocompleteData() *model.AutocompleteData {
 
 	dynamicSelect := model.NewAutocompleteData("dynamic-select", "", "Open an Interactive Dialog with dynamic select fields.")
 	command.AddCommand(dynamicSelect)
+
+	fieldRefresh := model.NewAutocompleteData("field-refresh", "", "Open an Interactive Dialog with field refresh functionality.")
+	command.AddCommand(fieldRefresh)
+
+	multistep := model.NewAutocompleteData("multistep", "", "Open a multi-step Interactive Dialog with form refresh on submit.")
+	command.AddCommand(multistep)
+
+  multiSelect := model.NewAutocompleteData("multi-select", "", "Open an Interactive Dialog with multi-select fields.")
+	command.AddCommand(multiSelect)
 
 	help := model.NewAutocompleteData("help", "", "")
 	command.AddCommand(help)
@@ -233,7 +251,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 	default:
 		return &model.CommandResponse{
 			ResponseType: model.CommandResponseTypeEphemeral,
-			Text:         fmt.Sprintf("Unknown command: " + args.Command),
+			Text:         fmt.Sprintf("Unknown command: " + args.Command + ". Use `/dialog help` for available commands."),
 		}, nil
 	}
 }
@@ -285,7 +303,7 @@ func (p *Plugin) executeCommandHooks(args *model.CommandArgs) *model.CommandResp
 
 	return &model.CommandResponse{
 		ResponseType: model.CommandResponseTypeEphemeral,
-		Text:         fmt.Sprintf("Unknown command action: " + args.Command),
+		Text:         fmt.Sprintf("Unknown command action: %s", args.Command),
 	}
 }
 
@@ -401,6 +419,18 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/1", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog:    getDialogWithDynamicSelectElements(),
 		}
+	case "date":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/date", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogWithDateElements(),
+    }
+	case "multi-select":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/1", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogWithMultiSelectElements(),
+		}
 	case "error":
 		dialogRequest = model.OpenDialogRequest{
 			TriggerId: args.TriggerId,
@@ -413,10 +443,22 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			URL:       fmt.Sprintf("/plugins/%s/dialog/error", manifest.Id),
 			Dialog:    getDialogWithoutElements(dialogStateSome),
 		}
+	case "field-refresh":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/field-refresh", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogWithFieldRefresh(""), // Start with no project type selected
+		}
+	case "multistep":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/multistep", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogStep1(),
+		}
 	default:
 		return &model.CommandResponse{
 			ResponseType: model.CommandResponseTypeEphemeral,
-			Text:         fmt.Sprintf("Unknown command: " + command),
+			Text:         fmt.Sprintf("Unknown command: %s", command),
 		}
 	}
 
@@ -587,6 +629,6 @@ func (p *Plugin) executeCommandListFiles(args *model.CommandArgs) *model.Command
 func (p *Plugin) executeAutocompleteTest(args *model.CommandArgs) *model.CommandResponse {
 	return &model.CommandResponse{
 		ResponseType: model.CommandResponseTypeEphemeral,
-		Text:         fmt.Sprintf("Executed command: " + args.Command),
+		Text:         fmt.Sprintf("Executed command: %s", args.Command),
 	}
 }
