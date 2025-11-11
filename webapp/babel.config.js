@@ -24,10 +24,6 @@ const config = {
             isTSX: true,
         }],
     ],
-    plugins: [
-        '@babel/plugin-syntax-dynamic-import',
-        'babel-plugin-typescript-to-proptypes',
-    ],
 };
 
 // Jest needs module transformation
