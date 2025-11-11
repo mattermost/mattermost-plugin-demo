@@ -51,10 +51,10 @@
     "webpack-cli": "5.1.4"
   },
   "dependencies": {
-    "@mattermost/client": "11.1.0-2",
-    "@mattermost/types": "11.1.0-2",
+    "@mattermost/client": "11.1.0",
+    "@mattermost/types": "11.1.0",
     "core-js": "3.33.3",
-    "mattermost-redux": "11.1.0-2",
+    "mattermost-redux": "11.1.0",
     "react": "18.2.0",
     "react-redux": "9.2.0",
     "redux": "5.0.1",
