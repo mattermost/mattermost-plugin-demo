@@ -37,11 +37,20 @@ func (p *Plugin) UserHasLoggedIn(c *plugin.Context, user *model.User) {
 	}
 
 	for _, team := range teams {
+		channelId := configuration.demoChannelIDs[team.Id]
+
+		// Skip teams with no demo channel configured (prevents database timeouts)
+		if channelId == "" {
+			continue
+		}
+
 		msg := fmt.Sprintf("@%s has logged in. ID: `%s`", user.Username, user.Id)
 		if err := p.postPluginMessage(team.Id, msg); err != nil {
 			p.API.LogError(
 				"Failed to post UserHasLoggedIn message",
-				"channel_id", configuration.demoChannelIDs[team.Id],
+				"teamName", team.Name,
+				"teamId", team.Id,
+				"channel_id", channelId,
 				"error", err.Error(),
 			)
 		}

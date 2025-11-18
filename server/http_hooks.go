@@ -3,7 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"html"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -44,7 +46,15 @@ func (p *Plugin) initializeAPI() {
 	dialogRouter.Use(p.withDelay)
 	dialogRouter.HandleFunc("/1", p.handleDialog1)
 	dialogRouter.HandleFunc("/2", p.handleDialog2)
+	dialogRouter.HandleFunc("/3", p.handleDialog3)
+	dialogRouter.HandleFunc("/date", p.handleDateDialog)
 	dialogRouter.HandleFunc("/error", p.handleDialogWithError)
+	dialogRouter.HandleFunc("/field-refresh", p.handleDialogFieldRefresh)
+	dialogRouter.HandleFunc("/multistep", p.handleDialogMultistep)
+
+	dialogRouter.HandleFunc("/products", p.handleDynamicProducts).Methods(http.MethodPost)
+	dialogRouter.HandleFunc("/companies", p.handleDynamicCompanies).Methods(http.MethodPost)
+	dialogRouter.HandleFunc("/countries", p.handleDynamicCountries).Methods(http.MethodPost)
 
 	ephemeralRouter := router.PathPrefix("/ephemeral").Subrouter()
 	ephemeralRouter.Use(p.withDelay)
@@ -143,20 +153,16 @@ func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
 
 	if !request.Cancelled {
 		number, ok := request.Submission[dialogElementNameNumber].(float64)
-		if !ok {
-			p.API.LogError("Request is missing field", "field", dialogElementNameNumber)
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		if number != 42 {
-			response := &model.SubmitDialogResponse{
-				Errors: map[string]string{
-					dialogElementNameNumber: "This must be 42",
-				},
+		if ok {
+			if number != 42 {
+				response := &model.SubmitDialogResponse{
+					Errors: map[string]string{
+						dialogElementNameNumber: "This must be 42",
+					},
+				}
+				p.writeJSON(w, response)
+				return
 			}
-			p.writeJSON(w, response)
-			return
 		}
 	}
 
@@ -184,8 +190,9 @@ func (p *Plugin) handleDialog1(w http.ResponseWriter, r *http.Request) {
 
 	if !request.Cancelled {
 		// Don't post the email address publicly
-		request.Submission[dialogElementNameEmail] = "xxxxxxxxxxx"
-
+		if request.Submission[dialogElementNameEmail] != nil {
+			request.Submission[dialogElementNameEmail] = "xxxxxxxxxxx"
+		}
 		if _, appErr = p.API.CreatePost(&model.Post{
 			UserId:    p.botID,
 			ChannelId: request.ChannelId,
@@ -231,6 +238,136 @@ func (p *Plugin) handleDialog2(w http.ResponseWriter, r *http.Request) {
 	}); appErr != nil {
 		p.API.LogError("Failed to post handleDialog2 message", "err", appErr.Error())
 		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (p *Plugin) handleDialog3(w http.ResponseWriter, r *http.Request) {
+	var request model.SubmitDialogRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		p.API.LogError("Failed to decode SubmitDialogRequest", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	var message string
+	if request.Cancelled {
+		message = "Dialog cancelled"
+	} else {
+		submission := request.Submission
+
+		// Generic approach - format submission data as structured lines
+		message = "Dialog Submitted:"
+		for key, value := range submission {
+			valueStr := fmt.Sprintf("%v", value)
+			message += fmt.Sprintf("\n- %s: %s", key, valueStr)
+		}
+	}
+
+	// Post the message to the channel
+	if _, appErr := p.API.CreatePost(&model.Post{
+		UserId:    p.botID,
+		ChannelId: request.ChannelId,
+		Message:   message,
+	}); appErr != nil {
+		p.API.LogError("Failed to post handleDialog3 message", "err", appErr.Error())
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (p *Plugin) handleDateDialog(w http.ResponseWriter, r *http.Request) {
+	var request model.SubmitDialogRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		p.API.LogError("Failed to decode SubmitDialogRequest", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	// Validate date fields if not cancelled
+	if !request.Cancelled {
+		validationErrors := map[string]string{}
+
+		// Validate somedate field
+		if dateVal, ok := request.Submission["somedate"].(string); ok && dateVal != "" {
+			if _, err := time.Parse("2006-01-02", dateVal); err != nil {
+				p.API.LogWarn("Invalid date format in submission", "date", dateVal, "err", err)
+				validationErrors["somedate"] = "Invalid date format. Expected YYYY-MM-DD."
+			}
+		}
+
+		// Validate somedatetime field
+		if datetimeVal, ok := request.Submission["somedatetime"].(string); ok && datetimeVal != "" {
+			if _, err := time.Parse(time.RFC3339, datetimeVal); err != nil {
+				p.API.LogWarn("Invalid datetime format in submission", "datetime", datetimeVal, "err", err)
+				validationErrors["somedatetime"] = "Invalid datetime format. Expected RFC3339."
+			}
+		}
+
+		// Return validation errors to user
+		if len(validationErrors) > 0 {
+			response := &model.SubmitDialogResponse{
+				Errors: validationErrors,
+			}
+			p.writeJSON(w, response)
+			return
+		}
+	}
+
+	user, appErr := p.API.GetUser(request.UserId)
+	if appErr != nil {
+		p.API.LogError("Failed to get user for date dialog", "err", appErr.Error())
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	msg := "@%v submitted a Date Dialog"
+	if request.Cancelled {
+		msg = "@%v canceled a Date Dialog"
+	}
+
+	rootPost, appErr := p.API.CreatePost(&model.Post{
+		UserId:    p.botID,
+		ChannelId: request.ChannelId,
+		Message:   fmt.Sprintf(msg, user.Username),
+	})
+	if appErr != nil {
+		p.API.LogError("Failed to post handleDateDialog message", "err", appErr.Error())
+		return
+	}
+
+	if !request.Cancelled {
+		// Format the date and datetime values for display
+		submissionDisplay := make(map[string]interface{})
+		for key, value := range request.Submission {
+			submissionDisplay[key] = value
+		}
+
+		// Add formatted display for date values (already validated above)
+		if dateVal, ok := request.Submission["somedate"].(string); ok && dateVal != "" {
+			submissionDisplay["somedate_formatted"] = fmt.Sprintf("📅 %s", html.EscapeString(dateVal))
+		}
+		if datetimeVal, ok := request.Submission["somedatetime"].(string); ok && datetimeVal != "" {
+			submissionDisplay["somedatetime_formatted"] = fmt.Sprintf("🕐 %s", html.EscapeString(datetimeVal))
+		}
+
+		if _, appErr = p.API.CreatePost(&model.Post{
+			UserId:    p.botID,
+			ChannelId: request.ChannelId,
+			RootId:    rootPost.Id,
+			Message:   "**Event Created Successfully!** 🎉\n\nHere are the details:",
+			Type:      "custom_demo_plugin",
+			Props:     submissionDisplay,
+		}); appErr != nil {
+			p.API.LogError("Failed to post handleDateDialog message", "err", appErr.Error())
+			return
+		}
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -398,6 +535,7 @@ func (p *Plugin) handleDynamicArgTest(w http.ResponseWriter, r *http.Request) {
 	for k, v := range argMap {
 		argMapString = fmt.Sprintf("%s  * %s:%s\n", argMapString, k, v)
 	}
+
 	result := fmt.Sprintf("dynamic argument was triggered by **%v** from team **%v** in the **%v** channel, with these arguments\n\n%v", user.GetFullName(), team.DisplayName, channel.DisplayName, argMapString)
 	post := &model.Post{
 		ChannelId: channelID,
@@ -412,25 +550,377 @@ func (p *Plugin) handleDynamicArgTest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	suggestions := []model.AutocompleteListItem{{
-		Item:     "suggestion 1",
-		HelpText: "help text 1",
-		Hint:     "(hint)",
-	}, {
-		Item:     "suggestion 2",
-		HelpText: "help text 2",
-		Hint:     "(hint)",
-	}}
+	// Create the response with autocomplete items
+	response := []model.AutocompleteListItem{
+		{
+			Item:     "apple",
+			Hint:     "A red fruit",
+			HelpText: "An apple is a red or green fruit",
+		},
+		{
+			Item:     "banana",
+			Hint:     "A yellow fruit",
+			HelpText: "A banana is a yellow fruit",
+		},
+		{
+			Item:     "cherry",
+			Hint:     "A small red fruit",
+			HelpText: "A cherry is a small red fruit",
+		},
+	}
 
-	jsonBytes, err := json.Marshal(suggestions)
+	p.writeJSON(w, response)
+}
+
+// handleDialogFieldRefresh handles the field refresh dialog functionality
+// This demonstrates how source_url is called when a field with refresh=true changes
+func (p *Plugin) handleDialogFieldRefresh(w http.ResponseWriter, r *http.Request) {
+	var request model.SubmitDialogRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Error getting dynamic args: %s", err.Error()), http.StatusInternalServerError)
+		p.API.LogError("Failed to decode SubmitDialogRequest for field refresh", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	// Check if this is a field refresh (source call) or a final submit
+	if request.Type == "refresh" {
+
+		// This is a field refresh - return a new form based on the changed field
+		projectType := ""
+		if val, ok := request.Submission["project_type"]; ok {
+			projectType = interfaceToString(val)
+		}
+
+		dialog := getDialogWithFieldRefresh(projectType)
+		response := &model.SubmitDialogResponse{
+			Type: "form",
+			Form: &dialog,
+		}
+		p.writeJSON(w, response)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	if _, err = w.Write(jsonBytes); err != nil {
-		http.Error(w, fmt.Sprintf("Error getting dynamic args: %s", err.Error()), http.StatusInternalServerError)
+	// This is a final submit - process the form data
+	user, appErr := p.API.GetUser(request.UserId)
+	if appErr != nil {
+		p.API.LogError("Failed to get user for field refresh dialog", "err", appErr.Error())
+		w.WriteHeader(http.StatusOK)
 		return
 	}
+
+	// Create a summary of the project configuration
+	projectType := interfaceToString(request.Submission["project_type"])
+	projectName := interfaceToString(request.Submission["project_name"])
+
+	msg := fmt.Sprintf("@%v created a new **%s** project: **%s**", user.Username, projectType, projectName)
+	if request.Cancelled {
+		msg = fmt.Sprintf("@%v cancelled project dialog", user.Username)
+	}
+
+	rootPost, appErr := p.API.CreatePost(&model.Post{
+		UserId:    p.botID,
+		ChannelId: request.ChannelId,
+		Message:   msg,
+	})
+	if appErr != nil {
+		p.API.LogError("Failed to post field refresh dialog result", "err", appErr.Error())
+		return
+	}
+
+	// Post the configuration details as a thread reply
+	configText := "**Project Configuration:**\n"
+	for key, value := range request.Submission {
+		if str := interfaceToString(value); str != "" {
+			configText += fmt.Sprintf("- **%s:** %s\n", key, str)
+		}
+	}
+
+	if _, appErr = p.API.CreatePost(&model.Post{
+		UserId:    p.botID,
+		ChannelId: request.ChannelId,
+		RootId:    rootPost.Id,
+		Message:   configText,
+	}); appErr != nil {
+		p.API.LogError("Failed to post field refresh dialog config", "err", appErr.Error())
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+// handleDialogMultistep handles the multi-step dialog functionality
+// This demonstrates how submit can return a new form instead of closing the dialog
+func (p *Plugin) handleDialogMultistep(w http.ResponseWriter, r *http.Request) {
+	var request model.SubmitDialogRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		p.API.LogError("Failed to decode SubmitDialogRequest for multistep", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	// Handle different steps based on the dialog state
+	switch request.State {
+	case "step1":
+		// Move to step 2 - client automatically accumulates values
+		userType := interfaceToString(request.Submission["user_type"])
+		useCase := interfaceToString(request.Submission["use_case"])
+
+		dialog := getDialogStep2(userType, useCase)
+		response := &model.SubmitDialogResponse{
+			Type: "form",
+			Form: &dialog,
+		}
+		p.writeJSON(w, response)
+		return
+
+	case "step2":
+		// Move to step 3 (final confirmation) - client has all values
+		dialog := getDialogStep3Summary(request.Submission)
+		response := &model.SubmitDialogResponse{
+			Type: "form",
+			Form: &dialog,
+		}
+		p.writeJSON(w, response)
+		return
+
+	case "final":
+		// Process final submission - all values are in request.Submission
+		user, appErr := p.API.GetUser(request.UserId)
+		if appErr != nil {
+			p.API.LogError("Failed to get user for multistep dialog", "err", appErr.Error())
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// Check if terms were accepted
+		acceptTerms := interfaceToString(request.Submission["accept_terms"])
+		acceptPrivacy := interfaceToString(request.Submission["accept_privacy"])
+
+		if acceptTerms != "true" || acceptPrivacy != "true" {
+			response := &model.SubmitDialogResponse{
+				Errors: map[string]string{
+					"accept_terms":   "You must accept the Terms & Conditions",
+					"accept_privacy": "You must accept the Privacy Policy",
+				},
+			}
+			p.writeJSON(w, response)
+			return
+		}
+
+		// Registration complete - create summary post with all collected data
+		msg := fmt.Sprintf("🎉 @%v successfully completed the multi-step registration process!", user.Username)
+
+		rootPost, appErr := p.API.CreatePost(&model.Post{
+			UserId:    p.botID,
+			ChannelId: request.ChannelId,
+			Message:   msg,
+		})
+		if appErr != nil {
+			p.API.LogError("Failed to post multistep completion message", "err", appErr.Error())
+			return
+		}
+
+		// Post summary of all collected data as a thread reply
+		summaryText := "**Complete Registration Data:**\n"
+		for key, value := range request.Submission {
+			if str := interfaceToString(value); str != "" {
+				summaryText += fmt.Sprintf("- **%s:** %s\n", key, str)
+			}
+		}
+
+		if _, appErr = p.API.CreatePost(&model.Post{
+			UserId:    p.botID,
+			ChannelId: request.ChannelId,
+			RootId:    rootPost.Id,
+			Message:   summaryText,
+		}); appErr != nil {
+			p.API.LogError("Failed to post registration summary", "err", appErr.Error())
+		}
+
+		// Dialog closes automatically when no response type is specified
+		w.WriteHeader(http.StatusOK)
+		return
+
+	default:
+		// Unknown state - return error
+		response := &model.SubmitDialogResponse{
+			Error: "Unknown dialog state",
+		}
+		p.writeJSON(w, response)
+		return
+	}
+}
+
+func (p *Plugin) handleDynamicProducts(w http.ResponseWriter, r *http.Request) {
+	var request model.SubmitDialogRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		p.API.LogError("Failed to decode DialogLookupRequest for products", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	// Extract the query term from the submission
+	query := ""
+	if request.Submission != nil {
+		if queryVal, ok := request.Submission["query"]; ok {
+			if queryStr, ok := queryVal.(string); ok {
+				query = strings.ToLower(queryStr)
+			}
+		}
+	}
+
+	// Sample product data
+	allProducts := []model.DialogSelectOption{
+		{Text: "MacBook Pro 16-inch", Value: "mbp-16"},
+		{Text: "MacBook Air 13-inch", Value: "mba-13"},
+		{Text: "iPhone 15 Pro", Value: "iphone-15-pro"},
+		{Text: "iPad Pro 12.9-inch", Value: "ipad-pro-12"},
+		{Text: "Apple Watch Series 9", Value: "watch-s9"},
+		{Text: "AirPods Pro", Value: "airpods-pro"},
+		{Text: "Mac Studio", Value: "mac-studio"},
+		{Text: "Studio Display", Value: "studio-display"},
+		{Text: "Microsoft Surface Pro", Value: "surface-pro"},
+		{Text: "Dell XPS 13", Value: "dell-xps-13"},
+		{Text: "ThinkPad X1 Carbon", Value: "thinkpad-x1"},
+		{Text: "Samsung Galaxy S24", Value: "galaxy-s24"},
+	}
+
+	// Filter products based on query
+	var filteredProducts []model.DialogSelectOption
+	for _, product := range allProducts {
+		if query == "" || strings.Contains(strings.ToLower(product.Text), query) {
+			filteredProducts = append(filteredProducts, product)
+		}
+	}
+
+	// Limit to first 10 results
+	if len(filteredProducts) > 10 {
+		filteredProducts = filteredProducts[:10]
+	}
+
+	response := model.LookupDialogResponse{Items: filteredProducts}
+	p.writeJSON(w, response)
+}
+
+func (p *Plugin) handleDynamicCompanies(w http.ResponseWriter, r *http.Request) {
+	var request model.SubmitDialogRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		p.API.LogError("Failed to decode DialogLookupRequest for companies", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	// Extract the query term from the submission
+	query := ""
+	if request.Submission != nil {
+		if queryVal, ok := request.Submission["query"]; ok {
+			if queryStr, ok := queryVal.(string); ok {
+				query = strings.ToLower(queryStr)
+			}
+		}
+	}
+
+	// Sample company data
+	allCompanies := []model.DialogSelectOption{
+		{Text: "Apple Inc.", Value: "apple"},
+		{Text: "Microsoft Corporation", Value: "microsoft"},
+		{Text: "Google LLC", Value: "google"},
+		{Text: "Amazon.com Inc.", Value: "amazon"},
+		{Text: "Meta Platforms Inc.", Value: "meta"},
+		{Text: "Tesla Inc.", Value: "tesla"},
+		{Text: "Netflix Inc.", Value: "netflix"},
+		{Text: "Spotify Technology SA", Value: "spotify"},
+		{Text: "Adobe Inc.", Value: "adobe"},
+		{Text: "Salesforce Inc.", Value: "salesforce"},
+		{Text: "Oracle Corporation", Value: "oracle"},
+		{Text: "IBM Corporation", Value: "ibm"},
+		{Text: "Intel Corporation", Value: "intel"},
+		{Text: "NVIDIA Corporation", Value: "nvidia"},
+		{Text: "Mattermost Inc.", Value: "mattermost"},
+	}
+
+	// Filter companies based on query
+	var filteredCompanies []model.DialogSelectOption
+	for _, company := range allCompanies {
+		if query == "" || strings.Contains(strings.ToLower(company.Text), query) {
+			filteredCompanies = append(filteredCompanies, company)
+		}
+	}
+
+	// Limit to first 10 results
+	if len(filteredCompanies) > 10 {
+		filteredCompanies = filteredCompanies[:10]
+	}
+
+	response := model.LookupDialogResponse{Items: filteredCompanies}
+	p.writeJSON(w, response)
+}
+
+func (p *Plugin) handleDynamicCountries(w http.ResponseWriter, r *http.Request) {
+	var request model.SubmitDialogRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		p.API.LogError("Failed to decode DialogLookupRequest for countries", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	// Extract the query term from the submission
+	query := ""
+	if request.Submission != nil {
+		if queryVal, ok := request.Submission["query"]; ok {
+			if queryStr, ok := queryVal.(string); ok {
+				query = strings.ToLower(queryStr)
+			}
+		}
+	}
+
+	// Sample country data
+	allCountries := []model.DialogSelectOption{
+		{Text: "United States", Value: "us"},
+		{Text: "Canada", Value: "ca"},
+		{Text: "United Kingdom", Value: "uk"},
+		{Text: "Germany", Value: "de"},
+		{Text: "France", Value: "fr"},
+		{Text: "Italy", Value: "it"},
+		{Text: "Spain", Value: "es"},
+		{Text: "Netherlands", Value: "nl"},
+		{Text: "Sweden", Value: "se"},
+		{Text: "Norway", Value: "no"},
+		{Text: "Denmark", Value: "dk"},
+		{Text: "Finland", Value: "fi"},
+		{Text: "Australia", Value: "au"},
+		{Text: "New Zealand", Value: "nz"},
+		{Text: "Japan", Value: "jp"},
+		{Text: "South Korea", Value: "kr"},
+		{Text: "Singapore", Value: "sg"},
+		{Text: "India", Value: "in"},
+		{Text: "Brazil", Value: "br"},
+		{Text: "Mexico", Value: "mx"},
+	}
+
+	// Filter countries based on query
+	var filteredCountries []model.DialogSelectOption
+	for _, country := range allCountries {
+		if query == "" || strings.Contains(strings.ToLower(country.Text), query) {
+			filteredCountries = append(filteredCountries, country)
+		}
+	}
+
+	// Limit to first 10 results
+	if len(filteredCountries) > 10 {
+		filteredCountries = filteredCountries[:10]
+	}
+
+	response := model.LookupDialogResponse{Items: filteredCountries}
+	p.writeJSON(w, response)
 }

@@ -5,3 +5,6 @@ dist
 
 # VSCode
 .vscode
+
+# Claude Code guidance file
+CLAUDE.local.md
