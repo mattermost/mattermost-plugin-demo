@@ -69,19 +69,31 @@ func (p *Plugin) FileWillBeDownloaded(c *plugin.Context, fileInfo *model.FileInf
 		"download_type", string(downloadType),
 		"file_id", fileInfo.Id)
 
-	// Check if all file downloads should be rejected (testing option)
-	if configuration.RejectAllFileDownloads {
-		return "All file downloads are currently disabled by the demo plugin"
+	// Check download type-specific rejection settings
+	switch downloadType {
+	case model.FileDownloadTypeFile:
+		if configuration.RejectFileDownloads {
+			p.API.LogInfo("Rejecting file download", "file_id", fileInfo.Id, "type", "file")
+			return "Full file downloads are currently disabled by the demo plugin"
+		}
+	case model.FileDownloadTypeThumbnail:
+		if configuration.RejectThumbDownloads {
+			p.API.LogInfo("Rejecting file download", "file_id", fileInfo.Id, "type", "thumbnail")
+			return "Thumbnail downloads are currently disabled by the demo plugin"
+		}
+	case model.FileDownloadTypePreview:
+		if configuration.RejectPreviewDownloads {
+			p.API.LogInfo("Rejecting file download", "file_id", fileInfo.Id, "type", "preview")
+			return "Preview downloads are currently disabled by the demo plugin"
+		}
+	case model.FileDownloadTypePublic:
+		if configuration.RejectPublicLinkDownloads {
+			p.API.LogInfo("Rejecting file download", "file_id", fileInfo.Id, "type", "public")
+			return "Public link downloads are currently disabled by the demo plugin"
+		}
 	}
 
-	// Example: Apply different policies based on download type
-	// Uncomment and modify as needed:
-	// if downloadType == model.FileDownloadTypePublic {
-	// 	return "Public file downloads are disabled"
-	// }
-	// if downloadType == model.FileDownloadTypePreview && someCondition {
-	// 	return "Preview downloads are restricted"
-	// }
+	p.API.LogDebug("Allowing file download", "file_id", fileInfo.Id, "type", string(downloadType))
 
 	// Allow the download for other files
 	return ""

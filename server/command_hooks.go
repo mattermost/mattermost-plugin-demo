@@ -198,7 +198,7 @@ func getCommandDialogAutocompleteData() *model.AutocompleteData {
 	multistep := model.NewAutocompleteData("multistep", "", "Open a multi-step Interactive Dialog with form refresh on submit.")
 	command.AddCommand(multistep)
 
-  multiSelect := model.NewAutocompleteData("multi-select", "", "Open an Interactive Dialog with multi-select fields.")
+	multiSelect := model.NewAutocompleteData("multi-select", "", "Open an Interactive Dialog with multi-select fields.")
 	command.AddCommand(multiSelect)
 
 	help := model.NewAutocompleteData("help", "", "")
@@ -294,7 +294,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 	default:
 		return &model.CommandResponse{
 			ResponseType: model.CommandResponseTypeEphemeral,
-			Text:         fmt.Sprintf("Unknown command: " + args.Command + ". Use `/dialog help` for available commands."),
+			Text:         fmt.Sprintf("Unknown command: %s. Use `/dialog help` for available commands.", args.Command),
 		}, nil
 	}
 }
@@ -467,7 +467,7 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/date", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog:    getDialogWithDateElements(),
-    }
+		}
 	case "multi-select":
 		dialogRequest = model.OpenDialogRequest{
 			TriggerId: args.TriggerId,
