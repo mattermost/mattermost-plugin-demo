@@ -29,10 +29,7 @@ func (p *Plugin) FileWillBeUploaded(c *plugin.Context, fileInfo *model.FileInfo,
 	}
 
 	if reader.Size() == 0 {
-		p.API.LogError(
-			"Uploaded file has zero size",
-			"error", err.Error(),
-		)
+		p.API.LogError("Uploaded file has zero size")
 		return nil, "Upload Failed as file has zero size"
 	}
 
@@ -47,4 +44,57 @@ func (p *Plugin) FileWillBeUploaded(c *plugin.Context, fileInfo *model.FileInfo,
 		}
 	}
 	return nil, ""
+}
+
+// FileWillBeDownloaded is invoked when a file is about to be downloaded
+//
+// This demo implementation logs a message when a file is going to be downloaded
+// and rejects downloads based on configuration settings.
+// The downloadType parameter indicates what type of access is being attempted and can be:
+//   - model.FileDownloadTypeFile: Full file download
+//   - model.FileDownloadTypeThumbnail: Thumbnail request
+//   - model.FileDownloadTypePreview: Preview image request
+//   - model.FileDownloadTypePublic: Public link access (userId will be empty in this case)
+func (p *Plugin) FileWillBeDownloaded(c *plugin.Context, fileInfo *model.FileInfo, userId string, downloadType model.FileDownloadType) string {
+	configuration := p.getConfiguration()
+
+	if configuration.disabled {
+		return ""
+	}
+
+	// Log the file download attempt
+	p.API.LogInfo("File download attempted",
+		"file_name", fileInfo.Name,
+		"user_id", userId,
+		"download_type", string(downloadType),
+		"file_id", fileInfo.Id)
+
+	// Check download type-specific rejection settings
+	switch downloadType {
+	case model.FileDownloadTypeFile:
+		if configuration.RejectFileDownloads {
+			p.API.LogInfo("Rejecting file download", "file_id", fileInfo.Id, "type", "file")
+			return "Full file downloads are currently disabled by the demo plugin"
+		}
+	case model.FileDownloadTypeThumbnail:
+		if configuration.RejectThumbDownloads {
+			p.API.LogInfo("Rejecting file download", "file_id", fileInfo.Id, "type", "thumbnail")
+			return "Thumbnail downloads are currently disabled by the demo plugin"
+		}
+	case model.FileDownloadTypePreview:
+		if configuration.RejectPreviewDownloads {
+			p.API.LogInfo("Rejecting file download", "file_id", fileInfo.Id, "type", "preview")
+			return "Preview downloads are currently disabled by the demo plugin"
+		}
+	case model.FileDownloadTypePublic:
+		if configuration.RejectPublicLinkDownloads {
+			p.API.LogInfo("Rejecting file download", "file_id", fileInfo.Id, "type", "public")
+			return "Public link downloads are currently disabled by the demo plugin"
+		}
+	}
+
+	p.API.LogDebug("Allowing file download", "file_id", fileInfo.Id, "type", string(downloadType))
+
+	// Allow the download for other files
+	return ""
 }
