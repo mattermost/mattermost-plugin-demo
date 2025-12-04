@@ -223,6 +223,18 @@ export default class DemoPlugin {
         registry.registerNeedsTeamRoute('/teamtest', RouterShowcase);
         registry.registerCustomRoute('/roottest', () => 'Demo plugin route.');
 
+        // Register sidebar browse/add channel menu action if available
+        registry.registerSidebarBrowseOrAddChannelMenuAction(
+            <FormattedMessage
+                id='plugin.sidebar.browse.menu'
+                defaultMessage='Demo Plugin Item'
+            />,
+            (teamId) => {
+                alert(`Demo Plugin: Browse menu item clicked! Team ID: ${teamId}`); // eslint-disable-line no-alert
+            },
+            <MainMenuMobileIcon/>,
+        );
+
         registry.registerUserSettings?.({
             id: manifest.id,
             icon: `/plugins/${manifest.id}/public/icon.png`,
