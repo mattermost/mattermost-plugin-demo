@@ -51,6 +51,25 @@ const (
 )
 
 func (p *Plugin) registerCommands() error {
+	// Always register dialog command
+	if err := p.API.RegisterCommand(&model.Command{
+		Trigger:          commandTriggerDialog,
+		AutoComplete:     true,
+		AutoCompleteDesc: "Open an Interactive Dialog.",
+		DisplayName:      "Demo Plugin Command",
+		AutocompleteData: getCommandDialogAutocompleteData(),
+	}); err != nil {
+		return errors.Wrapf(err, "failed to register %s command", commandTriggerDialog)
+	}
+
+	configuration := p.getConfiguration()
+
+	// Skip other commands if in minimal mode
+	if configuration.DialogOnlyMode {
+		p.API.LogInfo("Minimal mode enabled: only dialog command registered")
+		return nil
+	}
+
 	if err := p.API.RegisterCommand(&model.Command{
 
 		Trigger:          commandTriggerHooks,
@@ -87,16 +106,6 @@ func (p *Plugin) registerCommands() error {
 		AutoCompleteDesc: "Demonstrates an ephemeral post overridden in the webapp.",
 	}); err != nil {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerEphemeralOverride)
-	}
-
-	if err := p.API.RegisterCommand(&model.Command{
-		Trigger:          commandTriggerDialog,
-		AutoComplete:     true,
-		AutoCompleteDesc: "Open an Interactive Dialog.",
-		DisplayName:      "Demo Plugin Command",
-		AutocompleteData: getCommandDialogAutocompleteData(),
-	}); err != nil {
-		return errors.Wrapf(err, "failed to register %s command", commandTriggerDialog)
 	}
 
 	if err := p.API.RegisterCommand(&model.Command{
@@ -188,7 +197,7 @@ func getCommandDialogAutocompleteData() *model.AutocompleteData {
 	multistep := model.NewAutocompleteData("multistep", "", "Open a multi-step Interactive Dialog with form refresh on submit.")
 	command.AddCommand(multistep)
 
-  multiSelect := model.NewAutocompleteData("multi-select", "", "Open an Interactive Dialog with multi-select fields.")
+	multiSelect := model.NewAutocompleteData("multi-select", "", "Open an Interactive Dialog with multi-select fields.")
 	command.AddCommand(multiSelect)
 
 	help := model.NewAutocompleteData("help", "", "")
@@ -424,7 +433,7 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/date", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog:    getDialogWithDateElements(),
-    }
+		}
 	case "multi-select":
 		dialogRequest = model.OpenDialogRequest{
 			TriggerId: args.TriggerId,

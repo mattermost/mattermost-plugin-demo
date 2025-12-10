@@ -23,16 +23,18 @@ func (p *Plugin) OnActivate() error {
 		return errors.Wrap(err, "server configuration is not compatible")
 	}
 
-	if err := p.OnConfigurationChange(); err != nil {
-		return err
-	}
-
 	p.initializeAPI()
 
 	configuration := p.getConfiguration()
 
 	if err := p.registerCommands(); err != nil {
 		return errors.Wrap(err, "failed to register commands")
+	}
+
+	// Skip team messages and background job in minimal mode
+	if configuration.DialogOnlyMode {
+		p.API.LogInfo("Demo plugin activated in minimal mode (dialog command only)")
+		return nil
 	}
 
 	teams, err := p.API.GetTeams()
@@ -43,7 +45,6 @@ func (p *Plugin) OnActivate() error {
 	for _, team := range teams {
 		_, ok := configuration.demoChannelIDs[team.Id]
 		if !ok {
-			p.API.LogWarn("No demo channel id for team", "team", team.Id)
 			continue
 		}
 
@@ -74,6 +75,11 @@ func (p *Plugin) OnActivate() error {
 func (p *Plugin) OnDeactivate() error {
 	configuration := p.getConfiguration()
 
+	// Skip cleanup in minimal mode
+	if configuration.DialogOnlyMode {
+		return nil
+	}
+
 	if p.backgroundJob != nil {
 		if err := p.backgroundJob.Close(); err != nil {
 			p.API.LogError("Failed to close background job", "err", err)
@@ -88,7 +94,6 @@ func (p *Plugin) OnDeactivate() error {
 	for _, team := range teams {
 		_, ok := configuration.demoChannelIDs[team.Id]
 		if !ok {
-			p.API.LogWarn("No demo channel id for team", "team", team.Id)
 			continue
 		}
 
