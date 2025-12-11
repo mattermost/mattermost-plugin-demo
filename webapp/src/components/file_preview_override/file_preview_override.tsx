@@ -1,7 +1,7 @@
 import React from 'react';
 
-import {FileInfo} from 'mattermost-redux/types/files';
-import {Theme} from 'mattermost-redux/types/preferences';
+import {FileInfo} from '@mattermost/types/files';
+import {Theme} from 'mattermost-redux/selectors/entities/preferences';
 
 type Props = {
     fileInfo: FileInfo;
