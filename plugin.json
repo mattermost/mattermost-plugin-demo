@@ -24,6 +24,14 @@
         "footer": "Footer: The code for this demo plugin can be found [here](https://github.com/mattermost/mattermost-plugin-demo).",
         "settings": [
             {
+                "key": "DialogOnlyMode",
+                "display_name": "Dialog Only Mode:",
+                "type": "bool",
+                "help_text": "Enable minimal mode to only register the /dialog command without creating demo users, channels, or enabling hooks. Useful for large installations with many teams.",
+                "placeholder": "",
+                "default": false
+            },
+            {
                 "key": "ChannelName",
                 "display_name": "Channel Name:",
                 "type": "text",

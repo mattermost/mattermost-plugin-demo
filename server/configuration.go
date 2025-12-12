@@ -51,6 +51,9 @@ type configuration struct {
 	// It's useful for testing.
 	IntegrationRequestDelay int
 
+	// DialogOnlyMode when enabled, only registers the dialog command and skips all team/channel/user setup
+	DialogOnlyMode bool
+
 	// disabled tracks whether or not the plugin has been disabled after activation. It always starts enabled.
 	disabled bool
 
@@ -81,6 +84,7 @@ func (c *configuration) Clone() *configuration {
 		MentionUser:             c.MentionUser,
 		SecretNumber:            c.SecretNumber,
 		IntegrationRequestDelay: c.IntegrationRequestDelay,
+		DialogOnlyMode:          c.DialogOnlyMode,
 		disabled:                c.disabled,
 		demoUserID:              c.demoUserID,
 		demoChannelIDs:          demoChannelIDs,
@@ -166,7 +170,6 @@ func (p *Plugin) diffConfiguration(newConfiguration *configuration) {
 	for _, team := range teams {
 		demoChannelID, ok := newConfiguration.demoChannelIDs[team.Id]
 		if !ok {
-			p.API.LogWarn("No demo channel id for team", "team", team.Id)
 			continue
 		}
 
@@ -212,12 +215,7 @@ func (p *Plugin) OnConfigurationChange() error {
 		return errors.Wrap(loadConfigErr, "failed to load plugin configuration")
 	}
 
-	demoUserID, err := p.ensureDemoUser(configuration)
-	if err != nil {
-		return errors.Wrap(err, "failed to ensure demo user")
-	}
-	configuration.demoUserID = demoUserID
-
+	// Always ensure bot is created (needed for dialog submissions)
 	botID, ensureBotError := p.client.Bot.EnsureBot(&model.Bot{
 		Username:    "demoplugin",
 		DisplayName: "Demo Plugin Bot",
@@ -228,6 +226,19 @@ func (p *Plugin) OnConfigurationChange() error {
 	}
 
 	p.botID = botID
+
+	// If minimal mode is enabled, skip all demo user and channel setup
+	if configuration.DialogOnlyMode {
+		p.API.LogInfo("Running in minimal mode: dialog command only")
+		p.setConfiguration(configuration)
+		return nil
+	}
+
+	demoUserID, err := p.ensureDemoUser(configuration)
+	if err != nil {
+		return errors.Wrap(err, "failed to ensure demo user")
+	}
+	configuration.demoUserID = demoUserID
 
 	configuration.demoChannelIDs, err = p.ensureDemoChannels(configuration)
 	if err != nil {
