@@ -697,7 +697,7 @@ func (p *Plugin) executeCommandToast(args *model.CommandArgs) *model.CommandResp
 		Position: position,
 	}
 
-	if err := p.client.Frontend.SendToastMessage(args.UserId, message, options); err != nil {
+	if err := p.client.Frontend.SendToastMessage(args.UserId, "", message, options); err != nil {
 		errorMessage := "Failed to send toast notification"
 		p.API.LogError(errorMessage, "err", err.Error())
 		return &model.CommandResponse{
