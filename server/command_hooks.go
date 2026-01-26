@@ -227,32 +227,39 @@ func getAutocompleteTestAutocompleteData() *model.AutocompleteData {
 }
 
 func getCommandToastAutocompleteData() *model.AutocompleteData {
-	command := model.NewAutocompleteData(commandTriggerToast, "[position] [message]", "Send a toast notification.")
+	command := model.NewAutocompleteData(commandTriggerToast, "[--all-sessions] [position] [message]", "Send a toast notification.")
 
-	// Add position options
-	topLeft := model.NewAutocompleteData("top-left", "[message]", "Show toast at top-left")
-	topLeft.AddTextArgument("Message to display", "[message]", "")
-	command.AddCommand(topLeft)
+	// Add --all-sessions flag
+	allSessions := model.NewAutocompleteData("--all-sessions", "[position] [message]", "Send toast to all sessions")
 
-	topCenter := model.NewAutocompleteData("top-center", "[message]", "Show toast at top-center")
-	topCenter.AddTextArgument("Message to display", "[message]", "")
-	command.AddCommand(topCenter)
+	// Add position options to both main command and --all-sessions
+	for _, parent := range []*model.AutocompleteData{command, allSessions} {
+		topLeft := model.NewAutocompleteData("top-left", "[message]", "Show toast at top-left")
+		topLeft.AddTextArgument("Message to display", "[message]", "")
+		parent.AddCommand(topLeft)
 
-	topRight := model.NewAutocompleteData("top-right", "[message]", "Show toast at top-right")
-	topRight.AddTextArgument("Message to display", "[message]", "")
-	command.AddCommand(topRight)
+		topCenter := model.NewAutocompleteData("top-center", "[message]", "Show toast at top-center")
+		topCenter.AddTextArgument("Message to display", "[message]", "")
+		parent.AddCommand(topCenter)
 
-	bottomLeft := model.NewAutocompleteData("bottom-left", "[message]", "Show toast at bottom-left")
-	bottomLeft.AddTextArgument("Message to display", "[message]", "")
-	command.AddCommand(bottomLeft)
+		topRight := model.NewAutocompleteData("top-right", "[message]", "Show toast at top-right")
+		topRight.AddTextArgument("Message to display", "[message]", "")
+		parent.AddCommand(topRight)
 
-	bottomCenter := model.NewAutocompleteData("bottom-center", "[message]", "Show toast at bottom-center")
-	bottomCenter.AddTextArgument("Message to display", "[message]", "")
-	command.AddCommand(bottomCenter)
+		bottomLeft := model.NewAutocompleteData("bottom-left", "[message]", "Show toast at bottom-left")
+		bottomLeft.AddTextArgument("Message to display", "[message]", "")
+		parent.AddCommand(bottomLeft)
 
-	bottomRight := model.NewAutocompleteData("bottom-right", "[message]", "Show toast at bottom-right (default)")
-	bottomRight.AddTextArgument("Message to display", "[message]", "")
-	command.AddCommand(bottomRight)
+		bottomCenter := model.NewAutocompleteData("bottom-center", "[message]", "Show toast at bottom-center")
+		bottomCenter.AddTextArgument("Message to display", "[message]", "")
+		parent.AddCommand(bottomCenter)
+
+		bottomRight := model.NewAutocompleteData("bottom-right", "[message]", "Show toast at bottom-right (default)")
+		bottomRight.AddTextArgument("Message to display", "[message]", "")
+		parent.AddCommand(bottomRight)
+	}
+
+	command.AddCommand(allSessions)
 
 	return command
 }
@@ -289,7 +296,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 	case commandTriggerAutocompleteTest:
 		return p.executeAutocompleteTest(args), nil
 	case commandTriggerToast:
-		return p.executeCommandToast(args), nil
+		return p.executeCommandToast(c, args), nil
 
 	default:
 		return &model.CommandResponse{
@@ -676,20 +683,34 @@ func (p *Plugin) executeAutocompleteTest(args *model.CommandArgs) *model.Command
 	}
 }
 
-func (p *Plugin) executeCommandToast(args *model.CommandArgs) *model.CommandResponse {
+func (p *Plugin) executeCommandToast(c *plugin.Context, args *model.CommandArgs) *model.CommandResponse {
 	fields := strings.Fields(args.Command)
 
 	// Default values
 	position := "bottom-right"
 	message := "This is a demo toast notification!"
+	connectionID := ""
+	allSessions := false
 
-	// Parse command arguments: /toast [position] [message]
-	if len(fields) >= 2 {
-		position = fields[1]
+	// Check if --all-sessions flag is present in the first position
+	startIndex := 1
+	if len(fields) >= 2 && fields[1] == "--all-sessions" {
+		allSessions = true
+		startIndex = 2
 	}
-	if len(fields) >= 3 {
+
+	// If --all-sessions is NOT set, use the session ID
+	if !allSessions {
+		connectionID = c.SessionId
+	}
+
+	// Parse command arguments: /toast [--all-sessions] [position] [message]
+	if len(fields) >= startIndex+1 {
+		position = fields[startIndex]
+	}
+	if len(fields) >= startIndex+2 {
 		// Join all remaining fields as the message
-		message = strings.Join(fields[2:], " ")
+		message = strings.Join(fields[startIndex+1:], " ")
 	}
 
 	// Send the toast message using the plugin API
@@ -697,7 +718,7 @@ func (p *Plugin) executeCommandToast(args *model.CommandArgs) *model.CommandResp
 		Position: position,
 	}
 
-	if err := p.client.Frontend.SendToastMessage(args.UserId, "", message, options); err != nil {
+	if err := p.client.Frontend.SendToastMessage(args.UserId, connectionID, message, options); err != nil {
 		errorMessage := "Failed to send toast notification"
 		p.API.LogError(errorMessage, "err", err.Error())
 		return &model.CommandResponse{
