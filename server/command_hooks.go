@@ -701,7 +701,11 @@ func (p *Plugin) executeCommandToast(c *plugin.Context, args *model.CommandArgs)
 
 	// If --all-sessions is NOT set, use the session ID
 	if !allSessions {
-		connectionID = c.SessionId
+		var found bool
+		connectionID, found = p.GetConnectionIDForSession(c.SessionId)
+		if !found {
+			p.API.LogWarn("Failed to get connection ID for session", "session_id", c.SessionId)
+		}
 	}
 
 	// Parse command arguments: /toast [--all-sessions] [position] [message]
