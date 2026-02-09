@@ -51,6 +51,10 @@ type configuration struct {
 	// It's useful for testing.
 	IntegrationRequestDelay int
 
+	// ServiceAPIKey is an API key for an external service. This setting demonstrates a secret
+	// setting inside a plugin settings section, which is sanitized before being returned through the API.
+	ServiceAPIKey string
+
 	// disabled tracks whether or not the plugin has been disabled after activation. It always starts enabled.
 	disabled bool
 
@@ -81,6 +85,7 @@ func (c *configuration) Clone() *configuration {
 		MentionUser:             c.MentionUser,
 		SecretNumber:            c.SecretNumber,
 		IntegrationRequestDelay: c.IntegrationRequestDelay,
+		ServiceAPIKey:           c.ServiceAPIKey,
 		disabled:                c.disabled,
 		demoUserID:              c.demoUserID,
 		demoChannelIDs:          demoChannelIDs,
@@ -151,6 +156,9 @@ func (p *Plugin) diffConfiguration(newConfiguration *configuration) {
 	}
 	if newConfiguration.SecretNumber != oldConfiguration.SecretNumber {
 		configurationDiff["secret_number"] = newConfiguration.SecretNumber
+	}
+	if newConfiguration.ServiceAPIKey != oldConfiguration.ServiceAPIKey {
+		configurationDiff["service_api_key"] = "<HIDDEN>"
 	}
 
 	if len(configurationDiff) == 0 {

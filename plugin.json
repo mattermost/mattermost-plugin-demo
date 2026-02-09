@@ -24,75 +24,6 @@
         "footer": "Footer: The code for this demo plugin can be found [here](https://github.com/mattermost/mattermost-plugin-demo).",
         "settings": [
             {
-                "key": "ChannelName",
-                "display_name": "Channel Name:",
-                "type": "text",
-                "help_text": "The channel to use as part of the demo plugin, created for each team automatically if it does not exist.",
-                "placeholder": "demo_plugin",
-                "default": "demo_plugin"
-            },
-            {
-                "key": "Username",
-                "display_name": "Username:",
-                "type": "text",
-                "help_text": "The user to use as part of the demo plugin, created automatically if it does not exist.",
-                "placeholder": "demo_plugin",
-                "default": "demo_plugin"
-            },
-            {
-                "key": "LastName",
-                "display_name": "Demo User Last Name:",
-                "type": "radio",
-                "help_text": "Select the last name for the demo user.",
-                "placeholder": "",
-                "default": "Plugin User",
-                "options": [
-                    {
-                        "display_name": "Plugin User",
-                        "value": "Plugin User"
-                    },
-                    {
-                        "display_name": "Demoson III",
-                        "value": "Demoson III"
-                    },
-                    {
-                        "display_name": "McDemo",
-                        "value": "McDemo"
-                    }
-                ]
-            },
-            {
-                "key": "TextStyle",
-                "display_name": "Text Style:",
-                "type": "dropdown",
-                "help_text": "Change the text style of the messages posted by this plugin.",
-                "placeholder": "",
-                "default": "",
-                "options": [
-                    {
-                        "display_name": "none",
-                        "value": ""
-                    },
-                    {
-                        "display_name": "italics",
-                        "value": "_"
-                    },
-                    {
-                        "display_name": "bold",
-                        "value": "**"
-                    }
-                ]
-            },
-            {
-                "key": "RandomSecret",
-                "display_name": "Random Secret:",
-                "type": "generated",
-                "help_text": "Generate a random string that the demo plugin will watch for. If the secret string is mentioned in any channel then the demo plugin will publish a special message.",
-                "regenerate_help_text": "Generate a new secret string.",
-                "placeholder": "",
-                "default": "CFgcq9Hr9OKSevvqH_SH-mPlgVklmpUm"
-            },
-            {
                 "key": "SecretMessage",
                 "display_name": "Secret Message:",
                 "type": "custom",
@@ -107,38 +38,136 @@
                 "help_text": "",
                 "placeholder": "",
                 "default": null
+            }
+        ],
+        "sections": [
+            {
+                "key": "SectionUserChannel",
+                "title": "User & Channel",
+                "settings": [
+                    {
+                        "key": "ChannelName",
+                        "display_name": "Channel Name:",
+                        "type": "text",
+                        "help_text": "The channel to use as part of the demo plugin, created for each team automatically if it does not exist.",
+                        "placeholder": "demo_plugin",
+                        "default": "demo_plugin"
+                    },
+                    {
+                        "key": "Username",
+                        "display_name": "Username:",
+                        "type": "text",
+                        "help_text": "The user to use as part of the demo plugin, created automatically if it does not exist.",
+                        "placeholder": "demo_plugin",
+                        "default": "demo_plugin"
+                    },
+                    {
+                        "key": "LastName",
+                        "display_name": "Demo User Last Name:",
+                        "type": "radio",
+                        "help_text": "Select the last name for the demo user.",
+                        "placeholder": "",
+                        "default": "Plugin User",
+                        "options": [
+                            {
+                                "display_name": "Plugin User",
+                                "value": "Plugin User"
+                            },
+                            {
+                                "display_name": "Demoson III",
+                                "value": "Demoson III"
+                            },
+                            {
+                                "display_name": "McDemo",
+                                "value": "McDemo"
+                            }
+                        ]
+                    },
+                    {
+                        "key": "TextStyle",
+                        "display_name": "Text Style:",
+                        "type": "dropdown",
+                        "help_text": "Change the text style of the messages posted by this plugin.",
+                        "placeholder": "",
+                        "default": "",
+                        "options": [
+                            {
+                                "display_name": "none",
+                                "value": ""
+                            },
+                            {
+                                "display_name": "italics",
+                                "value": "_"
+                            },
+                            {
+                                "display_name": "bold",
+                                "value": "**"
+                            }
+                        ]
+                    }
+                ]
             },
             {
-                "key": "EnableMentionUser",
-                "display_name": "Enable Mention User:",
-                "type": "bool",
-                "help_text": "Enable or disable the demo plugin to tag a username on every message sent. The username value is set below.",
-                "placeholder": "",
-                "default": false
+                "key": "SectionSecrets",
+                "title": "Secrets",
+                "settings": [
+                    {
+                        "key": "RandomSecret",
+                        "display_name": "Random Secret:",
+                        "type": "generated",
+                        "help_text": "Generate a random string that the demo plugin will watch for. If the secret string is mentioned in any channel then the demo plugin will publish a special message.",
+                        "regenerate_help_text": "Generate a new secret string.",
+                        "placeholder": "",
+                        "default": "CFgcq9Hr9OKSevvqH_SH-mPlgVklmpUm"
+                    },
+                    {
+                        "key": "secretNumber",
+                        "display_name": "Secret Number:",
+                        "type": "number",
+                        "help_text": "A secret number that the demo plugin will watch for. If the secret number is mentioned in any channel then the demo plugin will publish a special message.",
+                        "placeholder": "Some secret number",
+                        "default": 123
+                    },
+                    {
+                        "key": "ServiceAPIKey",
+                        "display_name": "Service API Key:",
+                        "type": "text",
+                        "help_text": "An API key for an external service. This setting demonstrates a secret setting inside a section, which is sanitized before being returned through the API.",
+                        "placeholder": "Enter API key",
+                        "default": "",
+                        "secret": true
+                    }
+                ]
             },
             {
-                "key": "MentionUser",
-                "display_name": "Mention User:",
-                "type": "username",
-                "help_text": "Configure the username to be mentioned by the demo plugin. Must be enabled in the setting above.",
-                "placeholder": "demo_plugin",
-                "default": "demo_plugin"
-            },
-            {
-                "key": "secretNumber",
-                "display_name": "Secret Number:",
-                "type": "number",
-                "help_text": "A secret number that the demo plugin will watch for. If the secret number is mentioned in any channel then the demo plugin will publish a special message.",
-                "placeholder": "Some secret number",
-                "default": 123
-            },
-            {
-                "key": "integrationRequestDelay",
-                "display_name": "Integration Request delay",
-                "type": "number",
-                "help_text": "A deplay in seconds that is applied to Slash Command responses, Post Actions responses and Interactive Dialog responses. It's useful for testing.",
-                "placeholder": "A delay in seconds",
-                "default": 0
+                "key": "SectionMentions",
+                "title": "Mentions & Integrations",
+                "settings": [
+                    {
+                        "key": "EnableMentionUser",
+                        "display_name": "Enable Mention User:",
+                        "type": "bool",
+                        "help_text": "Enable or disable the demo plugin to tag a username on every message sent. The username value is set below.",
+                        "placeholder": "",
+                        "default": false
+                    },
+                    {
+                        "key": "MentionUser",
+                        "display_name": "Mention User:",
+                        "type": "username",
+                        "help_text": "Configure the username to be mentioned by the demo plugin. Must be enabled in the setting above.",
+                        "placeholder": "demo_plugin",
+                        "default": "demo_plugin"
+                    },
+                    {
+                        "key": "integrationRequestDelay",
+                        "display_name": "Integration Request delay",
+                        "type": "number",
+                        "help_text": "A deplay in seconds that is applied to Slash Command responses, Post Actions responses and Interactive Dialog responses. It's useful for testing.",
+                        "placeholder": "A delay in seconds",
+                        "default": 0
+                    }
+                ]
             }
         ]
     },
