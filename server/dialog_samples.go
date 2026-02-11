@@ -1013,3 +1013,231 @@ func interfaceToString(value interface{}) string {
 		return fmt.Sprintf("%v", v)
 	}
 }
+
+// ============================================================================
+// Webhook-Aligned DateTime Dialog Examples
+// These dialogs match the webhook test server examples for e2e testing
+// ============================================================================
+
+// Dialog Group 1: Basic Date & DateTime Features
+// Covers: MM-T2530A, B, C, D, F, G, H
+// Matches webhook functions: getBasicDateDialog, getBasicDateTimeDialog,
+// getMinDateConstraintDialog, getCustomIntervalDialog, getRelativeDateDialog
+func getDialogDateTimeBasic() model.Dialog {
+	return model.Dialog{
+		CallbackId: "datetime_basic",
+		Title:      "Date & DateTime Basics",
+		IconURL:    "http://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
+		Elements: []model.DialogElement{
+			// MM-T2530A - Basic date field
+			{
+				DisplayName: "Event Date",
+				Name:        "event_date",
+				Type:        "date",
+				HelpText:    "Select the date for your event",
+				Placeholder: "Select a date",
+				Optional:    false,
+			},
+			// MM-T2530B - Basic datetime field
+			{
+				DisplayName: "Meeting Time",
+				Name:        "meeting_time",
+				Type:        "datetime",
+				HelpText:    "Select the date and time for your meeting",
+				Placeholder: "Select date and time",
+				TimeInterval: 60,
+				Optional:    false,
+			},
+			// MM-T2530C - Min date constraint
+			{
+				DisplayName: "Future Date Only",
+				Name:        "future_date",
+				Type:        "date",
+				HelpText:    "Must be today or later",
+				Placeholder: "Select a future date",
+				MinDate:     "today",
+				Optional:    true,
+			},
+			// MM-T2530D - Custom time interval (30 min)
+			{
+				DisplayName: "Custom Interval Time",
+				Name:        "interval_time",
+				Type:        "datetime",
+				HelpText:    "Time picker with 30-minute intervals",
+				Placeholder: "Select time (30min intervals)",
+				TimeInterval: 30,
+				Optional:    true,
+			},
+			// MM-T2530F - Relative date (today)
+			{
+				DisplayName: "Relative Date Example",
+				Name:        "relative_date",
+				Type:        "date",
+				HelpText:    "Defaults to today using relative date",
+				Placeholder: "Today by default",
+				Default:     "today",
+				Optional:    true,
+			},
+			// MM-T2530F - Relative datetime (+1d)
+			{
+				DisplayName: "Relative DateTime Example",
+				Name:        "relative_datetime",
+				Type:        "datetime",
+				HelpText:    "Defaults to tomorrow using relative date",
+				Placeholder: "Tomorrow by default",
+				Default:     "+1d",
+				Optional:    true,
+			},
+		},
+		SubmitLabel:    "Submit",
+		NotifyOnCancel: true,
+		State:          "datetime_basic",
+		IntroductionText: "**Date & DateTime Basics Demo**\n\n" +
+			"This dialog demonstrates core date and datetime functionality:\n" +
+			"- Basic date and datetime fields\n" +
+			"- Min date constraints\n" +
+			"- Custom time intervals\n" +
+			"- Relative date defaults",
+	}
+}
+
+// Dialog Group 2: Date & DateTime Range Selection
+// Covers: MM-T2530I, J, K, L, M
+// Matches webhook functions: getDateRangeHorizontalDialog, getDateRangeVerticalDialog,
+// getDateRangeSingleDayDialog, getDateTimeRangeDialog
+func getDialogDateTimeRanges() model.Dialog {
+	return model.Dialog{
+		CallbackId: "datetime_ranges",
+		Title:      "Date & DateTime Ranges",
+		IconURL:    "http://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
+		Elements: []model.DialogElement{
+			// MM-T2530I - Date range horizontal
+			{
+				DisplayName: "Event Date Range (Horizontal)",
+				Name:        "horizontal_range",
+				Type:        "date",
+				HelpText:    "Select start and end dates (side-by-side)",
+				Placeholder: "Select date range",
+				DateTimeConfig: &model.DialogDateTimeConfig{
+					IsRange:             true,
+					RangeLayout:         "horizontal",
+					AllowSingleDayRange: false,
+				},
+				Optional: false,
+			},
+			// MM-T2530J - Date range vertical
+			{
+				DisplayName: "Event Date Range (Vertical)",
+				Name:        "vertical_range",
+				Type:        "date",
+				HelpText:    "Select start and end dates (stacked)",
+				Placeholder: "Select date range",
+				DateTimeConfig: &model.DialogDateTimeConfig{
+					IsRange:             true,
+					RangeLayout:         "vertical",
+					AllowSingleDayRange: false,
+				},
+				Optional: true,
+			},
+			// MM-T2530K - Date range with single day allowed
+			{
+				DisplayName: "Event Date Range (Single Day Allowed)",
+				Name:        "single_day_range",
+				Type:        "date",
+				HelpText:    "Can select same day for start and end",
+				Placeholder: "Select date range",
+				DateTimeConfig: &model.DialogDateTimeConfig{
+					IsRange:             true,
+					RangeLayout:         "horizontal",
+					AllowSingleDayRange: true,
+				},
+				Optional: true,
+			},
+			// MM-T2530L/M - DateTime range with time pickers
+			{
+				DisplayName: "Meeting Time Range",
+				Name:        "datetime_range",
+				Type:        "datetime",
+				HelpText:    "Select start and end date/time",
+				Placeholder: "Select date and time range",
+				DateTimeConfig: &model.DialogDateTimeConfig{
+					IsRange:             true,
+					RangeLayout:         "horizontal",
+					AllowSingleDayRange: true,
+					TimeInterval:        30,
+				},
+				Optional: true,
+			},
+		},
+		SubmitLabel:    "Submit",
+		NotifyOnCancel: true,
+		State:          "datetime_ranges",
+		IntroductionText: "**Date & DateTime Ranges Demo**\n\n" +
+			"This dialog demonstrates range selection:\n" +
+			"- Horizontal vs vertical layouts\n" +
+			"- Single-day range behavior\n" +
+			"- DateTime ranges with time pickers",
+	}
+}
+
+// Dialog Group 3: Timezone Support & Manual Time Entry
+// Covers: MM-T2530O, P, Q, R, S
+// Matches webhook function: getTimezoneManualDialog
+func getDialogDateTimeTimezone() model.Dialog {
+	return model.Dialog{
+		CallbackId: "datetime_timezone",
+		Title:      "Timezone & Manual Entry Demo",
+		IconURL:    "http://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
+		Elements: []model.DialogElement{
+			// MM-T2530O/P/Q - Manual time entry (local)
+			{
+				DisplayName: "Your Local Time (Manual Entry)",
+				Name:        "local_manual",
+				Type:        "datetime",
+				HelpText:    "Type any time: 9am, 14:30, 3:45pm - no rounding",
+				DateTimeConfig: &model.DialogDateTimeConfig{
+					AllowManualTimeEntry: true,
+				},
+				Optional: true,
+			},
+			// MM-T2530R - Timezone with dropdown
+			{
+				DisplayName: "London Office Hours (Dropdown)",
+				Name:        "london_dropdown",
+				Type:        "datetime",
+				HelpText:    "Times shown in GMT - select from 60 min intervals",
+				DateTimeConfig: &model.DialogDateTimeConfig{
+					LocationTimezone: "Europe/London",
+					TimeInterval:     60,
+				},
+				Optional: true,
+			},
+			// MM-T2530S - Timezone with manual entry
+			{
+				DisplayName: "London Office Hours (Manual Entry)",
+				Name:        "london_manual",
+				Type:        "datetime",
+				HelpText:    "Type time in GMT: 9am, 14:30, 3:45pm - no rounding",
+				DateTimeConfig: &model.DialogDateTimeConfig{
+					LocationTimezone:     "Europe/London",
+					AllowManualTimeEntry: true,
+				},
+				Optional: true,
+			},
+		},
+		SubmitLabel:    "Submit",
+		NotifyOnCancel: true,
+		State:          "datetime_timezone",
+		IntroductionText: "**Timezone & Manual Entry Demo**\n\n" +
+			"This dialog demonstrates:\n\n" +
+			"**Timezone Support (`location_timezone`):**\n" +
+			"- London fields display times in GMT (with 🌍 indicator)\n" +
+			"- Your local fields use your system timezone\n" +
+			"- All values stored in UTC\n\n" +
+			"**Manual Time Entry (`allow_manual_time_entry`):**\n" +
+			"- Type times directly instead of using dropdown\n" +
+			"- Supports formats: `9am`, `14:30`, `3:45pm`, `12a`\n" +
+			"- No rounding - exact minutes preserved\n" +
+			"- Your 12h/24h preference determines the display format",
+	}
+}
