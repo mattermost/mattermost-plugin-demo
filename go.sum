@@ -118,10 +118,8 @@ github.com/mattermost/ldap v0.0.0-20231116144001-0f480c025956 h1:Y1Tu/swM31pVwwb
 github.com/mattermost/ldap v0.0.0-20231116144001-0f480c025956/go.mod h1:SRl30Lb7/QoYyohYeVBuqYvvmXSZJxZgiV3Zf6VbxjI=
 github.com/mattermost/logr/v2 v2.0.22 h1:npFkXlkAWR9J8payh8ftPcCZvLbHSI125mAM5/r/lP4=
 github.com/mattermost/logr/v2 v2.0.22/go.mod h1:0sUKpO+XNMZApeumaid7PYaUZPBIydfuWZ0dqixXo+s=
-github.com/mattermost/mattermost/server/public v0.1.22-0.20260114140258-08cc0e38353e h1:hkKFYsre8IJWYaeXoSzlUJD/HmmCcWwHWyRiwYJp00w=
-github.com/mattermost/mattermost/server/public v0.1.22-0.20260114140258-08cc0e38353e/go.mod h1:4dehIGXz/qyCaiTYWgtzMC334V/TH61QY0cI8XhxdU0=
-github.com/mattermost/mattermost/server/public v0.1.22-0.20260128161350-8623f5299c09 h1:K0II3q5uWh+TrV7weO3kBPaK/34b1zob6AsUnyq/8aw=
-github.com/mattermost/mattermost/server/public v0.1.22-0.20260128161350-8623f5299c09/go.mod h1:Euzcra4BqwHxm74pocPOd0gu15c93Q9jjvXvZvaoQu4=
+github.com/mattermost/mattermost/server/public v0.2.0 h1:ddg6VVREXeCj7Fkzxxcwh/dKab3AQB6RRKF3015VXe4=
+github.com/mattermost/mattermost/server/public v0.2.0/go.mod h1:71/MHfP2k/s8fMa9GHqlX6je59Xg30JD8dWppT4EG/k=
 github.com/mattermost/mattermost/server/v8 v8.0.0-20251014075701-833e0125320d h1:etRyN6FNd6fc7BGZ8X+XB2u/5Hb2HNz5/K53YZNvfrs=
 github.com/mattermost/mattermost/server/v8 v8.0.0-20251014075701-833e0125320d/go.mod h1:HILhsra+xY4SNEFhuPbobH3I8a0aeXJcTJ6RWPX85nI=
 github.com/mattermost/xml-roundtrip-validator v0.1.0 h1:RXbVD2UAl7A7nOTR4u7E3ILa4IbtvKBHw64LDsmu9hU=
@@ -163,8 +161,6 @@ github.com/prometheus/common v0.0.0-20180801064454-c7de2306084e/go.mod h1:daVV7q
 github.com/prometheus/procfs v0.0.0-20180725123919-05ee40e3a273/go.mod h1:c3At6R/oaqEKCNdg8wHV1ftS6bRYblBhIjjI8uT2IGk=
 github.com/rogpeppe/go-internal v1.6.1/go.mod h1:xXDCJY+GAPziupqXw64V24skbSoqbTEfhy4qGm1nDQc=
 github.com/rogpeppe/go-internal v1.8.0/go.mod h1:WmiCO8CzOY8rg0OYDC4/i/2WRWAB6poM+XZ2dLUbcbE=
-github.com/rogpeppe/go-internal v1.11.0 h1:cWPaGQEPrBb5/AsnsZesgZZ9yb1OQ+GOISoDNXVBh4M=
-github.com/rogpeppe/go-internal v1.11.0/go.mod h1:ddIwULY96R17DhadqLgMfk9H9tvdUzkipdSkR5nkCZA=
 github.com/rogpeppe/go-internal v1.13.1 h1:KvO1DLK/DRN07sQ1LQKScxyZJuNnedQ5/wKSR38lUII=
 github.com/rogpeppe/go-internal v1.13.1/go.mod h1:uMEvuHeurkdAXX61udpOXGD/AzZDWNMNyH2VO9fmH0o=
 github.com/russellhaering/goxmldsig v1.2.0/go.mod h1:gM4MDENBQf7M+V824SGfyIUVFWydB7n0KkEubVJl+Tw=
