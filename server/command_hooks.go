@@ -21,6 +21,7 @@ const (
 	commandTriggerMentions          = "show_mentions"
 	commandTriggerListFiles         = "list_files"
 	commandTriggerAutocompleteTest  = "autocomplete_test"
+	commandTriggerToast             = "toast"
 
 	dialogElementNameNumber   = "somenumber"
 	dialogElementNameEmail    = "someemail"
@@ -133,6 +134,15 @@ func (p *Plugin) registerCommands() error {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerDialog)
 	}
 
+	if err := p.API.RegisterCommand(&model.Command{
+		Trigger:          commandTriggerToast,
+		AutoComplete:     true,
+		AutoCompleteDesc: "Demonstrates the toast notification API.",
+		AutocompleteData: getCommandToastAutocompleteData(),
+	}); err != nil {
+		return errors.Wrapf(err, "failed to register %s command", commandTriggerToast)
+	}
+
 	return nil
 }
 
@@ -188,7 +198,7 @@ func getCommandDialogAutocompleteData() *model.AutocompleteData {
 	multistep := model.NewAutocompleteData("multistep", "", "Open a multi-step Interactive Dialog with form refresh on submit.")
 	command.AddCommand(multistep)
 
-  multiSelect := model.NewAutocompleteData("multi-select", "", "Open an Interactive Dialog with multi-select fields.")
+	multiSelect := model.NewAutocompleteData("multi-select", "", "Open an Interactive Dialog with multi-select fields.")
 	command.AddCommand(multiSelect)
 
 	help := model.NewAutocompleteData("help", "", "")
@@ -212,6 +222,44 @@ func getAutocompleteTestAutocompleteData() *model.AutocompleteData {
 	optionalArg.AddNamedTextArgument("name1", "Optional named argument", "", "", false)
 	optionalArg.AddNamedTextArgument("name2", "Optional named argument with pattern p([a-z]+)ch", "", "p([a-z]+)ch", false)
 	command.AddCommand(optionalArg)
+
+	return command
+}
+
+func getCommandToastAutocompleteData() *model.AutocompleteData {
+	command := model.NewAutocompleteData(commandTriggerToast, "[--all-sessions] [position] [message]", "Send a toast notification.")
+
+	// Add --all-sessions flag
+	allSessions := model.NewAutocompleteData("--all-sessions", "[position] [message]", "Send toast to all sessions")
+
+	// Add position options to both main command and --all-sessions
+	for _, parent := range []*model.AutocompleteData{command, allSessions} {
+		topLeft := model.NewAutocompleteData("top-left", "[message]", "Show toast at top-left")
+		topLeft.AddTextArgument("Message to display", "[message]", "")
+		parent.AddCommand(topLeft)
+
+		topCenter := model.NewAutocompleteData("top-center", "[message]", "Show toast at top-center")
+		topCenter.AddTextArgument("Message to display", "[message]", "")
+		parent.AddCommand(topCenter)
+
+		topRight := model.NewAutocompleteData("top-right", "[message]", "Show toast at top-right")
+		topRight.AddTextArgument("Message to display", "[message]", "")
+		parent.AddCommand(topRight)
+
+		bottomLeft := model.NewAutocompleteData("bottom-left", "[message]", "Show toast at bottom-left")
+		bottomLeft.AddTextArgument("Message to display", "[message]", "")
+		parent.AddCommand(bottomLeft)
+
+		bottomCenter := model.NewAutocompleteData("bottom-center", "[message]", "Show toast at bottom-center")
+		bottomCenter.AddTextArgument("Message to display", "[message]", "")
+		parent.AddCommand(bottomCenter)
+
+		bottomRight := model.NewAutocompleteData("bottom-right", "[message]", "Show toast at bottom-right (default)")
+		bottomRight.AddTextArgument("Message to display", "[message]", "")
+		parent.AddCommand(bottomRight)
+	}
+
+	command.AddCommand(allSessions)
 
 	return command
 }
@@ -247,11 +295,13 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		return p.executeCommandMentions(args), nil
 	case commandTriggerAutocompleteTest:
 		return p.executeAutocompleteTest(args), nil
+	case commandTriggerToast:
+		return p.executeCommandToast(c, args), nil
 
 	default:
 		return &model.CommandResponse{
 			ResponseType: model.CommandResponseTypeEphemeral,
-			Text:         fmt.Sprintf("Unknown command: " + args.Command + ". Use `/dialog help` for available commands."),
+			Text:         fmt.Sprintf("Unknown command: %s. Use `/dialog help` for available commands.", args.Command),
 		}, nil
 	}
 }
@@ -424,7 +474,7 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/date", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog:    getDialogWithDateElements(),
-    }
+		}
 	case "multi-select":
 		dialogRequest = model.OpenDialogRequest{
 			TriggerId: args.TriggerId,
@@ -630,5 +680,59 @@ func (p *Plugin) executeAutocompleteTest(args *model.CommandArgs) *model.Command
 	return &model.CommandResponse{
 		ResponseType: model.CommandResponseTypeEphemeral,
 		Text:         fmt.Sprintf("Executed command: %s", args.Command),
+	}
+}
+
+func (p *Plugin) executeCommandToast(c *plugin.Context, args *model.CommandArgs) *model.CommandResponse {
+	fields := strings.Fields(args.Command)
+
+	// Default values
+	position := "bottom-right"
+	message := "This is a demo toast notification!"
+	connectionID := ""
+	allSessions := false
+
+	// Check if --all-sessions flag is present in the first position
+	startIndex := 1
+	if len(fields) >= 2 && fields[1] == "--all-sessions" {
+		allSessions = true
+		startIndex = 2
+	}
+
+	// If --all-sessions is NOT set, use the session ID
+	if !allSessions {
+		var found bool
+		connectionID, found = p.GetConnectionIDForSession(c.SessionId)
+		if !found {
+			p.API.LogWarn("Failed to get connection ID for session", "session_id", c.SessionId)
+		}
+	}
+
+	// Parse command arguments: /toast [--all-sessions] [position] [message]
+	if len(fields) >= startIndex+1 {
+		position = fields[startIndex]
+	}
+	if len(fields) >= startIndex+2 {
+		// Join all remaining fields as the message
+		message = strings.Join(fields[startIndex+1:], " ")
+	}
+
+	// Send the toast message using the plugin API
+	options := model.SendToastMessageOptions{
+		Position: position,
+	}
+
+	if err := p.client.Frontend.SendToastMessage(args.UserId, connectionID, message, options); err != nil {
+		errorMessage := "Failed to send toast notification"
+		p.API.LogError(errorMessage, "err", err.Error())
+		return &model.CommandResponse{
+			ResponseType: model.CommandResponseTypeEphemeral,
+			Text:         errorMessage,
+		}
+	}
+
+	return &model.CommandResponse{
+		ResponseType: model.CommandResponseTypeEphemeral,
+		Text:         fmt.Sprintf("Toast notification sent to position: %s", position),
 	}
 }

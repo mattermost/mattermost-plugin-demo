@@ -233,7 +233,6 @@ ifeq ($(shell uname),Darwin)
 else
 	cd dist && tar -cvzf $(BUNDLE_NAME) $(PLUGIN_ID)
 endif
-
 	@echo plugin built at: dist/$(BUNDLE_NAME)
 
 ## Builds and bundles the plugin.
