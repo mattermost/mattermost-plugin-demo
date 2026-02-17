@@ -28,6 +28,7 @@ func (p *Plugin) OnActivate() error {
 	}
 
 	p.initializeAPI()
+	p.initializeSessionTracking()
 
 	configuration := p.getConfiguration()
 

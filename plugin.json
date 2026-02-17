@@ -168,6 +168,44 @@
                         "default": 0
                     }
                 ]
+            },
+            {
+                "key": "SectionFileDownloads",
+                "title": "File Downloads",
+                "settings": [
+                    {
+                        "key": "RejectFileDownloads",
+                        "display_name": "Reject File Downloads:",
+                        "type": "bool",
+                        "help_text": "When enabled, full file downloads will be rejected with an error message. This is useful for testing the plugin's file download hook logic.",
+                        "placeholder": "",
+                        "default": false
+                    },
+                    {
+                        "key": "RejectThumbDownloads",
+                        "display_name": "Reject Thumbnail Downloads:",
+                        "type": "bool",
+                        "help_text": "When enabled, thumbnail downloads will be rejected with an error message. This is useful for testing the plugin's thumbnail download hook logic.",
+                        "placeholder": "",
+                        "default": false
+                    },
+                    {
+                        "key": "RejectPreviewDownloads",
+                        "display_name": "Reject Preview Downloads:",
+                        "type": "bool",
+                        "help_text": "When enabled, preview image downloads will be rejected with an error message. This is useful for testing the plugin's preview download hook logic.",
+                        "placeholder": "",
+                        "default": false
+                    },
+                    {
+                        "key": "RejectPublicLinkDownloads",
+                        "display_name": "Reject Public Link Downloads:",
+                        "type": "bool",
+                        "help_text": "When enabled, public link file downloads will be rejected with an error message. This is useful for testing the plugin's public link download hook logic.",
+                        "placeholder": "",
+                        "default": false
+                    }
+                ]
             }
         ]
     },

@@ -55,6 +55,22 @@ type configuration struct {
 	// setting inside a plugin settings section, which is sanitized before being returned through the API.
 	ServiceAPIKey string
 
+	// RejectFileDownloads is a testing option to reject full file downloads.
+	// When enabled, full file downloads will be rejected with an error message.
+	RejectFileDownloads bool
+
+	// RejectThumbDownloads is a testing option to reject thumbnail downloads.
+	// When enabled, thumbnail downloads will be rejected with an error message.
+	RejectThumbDownloads bool
+
+	// RejectPreviewDownloads is a testing option to reject preview downloads.
+	// When enabled, preview image downloads will be rejected with an error message.
+	RejectPreviewDownloads bool
+
+	// RejectPublicLinkDownloads is a testing option to reject public link downloads.
+	// When enabled, public link file downloads will be rejected with an error message.
+	RejectPublicLinkDownloads bool
+
 	// disabled tracks whether or not the plugin has been disabled after activation. It always starts enabled.
 	disabled bool
 
@@ -75,20 +91,24 @@ func (c *configuration) Clone() *configuration {
 	}
 
 	return &configuration{
-		Username:                c.Username,
-		ChannelName:             c.ChannelName,
-		LastName:                c.LastName,
-		TextStyle:               c.TextStyle,
-		RandomSecret:            c.RandomSecret,
-		SecretMessage:           c.SecretMessage,
-		EnableMentionUser:       c.EnableMentionUser,
-		MentionUser:             c.MentionUser,
-		SecretNumber:            c.SecretNumber,
-		IntegrationRequestDelay: c.IntegrationRequestDelay,
-		ServiceAPIKey:           c.ServiceAPIKey,
-		disabled:                c.disabled,
-		demoUserID:              c.demoUserID,
-		demoChannelIDs:          demoChannelIDs,
+		Username:                  c.Username,
+		ChannelName:               c.ChannelName,
+		LastName:                  c.LastName,
+		TextStyle:                 c.TextStyle,
+		RandomSecret:              c.RandomSecret,
+		SecretMessage:             c.SecretMessage,
+		EnableMentionUser:         c.EnableMentionUser,
+		MentionUser:               c.MentionUser,
+		SecretNumber:              c.SecretNumber,
+		IntegrationRequestDelay:   c.IntegrationRequestDelay,
+		ServiceAPIKey:             c.ServiceAPIKey,
+		RejectFileDownloads:       c.RejectFileDownloads,
+		RejectThumbDownloads:      c.RejectThumbDownloads,
+		RejectPreviewDownloads:    c.RejectPreviewDownloads,
+		RejectPublicLinkDownloads: c.RejectPublicLinkDownloads,
+		disabled:                  c.disabled,
+		demoUserID:                c.demoUserID,
+		demoChannelIDs:            demoChannelIDs,
 	}
 }
 
@@ -159,6 +179,21 @@ func (p *Plugin) diffConfiguration(newConfiguration *configuration) {
 	}
 	if newConfiguration.ServiceAPIKey != oldConfiguration.ServiceAPIKey {
 		configurationDiff["service_api_key"] = "<HIDDEN>"
+	}
+	if newConfiguration.IntegrationRequestDelay != oldConfiguration.IntegrationRequestDelay {
+		configurationDiff["integration_request_delay"] = newConfiguration.IntegrationRequestDelay
+	}
+	if newConfiguration.RejectFileDownloads != oldConfiguration.RejectFileDownloads {
+		configurationDiff["reject_file_downloads"] = newConfiguration.RejectFileDownloads
+	}
+	if newConfiguration.RejectThumbDownloads != oldConfiguration.RejectThumbDownloads {
+		configurationDiff["reject_thumb_downloads"] = newConfiguration.RejectThumbDownloads
+	}
+	if newConfiguration.RejectPreviewDownloads != oldConfiguration.RejectPreviewDownloads {
+		configurationDiff["reject_preview_downloads"] = newConfiguration.RejectPreviewDownloads
+	}
+	if newConfiguration.RejectPublicLinkDownloads != oldConfiguration.RejectPublicLinkDownloads {
+		configurationDiff["reject_public_link_downloads"] = newConfiguration.RejectPublicLinkDownloads
 	}
 
 	if len(configurationDiff) == 0 {

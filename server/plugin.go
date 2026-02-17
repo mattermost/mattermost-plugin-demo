@@ -35,4 +35,8 @@ type Plugin struct {
 
 	// backgroundJob is a job that executes periodically on only one plugin instance at a time
 	backgroundJob *cluster.Job
+
+	// Session tracking
+	sessionToConn   map[string]string
+	sessionToConnMu sync.RWMutex
 }
