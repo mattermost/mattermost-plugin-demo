@@ -51,6 +51,10 @@ type configuration struct {
 	// It's useful for testing.
 	IntegrationRequestDelay int
 
+	// ServiceAPIKey is an API key for an external service. This setting demonstrates a secret
+	// setting inside a plugin settings section, which is sanitized before being returned through the API.
+	ServiceAPIKey string
+
 	// RejectFileDownloads is a testing option to reject full file downloads.
 	// When enabled, full file downloads will be rejected with an error message.
 	RejectFileDownloads bool
@@ -87,23 +91,24 @@ func (c *configuration) Clone() *configuration {
 	}
 
 	return &configuration{
-		Username:                   c.Username,
-		ChannelName:                c.ChannelName,
-		LastName:                   c.LastName,
-		TextStyle:                  c.TextStyle,
-		RandomSecret:               c.RandomSecret,
-		SecretMessage:              c.SecretMessage,
-		EnableMentionUser:          c.EnableMentionUser,
-		MentionUser:                c.MentionUser,
-		SecretNumber:               c.SecretNumber,
-		IntegrationRequestDelay:    c.IntegrationRequestDelay,
-		RejectFileDownloads:        c.RejectFileDownloads,
-		RejectThumbDownloads:       c.RejectThumbDownloads,
-		RejectPreviewDownloads:     c.RejectPreviewDownloads,
-		RejectPublicLinkDownloads:  c.RejectPublicLinkDownloads,
-		disabled:                   c.disabled,
-		demoUserID:                 c.demoUserID,
-		demoChannelIDs:             demoChannelIDs,
+		Username:                  c.Username,
+		ChannelName:               c.ChannelName,
+		LastName:                  c.LastName,
+		TextStyle:                 c.TextStyle,
+		RandomSecret:              c.RandomSecret,
+		SecretMessage:             c.SecretMessage,
+		EnableMentionUser:         c.EnableMentionUser,
+		MentionUser:               c.MentionUser,
+		SecretNumber:              c.SecretNumber,
+		IntegrationRequestDelay:   c.IntegrationRequestDelay,
+		ServiceAPIKey:             c.ServiceAPIKey,
+		RejectFileDownloads:       c.RejectFileDownloads,
+		RejectThumbDownloads:      c.RejectThumbDownloads,
+		RejectPreviewDownloads:    c.RejectPreviewDownloads,
+		RejectPublicLinkDownloads: c.RejectPublicLinkDownloads,
+		disabled:                  c.disabled,
+		demoUserID:                c.demoUserID,
+		demoChannelIDs:            demoChannelIDs,
 	}
 }
 
@@ -171,6 +176,9 @@ func (p *Plugin) diffConfiguration(newConfiguration *configuration) {
 	}
 	if newConfiguration.SecretNumber != oldConfiguration.SecretNumber {
 		configurationDiff["secret_number"] = newConfiguration.SecretNumber
+	}
+	if newConfiguration.ServiceAPIKey != oldConfiguration.ServiceAPIKey {
+		configurationDiff["service_api_key"] = "<HIDDEN>"
 	}
 	if newConfiguration.IntegrationRequestDelay != oldConfiguration.IntegrationRequestDelay {
 		configurationDiff["integration_request_delay"] = newConfiguration.IntegrationRequestDelay
