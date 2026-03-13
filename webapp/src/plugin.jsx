@@ -52,7 +52,7 @@ function getTranslations(locale) {
 export default class DemoPlugin {
     initialize(registry, store) {
         registry.registerChannelSettingsTab?.({
-            uiName: 'Smoke Test',
+            uiName: 'Demo Plugin',
             component: ChannelSettingsSmokeTest,
             shouldRender: () => true,
         });
