@@ -1,8 +1,31 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 
-export default function ChannelSettingsSmokeTest({channel, setAreThereUnsavedChanges, showTabSwitchError}) {
+export default function ChannelSettingsSmokeTest({channel, setAreThereUnsavedChanges, registerSaveBarHandlers}) {
     const [value, setValue] = useState('');
+
+    const handleSave = useCallback(async () => {
+        // Smoke test: no server persistence; clearing dirty state matches a successful save.
+        setAreThereUnsavedChanges?.(false);
+    }, [setAreThereUnsavedChanges]);
+
+    const handleReset = useCallback(() => {
+        setValue('');
+        setAreThereUnsavedChanges?.(false);
+    }, [setAreThereUnsavedChanges]);
+
+    /* eslint-disable consistent-return -- useEffect may return cleanup or nothing */
+    useEffect(() => {
+        if (!registerSaveBarHandlers) {
+            return;
+        }
+        registerSaveBarHandlers({
+            save: handleSave,
+            reset: handleReset,
+        });
+        return () => registerSaveBarHandlers(null);
+    }, [registerSaveBarHandlers, handleSave, handleReset]);
+    /* eslint-enable consistent-return */
 
     const handleChange = useCallback((e) => {
         const newValue = e.target.value;
@@ -36,11 +59,6 @@ export default function ChannelSettingsSmokeTest({channel, setAreThereUnsavedCha
                     style={{marginTop: '4px', padding: '6px', width: '300px'}}
                 />
             </div>
-            {showTabSwitchError && (
-                <div style={{marginTop: '12px', padding: '8px', backgroundColor: '#fdecea', color: '#d32f2f', borderRadius: '4px'}}>
-                    {'You have unsaved changes. Please save or discard before switching tabs.'}
-                </div>
-            )}
         </div>
     );
 }
@@ -48,5 +66,5 @@ export default function ChannelSettingsSmokeTest({channel, setAreThereUnsavedCha
 ChannelSettingsSmokeTest.propTypes = {
     channel: PropTypes.object.isRequired,
     setAreThereUnsavedChanges: PropTypes.func,
-    showTabSwitchError: PropTypes.bool,
+    registerSaveBarHandlers: PropTypes.func,
 };
