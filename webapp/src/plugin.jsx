@@ -54,7 +54,7 @@ export default class DemoPlugin {
         registry.registerChannelSettingsTab?.({
             uiName: 'Demo Plugin',
             component: ChannelSettingsSmokeTest,
-            icon: 'fa fa-plug',
+            icon: `/plugins/${manifest.id}/public/icon.png`,
             shouldRender: () => true,
         });
 
