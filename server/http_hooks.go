@@ -42,6 +42,9 @@ func (p *Plugin) initializeAPI() {
 	interativeRouter.Use(p.withDelay)
 	interativeRouter.HandleFunc("/button/1", p.handleInteractiveAction)
 
+	inlineActionRouter := router.PathPrefix("/inline_action").Subrouter()
+	inlineActionRouter.HandleFunc("/triage", p.handleInlineActionTriage)
+
 	dialogRouter := router.PathPrefix("/dialog").Subrouter()
 	dialogRouter.Use(p.withDelay)
 	dialogRouter.HandleFunc("/1", p.handleDialog1)
@@ -490,6 +493,79 @@ func (p *Plugin) handleInteractiveAction(w http.ResponseWriter, r *http.Request)
 
 	resp := &model.PostActionIntegrationResponse{}
 	p.writeJSON(w, resp)
+}
+
+func (p *Plugin) handleInlineActionTriage(w http.ResponseWriter, r *http.Request) {
+	var request model.PostActionIntegrationRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		p.API.LogError("Failed to decode PostActionIntegrationRequest", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	// Extract inline params (per-row) and static context
+	inlineParams, _ := request.Context["inline_params"].(map[string]any)
+	issueID, _ := inlineParams["id"].(string)
+	project, _ := request.Context["project"].(string)
+
+	// Build introduction text showing key identifiers passed via mmaction://
+	intro := fmt.Sprintf("**Issue:** %s  |  **Project:** %s", issueID, project)
+
+	serverConfig := p.API.GetConfig()
+	dialogRequest := model.OpenDialogRequest{
+		TriggerId: request.TriggerId,
+		URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+		Dialog: model.Dialog{
+			CallbackId:       "triage_" + issueID,
+			Title:            "Triage " + issueID,
+			IntroductionText: intro,
+			SubmitLabel:      "Submit Triage",
+			Elements: []model.DialogElement{
+				{
+					DisplayName: "QA Resource",
+					Name:        "qa_resource",
+					Type:        "select",
+					Placeholder: "Assign a QA resource...",
+					HelpText:    "Select a team member to verify the fix.",
+					DataSource:  "users",
+				},
+				{
+					DisplayName: "Due Date",
+					Name:        "due_date",
+					Type:        "date",
+					HelpText:    "Target date for resolution.",
+				},
+				{
+					DisplayName: "Triage Notes",
+					Name:        "notes",
+					Type:        "textarea",
+					Optional:    true,
+					Placeholder: "Root cause, reproduction steps, next actions...",
+					HelpText:    "These notes will be posted to the channel.",
+					MaxLength:   500,
+				},
+			},
+		},
+	}
+
+	if appErr := p.API.OpenInteractiveDialog(dialogRequest); appErr != nil {
+		p.API.LogError("Failed to open triage dialog", "err", appErr.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	resp := &model.PostActionIntegrationResponse{}
+	p.writeJSON(w, resp)
+}
+
+func formatJSON(v any) string {
+	b, err := json.MarshalIndent(v, "", "  ")
+	if err != nil {
+		return fmt.Sprintf("%+v", v)
+	}
+	return string(b)
 }
 
 func (p *Plugin) writeJSON(w http.ResponseWriter, response any) {
