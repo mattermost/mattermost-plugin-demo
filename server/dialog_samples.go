@@ -949,7 +949,7 @@ func getDialogStep3Summary(formData map[string]interface{}) model.Dialog {
 			Placeholder: "I accept the Privacy Policy",
 			HelpText:    "You must accept our privacy policy to complete registration.",
 		}},
-  }
+	}
 }
 
 func getDialogWithMultiSelectElements() model.Dialog {
@@ -1040,13 +1040,13 @@ func getDialogDateTimeBasic() model.Dialog {
 			},
 			// MM-T2530B - Basic datetime field
 			{
-				DisplayName: "Meeting Time",
-				Name:        "meeting_time",
-				Type:        "datetime",
-				HelpText:    "Select the date and time for your meeting",
-				Placeholder: "Select date and time",
+				DisplayName:  "Meeting Time",
+				Name:         "meeting_time",
+				Type:         "datetime",
+				HelpText:     "Select the date and time for your meeting",
+				Placeholder:  "Select date and time",
 				TimeInterval: 60,
-				Optional:    false,
+				Optional:     false,
 			},
 			// MM-T2530C - Min date constraint
 			{
@@ -1060,13 +1060,13 @@ func getDialogDateTimeBasic() model.Dialog {
 			},
 			// MM-T2530D - Custom time interval (30 min)
 			{
-				DisplayName: "Custom Interval Time",
-				Name:        "interval_time",
-				Type:        "datetime",
-				HelpText:    "Time picker with 30-minute intervals",
-				Placeholder: "Select time (30min intervals)",
+				DisplayName:  "Custom Interval Time",
+				Name:         "interval_time",
+				Type:         "datetime",
+				HelpText:     "Time picker with 30-minute intervals",
+				Placeholder:  "Select time (30min intervals)",
 				TimeInterval: 30,
-				Optional:    true,
+				Optional:     true,
 			},
 			// MM-T2530F - Relative date (today)
 			{
@@ -1124,10 +1124,10 @@ func getDialogDateTimeTimezone() model.Dialog {
 				DisplayName: "London Office Hours (Dropdown)",
 				Name:        "london_dropdown",
 				Type:        "datetime",
-				HelpText:    "Times shown in GMT - select from 60 min intervals",
+				HelpText:    "Times shown in Europe/London time - select from 60 min intervals",
 				DateTimeConfig: &model.DialogDateTimeConfig{
 					LocationTimezone: "Europe/London",
-					TimeInterval:    60,
+					TimeInterval:     60,
 				},
 				Optional: true,
 			},
@@ -1135,7 +1135,7 @@ func getDialogDateTimeTimezone() model.Dialog {
 				DisplayName: "London Office Hours (Manual Entry)",
 				Name:        "london_manual",
 				Type:        "datetime",
-				HelpText:    "Type time in GMT: 9am, 14:30, 3:45pm - no rounding",
+				HelpText:    "Type time in Europe/London time: 9am, 14:30, 3:45pm - no rounding",
 				DateTimeConfig: &model.DialogDateTimeConfig{
 					LocationTimezone:     "Europe/London",
 					AllowManualTimeEntry: true,
