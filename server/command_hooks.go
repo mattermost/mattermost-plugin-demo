@@ -43,7 +43,6 @@ const (
 		"- `/dialog dynamic-select` - Open an Interactive Dialog with dynamic select fields. Once submitted, user-entered input is posted back into a channel.\n" +
 		"- `/dialog date` - Open an Interactive Dialog with date and datetime fields for testing.\n" +
 		"- `/dialog datetime-basic` - Open an Interactive Dialog with basic date/datetime features (min date, intervals, relative dates).\n" +
-		"- `/dialog datetime-ranges` - Open an Interactive Dialog with date/datetime range selection (horizontal, vertical, single-day).\n" +
 		"- `/dialog datetime-timezone` - Open an Interactive Dialog with timezone support and manual time entry.\n" +
 		"- `/dialog multi-select` - Open an Interactive Dialog with multi-select fields. Once submitted, user-entered input is posted back into a channel.\n" +
 		"- `/dialog error` - Open an Interactive Dialog which always returns an general error.\n" +
@@ -178,9 +177,6 @@ func getCommandDialogAutocompleteData() *model.AutocompleteData {
 
 	datetimeBasic := model.NewAutocompleteData("datetime-basic", "", "Open an Interactive Dialog with basic date/datetime features.")
 	command.AddCommand(datetimeBasic)
-
-	datetimeRanges := model.NewAutocompleteData("datetime-ranges", "", "Open an Interactive Dialog with date/datetime range selection.")
-	command.AddCommand(datetimeRanges)
 
 	datetimeTimezone := model.NewAutocompleteData("datetime-timezone", "", "Open an Interactive Dialog with timezone support and manual time entry.")
 	command.AddCommand(datetimeTimezone)
@@ -442,12 +438,6 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog:    getDialogDateTimeBasic(),
-		}
-	case "datetime-ranges":
-		dialogRequest = model.OpenDialogRequest{
-			TriggerId: args.TriggerId,
-			URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
-			Dialog:    getDialogDateTimeRanges(),
 		}
 	case "datetime-timezone":
 		dialogRequest = model.OpenDialogRequest{

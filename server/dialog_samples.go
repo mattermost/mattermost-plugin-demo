@@ -1101,86 +1101,7 @@ func getDialogDateTimeBasic() model.Dialog {
 	}
 }
 
-// Dialog Group 2: Date & DateTime Range Selection
-// Covers: MM-T2530I, J, K, L, M
-// Matches webhook functions: getDateRangeHorizontalDialog, getDateRangeVerticalDialog,
-// getDateRangeSingleDayDialog, getDateTimeRangeDialog
-func getDialogDateTimeRanges() model.Dialog {
-	return model.Dialog{
-		CallbackId: "datetime_ranges",
-		Title:      "Date & DateTime Ranges",
-		IconURL:    "http://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
-		Elements: []model.DialogElement{
-			// MM-T2530I - Date range horizontal
-			{
-				DisplayName: "Event Date Range (Horizontal)",
-				Name:        "horizontal_range",
-				Type:        "date",
-				HelpText:    "Select start and end dates (side-by-side)",
-				Placeholder: "Select date range",
-				DateTimeConfig: &model.DialogDateTimeConfig{
-					IsRange:             true,
-					RangeLayout:         "horizontal",
-					AllowSingleDayRange: false,
-				},
-				Optional: false,
-			},
-			// MM-T2530J - Date range vertical
-			{
-				DisplayName: "Event Date Range (Vertical)",
-				Name:        "vertical_range",
-				Type:        "date",
-				HelpText:    "Select start and end dates (stacked)",
-				Placeholder: "Select date range",
-				DateTimeConfig: &model.DialogDateTimeConfig{
-					IsRange:             true,
-					RangeLayout:         "vertical",
-					AllowSingleDayRange: false,
-				},
-				Optional: true,
-			},
-			// MM-T2530K - Date range with single day allowed
-			{
-				DisplayName: "Event Date Range (Single Day Allowed)",
-				Name:        "single_day_range",
-				Type:        "date",
-				HelpText:    "Can select same day for start and end",
-				Placeholder: "Select date range",
-				DateTimeConfig: &model.DialogDateTimeConfig{
-					IsRange:             true,
-					RangeLayout:         "horizontal",
-					AllowSingleDayRange: true,
-				},
-				Optional: true,
-			},
-			// MM-T2530L/M - DateTime range with time pickers
-			{
-				DisplayName: "Meeting Time Range",
-				Name:        "datetime_range",
-				Type:        "datetime",
-				HelpText:    "Select start and end date/time",
-				Placeholder: "Select date and time range",
-				DateTimeConfig: &model.DialogDateTimeConfig{
-					IsRange:             true,
-					RangeLayout:         "horizontal",
-					AllowSingleDayRange: true,
-					TimeInterval:        30,
-				},
-				Optional: true,
-			},
-		},
-		SubmitLabel:    "Submit",
-		NotifyOnCancel: true,
-		State:          "datetime_ranges",
-		IntroductionText: "**Date & DateTime Ranges Demo**\n\n" +
-			"This dialog demonstrates range selection:\n" +
-			"- Horizontal vs vertical layouts\n" +
-			"- Single-day range behavior\n" +
-			"- DateTime ranges with time pickers",
-	}
-}
-
-// Dialog Group 3: Timezone Support & Manual Time Entry
+// Dialog Group 3: Time Interval Variations
 // Covers: MM-T2530O, P, Q, R, S
 // Matches webhook function: getTimezoneManualDialog
 func getDialogDateTimeTimezone() model.Dialog {
@@ -1189,7 +1110,6 @@ func getDialogDateTimeTimezone() model.Dialog {
 		Title:      "Timezone & Manual Entry Demo",
 		IconURL:    "http://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
 		Elements: []model.DialogElement{
-			// MM-T2530O/P/Q - Manual time entry (local)
 			{
 				DisplayName: "Your Local Time (Manual Entry)",
 				Name:        "local_manual",
@@ -1200,7 +1120,6 @@ func getDialogDateTimeTimezone() model.Dialog {
 				},
 				Optional: true,
 			},
-			// MM-T2530R - Timezone with dropdown
 			{
 				DisplayName: "London Office Hours (Dropdown)",
 				Name:        "london_dropdown",
@@ -1208,11 +1127,10 @@ func getDialogDateTimeTimezone() model.Dialog {
 				HelpText:    "Times shown in GMT - select from 60 min intervals",
 				DateTimeConfig: &model.DialogDateTimeConfig{
 					LocationTimezone: "Europe/London",
-					TimeInterval:     60,
+					TimeInterval:    60,
 				},
 				Optional: true,
 			},
-			// MM-T2530S - Timezone with manual entry
 			{
 				DisplayName: "London Office Hours (Manual Entry)",
 				Name:        "london_manual",
@@ -1229,15 +1147,6 @@ func getDialogDateTimeTimezone() model.Dialog {
 		NotifyOnCancel: true,
 		State:          "datetime_timezone",
 		IntroductionText: "**Timezone & Manual Entry Demo**\n\n" +
-			"This dialog demonstrates:\n\n" +
-			"**Timezone Support (`location_timezone`):**\n" +
-			"- London fields display times in GMT (with 🌍 indicator)\n" +
-			"- Your local fields use your system timezone\n" +
-			"- All values stored in UTC\n\n" +
-			"**Manual Time Entry (`allow_manual_time_entry`):**\n" +
-			"- Type times directly instead of using dropdown\n" +
-			"- Supports formats: `9am`, `14:30`, `3:45pm`, `12a`\n" +
-			"- No rounding - exact minutes preserved\n" +
-			"- Your 12h/24h preference determines the display format",
+			"This dialog demonstrates timezone support and manual time entry features.",
 	}
 }
