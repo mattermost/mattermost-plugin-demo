@@ -1,0 +1,132 @@
+name: e2e
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-test:
+    name: Deploy and verify plugin
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: mmuser
+          POSTGRES_PASSWORD: mmuser_password
+          POSTGRES_DB: mattermost_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    env:
+      MM_SITEURL: http://localhost:8065
+      MM_ADMIN_USERNAME: admin
+      MM_ADMIN_PASSWORD: Admin_1234!
+      PLUGIN_ID: com.mattermost.demo-plugin
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: webapp/package-lock.json
+
+      - name: Build plugin (linux-amd64)
+        env:
+          MM_SERVICESETTINGS_ENABLEDEVELOPER: true
+        run: make dist
+
+      - name: Start Mattermost
+        run: |
+          docker run -d \
+            --name mattermost \
+            --network host \
+            -e MM_SQLSETTINGS_DRIVERNAME=postgres \
+            -e "MM_SQLSETTINGS_DATASOURCE=postgres://mmuser:mmuser_password@127.0.0.1:5432/mattermost_test?sslmode=disable&connect_timeout=10" \
+            -e MM_SERVICESETTINGS_SITEURL=${{ env.MM_SITEURL }} \
+            -e MM_SERVICESETTINGS_LISTENADDRESS=:8065 \
+            -e MM_PLUGINSETTINGS_ENABLE=true \
+            -e MM_PLUGINSETTINGS_ENABLEUPLOADS=true \
+            -e MM_TEAMSETTINGS_ENABLEOPENSERVER=true \
+            mattermost/mattermost-enterprise-edition:latest
+
+      - name: Wait for Mattermost to be healthy
+        run: |
+          for i in $(seq 1 60); do
+            if curl -sf ${{ env.MM_SITEURL }}/api/v4/system/ping > /dev/null; then
+              echo "Mattermost is ready"
+              exit 0
+            fi
+            echo "Waiting for Mattermost ($i/60)..."
+            sleep 5
+          done
+          echo "Mattermost did not become healthy in time"
+          docker logs mattermost
+          exit 1
+
+      - name: Create admin user
+        run: |
+          docker exec mattermost /mattermost/bin/mattermost user create \
+            --email admin@example.com \
+            --username ${{ env.MM_ADMIN_USERNAME }} \
+            --password ${{ env.MM_ADMIN_PASSWORD }} \
+            --system_admin
+
+      - name: Deploy plugin
+        env:
+          MM_SERVICESETTINGS_SITEURL: ${{ env.MM_SITEURL }}
+          MM_ADMIN_USERNAME: ${{ env.MM_ADMIN_USERNAME }}
+          MM_ADMIN_PASSWORD: ${{ env.MM_ADMIN_PASSWORD }}
+        run: |
+          BUNDLE=$(ls dist/*.tar.gz)
+          ./build/bin/pluginctl deploy ${{ env.PLUGIN_ID }} "$BUNDLE"
+
+      - name: Verify plugin is active
+        run: |
+          TOKEN=$(curl -sf \
+            -X POST ${{ env.MM_SITEURL }}/api/v4/users/login \
+            -H 'Content-Type: application/json' \
+            -d "{\"login_id\":\"$MM_ADMIN_USERNAME\",\"password\":\"$MM_ADMIN_PASSWORD\"}" \
+            -D - | grep -i '^token:' | awk '{print $2}' | tr -d '\r\n')
+
+          if [ -z "$TOKEN" ]; then
+            echo "Failed to obtain auth token"
+            exit 1
+          fi
+
+          PLUGINS=$(curl -sf \
+            ${{ env.MM_SITEURL }}/api/v4/plugins \
+            -H "Authorization: Bearer $TOKEN")
+
+          echo "$PLUGINS" | python3 -c "
+          import json, sys
+          data = json.load(sys.stdin)
+          active_ids = [p['id'] for p in data.get('active', [])]
+          plugin_id = '${{ env.PLUGIN_ID }}'
+          if plugin_id not in active_ids:
+              print(f'Plugin {plugin_id} not found in active plugins: {active_ids}')
+              sys.exit(1)
+          print(f'Plugin {plugin_id} is active')
+          "
+
+      - name: Show Mattermost logs on failure
+        if: failure()
+        run: docker logs mattermost
