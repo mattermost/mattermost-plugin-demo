@@ -63,6 +63,8 @@ jobs:
             -e "MM_SQLSETTINGS_DATASOURCE=postgres://mmuser:mmuser_password@127.0.0.1:5432/mattermost_test?sslmode=disable&connect_timeout=10" \
             -e MM_SERVICESETTINGS_SITEURL=${{ env.MM_SITEURL }} \
             -e MM_SERVICESETTINGS_LISTENADDRESS=:8065 \
+            -e MM_SERVICESETTINGS_ENABLEGIFPICKER=true \
+            -e MM_FILESETTINGS_ENABLEPUBLICLINK=true \
             -e MM_PLUGINSETTINGS_ENABLE=true \
             -e MM_PLUGINSETTINGS_ENABLEUPLOADS=true \
             -e MM_TEAMSETTINGS_ENABLEOPENSERVER=true \
@@ -90,6 +92,29 @@ jobs:
             --password ${{ env.MM_ADMIN_PASSWORD }} \
             --system-admin \
             --local
+
+      - name: Configure plugin settings
+        run: |
+          TOKEN=$(curl -sf \
+            -X POST ${{ env.MM_SITEURL }}/api/v4/users/login \
+            -H 'Content-Type: application/json' \
+            -d "{\"login_id\":\"$MM_ADMIN_USERNAME\",\"password\":\"$MM_ADMIN_PASSWORD\"}" \
+            -D - | grep -i '^token:' | awk '{print $2}' | tr -d '\r\n')
+
+          curl -sf -X PUT ${{ env.MM_SITEURL }}/api/v4/config/patch \
+            -H "Authorization: Bearer $TOKEN" \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "PluginSettings": {
+                "Plugins": {
+                  "com.mattermost.demo-plugin": {
+                    "username": "demouser",
+                    "channelname": "demo",
+                    "lastname": "User"
+                  }
+                }
+              }
+            }'
 
       - name: Deploy plugin
         env:
