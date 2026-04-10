@@ -949,7 +949,7 @@ func getDialogStep3Summary(formData map[string]interface{}) model.Dialog {
 			Placeholder: "I accept the Privacy Policy",
 			HelpText:    "You must accept our privacy policy to complete registration.",
 		}},
-  }
+	}
 }
 
 func getDialogWithMultiSelectElements() model.Dialog {
