@@ -84,11 +84,12 @@ jobs:
 
       - name: Create admin user
         run: |
-          docker exec mattermost /mattermost/bin/mattermost user create \
+          docker exec mattermost /mattermost/bin/mmctl user create \
             --email admin@example.com \
             --username ${{ env.MM_ADMIN_USERNAME }} \
             --password ${{ env.MM_ADMIN_PASSWORD }} \
-            --system_admin
+            --system-admin \
+            --local
 
       - name: Deploy plugin
         env:
