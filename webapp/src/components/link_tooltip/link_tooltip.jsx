@@ -9,7 +9,14 @@ export default class LinkTooltip extends React.PureComponent {
     }
 
     render() {
-        if (!this.props.href.includes('example.com')) {
+        let hostname;
+        try {
+            hostname = new URL(this.props.href).hostname.toLowerCase();
+        } catch {
+            return null;
+        }
+
+        if (hostname !== 'example.com' && !hostname.endsWith('.example.com')) {
             return null;
         }
 
