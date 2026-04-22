@@ -1013,3 +1013,140 @@ func interfaceToString(value interface{}) string {
 		return fmt.Sprintf("%v", v)
 	}
 }
+
+// ============================================================================
+// Webhook-Aligned DateTime Dialog Examples
+// These dialogs match the webhook test server examples for e2e testing
+// ============================================================================
+
+// Dialog Group 1: Basic Date & DateTime Features
+// Covers: MM-T2530A, B, C, D, F, G, H
+// Matches webhook functions: getBasicDateDialog, getBasicDateTimeDialog,
+// getMinDateConstraintDialog, getCustomIntervalDialog, getRelativeDateDialog
+func getDialogDateTimeBasic() model.Dialog {
+	return model.Dialog{
+		CallbackId: "datetime_basic",
+		Title:      "Date & DateTime Basics",
+		IconURL:    "http://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
+		Elements: []model.DialogElement{
+			// MM-T2530A - Basic date field
+			{
+				DisplayName: "Event Date",
+				Name:        "event_date",
+				Type:        "date",
+				HelpText:    "Select the date for your event",
+				Placeholder: "Select a date",
+				Optional:    false,
+			},
+			// MM-T2530B - Basic datetime field
+			{
+				DisplayName:  "Meeting Time",
+				Name:         "meeting_time",
+				Type:         "datetime",
+				HelpText:     "Select the date and time for your meeting",
+				Placeholder:  "Select date and time",
+				TimeInterval: 60,
+				Optional:     false,
+			},
+			// MM-T2530C - Min date constraint
+			{
+				DisplayName: "Future Date Only",
+				Name:        "future_date",
+				Type:        "date",
+				HelpText:    "Must be today or later",
+				Placeholder: "Select a future date",
+				MinDate:     "today",
+				Optional:    true,
+			},
+			// MM-T2530D - Custom time interval (30 min)
+			{
+				DisplayName:  "Custom Interval Time",
+				Name:         "interval_time",
+				Type:         "datetime",
+				HelpText:     "Time picker with 30-minute intervals",
+				Placeholder:  "Select time (30min intervals)",
+				TimeInterval: 30,
+				Optional:     true,
+			},
+			// MM-T2530F - Relative date (today)
+			{
+				DisplayName: "Relative Date Example",
+				Name:        "relative_date",
+				Type:        "date",
+				HelpText:    "Defaults to today using relative date",
+				Placeholder: "Today by default",
+				Default:     "today",
+				Optional:    true,
+			},
+			// MM-T2530F - Relative datetime (+1d)
+			{
+				DisplayName: "Relative DateTime Example",
+				Name:        "relative_datetime",
+				Type:        "datetime",
+				HelpText:    "Defaults to tomorrow using relative date",
+				Placeholder: "Tomorrow by default",
+				Default:     "+1d",
+				Optional:    true,
+			},
+		},
+		SubmitLabel:    "Submit",
+		NotifyOnCancel: true,
+		State:          "datetime_basic",
+		IntroductionText: "**Date & DateTime Basics Demo**\n\n" +
+			"This dialog demonstrates core date and datetime functionality:\n" +
+			"- Basic date and datetime fields\n" +
+			"- Min date constraints\n" +
+			"- Custom time intervals\n" +
+			"- Relative date defaults",
+	}
+}
+
+// Dialog Group 3: Time Interval Variations
+// Covers: MM-T2530O, P, Q, R, S
+// Matches webhook function: getTimezoneManualDialog
+func getDialogDateTimeTimezone() model.Dialog {
+	return model.Dialog{
+		CallbackId: "datetime_timezone",
+		Title:      "Timezone & Manual Entry Demo",
+		IconURL:    "http://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
+		Elements: []model.DialogElement{
+			{
+				DisplayName: "Your Local Time (Manual Entry)",
+				Name:        "local_manual",
+				Type:        "datetime",
+				HelpText:    "Type any time: 9am, 14:30, 3:45pm - no rounding",
+				DateTimeConfig: &model.DialogDateTimeConfig{
+					AllowManualTimeEntry: true,
+				},
+				Optional: true,
+			},
+			{
+				DisplayName: "London Office Hours (Dropdown)",
+				Name:        "london_dropdown",
+				Type:        "datetime",
+				HelpText:    "Times shown in Europe/London time - select from 60 min intervals",
+				DateTimeConfig: &model.DialogDateTimeConfig{
+					LocationTimezone: "Europe/London",
+					TimeInterval:     60,
+				},
+				Optional: true,
+			},
+			{
+				DisplayName: "London Office Hours (Manual Entry)",
+				Name:        "london_manual",
+				Type:        "datetime",
+				HelpText:    "Type time in Europe/London time: 9am, 14:30, 3:45pm - no rounding",
+				DateTimeConfig: &model.DialogDateTimeConfig{
+					LocationTimezone:     "Europe/London",
+					AllowManualTimeEntry: true,
+				},
+				Optional: true,
+			},
+		},
+		SubmitLabel:    "Submit",
+		NotifyOnCancel: true,
+		State:          "datetime_timezone",
+		IntroductionText: "**Timezone & Manual Entry Demo**\n\n" +
+			"This dialog demonstrates timezone support and manual time entry features.",
+	}
+}
