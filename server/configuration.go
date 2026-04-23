@@ -401,13 +401,13 @@ func (p *Plugin) ensureDemoUser(configuration *configuration) (string, error) {
 
 	teams, err := p.API.GetTeams()
 	if err != nil {
-		return "", err
-	}
-
-	for _, team := range teams {
-		_, err := p.API.CreateTeamMember(team.Id, user.Id)
-		if err != nil {
-			p.API.LogError("Failed add demo user to team", "teamID", team.Id, "error", err.Error())
+		p.API.LogWarn("Failed to get teams for demo user setup, skipping team membership", "error", err.Error())
+	} else {
+		for _, team := range teams {
+			_, err := p.API.CreateTeamMember(team.Id, user.Id)
+			if err != nil {
+				p.API.LogError("Failed add demo user to team", "teamID", team.Id, "error", err.Error())
+			}
 		}
 	}
 
@@ -417,7 +417,8 @@ func (p *Plugin) ensureDemoUser(configuration *configuration) (string, error) {
 func (p *Plugin) ensureDemoChannels(configuration *configuration) (map[string]string, error) {
 	teams, err := p.API.GetTeams()
 	if err != nil {
-		return nil, err
+		p.API.LogWarn("Failed to get teams for demo channel setup, skipping channel creation", "error", err.Error())
+		return make(map[string]string), nil
 	}
 
 	demoChannelIDs := make(map[string]string)
