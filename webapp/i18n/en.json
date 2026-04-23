@@ -14,7 +14,10 @@
   "submenu.menu": "Submenu Example",
   "submenu.second": "Second Item",
   "submenu.third": "Third Item",
+  "tooltip.description": "This is a sample description. Visit {link} for more details.",
   "tooltip.message": "This is a custom tooltip from the Demo Plugin",
+  "tooltip.sharedVia": "Shared via {link}",
+  "tooltip.title": "Demo Link Preview",
   "useractions.action": "Action",
   "useractions.demo": "Demo Plugin: "
 }
