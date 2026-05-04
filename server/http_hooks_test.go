@@ -60,3 +60,62 @@ func TestServeHTTP(t *testing.T) {
 		})
 	}
 }
+
+func TestServeHTTPInterceptsMCPBeforeMux(t *testing.T) {
+	plugin := &Plugin{}
+	plugin.initializeAPI()
+	require.NoError(t, plugin.ensureMCPServer())
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest(http.MethodGet, "/mcp", nil)
+	plugin.ServeHTTP(nil, w, r)
+
+	result := w.Result()
+	require.NotNil(t, result)
+	defer result.Body.Close()
+
+	bodyBytes, err := io.ReadAll(result.Body)
+	require.NoError(t, err)
+
+	assert.Equal(t, http.StatusForbidden, result.StatusCode)
+	assert.Equal(t, "forbidden: plugin-ID header missing or mismatched\n", string(bodyBytes))
+}
+
+func TestServeHTTPInterceptsMCPSubpathBeforeMux(t *testing.T) {
+	plugin := &Plugin{}
+	plugin.initializeAPI()
+	require.NoError(t, plugin.ensureMCPServer())
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest(http.MethodPost, "/mcp/tools/call", nil)
+	plugin.ServeHTTP(nil, w, r)
+
+	result := w.Result()
+	require.NotNil(t, result)
+	defer result.Body.Close()
+
+	bodyBytes, err := io.ReadAll(result.Body)
+	require.NoError(t, err)
+
+	assert.Equal(t, http.StatusForbidden, result.StatusCode)
+	assert.Equal(t, "forbidden: plugin-ID header missing or mismatched\n", string(bodyBytes))
+}
+
+func TestServeHTTPReturnsNotFoundForMCPWithoutServer(t *testing.T) {
+	plugin := &Plugin{}
+	plugin.initializeAPI()
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest(http.MethodGet, "/mcp", nil)
+	plugin.ServeHTTP(nil, w, r)
+
+	result := w.Result()
+	require.NotNil(t, result)
+	defer result.Body.Close()
+
+	bodyBytes, err := io.ReadAll(result.Body)
+	require.NoError(t, err)
+
+	assert.Equal(t, http.StatusNotFound, result.StatusCode)
+	assert.Equal(t, "404 page not found\n", string(bodyBytes))
+}
