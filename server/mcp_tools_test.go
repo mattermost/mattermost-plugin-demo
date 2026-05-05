@@ -176,6 +176,9 @@ func callGetUserDisplayNameTool(t *testing.T, session *mcp.ClientSession, toolNa
 	}
 
 	if result.IsError {
+		if len(result.Content) == 0 {
+			return GetUserDisplayNameOutput{}, errors.New("tool returned MCP error with empty content")
+		}
 		text, ok := result.Content[0].(*mcp.TextContent)
 		if ok {
 			return GetUserDisplayNameOutput{}, errors.New(text.Text)
