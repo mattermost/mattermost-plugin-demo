@@ -23,6 +23,10 @@ import (
 // is used by the web app to recover from a network reconnection and synchronize the state of the
 // plugin's hooks.
 func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
+	if p.serveMCPIfMatch(w, r) {
+		return
+	}
+
 	p.router.ServeHTTP(w, r)
 }
 

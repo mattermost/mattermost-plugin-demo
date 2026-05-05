@@ -10,11 +10,33 @@ import (
 	"github.com/mattermost/mattermost/server/public/pluginapi/cluster"
 )
 
+var (
+	onActivateCore = func(p *Plugin) error {
+		return p.onActivateCore()
+	}
+	onDeactivateCore = func(p *Plugin) error {
+		return p.onDeactivateCore()
+	}
+)
+
 // OnActivate is invoked when the plugin is activated.
 //
 // This demo implementation logs a message to the demo channel whenever the plugin is activated.
 // It also creates a demo bot account
 func (p *Plugin) OnActivate() error {
+	if err := onActivateCore(p); err != nil {
+		return err
+	}
+
+	if err := p.ensureMCPServer(); err != nil {
+		return errors.Wrap(err, "failed to initialize MCP server")
+	}
+	p.registerMCPServerBestEffort()
+
+	return nil
+}
+
+func (p *Plugin) onActivateCore() error {
 	if p.client == nil {
 		p.client = pluginapi.NewClient(p.API, p.Driver)
 	}
@@ -73,8 +95,13 @@ func (p *Plugin) OnActivate() error {
 //
 // This demo implementation logs a message to the demo channel whenever the plugin is deactivated.
 func (p *Plugin) OnDeactivate() error {
-	configuration := p.getConfiguration()
+	err := onDeactivateCore(p)
+	p.unregisterMCPServerBestEffort()
+	return err
+}
 
+func (p *Plugin) onDeactivateCore() error {
+	configuration := p.getConfiguration()
 	if p.backgroundJob != nil {
 		if err := p.backgroundJob.Close(); err != nil {
 			p.API.LogError("Failed to close background job", "err", err)

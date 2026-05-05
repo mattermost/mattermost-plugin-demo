@@ -1,10 +1,12 @@
 module github.com/mattermost/mattermost-plugin-demo
 
-go 1.25.8
+go 1.26.1
 
 require (
 	github.com/gorilla/mux v1.8.1
-	github.com/mattermost/mattermost/server/public v0.3.0
+	github.com/mattermost/mattermost-plugin-agents v0.0.0-20260501175157-27e12955f081
+	github.com/mattermost/mattermost/server/public v0.3.1-0.20260402155910-d9d71af83e3f
+	github.com/modelcontextprotocol/go-sdk v1.4.1
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.11.1
 )
@@ -19,6 +21,7 @@ require (
 	github.com/go-asn1-ber/asn1-ber v1.5.7 // indirect
 	github.com/goccy/go-yaml v1.19.2 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
+	github.com/google/jsonschema-go v0.4.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -41,15 +44,20 @@ require (
 	github.com/philhofer/fwd v1.2.0 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/russellhaering/goxmldsig v1.6.0 // indirect
+	github.com/segmentio/asm v1.1.3 // indirect
+	github.com/segmentio/encoding v0.5.4 // indirect
 	github.com/sirupsen/logrus v1.9.4 // indirect
+	github.com/stretchr/objx v0.5.3 // indirect
 	github.com/tinylib/msgp v1.6.3 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.4.1 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/wiggin77/merror v1.0.5 // indirect
 	github.com/wiggin77/srslog v1.0.1 // indirect
+	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	golang.org/x/crypto v0.49.0 // indirect
 	golang.org/x/mod v0.34.0 // indirect
 	golang.org/x/net v0.52.0 // indirect
+	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sys v0.42.0 // indirect
 	golang.org/x/text v0.35.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260319201613-d00831a3d3e7 // indirect
@@ -59,3 +67,6 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+// Match the helper source's server/public pin for MCP helper compatibility.
+replace github.com/mattermost/mattermost/server/public => github.com/mattermost/mattermost/server/public v0.3.1-0.20260402155910-d9d71af83e3f

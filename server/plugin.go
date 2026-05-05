@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/gorilla/mux"
+	"github.com/mattermost/mattermost-plugin-agents/public/mcphelper"
 
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin"
@@ -35,6 +36,8 @@ type Plugin struct {
 
 	// backgroundJob is a job that executes periodically on only one plugin instance at a time
 	backgroundJob *cluster.Job
+
+	mcpServer *mcphelper.Server
 
 	// Session tracking
 	sessionToConn   map[string]string
