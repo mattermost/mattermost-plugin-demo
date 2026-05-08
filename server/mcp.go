@@ -5,16 +5,16 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/mattermost/mattermost-plugin-agents/public/mcphelper"
+	"github.com/mattermost/mattermost-plugin-agents/external/pluginmcp"
 )
 
 const mcpBasePath = "/mcp"
 
 var (
-	mcpRegister = func(server *mcphelper.Server) error {
+	mcpRegister = func(server *pluginmcp.Server) error {
 		return server.Register()
 	}
-	mcpUnregister = func(server *mcphelper.Server) error {
+	mcpUnregister = func(server *pluginmcp.Server) error {
 		return server.Unregister()
 	}
 )
@@ -36,11 +36,12 @@ func (p *Plugin) ensureMCPServer() error {
 		return errors.New("plugin manifest name is required for MCP server")
 	}
 
-	p.mcpServer = mcphelper.NewServer(p.API, mcphelper.PluginMCPServer{
-		PluginID: manifest.Id,
-		Name:     serverName + " MCP",
-		Path:     mcpBasePath,
-		Version:  manifest.Version,
+	p.mcpServer = pluginmcp.NewServer(p.API, pluginmcp.Config{
+		PluginID:       manifest.Id,
+		Name:           serverName + " MCP",
+		Path:           mcpBasePath,
+		ExposeExternal: true,
+		Version:        manifest.Version,
 	})
 
 	p.registerMCPTools()

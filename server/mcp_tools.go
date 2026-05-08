@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/mattermost/mattermost-plugin-agents/public/mcphelper"
+	"github.com/mattermost/mattermost-plugin-agents/external/pluginmcp"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
@@ -35,19 +35,19 @@ type GetUserDisplayNameOutput struct {
 }
 
 func (p *Plugin) registerMCPTools() {
-	mcphelper.AddTool(p.mcpServer, &mcp.Tool{
+	pluginmcp.AddTool(p.mcpServer, &mcp.Tool{
 		Name:        "echo",
 		Description: "Echo a string back to the caller. Useful for verifying the MCP round-trip.",
 	}, p.echoHandler)
 
-	mcphelper.AddTool(p.mcpServer, &mcp.Tool{
+	pluginmcp.AddTool(p.mcpServer, &mcp.Tool{
 		Name:        "add_two_numbers",
 		Description: "Return the sum of two integers. Exercises typed JSON-schema generation.",
 	}, p.addTwoNumbersHandler)
 
-	mcphelper.AddTool(p.mcpServer, &mcp.Tool{
+	pluginmcp.AddTool(p.mcpServer, &mcp.Tool{
 		Name:        "get_user_display_name",
-		Description: "Look up the calling user's display name. Exercises the X-Mattermost-UserID context propagation chain: server -> agents plugin -> PluginHTTP -> mcphelper.ServeHTTP -> tool handler.",
+		Description: "Look up the calling user's display name. Exercises the X-Mattermost-UserID context propagation chain: server -> agents plugin -> PluginHTTP -> pluginmcp.ServeHTTP -> tool handler.",
 	}, p.getUserDisplayNameHandler)
 }
 
@@ -60,9 +60,9 @@ func (p *Plugin) addTwoNumbersHandler(_ context.Context, _ *mcp.CallToolRequest,
 }
 
 func (p *Plugin) getUserDisplayNameHandler(ctx context.Context, _ *mcp.CallToolRequest, _ GetUserDisplayNameArgs) (*mcp.CallToolResult, GetUserDisplayNameOutput, error) {
-	userID := mcphelper.GetUserID(ctx)
+	userID := pluginmcp.GetUserID(ctx)
 	if userID == "" {
-		return nil, GetUserDisplayNameOutput{}, fmt.Errorf("no Mattermost user ID in tool context (did the request arrive via mcphelper.ServeHTTP?)")
+		return nil, GetUserDisplayNameOutput{}, fmt.Errorf("no Mattermost user ID in tool context (did the request arrive via pluginmcp.ServeHTTP?)")
 	}
 
 	user, err := p.client.User.Get(userID)

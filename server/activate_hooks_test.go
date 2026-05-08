@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/mattermost/mattermost-plugin-agents/public/mcphelper"
+	"github.com/mattermost/mattermost-plugin-agents/external/pluginmcp"
 	"github.com/mattermost/mattermost/server/public/plugin/plugintest"
 	"github.com/stretchr/testify/require"
 )
@@ -22,7 +22,7 @@ func TestOnActivateContinuesWhenMCPRegistrationFails(t *testing.T) {
 	}
 
 	registerErr := errors.New("agents plugin unavailable")
-	mcpRegister = func(server *mcphelper.Server) error {
+	mcpRegister = func(server *pluginmcp.Server) error {
 		return registerErr
 	}
 
@@ -51,7 +51,7 @@ func TestOnDeactivateContinuesWhenMCPUnregisterFails(t *testing.T) {
 	}
 
 	unregisterErr := errors.New("agents plugin already stopped")
-	mcpUnregister = func(server *mcphelper.Server) error {
+	mcpUnregister = func(server *pluginmcp.Server) error {
 		return unregisterErr
 	}
 
@@ -81,7 +81,7 @@ func TestOnDeactivatePreservesCoreErrorWhenMCPUnregisterFails(t *testing.T) {
 	}
 
 	unregisterErr := errors.New("agents plugin already stopped")
-	mcpUnregister = func(server *mcphelper.Server) error {
+	mcpUnregister = func(server *pluginmcp.Server) error {
 		return unregisterErr
 	}
 

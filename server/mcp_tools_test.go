@@ -9,7 +9,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mattermost/mattermost-plugin-agents/public/bridgeclient"
 	"github.com/mattermost/mattermost/server/public/model"
 	"github.com/mattermost/mattermost/server/public/plugin/plugintest"
 	"github.com/mattermost/mattermost/server/public/pluginapi"
@@ -17,6 +16,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+const agentsPluginID = "mattermost-ai"
 
 func TestEchoHandler(t *testing.T) {
 	plugin := &Plugin{}
@@ -129,7 +130,7 @@ func newToolTestSession(t *testing.T, plugin *Plugin, extraHeaders http.Header) 
 	t.Helper()
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		r.Header.Set("Mattermost-Plugin-ID", bridgeclient.AiPluginID)
+		r.Header.Set("Mattermost-Plugin-ID", agentsPluginID)
 		for key, values := range extraHeaders {
 			for _, value := range values {
 				r.Header.Add(key, value)
