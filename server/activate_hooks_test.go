@@ -2,7 +2,10 @@ package main
 
 import (
 	"errors"
+	"sync"
+	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/mattermost/mattermost-plugin-agents/external/pluginmcp"
 	"github.com/mattermost/mattermost/server/public/plugin/plugintest"
@@ -34,8 +37,49 @@ func TestOnActivateContinuesWhenMCPRegistrationFails(t *testing.T) {
 
 	err := plugin.OnActivate()
 	require.NoError(t, err)
-	require.NotNil(t, plugin.mcpServer)
+	require.NotNil(t, plugin.currentMCPServer())
 	api.AssertExpectations(t)
+}
+
+func TestEnsureMCPServerInitializesOnceConcurrently(t *testing.T) {
+	originalMCPNewServer := mcpNewServer
+	t.Cleanup(func() {
+		mcpNewServer = originalMCPNewServer
+	})
+
+	var newServerCalls atomic.Int32
+	mcpNewServer = func(api pluginmcp.PluginAPI, config pluginmcp.Config) *pluginmcp.Server {
+		newServerCalls.Add(1)
+		time.Sleep(10 * time.Millisecond)
+		return originalMCPNewServer(api, config)
+	}
+
+	plugin := &Plugin{}
+	plugin.API = &plugintest.API{}
+
+	const callers = 16
+	start := make(chan struct{})
+	errs := make(chan error, callers)
+
+	var wg sync.WaitGroup
+	for range callers {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			<-start
+			errs <- plugin.ensureMCPServer()
+		}()
+	}
+
+	close(start)
+	wg.Wait()
+	close(errs)
+
+	for err := range errs {
+		require.NoError(t, err)
+	}
+	require.NotNil(t, plugin.currentMCPServer())
+	require.Equal(t, int32(1), newServerCalls.Load())
 }
 
 func TestOnDeactivateContinuesWhenMCPUnregisterFails(t *testing.T) {

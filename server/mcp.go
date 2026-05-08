@@ -11,7 +11,8 @@ import (
 const mcpBasePath = "/mcp"
 
 var (
-	mcpRegister = func(server *pluginmcp.Server) error {
+	mcpNewServer = pluginmcp.NewServer
+	mcpRegister  = func(server *pluginmcp.Server) error {
 		return server.Register()
 	}
 	mcpUnregister = func(server *pluginmcp.Server) error {
@@ -20,6 +21,9 @@ var (
 )
 
 func (p *Plugin) ensureMCPServer() error {
+	p.mcpServerLock.Lock()
+	defer p.mcpServerLock.Unlock()
+
 	if p.mcpServer != nil {
 		return nil
 	}
@@ -36,7 +40,7 @@ func (p *Plugin) ensureMCPServer() error {
 		return errors.New("plugin manifest name is required for MCP server")
 	}
 
-	p.mcpServer = pluginmcp.NewServer(p.API, pluginmcp.Config{
+	server := mcpNewServer(p.API, pluginmcp.Config{
 		PluginID:       manifest.Id,
 		Name:           serverName + " MCP",
 		Path:           mcpBasePath,
@@ -44,27 +48,30 @@ func (p *Plugin) ensureMCPServer() error {
 		Version:        manifest.Version,
 	})
 
-	p.registerMCPTools()
+	p.registerMCPTools(server)
+	p.mcpServer = server
 	return nil
 }
 
 func (p *Plugin) registerMCPServerBestEffort() {
-	if p.mcpServer == nil {
+	server := p.currentMCPServer()
+	if server == nil {
 		p.API.LogWarn("MCP registration unavailable; continuing plugin activation", "reason", "server not initialized")
 		return
 	}
 
-	if err := mcpRegister(p.mcpServer); err != nil {
+	if err := mcpRegister(server); err != nil {
 		p.API.LogWarn("MCP registration unavailable; continuing plugin activation", "err", err.Error())
 	}
 }
 
 func (p *Plugin) unregisterMCPServerBestEffort() {
-	if p.mcpServer == nil {
+	server := p.currentMCPServer()
+	if server == nil {
 		return
 	}
 
-	if err := mcpUnregister(p.mcpServer); err != nil {
+	if err := mcpUnregister(server); err != nil {
 		p.API.LogWarn("MCP unregister failed; continuing plugin shutdown", "err", err.Error())
 	}
 }
@@ -74,11 +81,19 @@ func (p *Plugin) serveMCPIfMatch(w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 
-	if p.mcpServer == nil {
+	server := p.currentMCPServer()
+	if server == nil {
 		http.NotFound(w, r)
 		return true
 	}
 
-	p.mcpServer.ServeHTTP(w, r)
+	server.ServeHTTP(w, r)
 	return true
+}
+
+func (p *Plugin) currentMCPServer() *pluginmcp.Server {
+	p.mcpServerLock.RLock()
+	defer p.mcpServerLock.RUnlock()
+
+	return p.mcpServer
 }

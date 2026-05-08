@@ -37,7 +37,8 @@ type Plugin struct {
 	// backgroundJob is a job that executes periodically on only one plugin instance at a time
 	backgroundJob *cluster.Job
 
-	mcpServer *pluginmcp.Server
+	mcpServerLock sync.RWMutex
+	mcpServer     *pluginmcp.Server
 
 	// Session tracking
 	sessionToConn   map[string]string

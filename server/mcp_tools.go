@@ -34,18 +34,18 @@ type GetUserDisplayNameOutput struct {
 	DisplayName string `json:"display_name" jsonschema:"Full-name display name of the caller, falling back to username"`
 }
 
-func (p *Plugin) registerMCPTools() {
-	pluginmcp.AddTool(p.mcpServer, &mcp.Tool{
+func (p *Plugin) registerMCPTools(server *pluginmcp.Server) {
+	pluginmcp.AddTool(server, &mcp.Tool{
 		Name:        "echo",
 		Description: "Echo a string back to the caller. Useful for verifying the MCP round-trip.",
 	}, p.echoHandler)
 
-	pluginmcp.AddTool(p.mcpServer, &mcp.Tool{
+	pluginmcp.AddTool(server, &mcp.Tool{
 		Name:        "add_two_numbers",
 		Description: "Return the sum of two integers. Exercises typed JSON-schema generation.",
 	}, p.addTwoNumbersHandler)
 
-	pluginmcp.AddTool(p.mcpServer, &mcp.Tool{
+	pluginmcp.AddTool(server, &mcp.Tool{
 		Name:        "get_user_display_name",
 		Description: "Look up the calling user's display name. Exercises the X-Mattermost-UserID context propagation chain: server -> agents plugin -> PluginHTTP -> pluginmcp.ServeHTTP -> tool handler.",
 	}, p.getUserDisplayNameHandler)
