@@ -514,15 +514,18 @@ func (p *Plugin) handleInlineActionTriage(w http.ResponseWriter, r *http.Request
 	title := q.Get("title")
 	priority := q.Get("priority")
 	assignee := q.Get("assignee")
-	if assignee == "" {
-		assignee = "unassigned"
+	assignee := q.Get("assignee")
+	assigneeDisplay := "unassigned"
+	if assignee != "" {
+		assigneeDisplay = "@" + assignee
 	}
 	project, _ := request.Context["project"].(string)
 
 	// Build introduction text showing key identifiers passed via mmaction://
 	intro := fmt.Sprintf(
-		"**Issue:** %s  |  **Project:** %s\n**Title:** %s  |  **Priority:** %s  |  **Assignee:** @%s",
-		issueID, project, title, priority, assignee,
+		"**Issue:** %s  |  **Project:** %s\n**Title:** %s  |  **Priority:** %s  |  **Assignee:** %s",
+		issueID, project, title, priority, assigneeDisplay,
+	)
 	)
 
 	serverConfig := p.API.GetConfig()
