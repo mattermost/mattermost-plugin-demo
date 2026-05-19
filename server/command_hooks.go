@@ -22,6 +22,7 @@ const (
 	commandTriggerListFiles         = "list_files"
 	commandTriggerAutocompleteTest  = "autocomplete_test"
 	commandTriggerToast             = "toast"
+	commandTriggerInlineAction      = "inline_action"
 
 	dialogElementNameNumber   = "somenumber"
 	dialogElementNameEmail    = "someemail"
@@ -134,6 +135,15 @@ func (p *Plugin) registerCommands() error {
 		AutocompleteData: getAutocompleteTestAutocompleteData(),
 	}); err != nil {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerDialog)
+	}
+
+	if err := p.API.RegisterCommand(&model.Command{
+		Trigger:          commandTriggerInlineAction,
+		AutoComplete:     true,
+		AutoCompleteHint: "",
+		AutoCompleteDesc: "Demonstrates inline action buttons in markdown tables.",
+	}); err != nil {
+		return errors.Wrapf(err, "failed to register %s command", commandTriggerInlineAction)
 	}
 
 	if err := p.API.RegisterCommand(&model.Command{
@@ -303,6 +313,8 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		return p.executeCommandMentions(args), nil
 	case commandTriggerAutocompleteTest:
 		return p.executeAutocompleteTest(args), nil
+	case commandTriggerInlineAction:
+		return p.executeCommandInlineAction(args), nil
 	case commandTriggerToast:
 		return p.executeCommandToast(c, args), nil
 
@@ -565,6 +577,48 @@ func (p *Plugin) executeCommandInteractive(args *model.CommandArgs) *model.Comma
 	_, err := p.API.CreatePost(post)
 	if err != nil {
 		const errorMessage = "Failed to create post"
+		p.API.LogError(errorMessage, "err", err.Error())
+		return &model.CommandResponse{
+			ResponseType: model.CommandResponseTypeEphemeral,
+			Text:         errorMessage,
+		}
+	}
+
+	return &model.CommandResponse{}
+}
+
+func (p *Plugin) executeCommandInlineAction(args *model.CommandArgs) *model.CommandResponse {
+	message := "### Issue Tracker [Demo Project]\n\n" +
+		"| ID | Title | Priority | Assignee | Action |\n" +
+		"|----|-------|----------|----------|--------|\n" +
+		"| ISS-101 | Login page returns 500 on Safari | High | @alice | [Triage](mmaction://triage?id=ISS-101&title=Login+page+returns+500+on+Safari&priority=high&assignee=alice) |\n" +
+		"| ISS-102 | Dark mode toggle doesn't persist | Medium | @bob | [Triage](mmaction://triage?id=ISS-102&title=Dark+mode+toggle+doesn't+persist&priority=medium&assignee=bob) |\n" +
+		"| ISS-103 | CSV export missing header row | Low | _unassigned_ | [Triage](mmaction://triage?id=ISS-103&title=CSV+export+missing+header+row&priority=low&assignee=) |\n" +
+		"| ISS-104 | API rate limiter blocks batch jobs | Critical | @charlie | [Triage](mmaction://triage?id=ISS-104&title=API+rate+limiter+blocks+batch+jobs&priority=critical&assignee=charlie) |\n" +
+		"| ISS-105 | Notification badge count off by one | Low | @alice | [Triage](mmaction://triage?id=ISS-105&title=Notification+badge+count+off+by+one&priority=low&assignee=alice) |\n"
+
+	post := &model.Post{
+		ChannelId: args.ChannelId,
+		RootId:    args.RootId,
+		UserId:    p.botID,
+		Message:   message,
+		Props: model.StringInterface{
+			// Renamed from "inline_actions" → "mm_blocks_actions" on
+			// feature/action_buttons. Each entry now also requires
+			// an explicit "type" field (validated server-side).
+			"mm_blocks_actions": map[string]any{
+				"triage": map[string]any{
+					"type":    "external",
+					"url":     fmt.Sprintf("/plugins/%s/inline_action/triage", manifest.Id),
+					"context": map[string]any{"project": "Demo Project"},
+				},
+			},
+		},
+	}
+
+	_, err := p.API.CreatePost(post)
+	if err != nil {
+		const errorMessage = "Failed to create inline action post"
 		p.API.LogError(errorMessage, "err", err.Error())
 		return &model.CommandResponse{
 			ResponseType: model.CommandResponseTypeEphemeral,
