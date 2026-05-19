@@ -505,13 +505,25 @@ func (p *Plugin) handleInlineActionTriage(w http.ResponseWriter, r *http.Request
 	}
 	defer r.Body.Close()
 
-	// Extract inline params (per-row) and static context
-	inlineParams, _ := request.Context["inline_params"].(map[string]any)
-	issueID, _ := inlineParams["id"].(string)
+	// Per-click params arrive as URL query string on feature/action_buttons —
+	// the server merges spec.Query and request.Query into the upstream URL
+	// via MergeQueryIntoURL before forwarding. Static context fields (like
+	// "project") still come through request.Context as before.
+	q := r.URL.Query()
+	issueID := q.Get("id")
+	title := q.Get("title")
+	priority := q.Get("priority")
+	assignee := q.Get("assignee")
+	if assignee == "" {
+		assignee = "unassigned"
+	}
 	project, _ := request.Context["project"].(string)
 
 	// Build introduction text showing key identifiers passed via mmaction://
-	intro := fmt.Sprintf("**Issue:** %s  |  **Project:** %s", issueID, project)
+	intro := fmt.Sprintf(
+		"**Issue:** %s  |  **Project:** %s\n**Title:** %s  |  **Priority:** %s  |  **Assignee:** @%s",
+		issueID, project, title, priority, assignee,
+	)
 
 	serverConfig := p.API.GetConfig()
 	dialogRequest := model.OpenDialogRequest{

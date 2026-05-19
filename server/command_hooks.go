@@ -603,8 +603,12 @@ func (p *Plugin) executeCommandInlineAction(args *model.CommandArgs) *model.Comm
 		UserId:    p.botID,
 		Message:   message,
 		Props: model.StringInterface{
-			"inline_actions": map[string]any{
+			// Renamed from "inline_actions" → "mm_blocks_actions" on
+			// feature/action_buttons. Each entry now also requires
+			// an explicit "type" field (validated server-side).
+			"mm_blocks_actions": map[string]any{
 				"triage": map[string]any{
+					"type":    "external",
 					"url":     fmt.Sprintf("/plugins/%s/inline_action/triage", manifest.Id),
 					"context": map[string]any{"project": "Demo Project"},
 				},
