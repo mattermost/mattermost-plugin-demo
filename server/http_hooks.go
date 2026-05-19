@@ -514,7 +514,6 @@ func (p *Plugin) handleInlineActionTriage(w http.ResponseWriter, r *http.Request
 	title := q.Get("title")
 	priority := q.Get("priority")
 	assignee := q.Get("assignee")
-	assignee := q.Get("assignee")
 	assigneeDisplay := "unassigned"
 	if assignee != "" {
 		assigneeDisplay = "@" + assignee
@@ -525,7 +524,6 @@ func (p *Plugin) handleInlineActionTriage(w http.ResponseWriter, r *http.Request
 	intro := fmt.Sprintf(
 		"**Issue:** %s  |  **Project:** %s\n**Title:** %s  |  **Priority:** %s  |  **Assignee:** %s",
 		issueID, project, title, priority, assigneeDisplay,
-	)
 	)
 
 	serverConfig := p.API.GetConfig()
