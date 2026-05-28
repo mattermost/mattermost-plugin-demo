@@ -10,21 +10,12 @@ import (
 	"github.com/mattermost/mattermost/server/public/pluginapi/cluster"
 )
 
-var (
-	onActivateCore = func(p *Plugin) error {
-		return p.onActivateCore()
-	}
-	onDeactivateCore = func(p *Plugin) error {
-		return p.onDeactivateCore()
-	}
-)
-
 // OnActivate is invoked when the plugin is activated.
 //
 // This demo implementation logs a message to the demo channel whenever the plugin is activated.
 // It also creates a demo bot account
 func (p *Plugin) OnActivate() error {
-	if err := onActivateCore(p); err != nil {
+	if err := p.onActivateCore(); err != nil {
 		return err
 	}
 
@@ -95,7 +86,7 @@ func (p *Plugin) onActivateCore() error {
 //
 // This demo implementation logs a message to the demo channel whenever the plugin is deactivated.
 func (p *Plugin) OnDeactivate() error {
-	err := onDeactivateCore(p)
+	err := p.onDeactivateCore()
 	p.unregisterMCPServerBestEffort()
 	return err
 }

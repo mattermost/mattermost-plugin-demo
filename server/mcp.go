@@ -76,19 +76,14 @@ func (p *Plugin) unregisterMCPServerBestEffort() {
 	}
 }
 
-func (p *Plugin) serveMCPIfMatch(w http.ResponseWriter, r *http.Request) bool {
-	if r.URL.Path != mcpBasePath && !strings.HasPrefix(r.URL.Path, mcpBasePath+"/") {
-		return false
-	}
-
+func (p *Plugin) serveMCP(w http.ResponseWriter, r *http.Request) {
 	server := p.currentMCPServer()
 	if server == nil {
 		http.NotFound(w, r)
-		return true
+		return
 	}
 
 	server.ServeHTTP(w, r)
-	return true
 }
 
 func (p *Plugin) currentMCPServer() *pluginmcp.Server {

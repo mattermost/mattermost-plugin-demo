@@ -12,17 +12,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestOnActivateContinuesWhenMCPRegistrationFails(t *testing.T) {
-	originalOnActivateCore := onActivateCore
+func TestRegisterMCPServerBestEffortLogsWhenRegistrationFails(t *testing.T) {
 	originalMCPRegister := mcpRegister
 	t.Cleanup(func() {
-		onActivateCore = originalOnActivateCore
 		mcpRegister = originalMCPRegister
 	})
-
-	onActivateCore = func(_ *Plugin) error {
-		return nil
-	}
 
 	registerErr := errors.New("agents plugin unavailable")
 	mcpRegister = func(server *pluginmcp.Server) error {
@@ -35,9 +29,9 @@ func TestOnActivateContinuesWhenMCPRegistrationFails(t *testing.T) {
 	plugin := &Plugin{}
 	plugin.API = api
 
-	err := plugin.OnActivate()
-	require.NoError(t, err)
-	require.NotNil(t, plugin.currentMCPServer())
+	require.NoError(t, plugin.ensureMCPServer())
+	plugin.registerMCPServerBestEffort()
+
 	api.AssertExpectations(t)
 }
 
@@ -82,17 +76,11 @@ func TestEnsureMCPServerInitializesOnceConcurrently(t *testing.T) {
 	require.Equal(t, int32(1), newServerCalls.Load())
 }
 
-func TestOnDeactivateContinuesWhenMCPUnregisterFails(t *testing.T) {
-	originalOnDeactivateCore := onDeactivateCore
+func TestUnregisterMCPServerBestEffortLogsWhenUnregisterFails(t *testing.T) {
 	originalMCPUnregister := mcpUnregister
 	t.Cleanup(func() {
-		onDeactivateCore = originalOnDeactivateCore
 		mcpUnregister = originalMCPUnregister
 	})
-
-	onDeactivateCore = func(_ *Plugin) error {
-		return nil
-	}
 
 	unregisterErr := errors.New("agents plugin already stopped")
 	mcpUnregister = func(server *pluginmcp.Server) error {
@@ -106,37 +94,7 @@ func TestOnDeactivateContinuesWhenMCPUnregisterFails(t *testing.T) {
 	plugin.API = api
 	require.NoError(t, plugin.ensureMCPServer())
 
-	err := plugin.OnDeactivate()
-	require.NoError(t, err)
-	api.AssertExpectations(t)
-}
+	plugin.unregisterMCPServerBestEffort()
 
-func TestOnDeactivatePreservesCoreErrorWhenMCPUnregisterFails(t *testing.T) {
-	originalOnDeactivateCore := onDeactivateCore
-	originalMCPUnregister := mcpUnregister
-	t.Cleanup(func() {
-		onDeactivateCore = originalOnDeactivateCore
-		mcpUnregister = originalMCPUnregister
-	})
-
-	coreErr := errors.New("core shutdown failed")
-	onDeactivateCore = func(_ *Plugin) error {
-		return coreErr
-	}
-
-	unregisterErr := errors.New("agents plugin already stopped")
-	mcpUnregister = func(server *pluginmcp.Server) error {
-		return unregisterErr
-	}
-
-	api := &plugintest.API{}
-	api.On("LogWarn", "MCP unregister failed; continuing plugin shutdown", "err", unregisterErr.Error()).Once()
-
-	plugin := &Plugin{}
-	plugin.API = api
-	require.NoError(t, plugin.ensureMCPServer())
-
-	err := plugin.OnDeactivate()
-	require.ErrorIs(t, err, coreErr)
 	api.AssertExpectations(t)
 }

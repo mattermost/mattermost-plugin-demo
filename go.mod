@@ -10,7 +10,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.11.1
 )
-
 require (
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
 	github.com/beevik/etree v1.6.0 // indirect
@@ -67,6 +66,3 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-// Match pluginmcp's server/public pin for helper compatibility.
-replace github.com/mattermost/mattermost/server/public => github.com/mattermost/mattermost/server/public v0.3.1-0.20260402155910-d9d71af83e3f

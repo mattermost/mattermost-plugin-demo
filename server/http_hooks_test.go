@@ -61,7 +61,7 @@ func TestServeHTTP(t *testing.T) {
 	}
 }
 
-func TestServeHTTPInterceptsMCPBeforeMux(t *testing.T) {
+func TestServeHTTPRoutesMCPBasePathToServer(t *testing.T) {
 	plugin := &Plugin{}
 	plugin.initializeAPI()
 	require.NoError(t, plugin.ensureMCPServer())
@@ -81,7 +81,7 @@ func TestServeHTTPInterceptsMCPBeforeMux(t *testing.T) {
 	assert.Equal(t, "forbidden: plugin-ID header missing or mismatched\n", string(bodyBytes))
 }
 
-func TestServeHTTPInterceptsMCPSubpathBeforeMux(t *testing.T) {
+func TestServeHTTPRoutesMCPSubpathToServer(t *testing.T) {
 	plugin := &Plugin{}
 	plugin.initializeAPI()
 	require.NoError(t, plugin.ensureMCPServer())

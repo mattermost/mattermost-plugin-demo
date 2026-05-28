@@ -122,6 +122,7 @@ func newToolTestPlugin(t *testing.T, api *plugintest.API) *Plugin {
 	plugin := &Plugin{}
 	plugin.API = api
 	plugin.client = pluginapi.NewClient(api, nil)
+	plugin.initializeAPI()
 	require.NoError(t, plugin.ensureMCPServer())
 	return plugin
 }

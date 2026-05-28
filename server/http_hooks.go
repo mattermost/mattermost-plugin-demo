@@ -23,15 +23,14 @@ import (
 // is used by the web app to recover from a network reconnection and synchronize the state of the
 // plugin's hooks.
 func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
-	if p.serveMCPIfMatch(w, r) {
-		return
-	}
-
 	p.router.ServeHTTP(w, r)
 }
 
 func (p *Plugin) initializeAPI() {
 	router := mux.NewRouter()
+
+	router.HandleFunc(mcpBasePath, p.serveMCP)
+	router.PathPrefix(mcpBasePath + "/").HandlerFunc(p.serveMCP)
 
 	router.HandleFunc("/status", p.handleStatus)
 	router.HandleFunc("/hello", p.handleHello)
