@@ -10,16 +10,6 @@ import (
 
 const mcpBasePath = "/mcp"
 
-var (
-	mcpNewServer = pluginmcp.NewServer
-	mcpRegister  = func(server *pluginmcp.Server) error {
-		return server.Register()
-	}
-	mcpUnregister = func(server *pluginmcp.Server) error {
-		return server.Unregister()
-	}
-)
-
 func (p *Plugin) ensureMCPServer() error {
 	p.mcpServerLock.Lock()
 	defer p.mcpServerLock.Unlock()
@@ -40,7 +30,7 @@ func (p *Plugin) ensureMCPServer() error {
 		return errors.New("plugin manifest name is required for MCP server")
 	}
 
-	server := mcpNewServer(p.API, pluginmcp.Config{
+	server := pluginmcp.NewServer(p.API, pluginmcp.Config{
 		PluginID:       manifest.Id,
 		Name:           serverName + " MCP",
 		Path:           mcpBasePath,
@@ -60,7 +50,7 @@ func (p *Plugin) registerMCPServerBestEffort() {
 		return
 	}
 
-	if err := mcpRegister(server); err != nil {
+	if err := server.Register(); err != nil {
 		p.API.LogWarn("MCP registration unavailable; continuing plugin activation", "err", err.Error())
 	}
 }
@@ -71,7 +61,7 @@ func (p *Plugin) unregisterMCPServerBestEffort() {
 		return
 	}
 
-	if err := mcpUnregister(server); err != nil {
+	if err := server.Unregister(); err != nil {
 		p.API.LogWarn("MCP unregister failed; continuing plugin shutdown", "err", err.Error())
 	}
 }

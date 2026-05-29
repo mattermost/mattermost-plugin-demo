@@ -124,8 +124,8 @@ github.com/mattermost/ldap v0.0.0-20231116144001-0f480c025956 h1:Y1Tu/swM31pVwwb
 github.com/mattermost/ldap v0.0.0-20231116144001-0f480c025956/go.mod h1:SRl30Lb7/QoYyohYeVBuqYvvmXSZJxZgiV3Zf6VbxjI=
 github.com/mattermost/logr/v2 v2.0.22 h1:npFkXlkAWR9J8payh8ftPcCZvLbHSI125mAM5/r/lP4=
 github.com/mattermost/logr/v2 v2.0.22/go.mod h1:0sUKpO+XNMZApeumaid7PYaUZPBIydfuWZ0dqixXo+s=
-github.com/mattermost/mattermost-plugin-agents v0.0.0-20260508170706-18844c90064e h1:miqgRloM6isE8md84Q2dkgqIVI6B/RepoiAcntM2M6w=
-github.com/mattermost/mattermost-plugin-agents v0.0.0-20260508170706-18844c90064e/go.mod h1:Ca1M+q6C0EwPEbDBZyPyqKlRdwv3NXbo+vd19B6MOgU=
+github.com/mattermost/mattermost-plugin-agents v1.14.1-0.20260519141957-379b06b188d9 h1:ovbzO370Fw8rzDRaQhZdY2HMan8QG4l0Gd1HaNEBKkY=
+github.com/mattermost/mattermost-plugin-agents v1.14.1-0.20260519141957-379b06b188d9/go.mod h1:Ca1M+q6C0EwPEbDBZyPyqKlRdwv3NXbo+vd19B6MOgU=
 github.com/mattermost/mattermost/server/public v0.3.1-0.20260402155910-d9d71af83e3f h1:FXDfzbDTk86bKEgBATCTAb3AWsQVzJMn9ruLY72nmQk=
 github.com/mattermost/mattermost/server/public v0.3.1-0.20260402155910-d9d71af83e3f/go.mod h1:QnF/1Evlh7e3G8ifwut7Q5Joy/t4oHYNcDoyBTYuXho=
 github.com/mattermost/xml-roundtrip-validator v0.1.0 h1:RXbVD2UAl7A7nOTR4u7E3ILa4IbtvKBHw64LDsmu9hU=

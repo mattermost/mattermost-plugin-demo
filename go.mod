@@ -4,12 +4,13 @@ go 1.26.2
 
 require (
 	github.com/gorilla/mux v1.8.1
-	github.com/mattermost/mattermost-plugin-agents v0.0.0-20260508170706-18844c90064e
+	github.com/mattermost/mattermost-plugin-agents v1.14.1-0.20260519141957-379b06b188d9
 	github.com/mattermost/mattermost/server/public v0.3.1-0.20260402155910-d9d71af83e3f
 	github.com/modelcontextprotocol/go-sdk v1.4.1
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.11.1
 )
+
 require (
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
 	github.com/beevik/etree v1.6.0 // indirect
