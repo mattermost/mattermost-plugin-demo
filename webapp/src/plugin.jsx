@@ -18,7 +18,7 @@ import RHSView from './components/right_hand_sidebar';
 import SecretMessageSetting from './components/admin_settings/secret_message_setting';
 import CustomSetting from './components/admin_settings/custom_setting';
 import FilePreviewOverride from './components/file_preview_override';
-import ChannelSettingsSmokeTest from './components/channel_settings_smoke_test';
+import {registerChannelSettings} from './channel_settings/register';
 import RouterShowcase from './components/router_showcase/router_showcase';
 import PostType from './components/post_type';
 import EphemeralPostType from './components/ephemeral_post_type';
@@ -51,12 +51,7 @@ function getTranslations(locale) {
 
 export default class DemoPlugin {
     initialize(registry, store) {
-        registry.registerChannelSettingsTab?.({
-            uiName: 'Demo Plugin',
-            component: ChannelSettingsSmokeTest,
-            icon: `/plugins/${manifest.id}/public/icon.png`,
-            shouldRender: () => true,
-        });
+        registerChannelSettings(registry, store);
 
         registry.registerRootComponent(Root);
         registry.registerPopoverUserAttributesComponent(UserAttributes);
