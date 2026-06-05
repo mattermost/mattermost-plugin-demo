@@ -22,6 +22,6 @@ export function registerChannelSettings(registry: Registry, _store: Store) {
         shouldRender: () => true,
 
         // Host injects theme/webSocketClient beyond the public props type.
-        component: ChannelSettingsCustomTab as React.ComponentType<ChannelSettingsTabBodyProps>,
+        component: ChannelSettingsCustomTab as unknown as React.ComponentType<ChannelSettingsTabBodyProps>,
     });
 }

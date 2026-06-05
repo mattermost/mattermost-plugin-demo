@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {FormattedMessage} from 'react-intl';
+import {FormattedMessage, injectIntl, type InjectedIntlProps} from 'react-intl';
 
 import type {WebSocketClient} from '@mattermost/client';
 
@@ -16,11 +16,29 @@ type Props = ChannelSettingsTabBodyProps & {
 
 const EMPTY_STATE: CustomState = {note: '', pinGreeting: false};
 
+// Inline styles can't target ::placeholder, so theme the textarea via a scoped
+// class using the global Mattermost theme CSS variables (works on any theme).
+const NOTE_TEXTAREA_CLASS = 'demo-channel-note-textarea';
+const NOTE_TEXTAREA_STYLES = `
+.${NOTE_TEXTAREA_CLASS} {
+    background: var(--center-channel-bg);
+    color: var(--center-channel-color);
+    border: 1px solid rgba(var(--center-channel-color-rgb), 0.16);
+    border-radius: 4px;
+    padding: 6px 8px;
+}
+.${NOTE_TEXTAREA_CLASS}::placeholder {
+    color: rgba(var(--center-channel-color-rgb), 0.64);
+}
+`;
+
 function isDirty(a: CustomState, b: CustomState): boolean {
     return a.note !== b.note || a.pinGreeting !== b.pinGreeting;
 }
 
-export default function ChannelSettingsCustomTab({channel, setUnsaved, registerHandlers, theme}: Props) {
+// @types/react-intl is pinned to v2, which has no useIntl hook; injectIntl is
+// the supported way to get a typed formatMessage for the placeholder attribute.
+function ChannelSettingsCustomTab({channel, setUnsaved, registerHandlers, theme, intl}: Props & InjectedIntlProps) {
     const [baseline, setBaseline] = useState<CustomState>(EMPTY_STATE);
     const [state, setState] = useState<CustomState>(EMPTY_STATE);
     const [loading, setLoading] = useState(true);
@@ -105,6 +123,7 @@ export default function ChannelSettingsCustomTab({channel, setUnsaved, registerH
 
     return (
         <div style={{color: theme.centerChannelColor}}>
+            <style>{NOTE_TEXTAREA_STYLES}</style>
             <h4 style={{color: theme.linkColor}}>
                 <FormattedMessage
                     id='channel_settings.custom_tab.heading'
@@ -119,8 +138,10 @@ export default function ChannelSettingsCustomTab({channel, setUnsaved, registerH
             </label>
             <textarea
                 id='demo-channel-note'
+                className={NOTE_TEXTAREA_CLASS}
                 value={state.note}
                 onChange={(e) => setState((prev) => ({...prev, note: e.target.value}))}
+                placeholder={intl.formatMessage({id: 'channel_settings.custom_tab.note_placeholder', defaultMessage: 'Add a note for this channel…'})}
                 rows={3}
                 style={{display: 'block', width: '100%', marginTop: '4px'}}
             />
@@ -138,3 +159,5 @@ export default function ChannelSettingsCustomTab({channel, setUnsaved, registerH
         </div>
     );
 }
+
+export default injectIntl(ChannelSettingsCustomTab);
