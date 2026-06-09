@@ -38,19 +38,19 @@ func (p *Plugin) OnActivate() error {
 
 	teams, err := p.API.GetTeams()
 	if err != nil {
-		p.API.LogWarn("Failed to query teams OnActivate, skipping activation messages", "error", err.Error())
-	} else {
-		for _, team := range teams {
-			_, ok := configuration.demoChannelIDs[team.Id]
-			if !ok {
-				p.API.LogWarn("No demo channel id for team", "team", team.Id)
-				continue
-			}
+		return errors.Wrap(err, "failed to query teams OnActivate")
+	}
 
-			msg := fmt.Sprintf("OnActivate: %s", manifest.Id)
-			if err := p.postPluginMessage(team.Id, msg); err != nil {
-				p.API.LogWarn("Failed to post OnActivate message", "error", err.Error())
-			}
+	for _, team := range teams {
+		_, ok := configuration.demoChannelIDs[team.Id]
+		if !ok {
+			p.API.LogWarn("No demo channel id for team", "team", team.Id)
+			continue
+		}
+
+		msg := fmt.Sprintf("OnActivate: %s", manifest.Id)
+		if err := p.postPluginMessage(team.Id, msg); err != nil {
+			return errors.Wrap(err, "failed to post OnActivate message")
 		}
 	}
 
