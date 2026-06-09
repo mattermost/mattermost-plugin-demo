@@ -43,6 +43,8 @@ const (
 		"- `/dialog introduction-text` - Open an Interactive Dialog with optional introduction text. Once submitted, user's action is posted back into a channel.\n" +
 		"- `/dialog dynamic-select` - Open an Interactive Dialog with dynamic select fields. Once submitted, user-entered input is posted back into a channel.\n" +
 		"- `/dialog date` - Open an Interactive Dialog with date and datetime fields for testing.\n" +
+		"- `/dialog datetime-basic` - Open an Interactive Dialog with basic date/datetime features (min date, intervals, relative dates).\n" +
+		"- `/dialog datetime-timezone` - Open an Interactive Dialog with timezone support and manual time entry.\n" +
 		"- `/dialog multi-select` - Open an Interactive Dialog with multi-select fields. Once submitted, user-entered input is posted back into a channel.\n" +
 		"- `/dialog error` - Open an Interactive Dialog which always returns an general error.\n" +
 		"- `/dialog error-no-elements` - Open an Interactive Dialog with no elements which always returns an general error.\n" +
@@ -182,6 +184,12 @@ func getCommandDialogAutocompleteData() *model.AutocompleteData {
 
 	date := model.NewAutocompleteData("date", "", "Open an Interactive Dialog with date and datetime fields.")
 	command.AddCommand(date)
+
+	datetimeBasic := model.NewAutocompleteData("datetime-basic", "", "Open an Interactive Dialog with basic date/datetime features.")
+	command.AddCommand(datetimeBasic)
+
+	datetimeTimezone := model.NewAutocompleteData("datetime-timezone", "", "Open an Interactive Dialog with timezone support and manual time entry.")
+	command.AddCommand(datetimeTimezone)
 
 	error := model.NewAutocompleteData("error", "", "Open an Interactive Dialog with error.")
 	command.AddCommand(error)
@@ -474,6 +482,18 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/date", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog:    getDialogWithDateElements(),
+		}
+	case "datetime-basic":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogDateTimeBasic(),
+		}
+	case "datetime-timezone":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogDateTimeTimezone(),
 		}
 	case "multi-select":
 		dialogRequest = model.OpenDialogRequest{

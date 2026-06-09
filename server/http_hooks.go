@@ -29,6 +29,9 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 func (p *Plugin) initializeAPI() {
 	router := mux.NewRouter()
 
+	router.HandleFunc(mcpBasePath, p.serveMCP)
+	router.PathPrefix(mcpBasePath + "/").HandlerFunc(p.serveMCP)
+
 	router.HandleFunc("/status", p.handleStatus)
 	router.HandleFunc("/hello", p.handleHello)
 	router.HandleFunc("/dynamic_arg_test_url", p.handleDynamicArgTest)
