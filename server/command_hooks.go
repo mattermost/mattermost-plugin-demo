@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -50,6 +51,9 @@ const (
 		"- `/dialog error-no-elements` - Open an Interactive Dialog with no elements which always returns an general error.\n" +
 		"- `/dialog field-refresh` - Open an Interactive Dialog with field refresh functionality.\n" +
 		"- `/dialog multistep` - Open a multi-step Interactive Dialog demonstrating form refresh on submit.\n" +
+		// "- `/dialog action-buttons` - Open an Interactive Dialog demonstrating an incident response board with triage and timeline notes.\n" +
+		"- `/dialog file-upload` - Open an Interactive Dialog with file upload fields (single and multiple).\n" +
+		"- `/dialog file-upload-clear` - Clear persisted file upload data and start fresh.\n" +
 		"- `/dialog help` - Show this help text"
 )
 
@@ -208,6 +212,12 @@ func getCommandDialogAutocompleteData() *model.AutocompleteData {
 
 	multiSelect := model.NewAutocompleteData("multi-select", "", "Open an Interactive Dialog with multi-select fields.")
 	command.AddCommand(multiSelect)
+
+	fileUpload := model.NewAutocompleteData("file-upload", "", "Open an Interactive Dialog with file upload fields.")
+	command.AddCommand(fileUpload)
+
+	fileUploadClear := model.NewAutocompleteData("file-upload-clear", "", "Clear persisted file upload data.")
+	command.AddCommand(fileUploadClear)
 
 	help := model.NewAutocompleteData("help", "", "")
 	command.AddCommand(help)
@@ -524,6 +534,31 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/multistep", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog:    getDialogStep1(),
+		}
+	case "file-upload":
+		dialog := getDialogWithFileUpload()
+		kvKey := "file_upload_" + args.UserId
+		if data, appErr := p.API.KVGet(kvKey); appErr == nil && len(data) > 0 {
+			var stored map[string]string
+			if json.Unmarshal(data, &stored) == nil {
+				for i := range dialog.Elements {
+					if val, ok := stored[dialog.Elements[i].Name]; ok {
+						dialog.Elements[i].Default = val
+					}
+				}
+			}
+		}
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/file-upload", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    dialog,
+		}
+	case "file-upload-clear":
+		kvKey := "file_upload_" + args.UserId
+		p.API.KVDelete(kvKey)
+		return &model.CommandResponse{
+			ResponseType: model.CommandResponseTypeEphemeral,
+			Text:         "File upload data cleared.",
 		}
 	default:
 		return &model.CommandResponse{

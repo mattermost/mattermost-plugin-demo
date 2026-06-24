@@ -54,6 +54,7 @@ func (p *Plugin) initializeAPI() {
 	dialogRouter.HandleFunc("/error", p.handleDialogWithError)
 	dialogRouter.HandleFunc("/field-refresh", p.handleDialogFieldRefresh)
 	dialogRouter.HandleFunc("/multistep", p.handleDialogMultistep)
+	dialogRouter.HandleFunc("/file-upload", p.handleDialogFileUpload)
 
 	dialogRouter.HandleFunc("/products", p.handleDynamicProducts).Methods(http.MethodPost)
 	dialogRouter.HandleFunc("/companies", p.handleDynamicCompanies).Methods(http.MethodPost)
@@ -926,4 +927,89 @@ func (p *Plugin) handleDynamicCountries(w http.ResponseWriter, r *http.Request) 
 
 	response := model.LookupDialogResponse{Items: filteredCountries}
 	p.writeJSON(w, response)
+}
+
+func (p *Plugin) handleDialogFileUpload(w http.ResponseWriter, r *http.Request) {
+	var request model.SubmitDialogRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		p.API.LogError("Failed to decode SubmitDialogRequest", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	user, appErr := p.API.GetUser(request.UserId)
+	if appErr != nil {
+		p.API.LogError("Failed to get user for dialog", "err", appErr.Error())
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	if request.Cancelled {
+		if _, appErr = p.API.CreatePost(&model.Post{
+			UserId:    p.botID,
+			ChannelId: request.ChannelId,
+			Message:   fmt.Sprintf("@%v canceled the file upload dialog", user.Username),
+		}); appErr != nil {
+			p.API.LogError("Failed to post file upload cancel message", "err", appErr.Error())
+		}
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	// Build a summary of uploaded files
+	msg := fmt.Sprintf("@%v submitted a file upload dialog\n", user.Username)
+
+	if desc, ok := request.Submission["description"].(string); ok && desc != "" {
+		msg += fmt.Sprintf("**Description:** %s\n", desc)
+	}
+
+	// File IDs come in both request.FileIds and in submission values as comma-separated strings
+	fileIds := request.FileIds
+	if len(fileIds) == 0 {
+		// Fallback: extract from submission values for file-type fields
+		for _, key := range []string{"single_file", "multi_file"} {
+			if val, ok := request.Submission[key].(string); ok && val != "" {
+				for _, id := range strings.Split(val, ",") {
+					if id = strings.TrimSpace(id); id != "" {
+						fileIds = append(fileIds, id)
+					}
+				}
+			}
+		}
+	}
+
+	if len(fileIds) > 0 {
+		msg += fmt.Sprintf("**File IDs (%d):** %s\n", len(fileIds), strings.Join(fileIds, ", "))
+	} else {
+		msg += "**Files:** none\n"
+	}
+
+	// Post with the uploaded files attached
+	post := &model.Post{
+		UserId:    p.botID,
+		ChannelId: request.ChannelId,
+		Message:   msg,
+		FileIds:   fileIds,
+	}
+
+	if _, appErr = p.API.CreatePost(post); appErr != nil {
+		p.API.LogError("Failed to post file upload dialog message", "err", appErr.Error())
+		return
+	}
+
+	// Persist per-element file IDs so the dialog can be re-opened with previously uploaded files
+	kvKey := "file_upload_" + request.UserId
+	stored := map[string]string{}
+	for _, key := range []string{"single_file", "multi_file"} {
+		if val, ok := request.Submission[key].(string); ok && val != "" {
+			stored[key] = val
+		}
+	}
+	if len(stored) > 0 {
+		data, _ := json.Marshal(stored)
+		p.API.KVSet(kvKey, data)
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

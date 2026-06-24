@@ -157,6 +157,7 @@ func getDialogWithSampleElements() model.Dialog {
 				Text:  "Option3",
 				Value: "opt3",
 			}},
+			Default: "opt3",
 		}},
 		SubmitLabel:    "Submit",
 		NotifyOnCancel: true,
@@ -413,7 +414,12 @@ func getDialogWithDynamicSelectElements() model.Dialog {
 			DataSource:    "dynamic",
 			DataSourceURL: fmt.Sprintf("/plugins/%s/dialog/countries", manifest.Id),
 			Optional:      true,
-		}},
+		}, {
+			DisplayName: "Text",
+			Name:        "text_elem",
+			Type:        "text",
+		},
+		},
 		SubmitLabel:    "Submit Dynamic Select",
 		NotifyOnCancel: true,
 		State:          dialogStateSome,
@@ -995,6 +1001,39 @@ func getDialogWithMultiSelectElements() model.Dialog {
 			}},
 		}},
 		SubmitLabel:    "Submit Multi-Select",
+		NotifyOnCancel: true,
+		State:          dialogStateSome,
+	}
+}
+
+func getDialogWithFileUpload() model.Dialog {
+	return model.Dialog{
+		CallbackId: "file_upload_demo",
+		Title:      "File Upload Dialog Demo",
+		IconURL:    "http://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
+		Elements: []model.DialogElement{{
+			DisplayName: "Single File Upload",
+			Name:        "single_file",
+			Type:        "file",
+			HelpText:    "Upload a single file.",
+			Optional:    true,
+		}, {
+			DisplayName:   "Multiple File Upload",
+			Name:          "multi_file",
+			Type:          "file",
+			HelpText:      "Upload multiple files at once.",
+			Optional:      true,
+			AllowMultiple: true,
+		}, {
+			DisplayName: "Description",
+			Name:        "description",
+			Type:        "textarea",
+			Placeholder: "Describe the uploaded files...",
+			HelpText:    "Optional description of the uploaded files.",
+			Optional:    true,
+			MaxLength:   500,
+		}},
+		SubmitLabel:    "Submit Files",
 		NotifyOnCancel: true,
 		State:          dialogStateSome,
 	}
