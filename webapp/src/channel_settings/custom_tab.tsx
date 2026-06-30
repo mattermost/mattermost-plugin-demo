@@ -1,18 +1,8 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {FormattedMessage, injectIntl, type InjectedIntlProps} from 'react-intl';
 
-import type {WebSocketClient} from '@mattermost/client';
-
-import type {Theme} from 'mattermost-redux/selectors/entities/preferences';
-
 import {fetchCustomState, saveCustomState, type CustomState} from './client';
 import type {ChannelSettingsTabBodyProps} from './types';
-
-// theme/webSocketClient are injected by the host but absent from the public props type.
-type Props = ChannelSettingsTabBodyProps & {
-    theme: Theme;
-    webSocketClient: WebSocketClient;
-};
 
 const EMPTY_STATE: CustomState = {note: '', pinGreeting: false};
 
@@ -38,7 +28,7 @@ function isDirty(a: CustomState, b: CustomState): boolean {
 
 // @types/react-intl is pinned to v2, which has no useIntl hook; injectIntl is
 // the supported way to get a typed formatMessage for the placeholder attribute.
-function ChannelSettingsCustomTab({channel, setUnsaved, registerHandlers, theme, intl}: Props & InjectedIntlProps) {
+function ChannelSettingsCustomTab({channel, setUnsaved, registerHandlers, intl}: ChannelSettingsTabBodyProps & InjectedIntlProps) {
     const [baseline, setBaseline] = useState<CustomState>(EMPTY_STATE);
     const [state, setState] = useState<CustomState>(EMPTY_STATE);
     const [loading, setLoading] = useState(true);
@@ -112,7 +102,7 @@ function ChannelSettingsCustomTab({channel, setUnsaved, registerHandlers, theme,
 
     if (loadError) {
         return (
-            <div style={{color: theme.errorTextColor}}>
+            <div style={{color: 'var(--error-text)'}}>
                 <FormattedMessage
                     id='channel_settings.custom_tab.load_error'
                     defaultMessage='Could not load these settings. Reopen the tab to try again.'
@@ -122,9 +112,9 @@ function ChannelSettingsCustomTab({channel, setUnsaved, registerHandlers, theme,
     }
 
     return (
-        <div style={{color: theme.centerChannelColor}}>
+        <div style={{color: 'var(--center-channel-color)'}}>
             <style>{NOTE_TEXTAREA_STYLES}</style>
-            <h4 style={{color: theme.linkColor}}>
+            <h4 style={{color: 'var(--link-color)'}}>
                 <FormattedMessage
                     id='channel_settings.custom_tab.heading'
                     defaultMessage='Advanced channel options'

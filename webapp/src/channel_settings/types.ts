@@ -56,7 +56,6 @@ export type ChannelSettingsTabHandlers = {
     reset: () => void;
 };
 
-// Host injects theme/webSocketClient beyond the documented contract.
 export type ChannelSettingsTabBodyProps = {
     channel: Channel;
     setUnsaved: (unsaved: boolean) => void;
