@@ -205,7 +205,7 @@ func getDialogBasic() model.Dialog {
 }
 
 // getDialogWithCollapsibleElements shows collapsible sections nested 1, 2, and 3
-// levels deep. IsExpanded controls whether a section starts open.
+// levels deep. Collapsed=true means the section starts closed; Borderless=true omits the outline.
 func getDialogWithCollapsibleElements() model.Dialog {
 	return model.Dialog{
 		CallbackId:     "collapsiblecallbackid",
@@ -218,11 +218,10 @@ func getDialogWithCollapsibleElements() model.Dialog {
 			"This dialog demonstrates collapsible sections nested 1, 2, and 3 " +
 			"levels deep. Toggle the carets to expand and collapse each section.",
 		Elements: []model.DialogElement{{
-			// Level 1: one collapsible with plain fields.
+			// Level 1: one collapsible with plain fields. Starts expanded (default).
 			DisplayName: "Level 1 — Flat section",
 			Name:        "level1_section",
 			Type:        "collapsible",
-			IsExpanded:  boolPtr(true),
 			Elements: []model.DialogElement{{
 				DisplayName: "First Name",
 				Name:        "first_name",
@@ -235,11 +234,12 @@ func getDialogWithCollapsibleElements() model.Dialog {
 				Placeholder: "Enter your last name...",
 			}},
 		}, {
-			// Level 2: a collapsible inside a collapsible. Each level has a field.
+			// Level 2: starts collapsed and borderless; inner section is expanded and borderless.
 			DisplayName: "Level 2 — One level of nesting",
 			Name:        "level2_section",
 			Type:        "collapsible",
-			IsExpanded:  boolPtr(false),
+			Collapsed:   true,
+			Borderless:  true,
 			Elements: []model.DialogElement{{
 				DisplayName: "Company",
 				Name:        "company",
@@ -250,7 +250,7 @@ func getDialogWithCollapsibleElements() model.Dialog {
 				DisplayName: "Contact Details",
 				Name:        "level2_inner_section",
 				Type:        "collapsible",
-				IsExpanded:  boolPtr(true),
+				Borderless:  true,
 				Elements: []model.DialogElement{{
 					DisplayName: "Email",
 					Name:        "email",
@@ -266,11 +266,11 @@ func getDialogWithCollapsibleElements() model.Dialog {
 				}},
 			}},
 		}, {
-			// Level 3: a collapsible nested two levels deep. Each level has a field.
+			// Level 3: outer two levels start collapsed; innermost starts expanded (default).
 			DisplayName: "Level 3 — Two levels of nesting",
 			Name:        "level3_section",
 			Type:        "collapsible",
-			IsExpanded:  boolPtr(false),
+			Collapsed:   true,
 			Elements: []model.DialogElement{{
 				DisplayName: "Project Name",
 				Name:        "project_name",
@@ -281,7 +281,7 @@ func getDialogWithCollapsibleElements() model.Dialog {
 				DisplayName: "Advanced",
 				Name:        "level3_inner_section",
 				Type:        "collapsible",
-				IsExpanded:  boolPtr(false),
+				Collapsed:   true,
 				Elements: []model.DialogElement{{
 					DisplayName: "Environment",
 					Name:        "environment",
@@ -292,7 +292,6 @@ func getDialogWithCollapsibleElements() model.Dialog {
 					DisplayName: "Experimental",
 					Name:        "level3_innermost_section",
 					Type:        "collapsible",
-					IsExpanded:  boolPtr(true),
 					Elements: []model.DialogElement{{
 						DisplayName: "Custom Settings",
 						Name:        "custom_settings",
@@ -311,12 +310,6 @@ func getDialogWithCollapsibleElements() model.Dialog {
 			}},
 		}},
 	}
-}
-
-// boolPtr returns a pointer to the given bool, for optional *bool fields such as
-// DialogElement.IsExpanded.
-func boolPtr(b bool) *bool {
-	return &b
 }
 
 func getDialogBoolean() model.Dialog {
