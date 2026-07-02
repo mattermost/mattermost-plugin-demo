@@ -235,7 +235,7 @@ func getDialogWithCollapsibleElements() model.Dialog {
 			}},
 		}, {
 			// Level 2: starts collapsed and borderless; inner section is expanded and borderless.
-			DisplayName: "Level 2 — One level of nesting",
+			DisplayName: "Level 2 — One level of nesting (no border)",
 			Name:        "level2_section",
 			Type:        "collapsible",
 			Collapsed:   true,
