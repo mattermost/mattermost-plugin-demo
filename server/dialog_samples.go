@@ -214,8 +214,8 @@ func getDialogWithCollapsibleElements() model.Dialog {
 		SubmitLabel:    "Submit",
 		NotifyOnCancel: true,
 		State:          dialogStateSome,
-		IntroductionText: "**Collapsible Sections Demo**\n\n" +
-			"This sample uses grouped fields that represent 1, 2, and 3 levels of nested sections.",
+		IntroductionText: "**Grouped Fields Demo**\n\n" +
+			"This sample uses fields with hierarchical display names to represent 1, 2, and 3 levels of grouping.",
 		Elements: []model.DialogElement{{
 			DisplayName: "Level 1 — First Name",
 			Name:        "level1_first_name",
