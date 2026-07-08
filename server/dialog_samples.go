@@ -204,8 +204,8 @@ func getDialogBasic() model.Dialog {
 	}
 }
 
-// getDialogWithCollapsibleElements keeps a similar sample payload using only
-// currently supported dialog element fields in the public model package.
+// getDialogWithCollapsibleElements shows collapsible sections nested 1, 2, and 3
+// levels deep. Collapsed=true means the section starts closed; Borderless=true omits the outline.
 func getDialogWithCollapsibleElements() model.Dialog {
 	return model.Dialog{
 		CallbackId:     "collapsiblecallbackid",
@@ -214,61 +214,100 @@ func getDialogWithCollapsibleElements() model.Dialog {
 		SubmitLabel:    "Submit",
 		NotifyOnCancel: true,
 		State:          dialogStateSome,
-		IntroductionText: "**Grouped Fields Demo**\n\n" +
-			"This sample uses fields with hierarchical display names to represent 1, 2, and 3 levels of grouping.",
+		IntroductionText: "**Collapsible Sections Demo**\n\n" +
+			"This dialog demonstrates collapsible sections nested 1, 2, and 3 " +
+			"levels deep. Toggle the carets to expand and collapse each section.",
 		Elements: []model.DialogElement{{
-			DisplayName: "Level 1 — First Name",
-			Name:        "level1_first_name",
-			Type:        "text",
-			Placeholder: "Enter your first name...",
+			// Level 1: one collapsible with plain fields. Starts expanded (default).
+			DisplayName: "Level 1 — Flat section",
+			Name:        "level1_section",
+			Type:        "collapsible",
+			Elements: []model.DialogElement{{
+				DisplayName: "First Name",
+				Name:        "first_name",
+				Type:        "text",
+				Placeholder: "Enter your first name...",
+			}, {
+				DisplayName: "Last Name",
+				Name:        "last_name",
+				Type:        "text",
+				Placeholder: "Enter your last name...",
+			}},
 		}, {
-			DisplayName: "Level 1 — Last Name",
-			Name:        "level1_last_name",
-			Type:        "text",
-			Placeholder: "Enter your last name...",
+			// Level 2: starts collapsed and borderless; inner section is expanded and borderless.
+			DisplayName: "Level 2 — One level of nesting (no border)",
+			Name:        "level2_section",
+			Type:        "collapsible",
+			Collapsed:   true,
+			Borderless:  true,
+			Elements: []model.DialogElement{{
+				DisplayName: "Company",
+				Name:        "company",
+				Type:        "text",
+				Placeholder: "Enter your company...",
+				Optional:    true,
+			}, {
+				DisplayName: "Contact Details",
+				Name:        "level2_inner_section",
+				Type:        "collapsible",
+				Borderless:  true,
+				Elements: []model.DialogElement{{
+					DisplayName: "Email",
+					Name:        "email",
+					Type:        "text",
+					SubType:     "email",
+					Placeholder: "you@example.com",
+				}, {
+					DisplayName: "Phone",
+					Name:        "phone",
+					Type:        "text",
+					Placeholder: "Optional phone number...",
+					Optional:    true,
+				}},
+			}},
 		}, {
-			DisplayName: "Level 2 > Company",
-			Name:        "level2_company",
-			Type:        "text",
-			Placeholder: "Enter your company...",
-			Optional:    true,
-		}, {
-			DisplayName: "Level 2 > Contact > Email",
-			Name:        "level2_contact_email",
-			Type:        "text",
-			SubType:     "email",
-			Placeholder: "you@example.com",
-		}, {
-			DisplayName: "Level 2 > Contact > Phone",
-			Name:        "level2_contact_phone",
-			Type:        "text",
-			Placeholder: "Optional phone number...",
-			Optional:    true,
-		}, {
-			DisplayName: "Level 3 > Project Name",
-			Name:        "level3_project_name",
-			Type:        "text",
-			Placeholder: "Enter a project name...",
-			Optional:    true,
-		}, {
-			DisplayName: "Level 3 > Advanced > Environment",
-			Name:        "level3_advanced_environment",
-			Type:        "text",
-			Placeholder: "e.g. staging, production...",
-			Optional:    true,
-		}, {
-			DisplayName: "Level 3 > Advanced > Experimental > Custom Settings",
-			Name:        "level3_custom_settings",
-			Type:        "textarea",
-			Placeholder: "Optional advanced configuration...",
-			Optional:    true,
-			MaxLength:   500,
-		}, {
-			DisplayName: "Level 3 > Advanced > Experimental > Enable Beta Features",
-			Name:        "level3_enable_beta",
-			Type:        "bool",
-			Placeholder: "Turn on experimental features",
-			Optional:    true,
+			// Level 3: outer two levels start collapsed; innermost starts expanded (default).
+			DisplayName: "Level 3 — Two levels of nesting",
+			Name:        "level3_section",
+			Type:        "collapsible",
+			Collapsed:   true,
+			Elements: []model.DialogElement{{
+				DisplayName: "Project Name",
+				Name:        "project_name",
+				Type:        "text",
+				Placeholder: "Enter a project name...",
+				Optional:    true,
+			}, {
+				DisplayName: "Advanced",
+				Name:        "level3_inner_section",
+				Type:        "collapsible",
+				Collapsed:   true,
+				Elements: []model.DialogElement{{
+					DisplayName: "Environment",
+					Name:        "environment",
+					Type:        "text",
+					Placeholder: "e.g. staging, production...",
+					Optional:    true,
+				}, {
+					DisplayName: "Experimental",
+					Name:        "level3_innermost_section",
+					Type:        "collapsible",
+					Elements: []model.DialogElement{{
+						DisplayName: "Custom Settings",
+						Name:        "custom_settings",
+						Type:        "textarea",
+						Placeholder: "Optional advanced configuration...",
+						Optional:    true,
+						MaxLength:   500,
+					}, {
+						DisplayName: "Enable Beta Features",
+						Name:        "enable_beta",
+						Type:        "bool",
+						Placeholder: "Turn on experimental features",
+						Optional:    true,
+					}},
+				}},
+			}},
 		}},
 	}
 }
