@@ -525,7 +525,7 @@ func (p *Plugin) handleInlineActionTriage(w http.ResponseWriter, r *http.Request
 
 	// Build introduction text showing key identifiers passed via mmaction://
 	intro := fmt.Sprintf(
-		"**Issue:** %s  |  **Project:** %s\n**Title:** %s  |  **Priority:** %s  |  **Assignee:** %s",
+		"**Issue:** %s  |  **Project:** %s | **Title:** %s  |  **Priority:** %s  |  **Assignee:** %s",
 		issueID, project, title, priority, assigneeDisplay,
 	)
 
