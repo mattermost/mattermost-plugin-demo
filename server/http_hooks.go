@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html"
 	"net/http"
+	"sort"
 	"strings"
 	"time"
 
@@ -54,6 +55,7 @@ func (p *Plugin) initializeAPI() {
 	dialogRouter.HandleFunc("/error", p.handleDialogWithError)
 	dialogRouter.HandleFunc("/field-refresh", p.handleDialogFieldRefresh)
 	dialogRouter.HandleFunc("/multistep", p.handleDialogMultistep)
+	dialogRouter.HandleFunc("/checkboxes", p.handleDialogCheckboxes)
 
 	dialogRouter.HandleFunc("/products", p.handleDynamicProducts).Methods(http.MethodPost)
 	dialogRouter.HandleFunc("/companies", p.handleDynamicCompanies).Methods(http.MethodPost)
@@ -493,6 +495,102 @@ func (p *Plugin) handleInteractiveAction(w http.ResponseWriter, r *http.Request)
 
 	resp := &model.PostActionIntegrationResponse{}
 	p.writeJSON(w, resp)
+}
+
+// handleDialogCheckboxes echoes the submission of the checkbox_group /
+// checkbox_matrix dialogs back as readable message text so e2e tests can assert
+// the exact wire encoding (post Props, used by handleDialog1, isn't visible
+// on screen).
+func (p *Plugin) handleDialogCheckboxes(w http.ResponseWriter, r *http.Request) {
+	var request model.SubmitDialogRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		p.API.LogError("Failed to decode checkbox SubmitDialogRequest", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	if request.Cancelled {
+		p.writeJSON(w, &model.SubmitDialogResponse{})
+		return
+	}
+
+	names := make([]string, 0, len(request.Submission))
+	for name := range request.Submission {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+
+	lines := make([]string, 0, len(names))
+	for _, name := range names {
+		lines = append(lines, fmt.Sprintf("%s=%s", name, formatCheckboxValue(request.Submission[name])))
+	}
+
+	if _, appErr := p.API.CreatePost(&model.Post{
+		UserId:    p.botID,
+		ChannelId: request.ChannelId,
+		Message:   "Checkboxes Submitted:\n" + strings.Join(lines, "\n"),
+	}); appErr != nil {
+		p.API.LogError("Failed to post checkbox submission", "err", appErr.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	p.writeJSON(w, &model.SubmitDialogResponse{})
+}
+
+// formatCheckboxValue renders a submission value canonically. checkbox_group and
+// checkbox_matrix both arrive as JSON arrays of strings.
+//
+// Entries are sorted deliberately: neither the group's selection order nor the
+// matrix's row order is semantically meaningful, and asserting on either would
+// make e2e expectations depend on the order the test happened to tap cells in.
+// The row/column *structure* is still asserted verbatim.
+func formatCheckboxValue(value any) string {
+	switch v := value.(type) {
+	case []any:
+		if len(v) == 0 {
+			return "(none)"
+		}
+		parts := make([]string, 0, len(v))
+		isMatrix := false
+		for _, item := range v {
+			entry := canonicalMatrixEntry(fmt.Sprintf("%v", item))
+			if strings.Contains(entry, ":") {
+				isMatrix = true
+			}
+			parts = append(parts, entry)
+		}
+		sort.Strings(parts)
+
+		// Matrix entries already contain "," between columns, so they are joined
+		// with ";" to keep the two nesting levels distinguishable.
+		if isMatrix {
+			return strings.Join(parts, ";")
+		}
+		return strings.Join(parts, ",")
+	case nil:
+		return "(none)"
+	default:
+		if s := fmt.Sprintf("%v", v); s != "" {
+			return s
+		}
+		return "(none)"
+	}
+}
+
+// canonicalMatrixEntry sorts the column list inside a single "row:col1,col2" entry.
+func canonicalMatrixEntry(entry string) string {
+	rowValue, columnsPart, ok := strings.Cut(entry, ":")
+	if !ok {
+		return entry
+	}
+	columns := strings.Split(columnsPart, ",")
+	for i := range columns {
+		columns[i] = strings.TrimSpace(columns[i])
+	}
+	sort.Strings(columns)
+	return rowValue + ":" + strings.Join(columns, ",")
 }
 
 func (p *Plugin) writeJSON(w http.ResponseWriter, response any) {
