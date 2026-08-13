@@ -51,6 +51,8 @@ const (
 		"- `/dialog error-no-elements` - Open an Interactive Dialog with no elements which always returns an general error.\n" +
 		"- `/dialog field-refresh` - Open an Interactive Dialog with field refresh functionality.\n" +
 		"- `/dialog multistep` - Open a multi-step Interactive Dialog demonstrating form refresh on submit.\n" +
+		"- `/dialog checkbox-group` - Open an Interactive Dialog with checkbox_group fields and label_position variants.\n" +
+		"- `/dialog checkbox-matrix` - Open an Interactive Dialog with checkbox_matrix fields in both row_selection modes.\n" +
 		"- `/dialog help` - Show this help text"
 )
 
@@ -218,6 +220,12 @@ func getCommandDialogAutocompleteData() *model.AutocompleteData {
 
 	multiSelect := model.NewAutocompleteData("multi-select", "", "Open an Interactive Dialog with multi-select fields.")
 	command.AddCommand(multiSelect)
+
+	checkboxGroup := model.NewAutocompleteData("checkbox-group", "", "Open an Interactive Dialog with checkbox_group fields and label_position variants.")
+	command.AddCommand(checkboxGroup)
+
+	checkboxMatrix := model.NewAutocompleteData("checkbox-matrix", "", "Open an Interactive Dialog with checkbox_matrix fields in both row_selection modes.")
+	command.AddCommand(checkboxMatrix)
 
 	help := model.NewAutocompleteData("help", "", "")
 	command.AddCommand(help)
@@ -536,6 +544,18 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/multistep", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog:    getDialogStep1(),
+		}
+	case "checkbox-group":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/checkboxes", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogCheckboxGroup(),
+		}
+	case "checkbox-matrix":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/checkboxes", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogCheckboxMatrix(),
 		}
 	default:
 		return &model.CommandResponse{

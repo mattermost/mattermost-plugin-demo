@@ -1150,3 +1150,148 @@ func getDialogDateTimeTimezone() model.Dialog {
 			"This dialog demonstrates timezone support and manual time entry features.",
 	}
 }
+
+// ============================================================================
+// checkbox_group / checkbox_matrix Dialogs
+// Covers: MM-T5115 - MM-T5122
+// ============================================================================
+
+// Dialog: checkbox_group elements plus a radio field for the optional "Clear
+// selection" affordance. Field names are stable — the e2e spec keys off them.
+func getDialogCheckboxGroup() model.Dialog {
+	return model.Dialog{
+		CallbackId:  "checkbox_group",
+		Title:       "Checkbox Group Demo",
+		SubmitLabel: "Submit",
+		State:       "checkbox_group",
+
+		// Keep this as ordinary dialog copy. Do not repeat the title here: the title
+		// already renders in the modal header, and a second copy makes
+		// by.text(<title>) match twice, which fails Detox with "multiple elements
+		// matched".
+		IntroductionText: "Select the services affected by this incident, then adjust regions, notifications, and priority as needed.",
+		Elements: []model.DialogElement{
+			{
+				DisplayName: "Affected Services",
+				Name:        "services",
+				Type:        "checkbox_group",
+				HelpText:    "Select at least one service.",
+				Options: []*model.PostActionOptions{
+					{Text: "API", Value: "api"},
+					{Text: "Web", Value: "web"},
+					{Text: "Database", Value: "db"},
+					{Text: "Cache", Value: "cache"},
+				},
+			},
+			{
+				DisplayName: "Regions",
+				Name:        "regions",
+				Type:        "checkbox_group",
+				Optional:    true,
+				Default:     "us,apac",
+				HelpText:    "Defaults to US and APAC.",
+				Options: []*model.PostActionOptions{
+					{Text: "US", Value: "us"},
+					{Text: "EU", Value: "eu"},
+					{Text: "APAC", Value: "apac"},
+				},
+			},
+			{
+				DisplayName:   "Notify (label before)",
+				Name:          "notify_before",
+				Type:          "checkbox_group",
+				Optional:      true,
+				LabelPosition: "before",
+				Options: []*model.PostActionOptions{
+					{Text: "Email", Value: "email"},
+					{Text: "Push", Value: "push"},
+				},
+			},
+			{
+				DisplayName:   "Notify (label after)",
+				Name:          "notify_after",
+				Type:          "checkbox_group",
+				Optional:      true,
+				LabelPosition: "after",
+				Options: []*model.PostActionOptions{
+					{Text: "Email", Value: "email"},
+					{Text: "Push", Value: "push"},
+				},
+			},
+			{
+				DisplayName: "Priority",
+				Name:        "priority",
+				Type:        "radio",
+				Optional:    true,
+				HelpText:    "Optional — you can clear your selection.",
+				Options: []*model.PostActionOptions{
+					{Text: "P1", Value: "p1"},
+					{Text: "P2", Value: "p2"},
+					{Text: "P3", Value: "p3"},
+				},
+			},
+		},
+	}
+}
+
+// Dialog: checkbox_matrix in both row_selection modes. `permissions` uses seven
+// columns so the grid must scroll horizontally while row labels stay pinned.
+func getDialogCheckboxMatrix() model.Dialog {
+	return model.Dialog{
+		CallbackId:  "checkbox_matrix",
+		Title:       "Checkbox Matrix Demo",
+		SubmitLabel: "Submit",
+		State:       "checkbox_matrix",
+
+		// Ordinary dialog copy, and deliberately not repeating the title — see the
+		// note in getDialogCheckboxGroup.
+		IntroductionText: "Grant permissions for each resource, then choose a single owner per environment.",
+		Elements: []model.DialogElement{
+			{
+				DisplayName: "Permissions",
+				Name:        "permissions",
+				Type:        "checkbox_matrix",
+				Optional:    true,
+				Default:     "posts:view,edit",
+				HelpText:    "Scroll right to see more columns.",
+				MatrixConfig: &model.DialogMatrixConfig{
+					RowSelection: "multiple",
+					Rows: []*model.PostActionOptions{
+						{Text: "Posts", Value: "posts"},
+						{Text: "Files", Value: "files"},
+						{Text: "Channels", Value: "channels"},
+					},
+					Columns: []*model.PostActionOptions{
+						{Text: "View", Value: "view"},
+						{Text: "Edit", Value: "edit"},
+						{Text: "Delete", Value: "delete"},
+						{Text: "Share", Value: "share"},
+						{Text: "Export", Value: "export"},
+						{Text: "Archive", Value: "archive"},
+						{Text: "Restore", Value: "restore"},
+					},
+				},
+			},
+			{
+				DisplayName: "Environment Owner",
+				Name:        "environment_owner",
+				Type:        "checkbox_matrix",
+				Optional:    true,
+				HelpText:    "One owner per environment.",
+				MatrixConfig: &model.DialogMatrixConfig{
+					RowSelection: "single",
+					Rows: []*model.PostActionOptions{
+						{Text: "Dev", Value: "dev"},
+						{Text: "Staging", Value: "staging"},
+						{Text: "Prod", Value: "prod"},
+					},
+					Columns: []*model.PostActionOptions{
+						{Text: "Alice", Value: "alice"},
+						{Text: "Bob", Value: "bob"},
+						{Text: "Carol", Value: "carol"},
+					},
+				},
+			},
+		},
+	}
+}
