@@ -52,7 +52,6 @@ const (
 		"- `/dialog error-no-elements` - Open an Interactive Dialog with no elements which always returns an general error.\n" +
 		"- `/dialog field-refresh` - Open an Interactive Dialog with field refresh functionality.\n" +
 		"- `/dialog multistep` - Open a multi-step Interactive Dialog demonstrating form refresh on submit.\n" +
-		// "- `/dialog action-buttons` - Open an Interactive Dialog demonstrating an incident response board with triage and timeline notes.\n" +
 		"- `/dialog file-upload` - Open an Interactive Dialog with file upload fields (single and multiple).\n" +
 		"- `/dialog file-upload-clear` - Clear persisted file upload data and start fresh.\n" +
 		"- `/dialog help` - Show this help text"
