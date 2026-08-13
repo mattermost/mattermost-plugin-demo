@@ -1030,7 +1030,8 @@ func (p *Plugin) handleDialogFileUpload(w http.ResponseWriter, r *http.Request) 
 	user, appErr := p.API.GetUser(request.UserId)
 	if appErr != nil {
 		p.API.LogError("Failed to get user for dialog", "err", appErr.Error())
-		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(model.SubmitDialogResponse{Error: "Failed to process dialog submission."})
 		return
 	}
 
@@ -1084,10 +1085,13 @@ func (p *Plugin) handleDialogFileUpload(w http.ResponseWriter, r *http.Request) 
 
 	if _, appErr = p.API.CreatePost(post); appErr != nil {
 		p.API.LogError("Failed to post file upload dialog message", "err", appErr.Error())
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(model.SubmitDialogResponse{Error: "Failed to post the uploaded files."})
 		return
 	}
 
-	// Persist per-element file IDs so the dialog can be re-opened with previously uploaded files
+	// Persist per-element file IDs so the dialog can be re-opened with previously uploaded files.
+	// Always overwrite to avoid returning stale IDs on the next open.
 	kvKey := "file_upload_" + request.UserId
 	stored := map[string]string{}
 	for _, key := range []string{"single_file", "multi_file"} {
@@ -1098,6 +1102,8 @@ func (p *Plugin) handleDialogFileUpload(w http.ResponseWriter, r *http.Request) 
 	if len(stored) > 0 {
 		data, _ := json.Marshal(stored)
 		p.API.KVSet(kvKey, data)
+	} else {
+		p.API.KVDelete(kvKey)
 	}
 
 	w.WriteHeader(http.StatusOK)

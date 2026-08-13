@@ -566,7 +566,13 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 		}
 	case "file-upload-clear":
 		kvKey := "file_upload_" + args.UserId
-		p.API.KVDelete(kvKey)
+		if appErr := p.API.KVDelete(kvKey); appErr != nil {
+			p.API.LogError("Failed to clear file upload data", "err", appErr.Error())
+			return &model.CommandResponse{
+				ResponseType: model.CommandResponseTypeEphemeral,
+				Text:         "Failed to clear file upload data.",
+			}
+		}
 		return &model.CommandResponse{
 			ResponseType: model.CommandResponseTypeEphemeral,
 			Text:         "File upload data cleared.",
