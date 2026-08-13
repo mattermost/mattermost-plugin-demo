@@ -301,7 +301,7 @@ func (p *Plugin) handleDialog3(w http.ResponseWriter, r *http.Request) {
 	case strings.HasPrefix(request.CallbackId, "timeline_note_"):
 		incID := strings.TrimPrefix(request.CallbackId, "timeline_note_")
 		noteType := interfaceToString(request.Submission["note_type"])
-		noteMessage := interfaceToString(request.Submission["message"])
+		noteMessage := escapeMD(interfaceToString(request.Submission["message"]))
 		message = fmt.Sprintf("**%s — Timeline Note Added**\n- Type: %s\n- Note: %s\n\nAdded by @%s",
 			incID,
 			noteType,
@@ -642,11 +642,18 @@ func (p *Plugin) handleIncidentTriage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var ownerUserID string
+	if inc.Owner != "" {
+		if u, appErr := p.API.GetUserByUsername(inc.Owner); appErr == nil {
+			ownerUserID = u.Id
+		}
+	}
+
 	serverConfig := p.API.GetConfig()
 	dialogRequest := model.OpenDialogRequest{
 		TriggerId: request.TriggerId,
 		URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
-		Dialog:    getDialogIncidentTriage(inc),
+		Dialog:    getDialogIncidentTriage(inc, ownerUserID),
 	}
 
 	if appErr := p.API.OpenInteractiveDialog(dialogRequest); appErr != nil {

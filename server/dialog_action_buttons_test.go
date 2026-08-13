@@ -19,7 +19,7 @@ func TestIncidentDialogsAreValid(t *testing.T) {
 
 	for _, inc := range incidents {
 		t.Run("triage/"+inc.ID, func(t *testing.T) {
-			d := getDialogIncidentTriage(inc)
+			d := getDialogIncidentTriage(inc, "")
 			require.NoError(t, d.IsValid())
 		})
 

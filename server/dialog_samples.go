@@ -1138,7 +1138,7 @@ func getDialogIncidentBoard() model.Dialog {
 }
 
 // Dialog B: Incident Triage — shows incident details and allows updating status/severity/owner.
-func getDialogIncidentTriage(inc incident) model.Dialog {
+func getDialogIncidentTriage(inc incident, ownerUserID string) model.Dialog {
 	owner := inc.Owner
 	if owner == "" {
 		owner = "_unassigned_"
@@ -1188,6 +1188,7 @@ func getDialogIncidentTriage(inc incident) model.Dialog {
 				DisplayName: "Assignee",
 				Name:        "owner",
 				Type:        "select",
+				Default:     ownerUserID,
 				Placeholder: "Select a user...",
 				DataSource:  "users",
 				Optional:    true,
@@ -1249,6 +1250,23 @@ func getDialogTimelineNote(incID string) model.Dialog {
 			},
 		},
 	}
+}
+
+var mdEscaper = strings.NewReplacer(
+	`\`, `\\`,
+	"`", "\\`",
+	"*", `\*`,
+	"_", `\_`,
+	"~", `\~`,
+	"[", `\[`,
+	"|", `\|`,
+	"@", `\@`,
+)
+
+// escapeMD escapes Markdown special characters and neutralizes @mention markers
+// in user-supplied text before embedding it in a bot-authored post.
+func escapeMD(s string) string {
+	return mdEscaper.Replace(s)
 }
 
 // Helper function to convert interface{} to string safely
