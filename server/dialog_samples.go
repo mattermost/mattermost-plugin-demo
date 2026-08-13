@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/mattermost/mattermost/server/public/model"
 )
@@ -997,6 +998,256 @@ func getDialogWithMultiSelectElements() model.Dialog {
 		SubmitLabel:    "Submit Multi-Select",
 		NotifyOnCancel: true,
 		State:          dialogStateSome,
+	}
+}
+
+type incident struct {
+	ID       string
+	Title    string
+	Severity string // "critical", "high", "medium", "low"
+	Status   string // "investigating", "identified", "monitoring", "resolved"
+	Owner    string
+}
+
+type timelineEntry struct {
+	Time    string
+	Type    string // "update", "root_cause", "mitigation", "escalation"
+	Message string
+}
+
+var incidents = []incident{
+	{ID: "INC-301", Title: "Database replication lag", Severity: "critical", Status: "investigating", Owner: "alice"},
+	{ID: "INC-302", Title: "CDN cache miss rate spike", Severity: "high", Status: "monitoring", Owner: "bob"},
+	{ID: "INC-303", Title: "Login 2FA timeout errors", Severity: "medium", Status: "identified", Owner: ""},
+}
+
+var incidentTimelines = map[string][]timelineEntry{
+	"INC-301": {
+		{Time: "14:32 UTC", Type: "update", Message: "Replica lag detected on db-replica-03, exceeding 30s threshold."},
+		{Time: "14:45 UTC", Type: "escalation", Message: "Paged on-call DBA team."},
+	},
+	"INC-302": {
+		{Time: "09:15 UTC", Type: "update", Message: "Cache miss rate jumped from 2% to 38% after CDN config deploy."},
+	},
+	"INC-303": {
+		{Time: "11:00 UTC", Type: "root_cause", Message: "2FA provider timeout increased from 2s to 15s after their maintenance window."},
+		{Time: "11:20 UTC", Type: "mitigation", Message: "Increased client-side timeout to 30s as temporary workaround."},
+	},
+}
+
+func severityIcon(s string) string {
+	switch s {
+	case "critical":
+		return "\U0001f534" // red circle
+	case "high":
+		return "\U0001f7e0" // orange circle
+	case "medium":
+		return "\U0001f7e1" // yellow circle
+	default:
+		return "\U0001f7e2" // green circle
+	}
+}
+
+func statusIcon(s string) string {
+	switch s {
+	case "investigating":
+		return "\U0001f50d" // magnifying glass
+	case "identified":
+		return "\U0001f3af" // target
+	case "monitoring":
+		return "\U0001f4c8" // chart increasing
+	case "resolved":
+		return "\u2705" // green check
+	default:
+		return "\u2b1c" // white square
+	}
+}
+
+func findIncident(id string) (incident, bool) {
+	for _, inc := range incidents {
+		if inc.ID == id {
+			return inc, true
+		}
+	}
+	return incident{}, false
+}
+
+// Dialog A: Incident Board — action buttons serve as both the listing and navigation.
+func getDialogIncidentBoard() model.Dialog {
+	counts := map[string]int{}
+	for _, inc := range incidents {
+		counts[inc.Severity]++
+	}
+	intro := fmt.Sprintf("**%d Active Incidents** — ", len(incidents))
+	parts := []string{}
+	for _, sev := range []string{"critical", "high", "medium", "low"} {
+		if c, ok := counts[sev]; ok && c > 0 {
+			parts = append(parts, fmt.Sprintf("%d %s", c, sev))
+		}
+	}
+	intro += strings.Join(parts, ", ")
+
+	// Incident detail lives here rather than in the button labels: DisplayName is
+	// capped at DialogElementDisplayNameMaxLength (24 bytes), which a
+	// "<id> — <title> (<status>)" label blows past.
+	intro += "\n\n| Incident | Title | Status |\n|---|---|---|\n"
+	for _, inc := range incidents {
+		intro += fmt.Sprintf("| %s %s | %s | %s %s |\n",
+			severityIcon(inc.Severity), inc.ID,
+			inc.Title,
+			statusIcon(inc.Status), inc.Status,
+		)
+	}
+	intro += "\nSelect an incident to triage."
+
+	elements := make([]model.DialogElement, 0, len(incidents))
+	for _, inc := range incidents {
+		elements = append(elements, model.DialogElement{
+			DisplayName: fmt.Sprintf("%s %s", severityIcon(inc.Severity), inc.ID),
+			Name:        "btn_" + inc.ID,
+			Type:        "action_button",
+			ActionButton: &model.DialogActionButton{
+				URL: fmt.Sprintf("/plugins/%s/dialog/incident/triage", manifest.Id),
+				Context: map[string]string{
+					"incident_id": inc.ID,
+				},
+			},
+		})
+	}
+
+	// Always-failing action button so the error state can be exercised without
+	// opening a child dialog.
+	elements = append(elements, model.DialogElement{
+		DisplayName: "⚠️ Escalate (fails)",
+		Name:        "btn_escalate_fail",
+		Type:        "action_button",
+		ActionButton: &model.DialogActionButton{
+			URL: fmt.Sprintf("/plugins/%s/dialog/incident/fail", manifest.Id),
+		},
+	})
+
+	return model.Dialog{
+		CallbackId:       "incident_board",
+		Title:            "Incident Response Board",
+		IntroductionText: intro,
+		SubmitLabel:      "Dismiss",
+		NotifyOnCancel:   true,
+		State:            "incident_board",
+		Elements:         elements,
+	}
+}
+
+// Dialog B: Incident Triage — shows incident details and allows updating status/severity/owner.
+func getDialogIncidentTriage(inc incident) model.Dialog {
+	owner := inc.Owner
+	if owner == "" {
+		owner = "_unassigned_"
+	} else {
+		owner = "@" + owner
+	}
+	intro := fmt.Sprintf("**%s**\n\n- Severity: %s %s\n- Status: %s %s\n- Owner: %s",
+		inc.Title,
+		severityIcon(inc.Severity), inc.Severity,
+		statusIcon(inc.Status), inc.Status,
+		owner,
+	)
+
+	return model.Dialog{
+		CallbackId:       "incident_triage_" + inc.ID,
+		Title:            inc.ID + " — Triage",
+		IntroductionText: intro,
+		SubmitLabel:      "Update Incident",
+		NotifyOnCancel:   true,
+		State:            "incident_triage",
+		Elements: []model.DialogElement{
+			{
+				DisplayName: "Status",
+				Name:        "status",
+				Type:        "select",
+				Default:     inc.Status,
+				Options: []*model.PostActionOptions{
+					{Text: "\U0001f50d investigating", Value: "investigating"},
+					{Text: "\U0001f3af identified", Value: "identified"},
+					{Text: "\U0001f4c8 monitoring", Value: "monitoring"},
+					{Text: "\u2705 resolved", Value: "resolved"},
+				},
+			},
+			{
+				DisplayName: "Severity",
+				Name:        "severity",
+				Type:        "select",
+				Default:     inc.Severity,
+				Options: []*model.PostActionOptions{
+					{Text: "\U0001f534 critical", Value: "critical"},
+					{Text: "\U0001f7e0 high", Value: "high"},
+					{Text: "\U0001f7e1 medium", Value: "medium"},
+					{Text: "\U0001f7e2 low", Value: "low"},
+				},
+			},
+			{
+				DisplayName: "Assignee",
+				Name:        "owner",
+				Type:        "select",
+				Placeholder: "Select a user...",
+				DataSource:  "users",
+				Optional:    true,
+			},
+			{
+				DisplayName: "Add Timeline Note",
+				Name:        "btn_add_note",
+				Type:        "action_button",
+				ActionButton: &model.DialogActionButton{
+					URL: fmt.Sprintf("/plugins/%s/dialog/incident/note", manifest.Id),
+					Context: map[string]string{
+						"incident_id": inc.ID,
+					},
+				},
+			},
+		},
+	}
+}
+
+// Dialog C: Timeline Note — shows existing timeline and lets the user add a new entry.
+func getDialogTimelineNote(incID string) model.Dialog {
+	entries := incidentTimelines[incID]
+
+	var intro string
+	if len(entries) == 0 {
+		intro = "No timeline entries yet."
+	} else {
+		intro = "| Time | Type | Message |\n|---|---|---|\n"
+		for _, e := range entries {
+			intro += fmt.Sprintf("| %s | %s | %s |\n", e.Time, e.Type, e.Message)
+		}
+	}
+
+	return model.Dialog{
+		CallbackId:       "timeline_note_" + incID,
+		Title:            incID + " — Add Note",
+		IntroductionText: intro,
+		SubmitLabel:      "Add Note",
+		NotifyOnCancel:   true,
+		State:            "timeline_note",
+		Elements: []model.DialogElement{
+			{
+				DisplayName: "Note Type",
+				Name:        "note_type",
+				Type:        "select",
+				Options: []*model.PostActionOptions{
+					{Text: "Update", Value: "update"},
+					{Text: "Root Cause", Value: "root_cause"},
+					{Text: "Mitigation", Value: "mitigation"},
+					{Text: "Escalation", Value: "escalation"},
+				},
+			},
+			{
+				DisplayName: "Message",
+				Name:        "message",
+				Type:        "textarea",
+				Placeholder: "Describe what happened, what was found, or what action was taken...",
+				MaxLength:   1000,
+			},
+		},
 	}
 }
 
