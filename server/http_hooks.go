@@ -57,6 +57,9 @@ func (p *Plugin) initializeAPI() {
 	dialogRouter.HandleFunc("/error", p.handleDialogWithError)
 	dialogRouter.HandleFunc("/field-refresh", p.handleDialogFieldRefresh)
 	dialogRouter.HandleFunc("/multistep", p.handleDialogMultistep)
+	dialogRouter.HandleFunc("/incident/triage", p.handleIncidentTriage)
+	dialogRouter.HandleFunc("/incident/note", p.handleIncidentNote)
+	dialogRouter.HandleFunc("/incident/fail", p.handleIncidentFail)
 
 	dialogRouter.HandleFunc("/products", p.handleDynamicProducts).Methods(http.MethodPost)
 	dialogRouter.HandleFunc("/companies", p.handleDynamicCompanies).Methods(http.MethodPost)
@@ -264,10 +267,54 @@ func (p *Plugin) handleDialog3(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
+	user, appErr := p.API.GetUser(request.UserId)
+	if appErr != nil {
+		p.API.LogError("Failed to get user for dialog3", "err", appErr.Error())
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	var message string
-	if request.Cancelled {
+	switch {
+	// Must precede the CallbackId cases: every incident dialog sets
+	// NotifyOnCancel, and a cancelled request carries an empty Submission, so
+	// falling into those cases would report a cancel as a successful update.
+	case request.Cancelled:
 		message = "Dialog cancelled"
-	} else {
+
+	case request.CallbackId == "incident_board":
+		message = fmt.Sprintf("Incident board dismissed by @%s.", user.Username)
+
+	case strings.HasPrefix(request.CallbackId, "incident_triage_"):
+		incID := strings.TrimPrefix(request.CallbackId, "incident_triage_")
+		status := interfaceToString(request.Submission["status"])
+		severity := interfaceToString(request.Submission["severity"])
+		owner := interfaceToString(request.Submission["owner"])
+		if owner == "" {
+			owner = "unassigned"
+		} else {
+			owner = "@" + owner
+		}
+		message = fmt.Sprintf("**%s — Triage Updated**\n- Status: %s %s\n- Severity: %s %s\n- Assignee: %s\n\nUpdated by @%s",
+			incID,
+			statusIcon(status), status,
+			severityIcon(severity), severity,
+			owner,
+			user.Username,
+		)
+
+	case strings.HasPrefix(request.CallbackId, "timeline_note_"):
+		incID := strings.TrimPrefix(request.CallbackId, "timeline_note_")
+		noteType := interfaceToString(request.Submission["note_type"])
+		noteMessage := escapeMD(interfaceToString(request.Submission["message"]))
+		message = fmt.Sprintf("**%s — Timeline Note Added**\n- Type: %s\n- Note: %s\n\nAdded by @%s",
+			incID,
+			noteType,
+			noteMessage,
+			user.Username,
+		)
+
+	default:
 		submission := request.Submission
 
 		// Generic approach - format submission data as structured lines
@@ -410,7 +457,7 @@ func (p *Plugin) handleEphemeralUpdate(w http.ResponseWriter, r *http.Request) {
 		ChannelId: request.ChannelId,
 		Message:   "updated ephemeral action",
 		Props: model.StringInterface{
-			"attachments": []*model.SlackAttachment{{
+			"attachments": []*model.MessageAttachment{{
 				Actions: []*model.PostAction{{
 					Integration: &model.PostActionIntegration{
 						Context: model.StringInterface{
@@ -579,6 +626,91 @@ func (p *Plugin) handleInlineActionTriage(w http.ResponseWriter, r *http.Request
 
 	resp := &model.PostActionIntegrationResponse{}
 	p.writeJSON(w, resp)
+}
+
+// handleIncidentTriage handles action button clicks from Dialog A (Incident Board).
+// Opens Dialog B showing the triage form for the selected incident.
+func (p *Plugin) handleIncidentTriage(w http.ResponseWriter, r *http.Request) {
+	var request model.PostActionIntegrationRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		p.API.LogError("Failed to decode incident triage request", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	incidentID, _ := request.Context["incident_id"].(string)
+	inc, ok := findIncident(incidentID)
+	if !ok {
+		p.API.LogError("Incident not found", "incident_id", incidentID)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	var ownerUserID string
+	if inc.Owner != "" {
+		if u, appErr := p.API.GetUserByUsername(inc.Owner); appErr == nil {
+			ownerUserID = u.Id
+		}
+	}
+
+	serverConfig := p.API.GetConfig()
+	dialogRequest := model.OpenDialogRequest{
+		TriggerId: request.TriggerId,
+		URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+		Dialog:    getDialogIncidentTriage(inc, ownerUserID),
+	}
+
+	if appErr := p.API.OpenInteractiveDialog(dialogRequest); appErr != nil {
+		p.API.LogError("Failed to open incident triage dialog", "err", appErr.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	p.writeJSON(w, &model.PostActionIntegrationResponse{})
+}
+
+// handleIncidentNote handles action button clicks from Dialog B (Incident Triage).
+// Opens Dialog C showing the timeline note form for the selected incident.
+func (p *Plugin) handleIncidentNote(w http.ResponseWriter, r *http.Request) {
+	var request model.PostActionIntegrationRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		p.API.LogError("Failed to decode incident note request", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	incidentID, _ := request.Context["incident_id"].(string)
+	inc, ok := findIncident(incidentID)
+	if !ok {
+		p.API.LogError("Incident not found", "incident_id", incidentID)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	serverConfig := p.API.GetConfig()
+	dialogRequest := model.OpenDialogRequest{
+		TriggerId: request.TriggerId,
+		URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+		Dialog:    getDialogTimelineNote(inc.ID),
+	}
+
+	if appErr := p.API.OpenInteractiveDialog(dialogRequest); appErr != nil {
+		p.API.LogError("Failed to open timeline note dialog", "err", appErr.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	p.writeJSON(w, &model.PostActionIntegrationResponse{})
+}
+
+// handleIncidentFail always fails, exercising the action button's error state
+// without opening a child dialog.
+func (p *Plugin) handleIncidentFail(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	p.API.LogDebug("Incident escalation deliberately failed for action button error testing")
+	w.WriteHeader(http.StatusInternalServerError)
 }
 
 func formatJSON(v any) string {
