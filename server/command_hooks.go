@@ -47,6 +47,7 @@ const (
 		"- `/dialog datetime-basic` - Open an Interactive Dialog with basic date/datetime features (min date, intervals, relative dates).\n" +
 		"- `/dialog datetime-timezone` - Open an Interactive Dialog with timezone support and manual time entry.\n" +
 		"- `/dialog multi-select` - Open an Interactive Dialog with multi-select fields. Once submitted, user-entered input is posted back into a channel.\n" +
+		"- `/dialog collapsible` - Open an Interactive Dialog with collapsible sections grouping child fields.\n" +
 		"- `/dialog error` - Open an Interactive Dialog which always returns an general error.\n" +
 		"- `/dialog error-no-elements` - Open an Interactive Dialog with no elements which always returns an general error.\n" +
 		"- `/dialog field-refresh` - Open an Interactive Dialog with field refresh functionality.\n" +
@@ -218,6 +219,9 @@ func getCommandDialogAutocompleteData() *model.AutocompleteData {
 
 	multiSelect := model.NewAutocompleteData("multi-select", "", "Open an Interactive Dialog with multi-select fields.")
 	command.AddCommand(multiSelect)
+
+	collapsible := model.NewAutocompleteData("collapsible", "", "Open an Interactive Dialog with collapsible sections.")
+	command.AddCommand(collapsible)
 
 	help := model.NewAutocompleteData("help", "", "")
 	command.AddCommand(help)
@@ -512,6 +516,12 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/1", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog:    getDialogWithMultiSelectElements(),
+		}
+	case "collapsible":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogWithCollapsibleElements(),
 		}
 	case "error":
 		dialogRequest = model.OpenDialogRequest{
