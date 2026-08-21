@@ -8,14 +8,19 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/mattermost/mattermost/server/public/model"
+	"github.com/mattermost/mattermost/server/public/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func postMmBlocks(t *testing.T, path string, body any) *http.Response {
+	return postMmBlocksWithPlugin(t, &Plugin{}, path, body)
+}
+
+func postMmBlocksWithPlugin(t *testing.T, plugin *Plugin, path string, body any) *http.Response {
 	t.Helper()
 
-	plugin := &Plugin{}
 	plugin.initializeAPI()
 
 	var buf bytes.Buffer
@@ -31,6 +36,31 @@ func postMmBlocks(t *testing.T, path string, body any) *http.Response {
 	result := w.Result()
 	require.NotNil(t, result)
 	return result
+}
+
+func postMmBlocksWithOpenDialogAPI(t *testing.T, path string, body any) *http.Response {
+	t.Helper()
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, http.MethodPost, r.Method)
+		assert.Equal(t, "/api/v4/actions/dialogs/open", r.URL.Path)
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"status":"OK"}`))
+	}))
+	t.Cleanup(srv.Close)
+
+	siteURL := srv.URL
+	api := &plugintest.API{}
+	api.On("GetConfig").Return(&model.Config{
+		ServiceSettings: model.ServiceSettings{
+			SiteURL: &siteURL,
+		},
+	})
+	t.Cleanup(func() { api.AssertExpectations(t) })
+
+	plugin := &Plugin{}
+	plugin.API = api
+	return postMmBlocksWithPlugin(t, plugin, path, body)
 }
 
 func decodeMmBlocksResponse(t *testing.T, result *http.Response) mmBlocksActionResponse {
@@ -148,12 +178,13 @@ func TestMmBlocksDialogOpenRequiresTriggerID(t *testing.T) {
 }
 
 func TestMmBlocksDialogOpen(t *testing.T) {
-	result := postMmBlocks(t, "/mm_blocks_dialog_open", map[string]any{
+	result := postMmBlocksWithOpenDialogAPI(t, "/mm_blocks_dialog_open", map[string]any{
 		"trigger_id": "trig",
 		"context":    map[string]any{"marker": "abc"},
 	})
 	resp := decodeMmBlocksResponse(t, result)
 	assert.Equal(t, "ok", resp.Type)
+	assert.Empty(t, resp.Error)
 	assert.Nil(t, resp.BlockDialog)
 }
 
@@ -207,11 +238,12 @@ func TestMmBlocksDialogChild(t *testing.T) {
 	assert.Equal(t, "mm_blocks_dialog_child requires trigger_id", missing.Error)
 	assert.True(t, missing.KeepDialogOpen)
 
-	child := decodeMmBlocksResponse(t, postMmBlocks(t, "/mm_blocks_dialog_child", map[string]any{
+	child := decodeMmBlocksResponse(t, postMmBlocksWithOpenDialogAPI(t, "/mm_blocks_dialog_child", map[string]any{
 		"trigger_id": "trig",
 		"context":    map[string]any{"source": "Details"},
 	}))
 	assert.Equal(t, "ok", child.Type)
+	assert.Empty(t, child.Error)
 	assert.True(t, child.KeepDialogOpen)
 	assert.Nil(t, child.BlockDialog)
 }

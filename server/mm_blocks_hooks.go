@@ -249,8 +249,10 @@ func (p *Plugin) handleMmBlocksDialogFieldRefresh(w http.ResponseWriter, r *http
 
 	formValues := getUpstreamFormValues(request.Context)
 	p.writeJSON(w, mmBlocksActionResponse{
-		Type:        "refresh",
-		BlockDialog: getMmBlocksFieldRefreshDialog(contextString(formValues, "project_type"), contextString(formValues, "project_name")),
+		Type: "refresh",
+		BlockDialog: getMmBlocksFieldRefreshDialog(contextString(formValues, "project_type"), contextString(formValues, "project_name"), mmBlocksDialogOptions{
+			Marker: contextString(request.Context, "marker"),
+		}),
 	})
 }
 
@@ -368,7 +370,7 @@ func (p *Plugin) decodePostActionRequest(w http.ResponseWriter, r *http.Request)
 // type:dialog response path (Path B).
 func (p *Plugin) openBlockDialog(triggerID string, dialog *mmBlocksDialog) error {
 	if p.API == nil {
-		return nil
+		return errors.New("plugin API is not initialized")
 	}
 
 	cfg := p.API.GetConfig()

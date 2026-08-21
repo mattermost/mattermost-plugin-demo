@@ -76,7 +76,7 @@ The `/dialog` command demonstrates [Interactive Dialogs](https://docs.mattermost
 
 The `/interactive` command demonstrates the usage of interactive message buttons.
 
-The `/mm_blocks` command demonstrates [Mattermost Blocks](https://docs.mattermost.com/) interactive messages and block dialogs. Callbacks are handled by this plugin (no external webhook sidecar). Use `/mm_blocks help` for its usage.
+The `/mm_blocks` command demonstrates [Mattermost Blocks](https://developers.mattermost.com/integrate/reference/mm-blocks/) interactive messages and block dialogs. Callbacks are handled by this plugin (no external webhook sidecar). Use `/mm_blocks help` for its usage.
 
 The `/list_files` command demonstrates the usage of the file search API.
 

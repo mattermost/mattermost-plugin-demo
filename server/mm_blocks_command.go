@@ -20,7 +20,7 @@ const (
 		"- `/mm_blocks dialog [scenario]` - Post a button that opens a blocks dialog (type:dialog).\n" +
 		"- `/mm_blocks dialog-open` - Post a button that opens a blocks dialog via the open path.\n" +
 		"- `/mm_blocks help` - Show this help text\n\n" +
-		"Dialog scenarios: `simple`, `full`, `boolean`, `users_channels`, `multiselect`, `dynamic`, `file_upload`, `field_refresh`, `multistep_1`, `action_parent`, `datetime_basic`, `datetime_mindate`, `datetime_interval`, `datetime_relative`, `datetime_timezone`, `datetime_manual`"
+		"Dialog scenarios: `simple`, `full`, `boolean`, `users_channels`, `multiselect`, `multiselect_defaults`, `dynamic`, `empty_required`, `file_upload`, `field_refresh`, `multistep_1`, `action_parent`, `datetime_basic`, `datetime_mindate`, `datetime_interval`, `datetime_relative`, `datetime_timezone`, `datetime_manual`"
 )
 
 func getCommandMmBlocksAutocompleteData() *model.AutocompleteData {

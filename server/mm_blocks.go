@@ -634,7 +634,7 @@ func getMmBlocksFileUploadDialog(opts mmBlocksDialogOptions) *mmBlocksDialog {
 	}, nil)
 }
 
-func getMmBlocksFieldRefreshDialog(projectType, projectName string) *mmBlocksDialog {
+func getMmBlocksFieldRefreshDialog(projectType, projectName string, opts mmBlocksDialogOptions) *mmBlocksDialog {
 	nameInput := map[string]any{
 		"type":        "text_input",
 		"name":        "project_name",
@@ -660,8 +660,17 @@ func getMmBlocksFieldRefreshDialog(projectType, projectName string) *mmBlocksDia
 		typeSelect["initial_option"] = projectType
 	}
 
+	title := opts.Title
+	if title == "" {
+		title = "Field Refresh Demo"
+	}
+	text := "Enter project name then select type to see different fields"
+	if opts.Marker != "" {
+		text = fmt.Sprintf("Enter project name then select type to see different fields (**%s**)", opts.Marker)
+	}
+
 	blocks := []any{
-		map[string]any{"type": "text", "text": "Enter project name then select type to see different fields"},
+		map[string]any{"type": "text", "text": text},
 		nameInput,
 		typeSelect,
 	}
@@ -708,7 +717,7 @@ func getMmBlocksFieldRefreshDialog(projectType, projectName string) *mmBlocksDia
 		})
 	}
 
-	return baseBlockDialog("Field Refresh Demo", "demo-field-refresh", "", "", blocks, map[string]mmBlocksActionSpec{
+	return baseBlockDialog(title, "demo-field-refresh", "", "", blocks, map[string]mmBlocksActionSpec{
 		mmBlocksActionFieldRefresh: mmBlocksAction("/mm_blocks_dialog_field_refresh", nil),
 	})
 }
@@ -795,8 +804,8 @@ func getMmBlocksChildContentDialog(source string) *mmBlocksDialog {
 		source = "Unknown"
 	}
 	title := source + " Dialog"
-	if len(title) > 24 {
-		title = title[:24]
+	if runes := []rune(title); len(runes) > 24 {
+		title = string(runes[:24])
 	}
 	return baseBlockDialog(title, "demo-child-"+source, "", "", []any{
 		map[string]any{
@@ -995,7 +1004,7 @@ func getMmBlocksDialogByScenario(scenario string, opts mmBlocksDialogOptions) *m
 	case "file_upload":
 		return getMmBlocksFileUploadDialog(opts)
 	case "field_refresh":
-		return getMmBlocksFieldRefreshDialog("", "")
+		return getMmBlocksFieldRefreshDialog("", "", opts)
 	case "multistep_1":
 		return getMmBlocksMultistep1Dialog(opts)
 	case "multistep_2":
