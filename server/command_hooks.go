@@ -23,6 +23,7 @@ const (
 	commandTriggerAutocompleteTest  = "autocomplete_test"
 	commandTriggerToast             = "toast"
 	commandTriggerInlineAction      = "inline_action"
+	commandTriggerMmBlocks          = "mm_blocks"
 
 	dialogElementNameNumber   = "somenumber"
 	dialogElementNameEmail    = "someemail"
@@ -144,6 +145,15 @@ func (p *Plugin) registerCommands() error {
 		AutoCompleteDesc: "Demonstrates inline action buttons in markdown tables.",
 	}); err != nil {
 		return errors.Wrapf(err, "failed to register %s command", commandTriggerInlineAction)
+	}
+
+	if err := p.API.RegisterCommand(&model.Command{
+		Trigger:          commandTriggerMmBlocks,
+		AutoComplete:     true,
+		AutoCompleteDesc: "Post mm_blocks interactive messages and dialogs.",
+		AutocompleteData: getCommandMmBlocksAutocompleteData(),
+	}); err != nil {
+		return errors.Wrapf(err, "failed to register %s command", commandTriggerMmBlocks)
 	}
 
 	if err := p.API.RegisterCommand(&model.Command{
@@ -315,6 +325,8 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		return p.executeAutocompleteTest(args), nil
 	case commandTriggerInlineAction:
 		return p.executeCommandInlineAction(args), nil
+	case commandTriggerMmBlocks:
+		return p.executeCommandMmBlocks(args), nil
 	case commandTriggerToast:
 		return p.executeCommandToast(c, args), nil
 

@@ -67,6 +67,27 @@ func (p *Plugin) initializeAPI() {
 	ephemeralRouter.HandleFunc("/update", p.handleEphemeralUpdate)
 	ephemeralRouter.HandleFunc("/delete", p.handleEphemeralDelete)
 
+	mmBlocks := router.NewRoute().Subrouter()
+	mmBlocks.Use(p.withDelay)
+	mmBlocks.HandleFunc("/mm_blocks_integration", p.handleMmBlocksIntegration).Methods(http.MethodPost)
+	mmBlocks.HandleFunc("/mm_blocks_integration_update", p.handleMmBlocksIntegrationUpdate).Methods(http.MethodPost)
+	mmBlocks.HandleFunc("/mm_blocks_integration_static_select", p.handleMmBlocksIntegrationStaticSelect).Methods(http.MethodPost)
+	mmBlocks.HandleFunc("/mm_blocks_integration_echo_query", p.handleMmBlocksIntegrationEchoQuery).Methods(http.MethodPost)
+	mmBlocks.HandleFunc("/mm_blocks_integration_echo_context", p.handleMmBlocksIntegrationEchoContext).Methods(http.MethodPost)
+	mmBlocks.HandleFunc("/mm_blocks_integration_echo_form_values", p.handleMmBlocksIntegrationEchoFormValues).Methods(http.MethodPost)
+	mmBlocks.HandleFunc("/mm_blocks_integration_lookup", p.handleMmBlocksIntegrationLookup).Methods(http.MethodPost)
+	mmBlocks.HandleFunc("/mm_blocks_dialog_open", p.handleMmBlocksDialogOpen).Methods(http.MethodPost)
+	mmBlocks.HandleFunc("/mm_blocks_dialog_return", p.handleMmBlocksDialogReturn).Methods(http.MethodPost)
+	mmBlocks.HandleFunc("/mm_blocks_dialog_submit", p.handleMmBlocksDialogSubmit).Methods(http.MethodPost)
+	mmBlocks.HandleFunc("/mm_blocks_dialog_cancel", p.handleMmBlocksDialogCancel).Methods(http.MethodPost)
+	mmBlocks.HandleFunc("/mm_blocks_dialog_refresh", p.handleMmBlocksDialogRefresh).Methods(http.MethodPost)
+	mmBlocks.HandleFunc("/mm_blocks_dialog_errors", p.handleMmBlocksDialogErrors).Methods(http.MethodPost)
+	mmBlocks.HandleFunc("/mm_blocks_dialog_error", p.handleMmBlocksDialogError).Methods(http.MethodPost)
+	mmBlocks.HandleFunc("/mm_blocks_dialog_goto", p.handleMmBlocksDialogGoto).Methods(http.MethodPost)
+	mmBlocks.HandleFunc("/mm_blocks_dialog_field_refresh", p.handleMmBlocksDialogFieldRefresh).Methods(http.MethodPost)
+	mmBlocks.HandleFunc("/mm_blocks_dialog_multistep", p.handleMmBlocksDialogMultistep).Methods(http.MethodPost)
+	mmBlocks.HandleFunc("/mm_blocks_dialog_child", p.handleMmBlocksDialogChild).Methods(http.MethodPost)
+
 	p.router = router
 }
 

@@ -76,6 +76,8 @@ The `/dialog` command demonstrates [Interactive Dialogs](https://docs.mattermost
 
 The `/interactive` command demonstrates the usage of interactive message buttons.
 
+The `/mm_blocks` command demonstrates [Mattermost Blocks](https://docs.mattermost.com/) interactive messages and block dialogs. Callbacks are handled by this plugin (no external webhook sidecar). Use `/mm_blocks help` for its usage.
+
 The `/list_files` command demonstrates the usage of the file search API.
 
 The `/show_mentions` command demonstrates the access to the users and channels mentions found in the command text.
@@ -98,6 +100,8 @@ using the following configuration:
 Leave the rest of the fields with their default value.
 
 Now post a message in the selected channel. You will see a webhook response, which contains the payload the plugin received.
+
+It also implements the mm_blocks integration endpoints used by e2e tests in place of the webhook sidecar. Point `mm_blocks_actions` URLs at `/plugins/com.mattermost.demo-plugin/mm_blocks_*` (for example `/plugins/com.mattermost.demo-plugin/mm_blocks_integration`). The `/mm_blocks` slash command posts sample payloads that exercise the same handlers.
 
 ## [message_hooks.go](message_hooks.go)
 
