@@ -717,8 +717,19 @@ func getMmBlocksFieldRefreshDialog(projectType, projectName string, opts mmBlock
 		})
 	}
 
+	actionContext := map[string]any{}
+	if opts.Title != "" {
+		actionContext["title"] = opts.Title
+	}
+	if opts.Marker != "" {
+		actionContext["marker"] = opts.Marker
+	}
+	if len(actionContext) == 0 {
+		actionContext = nil
+	}
+
 	return baseBlockDialog(title, "demo-field-refresh", "", "", blocks, map[string]mmBlocksActionSpec{
-		mmBlocksActionFieldRefresh: mmBlocksAction("/mm_blocks_dialog_field_refresh", nil),
+		mmBlocksActionFieldRefresh: mmBlocksAction("/mm_blocks_dialog_field_refresh", actionContext),
 	})
 }
 

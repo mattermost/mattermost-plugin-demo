@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/mattermost/mattermost/server/public/model"
@@ -249,15 +250,28 @@ func TestMmBlocksDialogChild(t *testing.T) {
 }
 
 func TestMmBlocksDialogFieldRefresh(t *testing.T) {
+	opts := mmBlocksDialogOptions{Title: "Custom Refresh", Marker: "mark-1"}
+	initial := getMmBlocksFieldRefreshDialog("web", "Acme", opts)
+	require.Contains(t, initial.Actions, mmBlocksActionFieldRefresh)
+	assert.Equal(t, "Custom Refresh", initial.Actions[mmBlocksActionFieldRefresh].Context["title"])
+	assert.Equal(t, "mark-1", initial.Actions[mmBlocksActionFieldRefresh].Context["marker"])
+
 	resp := decodeMmBlocksResponse(t, postMmBlocks(t, "/mm_blocks_dialog_field_refresh", map[string]any{
 		"context": map[string]any{
+			"title":       "Custom Refresh",
+			"marker":      "mark-1",
 			"form_values": map[string]any{"project_type": "web", "project_name": "Acme"},
 		},
 	}))
 	assert.Equal(t, "refresh", resp.Type)
 	require.NotNil(t, resp.BlockDialog)
+	assert.Equal(t, "Custom Refresh", resp.BlockDialog.Title)
+	require.Contains(t, resp.BlockDialog.Actions, mmBlocksActionFieldRefresh)
+	assert.Equal(t, "Custom Refresh", resp.BlockDialog.Actions[mmBlocksActionFieldRefresh].Context["title"])
+	assert.Equal(t, "mark-1", resp.BlockDialog.Actions[mmBlocksActionFieldRefresh].Context["marker"])
 
 	foundFramework := false
+	foundMarker := false
 	for _, block := range resp.BlockDialog.Blocks {
 		b, ok := block.(map[string]any)
 		if !ok {
@@ -266,8 +280,12 @@ func TestMmBlocksDialogFieldRefresh(t *testing.T) {
 		if b["name"] == "framework" {
 			foundFramework = true
 		}
+		if text, _ := b["text"].(string); strings.Contains(text, "mark-1") {
+			foundMarker = true
+		}
 	}
 	assert.True(t, foundFramework)
+	assert.True(t, foundMarker)
 }
 
 func TestMmBlocksUnknownMethodIsNotFoundOrNotAllowed(t *testing.T) {
