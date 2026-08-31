@@ -52,8 +52,8 @@ const (
 		"- `/dialog error-no-elements` - Open an Interactive Dialog with no elements which always returns an general error.\n" +
 		"- `/dialog field-refresh` - Open an Interactive Dialog with field refresh functionality.\n" +
 		"- `/dialog multistep` - Open a multi-step Interactive Dialog demonstrating form refresh on submit.\n" +
-		"- `/dialog file-upload` - Open an Interactive Dialog with file upload fields (single and multiple).\n" +
-		"- `/dialog file-upload-clear` - Clear persisted file upload data and start fresh.\n" +
+		"- `/dialog file-upload` - Open an Interactive Dialog with file upload fields (single and multiple), always starting fresh.\n" +
+		"- `/dialog file-upload-prefill` - Open an Interactive Dialog with file upload fields pre-populated from the last submission (via either file-upload command).\n" +
 		"- `/dialog help` - Show this help text"
 )
 
@@ -222,11 +222,11 @@ func getCommandDialogAutocompleteData() *model.AutocompleteData {
 	multiSelect := model.NewAutocompleteData("multi-select", "", "Open an Interactive Dialog with multi-select fields.")
 	command.AddCommand(multiSelect)
 
-	fileUpload := model.NewAutocompleteData("file-upload", "", "Open an Interactive Dialog with file upload fields.")
+	fileUpload := model.NewAutocompleteData("file-upload", "", "Open an Interactive Dialog with file upload fields (always fresh).")
 	command.AddCommand(fileUpload)
 
-	fileUploadClear := model.NewAutocompleteData("file-upload-clear", "", "Clear persisted file upload data.")
-	command.AddCommand(fileUploadClear)
+	fileUploadPrefill := model.NewAutocompleteData("file-upload-prefill", "", "Open an Interactive Dialog with file upload fields pre-populated from the last submission.")
+	command.AddCommand(fileUploadPrefill)
 
 	help := model.NewAutocompleteData("help", "", "")
 	command.AddCommand(help)
@@ -547,6 +547,12 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			Dialog:    getDialogStep1(),
 		}
 	case "file-upload":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/file-upload", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogWithFileUpload(),
+		}
+	case "file-upload-prefill":
 		dialog := getDialogWithFileUpload()
 		kvKey := "file_upload_" + args.UserId
 		if data, appErr := p.API.KVGet(kvKey); appErr == nil && len(data) > 0 {
@@ -563,19 +569,6 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/file-upload", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog:    dialog,
-		}
-	case "file-upload-clear":
-		kvKey := "file_upload_" + args.UserId
-		if appErr := p.API.KVDelete(kvKey); appErr != nil {
-			p.API.LogError("Failed to clear file upload data", "err", appErr.Error())
-			return &model.CommandResponse{
-				ResponseType: model.CommandResponseTypeEphemeral,
-				Text:         "Failed to clear file upload data.",
-			}
-		}
-		return &model.CommandResponse{
-			ResponseType: model.CommandResponseTypeEphemeral,
-			Text:         "File upload data cleared.",
 		}
 	default:
 		return &model.CommandResponse{

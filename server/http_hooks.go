@@ -1095,8 +1095,8 @@ func (p *Plugin) handleDialogFileUpload(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Persist per-element file IDs so the dialog can be re-opened with previously uploaded files.
-	// Always overwrite to avoid returning stale IDs on the next open.
+	// Persist per-element file IDs so file-upload-prefill can pre-populate on the next open.
+	// Only update when files are present so prior uploads are retained across empty submissions.
 	kvKey := "file_upload_" + request.UserId
 	stored := map[string]string{}
 	for _, key := range []string{"single_file", "multi_file"} {
@@ -1107,8 +1107,6 @@ func (p *Plugin) handleDialogFileUpload(w http.ResponseWriter, r *http.Request) 
 	if len(stored) > 0 {
 		data, _ := json.Marshal(stored)
 		p.API.KVSet(kvKey, data)
-	} else {
-		p.API.KVDelete(kvKey)
 	}
 
 	w.WriteHeader(http.StatusOK)
