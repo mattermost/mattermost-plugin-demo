@@ -1000,6 +1000,39 @@ func getDialogWithMultiSelectElements() model.Dialog {
 	}
 }
 
+func getDialogWithFileUpload() model.Dialog {
+	return model.Dialog{
+		CallbackId: "file_upload_demo",
+		Title:      "File Upload Dialog Demo",
+		IconURL:    "http://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
+		Elements: []model.DialogElement{{
+			DisplayName: "Single File Upload",
+			Name:        "single_file",
+			Type:        "file",
+			HelpText:    "Upload a single file.",
+			Optional:    true,
+		}, {
+			DisplayName:   "Multiple File Upload",
+			Name:          "multi_file",
+			Type:          "file",
+			HelpText:      "Upload multiple files at once.",
+			Optional:      true,
+			AllowMultiple: true,
+		}, {
+			DisplayName: "Description",
+			Name:        "description",
+			Type:        "textarea",
+			Placeholder: "Describe the uploaded files...",
+			HelpText:    "Optional description of the uploaded files.",
+			Optional:    true,
+			MaxLength:   500,
+		}},
+		SubmitLabel:    "Submit Files",
+		NotifyOnCancel: true,
+		State:          dialogStateSome,
+	}
+}
+
 // Helper function to convert interface{} to string safely
 func interfaceToString(value interface{}) string {
 	switch v := value.(type) {
