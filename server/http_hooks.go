@@ -1106,7 +1106,12 @@ func (p *Plugin) handleDialogFileUpload(w http.ResponseWriter, r *http.Request) 
 	}
 	if len(stored) > 0 {
 		data, _ := json.Marshal(stored)
-		p.API.KVSet(kvKey, data)
+		if appErr = p.API.KVSet(kvKey, data); appErr != nil {
+			p.API.LogError("Failed to persist file upload state", "err", appErr.Error())
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(model.SubmitDialogResponse{Error: "Failed to save file upload state."})
+			return
+		}
 	}
 
 	w.WriteHeader(http.StatusOK)
