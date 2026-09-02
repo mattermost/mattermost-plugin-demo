@@ -36,7 +36,7 @@ func (p *Plugin) onActivateCore() error {
 		return errors.Wrap(err, "server configuration is not compatible")
 	}
 
-	if err := p.OnConfigurationChange(); err != nil {
+	if err := p.ensureDemoUserAndChannels(); err != nil {
 		return err
 	}
 
