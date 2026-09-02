@@ -9,7 +9,8 @@ import (
 
 const (
 	commandMmBlocksHelp = "###### mm_blocks Slash Command Help\n" +
-		"- `/mm_blocks` - Post a message with mm_blocks buttons, a select, and dialog openers.\n" +
+		"- `/mm_blocks` - Show this help text\n" +
+		"- `/mm_blocks demo` - Post a message with mm_blocks buttons, a select, and dialog openers.\n" +
 		"- `/mm_blocks integration` - Post a button that returns an ephemeral integration response.\n" +
 		"- `/mm_blocks update` - Post a button that updates the post in place.\n" +
 		"- `/mm_blocks query` - Post a button whose action URL includes query parameters.\n" +
@@ -34,6 +35,7 @@ func getCommandMmBlocksAutocompleteData() *model.AutocompleteData {
 	for _, item := range []struct {
 		name, help string
 	}{
+		{"demo", "Post a message with mm_blocks buttons, a select, and dialog openers."},
 		{"integration", "Post a button that returns an ephemeral integration response."},
 		{"update", "Post a button that updates the post in place."},
 		{"query", "Post a button whose action URL includes query parameters."},

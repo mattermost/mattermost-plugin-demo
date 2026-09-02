@@ -32,7 +32,11 @@ func TestMmBlocksExamples(t *testing.T) {
 
 	help := p.executeCommandMmBlocks(&model.CommandArgs{Command: "/mm_blocks help"})
 	assert.Contains(t, help.Text, "/mm_blocks example")
+	assert.Contains(t, help.Text, "/mm_blocks demo")
 	assert.Contains(t, help.Text, "`form_text_inputs_submit`")
+
+	bare := p.executeCommandMmBlocks(&model.CommandArgs{Command: "/mm_blocks"})
+	assert.Equal(t, help.Text, bare.Text)
 }
 
 func TestEnsureMmBlocksExampleActions(t *testing.T) {
@@ -91,10 +95,56 @@ func TestEnsureMmBlocksExampleActions(t *testing.T) {
 	})
 }
 
-func TestIncidentResponseStaysUnderClientBlockLimit(t *testing.T) {
-	blocks, ok := mmBlocksExamples["incident_response"].Props["mm_blocks"].([]any)
-	require.True(t, ok)
-	assert.LessOrEqual(t, countMmBlocks(blocks), mmBlocksClientMaxTotal)
+// Client renderer drops mm_blocks past this total (nested, not top-level only).
+const mmBlocksClientMaxTotal = 100
+
+func TestMmBlocksExamplesStayUnderClientBlockLimit(t *testing.T) {
+	for _, name := range mmBlocksExampleNames() {
+		t.Run(name, func(t *testing.T) {
+			blocks, ok := mmBlocksExamples[name].Props["mm_blocks"].([]any)
+			require.True(t, ok, name)
+			assert.LessOrEqual(t, countMmBlocks(blocks), mmBlocksClientMaxTotal, name)
+		})
+	}
+}
+
+func countMmBlocks(blocks []any) int {
+	n := 0
+	var walkList func([]any)
+	var walkBlock func(map[string]any)
+	walkList = func(list []any) {
+		for _, item := range list {
+			if m, ok := item.(map[string]any); ok {
+				walkBlock(m)
+			}
+		}
+	}
+	walkBlock = func(m map[string]any) {
+		n++
+		switch m["type"] {
+		case "container":
+			if c, ok := m["content"].([]any); ok {
+				walkList(c)
+			}
+		case "column":
+			if c, ok := m["items"].([]any); ok {
+				walkList(c)
+			}
+		case "column_set":
+			if c, ok := m["columns"].([]any); ok {
+				walkList(c)
+			}
+		case "collapsible":
+			if c, ok := m["header"].([]any); ok {
+				walkList(c)
+			}
+			if c, ok := m["content"].([]any); ok {
+				walkList(c)
+			}
+		}
+	}
+	walkList(blocks)
+	return n
 }
 
 func cloneExampleProps(name string) model.StringInterface {
