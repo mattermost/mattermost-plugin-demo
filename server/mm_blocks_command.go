@@ -19,9 +19,14 @@ const (
 		"- `/mm_blocks lookup` - Post a dynamic select whose options come from this plugin.\n" +
 		"- `/mm_blocks dialog [scenario]` - Post a button that opens a blocks dialog (type:dialog).\n" +
 		"- `/mm_blocks dialog-open` - Post a button that opens a blocks dialog via the open path.\n" +
+		"- `/mm_blocks example [name]` - Post a fixture mm_blocks example. Omit the name to list available examples.\n" +
 		"- `/mm_blocks help` - Show this help text\n\n" +
 		"Dialog scenarios: `simple`, `full`, `boolean`, `users_channels`, `multiselect`, `multiselect_defaults`, `dynamic`, `empty_required`, `file_upload`, `field_refresh`, `multistep_1`, `action_parent`, `datetime_basic`, `datetime_mindate`, `datetime_interval`, `datetime_relative`, `datetime_timezone`, `datetime_manual`"
 )
+
+func mmBlocksHelpText() string {
+	return commandMmBlocksHelp + "\n\nExamples: `" + strings.Join(mmBlocksExampleNames(), "`, `") + "`"
+}
 
 func getCommandMmBlocksAutocompleteData() *model.AutocompleteData {
 	command := model.NewAutocompleteData(commandTriggerMmBlocks, "", "Post mm_blocks interactive messages and dialogs.")
@@ -48,6 +53,12 @@ func getCommandMmBlocksAutocompleteData() *model.AutocompleteData {
 	}
 	command.AddCommand(dialog)
 
+	example := model.NewAutocompleteData("example", "[name]", "Post a fixture mm_blocks example.")
+	for _, name := range mmBlocksExampleNames() {
+		example.AddCommand(model.NewAutocompleteData(name, "", mmBlocksExamples[name].Message))
+	}
+	command.AddCommand(example)
+
 	return command
 }
 
@@ -63,12 +74,12 @@ func (p *Plugin) executeCommandMmBlocks(args *model.CommandArgs) *model.CommandR
 	}
 
 	switch command {
-	case "help":
+	case "", "help":
 		return &model.CommandResponse{
 			ResponseType: model.CommandResponseTypeEphemeral,
-			Text:         commandMmBlocksHelp,
+			Text:         mmBlocksHelpText(),
 		}
-	case "", "demo":
+	case "demo":
 		return p.postMmBlocksDemo(args)
 	case "integration":
 		return p.postMmBlocksMessage(args, "Click to ping the demo plugin mm_blocks integration.",
@@ -226,6 +237,8 @@ func (p *Plugin) executeCommandMmBlocks(args *model.CommandArgs) *model.CommandR
 				"demo_mm_blocks_dialog_open": mmBlocksPostAction("/mm_blocks_dialog_open", map[string]any{"marker": "slash-command"}),
 			},
 		)
+	case "example":
+		return p.executeMmBlocksExample(args, scenario)
 	default:
 		return &model.CommandResponse{
 			ResponseType: model.CommandResponseTypeEphemeral,
