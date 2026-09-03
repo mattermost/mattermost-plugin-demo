@@ -101,19 +101,19 @@ func (p *Plugin) onDeactivateCore() error {
 
 	teams, err := p.API.GetTeams()
 	if err != nil {
-		return errors.Wrap(err, "failed to query teams OnDeactivate")
-	}
+		p.API.LogWarn("Failed to query teams OnDeactivate, skipping deactivation messages", "error", err.Error())
+	} else {
+		for _, team := range teams {
+			_, ok := configuration.demoChannelIDs[team.Id]
+			if !ok {
+				p.API.LogWarn("No demo channel id for team", "team", team.Id)
+				continue
+			}
 
-	for _, team := range teams {
-		_, ok := configuration.demoChannelIDs[team.Id]
-		if !ok {
-			p.API.LogWarn("No demo channel id for team", "team", team.Id)
-			continue
-		}
-
-		msg := fmt.Sprintf("OnDeactivate: %s", manifest.Id)
-		if err := p.postPluginMessage(team.Id, msg); err != nil {
-			return errors.Wrap(err, "failed to post OnDeactivate message")
+			msg := fmt.Sprintf("OnDeactivate: %s", manifest.Id)
+			if err := p.postPluginMessage(team.Id, msg); err != nil {
+				p.API.LogWarn("Failed to post OnDeactivate message", "error", err.Error())
+			}
 		}
 	}
 

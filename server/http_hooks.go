@@ -68,6 +68,12 @@ func (p *Plugin) initializeAPI() {
 	ephemeralRouter.HandleFunc("/update", p.handleEphemeralUpdate)
 	ephemeralRouter.HandleFunc("/delete", p.handleEphemeralDelete)
 
+	channelSettingsRouter := router.PathPrefix("/channel_settings/{channel_id}").Subrouter()
+	channelSettingsRouter.HandleFunc("/schema", p.handleGetChannelSettingsSchema).Methods(http.MethodGet)
+	channelSettingsRouter.HandleFunc("/schema", p.handleSaveChannelSettingsSchema).Methods(http.MethodPost)
+	channelSettingsRouter.HandleFunc("/custom", p.handleGetChannelSettingsCustom).Methods(http.MethodGet)
+	channelSettingsRouter.HandleFunc("/custom", p.handleSaveChannelSettingsCustom).Methods(http.MethodPost)
+
 	p.router = router
 }
 
