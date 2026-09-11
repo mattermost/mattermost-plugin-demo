@@ -396,7 +396,7 @@ func (p *Plugin) executeCommandEphemeral(args *model.CommandArgs) *model.Command
 		ChannelId: args.ChannelId,
 		Message:   "test ephemeral actions",
 		Props: model.StringInterface{
-			"attachments": []*model.SlackAttachment{{
+			"attachments": []*model.MessageAttachment{{
 				Actions: []*model.PostAction{{
 					Integration: &model.PostActionIntegration{
 						Context: model.StringInterface{
@@ -604,7 +604,7 @@ func (p *Plugin) executeCommandInteractive(args *model.CommandArgs) *model.Comma
 		UserId:    p.botID,
 		Message:   "Test interactive button",
 		Props: model.StringInterface{
-			"attachments": []*model.SlackAttachment{{
+			"attachments": []*model.MessageAttachment{{
 				Actions: []*model.PostAction{{
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/interactive/button/1", manifest.Id),
@@ -746,7 +746,7 @@ func (p *Plugin) executeCommandListFiles(args *model.CommandArgs) *model.Command
 	}
 
 	permaLink := args.SiteURL + "/" + team.Name + "/pl/"
-	attachments := make([]*model.SlackAttachment, 0, len(fileInfos))
+	attachments := make([]*model.MessageAttachment, 0, len(fileInfos))
 	for _, f := range fileInfos {
 		user, err := p.API.GetUser(f.CreatorId)
 		if err != nil {
@@ -767,11 +767,11 @@ func (p *Plugin) executeCommandListFiles(args *model.CommandArgs) *model.Command
 			}
 		}
 		attachments = append(attachments,
-			&model.SlackAttachment{
+			&model.MessageAttachment{
 				Title:     f.Name,
 				TitleLink: permaLink + f.PostId,
 				Text:      fmt.Sprintf("uploaded by %s", user.Username),
-				Fields: []*model.SlackAttachmentField{
+				Fields: []*model.MessageAttachmentField{
 					{
 						Title: "Direct Download Link",
 						Value: args.SiteURL + fileLink,
