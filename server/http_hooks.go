@@ -45,6 +45,9 @@ func (p *Plugin) initializeAPI() {
 	interativeRouter.Use(p.withDelay)
 	interativeRouter.HandleFunc("/button/1", p.handleInteractiveAction)
 
+	inlineActionRouter := router.PathPrefix("/inline_action").Subrouter()
+	inlineActionRouter.HandleFunc("/triage", p.handleInlineActionTriage)
+
 	dialogRouter := router.PathPrefix("/dialog").Subrouter()
 	dialogRouter.Use(p.withDelay)
 	dialogRouter.HandleFunc("/1", p.handleDialog1)
@@ -54,6 +57,7 @@ func (p *Plugin) initializeAPI() {
 	dialogRouter.HandleFunc("/error", p.handleDialogWithError)
 	dialogRouter.HandleFunc("/field-refresh", p.handleDialogFieldRefresh)
 	dialogRouter.HandleFunc("/multistep", p.handleDialogMultistep)
+	dialogRouter.HandleFunc("/file-upload", p.handleDialogFileUpload)
 
 	dialogRouter.HandleFunc("/products", p.handleDynamicProducts).Methods(http.MethodPost)
 	dialogRouter.HandleFunc("/companies", p.handleDynamicCompanies).Methods(http.MethodPost)
@@ -234,10 +238,15 @@ func (p *Plugin) handleDialog2(w http.ResponseWriter, r *http.Request) {
 		suffix = "from relative callback URL"
 	}
 
+	msg := "@%v confirmed an Interactive Dialog %v"
+	if request.Cancelled {
+		msg = "@%v canceled an Interactive Dialog %v"
+	}
+
 	if _, appErr = p.API.CreatePost(&model.Post{
 		UserId:    p.botID,
 		ChannelId: request.ChannelId,
-		Message:   fmt.Sprintf("@%v confirmed an Interactive Dialog %v", user.Username, suffix),
+		Message:   fmt.Sprintf(msg, user.Username, suffix),
 	}); appErr != nil {
 		p.API.LogError("Failed to post handleDialog2 message", "err", appErr.Error())
 		return
@@ -493,6 +502,92 @@ func (p *Plugin) handleInteractiveAction(w http.ResponseWriter, r *http.Request)
 
 	resp := &model.PostActionIntegrationResponse{}
 	p.writeJSON(w, resp)
+}
+
+func (p *Plugin) handleInlineActionTriage(w http.ResponseWriter, r *http.Request) {
+	var request model.PostActionIntegrationRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		p.API.LogError("Failed to decode PostActionIntegrationRequest", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	// Per-click params arrive as URL query string on feature/action_buttons —
+	// the server merges spec.Query and request.Query into the upstream URL
+	// via MergeQueryIntoURL before forwarding. Static context fields (like
+	// "project") still come through request.Context as before.
+	q := r.URL.Query()
+	issueID := q.Get("id")
+	title := q.Get("title")
+	priority := q.Get("priority")
+	assignee := q.Get("assignee")
+	assigneeDisplay := "unassigned"
+	if assignee != "" {
+		assigneeDisplay = "@" + assignee
+	}
+	project, _ := request.Context["project"].(string)
+
+	// Build introduction text showing key identifiers passed via mmaction://
+	intro := fmt.Sprintf(
+		"**Issue:** %s  |  **Project:** %s | **Title:** %s  |  **Priority:** %s  |  **Assignee:** %s",
+		issueID, project, title, priority, assigneeDisplay,
+	)
+
+	serverConfig := p.API.GetConfig()
+	dialogRequest := model.OpenDialogRequest{
+		TriggerId: request.TriggerId,
+		URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+		Dialog: model.Dialog{
+			CallbackId:       "triage_" + issueID,
+			Title:            "Triage " + issueID,
+			IntroductionText: intro,
+			SubmitLabel:      "Submit Triage",
+			Elements: []model.DialogElement{
+				{
+					DisplayName: "QA Resource",
+					Name:        "qa_resource",
+					Type:        "select",
+					Placeholder: "Assign a QA resource...",
+					HelpText:    "Select a team member to verify the fix.",
+					DataSource:  "users",
+				},
+				{
+					DisplayName: "Due Date",
+					Name:        "due_date",
+					Type:        "date",
+					HelpText:    "Target date for resolution.",
+				},
+				{
+					DisplayName: "Triage Notes",
+					Name:        "notes",
+					Type:        "textarea",
+					Optional:    true,
+					Placeholder: "Root cause, reproduction steps, next actions...",
+					HelpText:    "These notes will be posted to the channel.",
+					MaxLength:   500,
+				},
+			},
+		},
+	}
+
+	if appErr := p.API.OpenInteractiveDialog(dialogRequest); appErr != nil {
+		p.API.LogError("Failed to open triage dialog", "err", appErr.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	resp := &model.PostActionIntegrationResponse{}
+	p.writeJSON(w, resp)
+}
+
+func formatJSON(v any) string {
+	b, err := json.MarshalIndent(v, "", "  ")
+	if err != nil {
+		return fmt.Sprintf("%+v", v)
+	}
+	return string(b)
 }
 
 func (p *Plugin) writeJSON(w http.ResponseWriter, response any) {
@@ -926,4 +1021,98 @@ func (p *Plugin) handleDynamicCountries(w http.ResponseWriter, r *http.Request) 
 
 	response := model.LookupDialogResponse{Items: filteredCountries}
 	p.writeJSON(w, response)
+}
+
+func (p *Plugin) handleDialogFileUpload(w http.ResponseWriter, r *http.Request) {
+	var request model.SubmitDialogRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		p.API.LogError("Failed to decode SubmitDialogRequest", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	user, appErr := p.API.GetUser(request.UserId)
+	if appErr != nil {
+		p.API.LogError("Failed to get user for dialog", "err", appErr.Error())
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(model.SubmitDialogResponse{Error: "Failed to process dialog submission."})
+		return
+	}
+
+	if request.Cancelled {
+		if _, appErr = p.API.CreatePost(&model.Post{
+			UserId:    p.botID,
+			ChannelId: request.ChannelId,
+			Message:   fmt.Sprintf("@%v canceled the file upload dialog", user.Username),
+		}); appErr != nil {
+			p.API.LogError("Failed to post file upload cancel message", "err", appErr.Error())
+		}
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	// Build a summary of uploaded files
+	msg := fmt.Sprintf("@%v submitted a file upload dialog\n", user.Username)
+
+	if desc, ok := request.Submission["description"].(string); ok && desc != "" {
+		msg += fmt.Sprintf("**Description:** %s\n", desc)
+	}
+
+	// File IDs come in both request.FileIds and in submission values as comma-separated strings
+	fileIds := request.FileIds
+	if len(fileIds) == 0 {
+		// Fallback: extract from submission values for file-type fields
+		for _, key := range []string{"single_file", "multi_file"} {
+			if val, ok := request.Submission[key].(string); ok && val != "" {
+				for _, id := range strings.Split(val, ",") {
+					if id = strings.TrimSpace(id); id != "" {
+						fileIds = append(fileIds, id)
+					}
+				}
+			}
+		}
+	}
+
+	if len(fileIds) > 0 {
+		msg += fmt.Sprintf("**File IDs (%d):** %s\n", len(fileIds), strings.Join(fileIds, ", "))
+	} else {
+		msg += "**Files:** none\n"
+	}
+
+	// Post with the uploaded files attached
+	post := &model.Post{
+		UserId:    p.botID,
+		ChannelId: request.ChannelId,
+		Message:   msg,
+		FileIds:   fileIds,
+	}
+
+	if _, appErr = p.API.CreatePost(post); appErr != nil {
+		p.API.LogError("Failed to post file upload dialog message", "err", appErr.Error())
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(model.SubmitDialogResponse{Error: "Failed to post the uploaded files."})
+		return
+	}
+
+	// Persist per-element file IDs so file-upload-prefill can pre-populate on the next open.
+	// Only update when files are present so prior uploads are retained across empty submissions.
+	kvKey := "file_upload_" + request.UserId
+	stored := map[string]string{}
+	for _, key := range []string{"single_file", "multi_file"} {
+		if val, ok := request.Submission[key].(string); ok && val != "" {
+			stored[key] = val
+		}
+	}
+	if len(stored) > 0 {
+		data, _ := json.Marshal(stored)
+		if appErr = p.API.KVSet(kvKey, data); appErr != nil {
+			p.API.LogError("Failed to persist file upload state", "err", appErr.Error())
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(model.SubmitDialogResponse{Error: "Failed to save file upload state."})
+			return
+		}
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

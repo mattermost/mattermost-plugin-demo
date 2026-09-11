@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -22,6 +23,7 @@ const (
 	commandTriggerListFiles         = "list_files"
 	commandTriggerAutocompleteTest  = "autocomplete_test"
 	commandTriggerToast             = "toast"
+	commandTriggerInlineAction      = "inline_action"
 
 	dialogElementNameNumber   = "somenumber"
 	dialogElementNameEmail    = "someemail"
@@ -51,6 +53,8 @@ const (
 		"- `/dialog error-no-elements` - Open an Interactive Dialog with no elements which always returns an general error.\n" +
 		"- `/dialog field-refresh` - Open an Interactive Dialog with field refresh functionality.\n" +
 		"- `/dialog multistep` - Open a multi-step Interactive Dialog demonstrating form refresh on submit.\n" +
+		"- `/dialog file-upload` - Open an Interactive Dialog with file upload fields (single and multiple), always starting fresh.\n" +
+		"- `/dialog file-upload-prefill` - Open an Interactive Dialog with file upload fields pre-populated from the last submission (via either file-upload command).\n" +
 		"- `/dialog help` - Show this help text"
 )
 
@@ -138,6 +142,15 @@ func (p *Plugin) registerCommands() error {
 	}
 
 	if err := p.API.RegisterCommand(&model.Command{
+		Trigger:          commandTriggerInlineAction,
+		AutoComplete:     true,
+		AutoCompleteHint: "",
+		AutoCompleteDesc: "Demonstrates inline action buttons in markdown tables.",
+	}); err != nil {
+		return errors.Wrapf(err, "failed to register %s command", commandTriggerInlineAction)
+	}
+
+	if err := p.API.RegisterCommand(&model.Command{
 		Trigger:          commandTriggerToast,
 		AutoComplete:     true,
 		AutoCompleteDesc: "Demonstrates the toast notification API.",
@@ -212,6 +225,11 @@ func getCommandDialogAutocompleteData() *model.AutocompleteData {
 
 	collapsible := model.NewAutocompleteData("collapsible", "", "Open an Interactive Dialog with collapsible sections.")
 	command.AddCommand(collapsible)
+	fileUpload := model.NewAutocompleteData("file-upload", "", "Open an Interactive Dialog with file upload fields (always fresh).")
+	command.AddCommand(fileUpload)
+
+	fileUploadPrefill := model.NewAutocompleteData("file-upload-prefill", "", "Open an Interactive Dialog with file upload fields pre-populated from the last submission.")
+	command.AddCommand(fileUploadPrefill)
 
 	help := model.NewAutocompleteData("help", "", "")
 	command.AddCommand(help)
@@ -307,6 +325,8 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, args *model.CommandArgs) (*mo
 		return p.executeCommandMentions(args), nil
 	case commandTriggerAutocompleteTest:
 		return p.executeAutocompleteTest(args), nil
+	case commandTriggerInlineAction:
+		return p.executeCommandInlineAction(args), nil
 	case commandTriggerToast:
 		return p.executeCommandToast(c, args), nil
 
@@ -535,6 +555,30 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/multistep", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog:    getDialogStep1(),
 		}
+	case "file-upload":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/file-upload", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogWithFileUpload(),
+		}
+	case "file-upload-prefill":
+		dialog := getDialogWithFileUpload()
+		kvKey := "file_upload_" + args.UserId
+		if data, appErr := p.API.KVGet(kvKey); appErr == nil && len(data) > 0 {
+			var stored map[string]string
+			if json.Unmarshal(data, &stored) == nil {
+				for i := range dialog.Elements {
+					if val, ok := stored[dialog.Elements[i].Name]; ok {
+						dialog.Elements[i].Default = val
+					}
+				}
+			}
+		}
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/file-upload", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    dialog,
+		}
 	default:
 		return &model.CommandResponse{
 			ResponseType: model.CommandResponseTypeEphemeral,
@@ -575,6 +619,48 @@ func (p *Plugin) executeCommandInteractive(args *model.CommandArgs) *model.Comma
 	_, err := p.API.CreatePost(post)
 	if err != nil {
 		const errorMessage = "Failed to create post"
+		p.API.LogError(errorMessage, "err", err.Error())
+		return &model.CommandResponse{
+			ResponseType: model.CommandResponseTypeEphemeral,
+			Text:         errorMessage,
+		}
+	}
+
+	return &model.CommandResponse{}
+}
+
+func (p *Plugin) executeCommandInlineAction(args *model.CommandArgs) *model.CommandResponse {
+	message := "### Issue Tracker [Demo Project]\n\n" +
+		"| ID | Title | Priority | Assignee | Action |\n" +
+		"|----|-------|----------|----------|--------|\n" +
+		"| ISS-101 | Login page returns 500 on Safari | High | @alice | [Triage](mmaction://triage?id=ISS-101&title=Login+page+returns+500+on+Safari&priority=high&assignee=alice) |\n" +
+		"| ISS-102 | Dark mode toggle doesn't persist | Medium | @bob | [Triage](mmaction://triage?id=ISS-102&title=Dark+mode+toggle+doesn't+persist&priority=medium&assignee=bob) |\n" +
+		"| ISS-103 | CSV export missing header row | Low | _unassigned_ | [Triage](mmaction://triage?id=ISS-103&title=CSV+export+missing+header+row&priority=low&assignee=) |\n" +
+		"| ISS-104 | API rate limiter blocks batch jobs | Critical | @charlie | [Triage](mmaction://triage?id=ISS-104&title=API+rate+limiter+blocks+batch+jobs&priority=critical&assignee=charlie) |\n" +
+		"| ISS-105 | Notification badge count off by one | Low | @alice | [Triage](mmaction://triage?id=ISS-105&title=Notification+badge+count+off+by+one&priority=low&assignee=alice) |\n"
+
+	post := &model.Post{
+		ChannelId: args.ChannelId,
+		RootId:    args.RootId,
+		UserId:    p.botID,
+		Message:   message,
+		Props: model.StringInterface{
+			// Renamed from "inline_actions" → "mm_blocks_actions" on
+			// feature/action_buttons. Each entry now also requires
+			// an explicit "type" field (validated server-side).
+			"mm_blocks_actions": map[string]any{
+				"triage": map[string]any{
+					"type":    "external",
+					"url":     fmt.Sprintf("/plugins/%s/inline_action/triage", manifest.Id),
+					"context": map[string]any{"project": "Demo Project"},
+				},
+			},
+		},
+	}
+
+	_, err := p.API.CreatePost(post)
+	if err != nil {
+		const errorMessage = "Failed to create inline action post"
 		p.API.LogError(errorMessage, "err", err.Error())
 		return &model.CommandResponse{
 			ResponseType: model.CommandResponseTypeEphemeral,
