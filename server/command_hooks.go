@@ -48,6 +48,7 @@ const (
 		"- `/dialog datetime-basic` - Open an Interactive Dialog with basic date/datetime features (min date, intervals, relative dates).\n" +
 		"- `/dialog datetime-timezone` - Open an Interactive Dialog with timezone support and manual time entry.\n" +
 		"- `/dialog multi-select` - Open an Interactive Dialog with multi-select fields. Once submitted, user-entered input is posted back into a channel.\n" +
+		"- `/dialog collapsible` - Open an Interactive Dialog with collapsible sections grouping child fields.\n" +
 		"- `/dialog error` - Open an Interactive Dialog which always returns an general error.\n" +
 		"- `/dialog error-no-elements` - Open an Interactive Dialog with no elements which always returns an general error.\n" +
 		"- `/dialog field-refresh` - Open an Interactive Dialog with field refresh functionality.\n" +
@@ -222,6 +223,8 @@ func getCommandDialogAutocompleteData() *model.AutocompleteData {
 	multiSelect := model.NewAutocompleteData("multi-select", "", "Open an Interactive Dialog with multi-select fields.")
 	command.AddCommand(multiSelect)
 
+	collapsible := model.NewAutocompleteData("collapsible", "", "Open an Interactive Dialog with collapsible sections.")
+	command.AddCommand(collapsible)
 	fileUpload := model.NewAutocompleteData("file-upload", "", "Open an Interactive Dialog with file upload fields (always fresh).")
 	command.AddCommand(fileUpload)
 
@@ -393,7 +396,7 @@ func (p *Plugin) executeCommandEphemeral(args *model.CommandArgs) *model.Command
 		ChannelId: args.ChannelId,
 		Message:   "test ephemeral actions",
 		Props: model.StringInterface{
-			"attachments": []*model.SlackAttachment{{
+			"attachments": []*model.MessageAttachment{{
 				Actions: []*model.PostAction{{
 					Integration: &model.PostActionIntegration{
 						Context: model.StringInterface{
@@ -522,6 +525,12 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/1", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog:    getDialogWithMultiSelectElements(),
 		}
+	case "collapsible":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogWithCollapsibleElements(),
+		}
 	case "error":
 		dialogRequest = model.OpenDialogRequest{
 			TriggerId: args.TriggerId,
@@ -595,7 +604,7 @@ func (p *Plugin) executeCommandInteractive(args *model.CommandArgs) *model.Comma
 		UserId:    p.botID,
 		Message:   "Test interactive button",
 		Props: model.StringInterface{
-			"attachments": []*model.SlackAttachment{{
+			"attachments": []*model.MessageAttachment{{
 				Actions: []*model.PostAction{{
 					Integration: &model.PostActionIntegration{
 						URL: fmt.Sprintf("/plugins/%s/interactive/button/1", manifest.Id),
@@ -737,7 +746,7 @@ func (p *Plugin) executeCommandListFiles(args *model.CommandArgs) *model.Command
 	}
 
 	permaLink := args.SiteURL + "/" + team.Name + "/pl/"
-	attachments := make([]*model.SlackAttachment, 0, len(fileInfos))
+	attachments := make([]*model.MessageAttachment, 0, len(fileInfos))
 	for _, f := range fileInfos {
 		user, err := p.API.GetUser(f.CreatorId)
 		if err != nil {
@@ -758,11 +767,11 @@ func (p *Plugin) executeCommandListFiles(args *model.CommandArgs) *model.Command
 			}
 		}
 		attachments = append(attachments,
-			&model.SlackAttachment{
+			&model.MessageAttachment{
 				Title:     f.Name,
 				TitleLink: permaLink + f.PostId,
 				Text:      fmt.Sprintf("uploaded by %s", user.Username),
-				Fields: []*model.SlackAttachmentField{
+				Fields: []*model.MessageAttachmentField{
 					{
 						Title: "Direct Download Link",
 						Value: args.SiteURL + fileLink,
