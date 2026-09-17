@@ -102,6 +102,7 @@ export default class DemoPlugin {
             />,
             () => {
                 window.openInteractiveDialog({
+                    trigger_id: 'demo-plugin-confirmation-dialog',
                     url: '/plugins/' + manifest.id + '/dialog/2',
                     dialog: {
                         callback_id: 'somecallbackid',

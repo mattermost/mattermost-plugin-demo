@@ -204,6 +204,125 @@ func getDialogBasic() model.Dialog {
 	}
 }
 
+// getDialogWithCollapsibleElements keeps a similar sample payload using only
+// currently supported dialog element fields in the public model package.
+func getDialogWithCollapsibleElements() model.Dialog {
+	return model.Dialog{
+		CallbackId:     "collapsiblecallbackid",
+		Title:          "Collapsible Sections Demo",
+		IconURL:        "http://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
+		SubmitLabel:    "Submit",
+		NotifyOnCancel: true,
+		State:          dialogStateSome,
+		IntroductionText: "**Collapsible Sections Demo**\n\n" +
+			"This sample uses grouped fields that represent 1, 2, and 3 levels of nested sections.",
+		Elements: []model.DialogElement{{
+			// Level 1: one collapsible with plain fields. Starts expanded (default).
+			DisplayName: "Level 1 — Flat section",
+			Name:        "level1_section",
+			Type:        "collapsible",
+			CollapsibleConfig: &model.DialogElementCollapsibleConfig{
+				Elements: []model.DialogElement{{
+					DisplayName: "First Name",
+					Name:        "first_name",
+					Type:        "text",
+					Placeholder: "Enter your first name...",
+				}, {
+					DisplayName: "Last Name",
+					Name:        "last_name",
+					Type:        "text",
+					Placeholder: "Enter your last name...",
+				}},
+			},
+		}, {
+			// Level 2: starts collapsed and borderless; inner section is expanded and borderless.
+			DisplayName: "Level 2 — One level of nesting (no border)",
+			Name:        "level2_section",
+			Type:        "collapsible",
+			CollapsibleConfig: &model.DialogElementCollapsibleConfig{
+				Collapsed:  true,
+				Borderless: true,
+				Elements: []model.DialogElement{{
+					DisplayName: "Company",
+					Name:        "company",
+					Type:        "text",
+					Placeholder: "Enter your company...",
+					Optional:    true,
+				}, {
+					DisplayName: "Contact Details",
+					Name:        "level2_inner_section",
+					Type:        "collapsible",
+					CollapsibleConfig: &model.DialogElementCollapsibleConfig{
+						Borderless: true,
+						Elements: []model.DialogElement{{
+							DisplayName: "Email",
+							Name:        "email",
+							Type:        "text",
+							SubType:     "email",
+							Placeholder: "you@example.com",
+						}, {
+							DisplayName: "Phone",
+							Name:        "phone",
+							Type:        "text",
+							Placeholder: "Optional phone number...",
+							Optional:    true,
+						}},
+					},
+				}},
+			},
+		}, {
+			// Level 3: outer two levels start collapsed; innermost starts expanded (default).
+			DisplayName: "Level 3 — Two levels of nesting",
+			Name:        "level3_section",
+			Type:        "collapsible",
+			CollapsibleConfig: &model.DialogElementCollapsibleConfig{
+				Collapsed: true,
+				Elements: []model.DialogElement{{
+					DisplayName: "Project Name",
+					Name:        "project_name",
+					Type:        "text",
+					Placeholder: "Enter a project name...",
+					Optional:    true,
+				}, {
+					DisplayName: "Advanced",
+					Name:        "level3_inner_section",
+					Type:        "collapsible",
+					CollapsibleConfig: &model.DialogElementCollapsibleConfig{
+						Collapsed: true,
+						Elements: []model.DialogElement{{
+							DisplayName: "Environment",
+							Name:        "environment",
+							Type:        "text",
+							Placeholder: "e.g. staging, production...",
+							Optional:    true,
+						}, {
+							DisplayName: "Experimental",
+							Name:        "level3_innermost_section",
+							Type:        "collapsible",
+							CollapsibleConfig: &model.DialogElementCollapsibleConfig{
+								Elements: []model.DialogElement{{
+									DisplayName: "Custom Settings",
+									Name:        "custom_settings",
+									Type:        "textarea",
+									Placeholder: "Optional advanced configuration...",
+									Optional:    true,
+									MaxLength:   500,
+								}, {
+									DisplayName: "Enable Beta Features",
+									Name:        "enable_beta",
+									Type:        "bool",
+									Placeholder: "Turn on experimental features",
+									Optional:    true,
+								}},
+							},
+						}},
+					},
+				}},
+			},
+		}},
+	}
+}
+
 func getDialogBoolean() model.Dialog {
 	return model.Dialog{
 		CallbackId:     "booleancallbackid",
@@ -1000,6 +1119,39 @@ func getDialogWithMultiSelectElements() model.Dialog {
 	}
 }
 
+func getDialogWithFileUpload() model.Dialog {
+	return model.Dialog{
+		CallbackId: "file_upload_demo",
+		Title:      "File Upload Dialog Demo",
+		IconURL:    "http://www.mattermost.org/wp-content/uploads/2016/04/icon.png",
+		Elements: []model.DialogElement{{
+			DisplayName: "Single File Upload",
+			Name:        "single_file",
+			Type:        "file",
+			HelpText:    "Upload a single file.",
+			Optional:    true,
+		}, {
+			DisplayName:   "Multiple File Upload",
+			Name:          "multi_file",
+			Type:          "file",
+			HelpText:      "Upload multiple files at once.",
+			Optional:      true,
+			AllowMultiple: true,
+		}, {
+			DisplayName: "Description",
+			Name:        "description",
+			Type:        "textarea",
+			Placeholder: "Describe the uploaded files...",
+			HelpText:    "Optional description of the uploaded files.",
+			Optional:    true,
+			MaxLength:   500,
+		}},
+		SubmitLabel:    "Submit Files",
+		NotifyOnCancel: true,
+		State:          dialogStateSome,
+	}
+}
+
 // Helper function to convert interface{} to string safely
 func interfaceToString(value interface{}) string {
 	switch v := value.(type) {
@@ -1040,33 +1192,33 @@ func getDialogDateTimeBasic() model.Dialog {
 			},
 			// MM-T2530B - Basic datetime field
 			{
-				DisplayName:  "Meeting Time",
-				Name:         "meeting_time",
-				Type:         "datetime",
-				HelpText:     "Select the date and time for your meeting",
-				Placeholder:  "Select date and time",
-				TimeInterval: 60,
-				Optional:     false,
+				DisplayName:    "Meeting Time",
+				Name:           "meeting_time",
+				Type:           "datetime",
+				HelpText:       "Select the date and time for your meeting",
+				Placeholder:    "Select date and time",
+				DateTimeConfig: &model.DialogDateTimeConfig{TimeInterval: 60},
+				Optional:       false,
 			},
 			// MM-T2530C - Min date constraint
 			{
-				DisplayName: "Future Date Only",
-				Name:        "future_date",
-				Type:        "date",
-				HelpText:    "Must be today or later",
-				Placeholder: "Select a future date",
-				MinDate:     "today",
-				Optional:    true,
+				DisplayName:    "Future Date Only",
+				Name:           "future_date",
+				Type:           "date",
+				HelpText:       "Must be today or later",
+				Placeholder:    "Select a future date",
+				DateTimeConfig: &model.DialogDateTimeConfig{MinDate: "today"},
+				Optional:       true,
 			},
 			// MM-T2530D - Custom time interval (30 min)
 			{
-				DisplayName:  "Custom Interval Time",
-				Name:         "interval_time",
-				Type:         "datetime",
-				HelpText:     "Time picker with 30-minute intervals",
-				Placeholder:  "Select time (30min intervals)",
-				TimeInterval: 30,
-				Optional:     true,
+				DisplayName:    "Custom Interval Time",
+				Name:           "interval_time",
+				Type:           "datetime",
+				HelpText:       "Time picker with 30-minute intervals",
+				Placeholder:    "Select time (30min intervals)",
+				DateTimeConfig: &model.DialogDateTimeConfig{TimeInterval: 30},
+				Optional:       true,
 			},
 			// MM-T2530F - Relative date (today)
 			{
@@ -1116,7 +1268,7 @@ func getDialogDateTimeTimezone() model.Dialog {
 				Type:        "datetime",
 				HelpText:    "Type any time: 9am, 14:30, 3:45pm - no rounding",
 				DateTimeConfig: &model.DialogDateTimeConfig{
-					AllowManualTimeEntry: true,
+					ManualTimeEntry: true,
 				},
 				Optional: true,
 			},
@@ -1138,7 +1290,7 @@ func getDialogDateTimeTimezone() model.Dialog {
 				HelpText:    "Type time in Europe/London time: 9am, 14:30, 3:45pm - no rounding",
 				DateTimeConfig: &model.DialogDateTimeConfig{
 					LocationTimezone:     "Europe/London",
-					AllowManualTimeEntry: true,
+					ManualTimeEntry: true,
 				},
 				Optional: true,
 			},

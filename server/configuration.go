@@ -239,11 +239,15 @@ func (p *Plugin) diffConfiguration(newConfiguration *configuration) {
 	}
 }
 
-// OnConfigurationChange is invoked when configuration changes may have been made.
+// ensureDemoUserAndChannels loads the plugin configuration and ensures the
+// configured demo user, demo bot and demo channels exist for use by the plugin.
 //
-// This demo implementation ensures the configured demo user and channel are created for use
-// by the plugin.
-func (p *Plugin) OnConfigurationChange() error {
+// This is separate from OnConfigurationChange because creating the demo user,
+// bot and channels is not a configuration change: it is setup work that also
+// needs to happen on activation (see onActivateCore). Keeping it in its own
+// function makes that intent explicit and lets both callers share it without
+// semantically abusing the OnConfigurationChange hook.
+func (p *Plugin) ensureDemoUserAndChannels() error {
 	if p.client == nil {
 		p.client = pluginapi.NewClient(p.API, p.Driver)
 	}
@@ -280,6 +284,18 @@ func (p *Plugin) OnConfigurationChange() error {
 	p.diffConfiguration(configuration)
 
 	p.setConfiguration(configuration)
+
+	return nil
+}
+
+// OnConfigurationChange is invoked when configuration changes may have been made.
+//
+// This demo implementation ensures the configured demo user and channel are created for use
+// by the plugin.
+func (p *Plugin) OnConfigurationChange() error {
+	if err := p.ensureDemoUserAndChannels(); err != nil {
+		return err
+	}
 
 	return nil
 }
