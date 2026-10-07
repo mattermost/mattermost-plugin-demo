@@ -60,6 +60,11 @@ func (p *Plugin) initializeAPI() {
 	dialogRouter.HandleFunc("/incident/triage", p.handleIncidentTriage)
 	dialogRouter.HandleFunc("/incident/note", p.handleIncidentNote)
 	dialogRouter.HandleFunc("/incident/fail", p.handleIncidentFail)
+	dialogRouter.HandleFunc("/cargo/board", p.handleCargoBoard)
+	dialogRouter.HandleFunc("/cargo/sortie", p.handleCargoSortie)
+	dialogRouter.HandleFunc("/cargo/waypoint", p.handleCargoWaypoint)
+	dialogRouter.HandleFunc("/cargo/tasks", p.handleCargoTasks)
+	dialogRouter.HandleFunc("/incident/source", p.handleIncidentSource)
 	dialogRouter.HandleFunc("/file-upload", p.handleDialogFileUpload)
 
 	dialogRouter.HandleFunc("/products", p.handleDynamicProducts).Methods(http.MethodPost)
@@ -281,6 +286,10 @@ func (p *Plugin) handleDialog3(w http.ResponseWriter, r *http.Request) {
 	// NotifyOnCancel, and a cancelled request carries an empty Submission, so
 	// falling into those cases would report a cancel as a successful update.
 	case request.Cancelled:
+		if strings.HasPrefix(request.CallbackId, "timeline_note_") {
+			// Cancel discards notes added with "Add Note" but not saved.
+			takePendingNotes(request.UserId, strings.TrimPrefix(request.CallbackId, "timeline_note_"))
+		}
 		message = "Dialog cancelled"
 
 	case request.CallbackId == "incident_board":
@@ -291,6 +300,13 @@ func (p *Plugin) handleDialog3(w http.ResponseWriter, r *http.Request) {
 		status := interfaceToString(request.Submission["status"])
 		severity := interfaceToString(request.Submission["severity"])
 		owner := interfaceToString(request.Submission["owner"])
+		if owner != "" {
+			// The users data source submits a user ID; store the username.
+			if ownerUser, err := p.API.GetUser(owner); err == nil {
+				owner = ownerUser.Username
+			}
+		}
+		updateIncident(incID, status, severity, owner)
 		if owner == "" {
 			owner = "unassigned"
 		} else {
@@ -307,13 +323,39 @@ func (p *Plugin) handleDialog3(w http.ResponseWriter, r *http.Request) {
 	case strings.HasPrefix(request.CallbackId, "timeline_note_"):
 		incID := strings.TrimPrefix(request.CallbackId, "timeline_note_")
 		noteType := interfaceToString(request.Submission["note_type"])
-		noteMessage := escapeMD(interfaceToString(request.Submission["message"]))
-		message = fmt.Sprintf("**%s — Timeline Note Added**\n- Type: %s\n- Note: %s\n\nAdded by @%s",
-			incID,
-			noteType,
-			noteMessage,
-			user.Username,
-		)
+		if noteType == "" {
+			noteType = "update"
+		}
+		noteMessage := strings.TrimSpace(interfaceToString(request.Submission["message"]))
+
+		// "Add Note": stage the note and return the form so the dialog stays open.
+		if interfaceToString(request.Submission[timelineNoteActionField]) == timelineNoteActionAdd {
+			if noteMessage == "" {
+				p.writeJSON(w, &model.SubmitDialogResponse{
+					Errors: map[string]string{"message": "Enter a note to add."},
+				})
+				return
+			}
+			pending := addPendingNote(request.UserId, incID, noteType, noteMessage)
+			form := getDialogTimelineNote(incID, pending)
+			p.writeJSON(w, &model.SubmitDialogResponse{Type: "form", Form: &form})
+			return
+		}
+
+		// "Save & Close": save the pending notes, plus the typed note if any.
+		if noteMessage != "" {
+			addPendingNote(request.UserId, incID, noteType, noteMessage)
+		}
+		notes := takePendingNotes(request.UserId, incID)
+		if len(notes) == 0 {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		message = fmt.Sprintf("**%s — %d Timeline Note(s) Added** by @%s", incID, len(notes), user.Username)
+		for _, n := range notes {
+			addTimelineEntry(incID, n.Type, n.Message)
+			message += fmt.Sprintf("\n- %s: %s", n.Type, escapeMD(n.Message))
+		}
 
 	default:
 		submission := request.Submission
@@ -648,18 +690,11 @@ func (p *Plugin) handleIncidentTriage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var ownerUserID string
-	if inc.Owner != "" {
-		if u, appErr := p.API.GetUserByUsername(inc.Owner); appErr == nil {
-			ownerUserID = u.Id
-		}
-	}
-
 	serverConfig := p.API.GetConfig()
 	dialogRequest := model.OpenDialogRequest{
 		TriggerId: request.TriggerId,
 		URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
-		Dialog:    getDialogIncidentTriage(inc, ownerUserID),
+		Dialog:    getDialogIncidentTriage(inc, p.incidentOwnerUserID(inc)),
 	}
 
 	if appErr := p.API.OpenInteractiveDialog(dialogRequest); appErr != nil {
@@ -669,6 +704,19 @@ func (p *Plugin) handleIncidentTriage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	p.writeJSON(w, &model.PostActionIntegrationResponse{})
+}
+
+// incidentOwnerUserID returns the user ID of the incident's owner, used as the
+// default of the triage dialog's Assignee user select.
+func (p *Plugin) incidentOwnerUserID(inc incident) string {
+	if inc.Owner == "" {
+		return ""
+	}
+	u, appErr := p.API.GetUserByUsername(inc.Owner)
+	if appErr != nil {
+		return ""
+	}
+	return u.Id
 }
 
 // handleIncidentNote handles action button clicks from Dialog B (Incident Triage).
@@ -690,11 +738,14 @@ func (p *Plugin) handleIncidentNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Start fresh: drop notes left pending by a dialog that was never closed normally.
+	takePendingNotes(request.UserId, inc.ID)
+
 	serverConfig := p.API.GetConfig()
 	dialogRequest := model.OpenDialogRequest{
 		TriggerId: request.TriggerId,
 		URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
-		Dialog:    getDialogTimelineNote(inc.ID),
+		Dialog:    getDialogTimelineNote(inc.ID, nil),
 	}
 
 	if appErr := p.API.OpenInteractiveDialog(dialogRequest); appErr != nil {
@@ -706,12 +757,191 @@ func (p *Plugin) handleIncidentNote(w http.ResponseWriter, r *http.Request) {
 	p.writeJSON(w, &model.PostActionIntegrationResponse{})
 }
 
+// handleIncidentSource is the SourceURL for the board and triage dialogs. The
+// webapp calls it (Type "refresh", no selected_field) when a child dialog stacked
+// on top of one of them closes, and redraws that dialog from the returned form.
+func (p *Plugin) handleIncidentSource(w http.ResponseWriter, r *http.Request) {
+	var request model.SubmitDialogRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		p.API.LogError("Failed to decode incident source request", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	var dialog model.Dialog
+	switch {
+	case request.CallbackId == "incident_board":
+		dialog = getDialogIncidentBoard()
+	case strings.HasPrefix(request.CallbackId, "incident_triage_"):
+		inc, ok := findIncident(strings.TrimPrefix(request.CallbackId, "incident_triage_"))
+		if !ok {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		dialog = getDialogIncidentTriage(inc, p.incidentOwnerUserID(inc))
+	default:
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	p.writeJSON(w, &model.SubmitDialogResponse{Type: "form", Form: &dialog})
+}
+
 // handleIncidentFail always fails, exercising the action button's error state
 // without opening a child dialog.
 func (p *Plugin) handleIncidentFail(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	p.API.LogDebug("Incident escalation deliberately failed for action button error testing")
 	w.WriteHeader(http.StatusInternalServerError)
+}
+
+// handleCargoBoard is the submit URL for Dialog A and Dialog B ("Close" button).
+func (p *Plugin) handleCargoBoard(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	w.WriteHeader(http.StatusOK)
+}
+
+// handleCargoSortie handles action button clicks on the Cargo Board (Dialog A).
+// Opens Dialog B for the selected sortie.
+func (p *Plugin) handleCargoSortie(w http.ResponseWriter, r *http.Request) {
+	var request model.PostActionIntegrationRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		p.API.LogError("Failed to decode cargo sortie request", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	sortieID, _ := request.Context["sortie_id"].(string)
+	if s, _ := findSortie(sortieID); s == nil {
+		p.API.LogError("Cargo sortie not found", "sortie_id", sortieID)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	serverConfig := p.API.GetConfig()
+	dialogReq := model.OpenDialogRequest{
+		TriggerId: request.TriggerId,
+		URL:       fmt.Sprintf("%s/plugins/%s/dialog/cargo/tasks", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+		Dialog:    getDialogSortieDetail(sortieID),
+	}
+	if appErr := p.API.OpenInteractiveDialog(dialogReq); appErr != nil {
+		p.API.LogError("Failed to open sortie detail dialog", "err", appErr.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	p.writeJSON(w, &model.PostActionIntegrationResponse{})
+}
+
+// handleCargoWaypoint handles action button clicks on the Sortie Detail dialog (Dialog B).
+// Opens Dialog C for the selected waypoint.
+func (p *Plugin) handleCargoWaypoint(w http.ResponseWriter, r *http.Request) {
+	var request model.PostActionIntegrationRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		p.API.LogError("Failed to decode cargo waypoint request", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	sortieID, _ := request.Context["sortie_id"].(string)
+	waypointID, _ := request.Context["waypoint_id"].(string)
+
+	serverConfig := p.API.GetConfig()
+	dialogReq := model.OpenDialogRequest{
+		TriggerId: request.TriggerId,
+		URL:       fmt.Sprintf("%s/plugins/%s/dialog/cargo/tasks", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+		Dialog:    getDialogLocationTasks(sortieID, waypointID),
+	}
+	if appErr := p.API.OpenInteractiveDialog(dialogReq); appErr != nil {
+		p.API.LogError("Failed to open location tasks dialog", "err", appErr.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	p.writeJSON(w, &model.PostActionIntegrationResponse{})
+}
+
+// handleCargoTasks is the shared submit URL for Dialog B and Dialog C.
+// Dialog B (cargo_sortie_*): user selected a waypoint → return Dialog C as form replacement.
+// Dialog C (cargo_tasks):    user saved task checkboxes → update state, return fresh Dialog B.
+func (p *Plugin) handleCargoTasks(w http.ResponseWriter, r *http.Request) {
+	var request model.SubmitDialogRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		p.API.LogError("Failed to decode cargo tasks request", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	if request.Cancelled {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	// Dialog B submit: waypoint selected — return Dialog C as form replacement.
+	if strings.HasPrefix(request.CallbackId, "cargo_sortie_") {
+		sortieID := request.State
+		waypointID := interfaceToString(request.Submission["waypoint_id"])
+		if waypointID == "" {
+			p.writeJSON(w, &model.SubmitDialogResponse{
+				Errors: map[string]string{"waypoint_id": "Please select a waypoint."},
+			})
+			return
+		}
+		dialog := getDialogLocationTasks(sortieID, waypointID)
+		p.writeJSON(w, &model.SubmitDialogResponse{Type: "form", Form: &dialog})
+		return
+	}
+
+	// Dialog C submit: save task checkboxes, return fresh Dialog B.
+	parts := strings.SplitN(request.State, "::", 2)
+	if len(parts) != 2 {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	sortieID, waypointID := parts[0], parts[1]
+
+	_, si := findSortie(sortieID)
+	if si < 0 {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	_, wi := findCargoWaypoint(&sorties[si], waypointID)
+	if wi < 0 {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	for ti := range sorties[si].Waypoints[wi].Tasks {
+		t := &sorties[si].Waypoints[wi].Tasks[ti]
+		t.Completed = interfaceToString(request.Submission[t.ID]) == "true"
+	}
+
+	user, _ := p.API.GetUser(request.UserId)
+	username := "someone"
+	if user != nil {
+		username = "@" + user.Username
+	}
+	wp := sorties[si].Waypoints[wi]
+	done, total := taskProgress(wp)
+	msg := fmt.Sprintf("**%s · %s — Tasks Updated** by %s (%d/%d complete)\n",
+		sortieID, wp.Location, username, done, total)
+	for _, t := range wp.Tasks {
+		icon := "⬜"
+		if t.Completed {
+			icon = "✅"
+		}
+		msg += fmt.Sprintf("- %s %s\n", icon, t.Name)
+	}
+	_, _ = p.API.CreatePost(&model.Post{
+		UserId:    p.botID,
+		ChannelId: request.ChannelId,
+		Message:   msg,
+	})
+
+	updated := getDialogSortieDetail(sortieID)
+	p.writeJSON(w, &model.SubmitDialogResponse{Type: "form", Form: &updated})
 }
 
 func formatJSON(v any) string {

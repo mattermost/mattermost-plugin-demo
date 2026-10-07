@@ -24,7 +24,7 @@ func TestIncidentDialogsAreValid(t *testing.T) {
 		})
 
 		t.Run("note/"+inc.ID, func(t *testing.T) {
-			d := getDialogTimelineNote(inc.ID)
+			d := getDialogTimelineNote(inc.ID, nil)
 			require.NoError(t, d.IsValid())
 		})
 	}

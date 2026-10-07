@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/mattermost/mattermost/server/public/model"
 )
@@ -1182,7 +1184,13 @@ func statusIcon(s string) string {
 	}
 }
 
+// incidentsMu guards incidents and incidentTimelines, which triage and timeline
+// note submissions update so the refreshed parent dialogs reflect the change.
+var incidentsMu sync.Mutex
+
 func findIncident(id string) (incident, bool) {
+	incidentsMu.Lock()
+	defer incidentsMu.Unlock()
 	for _, inc := range incidents {
 		if inc.ID == id {
 			return inc, true
@@ -1191,13 +1199,59 @@ func findIncident(id string) (incident, bool) {
 	return incident{}, false
 }
 
+// updateIncident applies non-empty fields to the incident with the given ID.
+func updateIncident(id, status, severity, owner string) {
+	incidentsMu.Lock()
+	defer incidentsMu.Unlock()
+	for i := range incidents {
+		if incidents[i].ID != id {
+			continue
+		}
+		if status != "" {
+			incidents[i].Status = status
+		}
+		if severity != "" {
+			incidents[i].Severity = severity
+		}
+		if owner != "" {
+			incidents[i].Owner = owner
+		}
+		return
+	}
+}
+
+func addTimelineEntry(incID, noteType, message string) {
+	incidentsMu.Lock()
+	defer incidentsMu.Unlock()
+	incidentTimelines[incID] = append(incidentTimelines[incID], timelineEntry{
+		Time:    time.Now().UTC().Format("15:04 UTC"),
+		Type:    noteType,
+		Message: message,
+	})
+}
+
+func getTimeline(incID string) []timelineEntry {
+	incidentsMu.Lock()
+	defer incidentsMu.Unlock()
+	return append([]timelineEntry(nil), incidentTimelines[incID]...)
+}
+
+func getIncidents() []incident {
+	incidentsMu.Lock()
+	defer incidentsMu.Unlock()
+	return append([]incident(nil), incidents...)
+}
+
 // Dialog A: Incident Board — action buttons serve as both the listing and navigation.
+// SourceURL is called when a stacked triage dialog closes, so the board picks up
+// the saved triage changes while keeping any Shift Notes the user typed.
 func getDialogIncidentBoard() model.Dialog {
+	current := getIncidents()
 	counts := map[string]int{}
-	for _, inc := range incidents {
+	for _, inc := range current {
 		counts[inc.Severity]++
 	}
-	intro := fmt.Sprintf("**%d Active Incidents** — ", len(incidents))
+	intro := fmt.Sprintf("**%d Active Incidents** — ", len(current))
 	parts := []string{}
 	for _, sev := range []string{"critical", "high", "medium", "low"} {
 		if c, ok := counts[sev]; ok && c > 0 {
@@ -1210,7 +1264,7 @@ func getDialogIncidentBoard() model.Dialog {
 	// capped at DialogElementDisplayNameMaxLength (24 bytes), which a
 	// "<id> — <title> (<status>)" label blows past.
 	intro += "\n\n| Incident | Title | Status |\n|---|---|---|\n"
-	for _, inc := range incidents {
+	for _, inc := range current {
 		intro += fmt.Sprintf("| %s %s | %s | %s %s |\n",
 			severityIcon(inc.Severity), inc.ID,
 			inc.Title,
@@ -1219,8 +1273,15 @@ func getDialogIncidentBoard() model.Dialog {
 	}
 	intro += "\nSelect an incident to triage."
 
-	elements := make([]model.DialogElement, 0, len(incidents))
-	for _, inc := range incidents {
+	elements := make([]model.DialogElement, 0, len(current)+2)
+	elements = append(elements, model.DialogElement{
+		DisplayName: "Shift Notes",
+		Name:        "shift_notes",
+		Type:        "text",
+		Placeholder: "Kept when a triage dialog closes",
+		Optional:    true,
+	})
+	for _, inc := range current {
 		elements = append(elements, model.DialogElement{
 			DisplayName: fmt.Sprintf("%s %s", severityIcon(inc.Severity), inc.ID),
 			Name:        "btn_" + inc.ID,
@@ -1252,6 +1313,7 @@ func getDialogIncidentBoard() model.Dialog {
 		SubmitLabel:      "Dismiss",
 		NotifyOnCancel:   true,
 		State:            "incident_board",
+		SourceURL:        fmt.Sprintf("/plugins/%s/dialog/incident/source", manifest.Id),
 		Elements:         elements,
 	}
 }
@@ -1264,13 +1326,22 @@ func getDialogIncidentTriage(inc incident, ownerUserID string) model.Dialog {
 	} else {
 		owner = "@" + owner
 	}
-	intro := fmt.Sprintf("**%s**\n\n- Severity: %s %s\n- Status: %s %s\n- Owner: %s",
+	timeline := getTimeline(inc.ID)
+	latest := "_none_"
+	if len(timeline) > 0 {
+		e := timeline[len(timeline)-1]
+		latest = fmt.Sprintf("%s (%s) %s", e.Time, e.Type, e.Message)
+	}
+	intro := fmt.Sprintf("**%s**\n\n- Severity: %s %s\n- Status: %s %s\n- Owner: %s\n- Timeline: %d entries, latest: %s",
 		inc.Title,
 		severityIcon(inc.Severity), inc.Severity,
 		statusIcon(inc.Status), inc.Status,
 		owner,
+		len(timeline), latest,
 	)
 
+	// SourceURL is called when the stacked timeline note dialog closes, so the
+	// timeline summary updates while keeping any status/severity the user picked.
 	return model.Dialog{
 		CallbackId:       "incident_triage_" + inc.ID,
 		Title:            inc.ID + " — Triage",
@@ -1278,6 +1349,7 @@ func getDialogIncidentTriage(inc incident, ownerUserID string) model.Dialog {
 		SubmitLabel:      "Update Incident",
 		NotifyOnCancel:   true,
 		State:            "incident_triage",
+		SourceURL:        fmt.Sprintf("/plugins/%s/dialog/incident/source", manifest.Id),
 		Elements: []model.DialogElement{
 			{
 				DisplayName: "Status",
@@ -1327,17 +1399,60 @@ func getDialogIncidentTriage(inc incident, ownerUserID string) model.Dialog {
 	}
 }
 
-// Dialog C: Timeline Note — shows existing timeline and lets the user add a new entry.
-func getDialogTimelineNote(incID string) model.Dialog {
-	entries := incidentTimelines[incID]
+// Name of the hidden select whose options render as the Timeline Note dialog's
+// submit buttons (Dialog.SubmitButtons).
+const timelineNoteActionField = "note_action"
+
+const (
+	timelineNoteActionAdd   = "add"
+	timelineNoteActionClose = "close"
+)
+
+// pendingNotes holds notes added with "Add Note" but not yet saved with
+// "Save & Close", keyed by pendingNotesKey. Guarded by incidentsMu.
+var pendingNotes = map[string][]timelineEntry{}
+
+func pendingNotesKey(userID, incID string) string {
+	return userID + ":" + incID
+}
+
+func addPendingNote(userID, incID, noteType, message string) []timelineEntry {
+	incidentsMu.Lock()
+	defer incidentsMu.Unlock()
+	key := pendingNotesKey(userID, incID)
+	pendingNotes[key] = append(pendingNotes[key], timelineEntry{
+		Time:    time.Now().UTC().Format("15:04 UTC"),
+		Type:    noteType,
+		Message: message,
+	})
+	return append([]timelineEntry(nil), pendingNotes[key]...)
+}
+
+// takePendingNotes removes and returns the user's pending notes for an incident.
+func takePendingNotes(userID, incID string) []timelineEntry {
+	incidentsMu.Lock()
+	defer incidentsMu.Unlock()
+	key := pendingNotesKey(userID, incID)
+	notes := pendingNotes[key]
+	delete(pendingNotes, key)
+	return notes
+}
+
+// Dialog C: Timeline Note — shows the timeline plus any pending notes. "Add Note"
+// stages a note and keeps the dialog open; "Save & Close" saves them and closes.
+func getDialogTimelineNote(incID string, pending []timelineEntry) model.Dialog {
+	entries := getTimeline(incID)
 
 	var intro string
-	if len(entries) == 0 {
+	if len(entries) == 0 && len(pending) == 0 {
 		intro = "No timeline entries yet."
 	} else {
 		intro = "| Time | Type | Message |\n|---|---|---|\n"
 		for _, e := range entries {
 			intro += fmt.Sprintf("| %s | %s | %s |\n", e.Time, e.Type, e.Message)
+		}
+		for _, e := range pending {
+			intro += fmt.Sprintf("| %s | %s | \U0001f195 %s _(unsaved)_ |\n", e.Time, e.Type, e.Message)
 		}
 	}
 
@@ -1345,14 +1460,16 @@ func getDialogTimelineNote(incID string) model.Dialog {
 		CallbackId:       "timeline_note_" + incID,
 		Title:            incID + " — Add Note",
 		IntroductionText: intro,
-		SubmitLabel:      "Add Note",
 		NotifyOnCancel:   true,
 		State:            "timeline_note",
+		SubmitButtons:    timelineNoteActionField,
 		Elements: []model.DialogElement{
 			{
 				DisplayName: "Note Type",
 				Name:        "note_type",
 				Type:        "select",
+				Default:     "update",
+				Optional:    true,
 				Options: []*model.PostActionOptions{
 					{Text: "Update", Value: "update"},
 					{Text: "Root Cause", Value: "root_cause"},
@@ -1361,11 +1478,25 @@ func getDialogTimelineNote(incID string) model.Dialog {
 				},
 			},
 			{
+				// Optional so "Save & Close" works with an empty message; "Add Note"
+				// requires one and is validated by the submit handler.
 				DisplayName: "Message",
 				Name:        "message",
 				Type:        "textarea",
 				Placeholder: "Describe what happened, what was found, or what action was taken...",
 				MaxLength:   1000,
+				Optional:    true,
+			},
+			{
+				// Not rendered: its options become the dialog's submit buttons.
+				DisplayName: "Action",
+				Name:        timelineNoteActionField,
+				Type:        "select",
+				Optional:    true,
+				Options: []*model.PostActionOptions{
+					{Text: "Add Note", Value: timelineNoteActionAdd},
+					{Text: "Save & Close", Value: timelineNoteActionClose},
+				},
 			},
 		},
 	}

@@ -565,6 +565,12 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog:    getDialogIncidentBoard(),
 		}
+	case "cargo":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/cargo/board", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogCargoBoard(),
+		}
 	case "file-upload":
 		dialogRequest = model.OpenDialogRequest{
 			TriggerId: args.TriggerId,
