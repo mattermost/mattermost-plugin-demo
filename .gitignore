@@ -8,3 +8,6 @@ dist
 
 # Claude Code guidance file
 CLAUDE.local.md
+
+# Stray go build artifact (make builds into server/dist/)
+/server/server

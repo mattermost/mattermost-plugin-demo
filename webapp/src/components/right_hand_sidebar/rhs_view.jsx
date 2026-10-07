@@ -12,15 +12,15 @@ export default function RHSView({team, channel}) {
     // useEffect example: automatically pop out the RHS when autoPopout is toggled on
     useEffect(() => {
         if (autoPopout) {
-            if (popoutSupported) {
+            if (popoutSupported && team && channel) {
                 window.WebappUtils.popouts.popoutRhsPlugin('Demo Plugin', pluginId, team.name, channel.name);
             }
             setAutoPopout(false);
         }
-    }, [autoPopout, popoutSupported, team.name, channel.name]);
+    }, [autoPopout, popoutSupported, team?.name, channel?.name]);
 
     const handlePopout = () => {
-        if (popoutSupported) {
+        if (popoutSupported && team && channel) {
             window.WebappUtils.popouts.popoutRhsPlugin('Demo Plugin', pluginId, team.name, channel.name);
         }
     };
@@ -53,8 +53,8 @@ export default function RHSView({team, channel}) {
                 {'/plug/com.mattermost.demo-plugin/roottest'}
             </a>
             <br/>
-            <a onClick={() => window.WebappUtils.browserHistory.push(`/${team.name}/com.mattermost.demo-plugin/teamtest`)}>
-                {`/${team.name}/com.mattermost.demo-plugin/teamtest`}
+            <a onClick={() => team && window.WebappUtils.browserHistory.push(`/${team.name}/com.mattermost.demo-plugin/teamtest`)}>
+                {`/${team?.name}/com.mattermost.demo-plugin/teamtest`}
             </a>
             <br/>
             <br/>

@@ -21,7 +21,10 @@ export default class LeftSidebarHeader extends React.PureComponent {
         };
 
         return (
-            <div style={style}>
+            <div
+                style={style}
+                data-testid='demo-plugin-hook-status'
+            >
                 <i
                     className='icon fa fa-plug'
                     style={iconStyle}
