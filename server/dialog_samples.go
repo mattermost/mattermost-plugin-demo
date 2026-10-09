@@ -182,6 +182,210 @@ func getDialogWithIntroductionText(introductionText string) model.Dialog {
 	return dialog
 }
 
+// getDialogWithFillableTable is the "flatten" answer to a fillable table:
+// every cell is an ordinary dialog element with a synthesized name, one
+// collapsible per row, all wrapped in a grid container. See
+// server/fillable_table.go for why the cells need no change to the submission
+// or error models, and server/docs/fillable-table.md for the layout
+// change that renders the rows as a table.
+func getDialogWithFillableTable(state fillableTableState) model.Dialog {
+	widthOptions := make([]*model.PostActionOptions, 0, len(orderWidths))
+	for _, width := range orderWidths {
+		widthOptions = append(widthOptions, &model.PostActionOptions{Text: width.Label, Value: width.Value})
+	}
+
+	rowSections := make([]model.DialogElement, 0, len(state.Rows))
+	for i, row := range state.Rows {
+		rowSections = append(rowSections, model.DialogElement{
+			DisplayName: rowHeading(row, i),
+			Name:        rowSectionName(row.ID),
+			Type:        "collapsible",
+			CollapsibleConfig: &model.DialogElementCollapsibleConfig{
+				Collapsed:  false,
+				Borderless: true,
+				Elements:   orderRowElements(row),
+			},
+		})
+	}
+
+	return model.Dialog{
+		CallbackId:     "fillabletablecallbackid",
+		Title:          "Order Queue",
+		IconURL:        fillableTableIconURL,
+		SubmitLabel:    "Submit orders",
+		NotifyOnCancel: true,
+		State:          encodeFillableTableState(state),
+		SourceURL:      fmt.Sprintf("/plugins/%s/dialog/fillable-table", manifest.Id),
+
+		// The width tier. The integration picks it because it is the party that
+		// knows how much content the form holds - here, how many columns the
+		// grid has. Changing the selector below re-renders this same dialog at
+		// a different tier.
+		Size: state.Size,
+
+		IntroductionText: "Fill in a row per order, use **Add an order** for one that is not " +
+			"listed, then choose **Submit orders** to post the whole table at once. " +
+			"**Dialog width** resizes this modal in place.",
+		Elements: []model.DialogElement{{
+			// The grid container. Its children are one collapsible per row,
+			// and SubType "grid" asks the webapp to lay those rows out as a
+			// table instead of stacking them. Its DisplayName names the row
+			// dimension and is the section title if the same form is rendered
+			// stacked.
+			DisplayName: "Orders",
+			Name:        "order_grid",
+			Type:        "collapsible",
+			SubType:     "grid",
+			CollapsibleConfig: &model.DialogElementCollapsibleConfig{
+				Collapsed:  false,
+				Borderless: true,
+				Elements:   rowSections,
+			},
+		}, {
+			DisplayName: "Add an order",
+			Name:        fillableAddRowField,
+			Type:        "bool",
+			Placeholder: "Add an order",
+			HelpText:    "Appends an empty row. Anything already typed in is kept.",
+			Optional:    true,
+			Refresh:     true,
+		}, {
+			// Refreshing with a new width returns this same form with a
+			// different Dialog.Size, so the open modal resizes rather than
+			// reopening. Everything typed in survives it, because a refresh
+			// already carries the cell values back as Defaults.
+			DisplayName: "Dialog width",
+			Name:        fillableWidthField,
+			Type:        "select",
+			Placeholder: "Dialog width",
+			HelpText:    "Small is the width every dialog had before Dialog.Size existed. The grid scrolls sideways until there is room for it.",
+			Default:     state.Size,
+			Optional:    true,
+			Refresh:     true,
+			Options:     widthOptions,
+		}},
+	}
+}
+
+// orderRowElements is the column definition, applied to one row. The columns
+// are fixed; only the names and defaults change per row.
+func orderRowElements(row orderRow) []model.DialogElement {
+	statusOptions := make([]*model.PostActionOptions, 0, len(orderStatuses))
+	for _, status := range orderStatuses {
+		statusOptions = append(statusOptions, &model.PostActionOptions{Text: status, Value: status})
+	}
+
+	return []model.DialogElement{{
+		DisplayName: "Order #",
+		Name:        cellName(row.ID, "order"),
+		Type:        "text",
+		Placeholder: "e.g. SO-1042",
+		Default:     row.Order,
+		MaxLength:   12,
+	}, {
+		DisplayName: "Customer",
+		Name:        cellName(row.ID, "customer"),
+		Type:        "text",
+		Placeholder: "e.g. Acme Co",
+		Default:     row.Customer,
+		Optional:    true,
+		MaxLength:   12,
+	}, {
+		// Whole kilograms, because the webapp reads a number subtype with
+		// parseInt (widgets/settings/text_setting.tsx) and would drop the
+		// fraction without saying so. The server still accepts a decimal, since
+		// another client can send one.
+		DisplayName: "Weight (kg)",
+		Name:        cellName(row.ID, "weight"),
+		Type:        "text",
+		SubType:     "number",
+		Placeholder: "0",
+		Default:     row.Weight,
+	}, {
+		DisplayName: "Cases",
+		Name:        cellName(row.ID, "cases"),
+		Type:        "text",
+		SubType:     "number",
+		Placeholder: "0",
+		Default:     row.Cases,
+		Optional:    true,
+	}, {
+		DisplayName: "Status",
+		Name:        cellName(row.ID, "status"),
+		Type:        "select",
+		Placeholder: "Select a status...",
+		Default:     row.Status,
+		Options:     statusOptions,
+	}, {
+		// The last column is a button rather than an input. An action_button
+		// is a non-input element: it holds no value, so it needs no field on
+		// orderRow, and the client skips it when it checks for required
+		// values. Its DisplayName is both the column header and the button's
+		// own text.
+		//
+		// A click posts the button's Context — and only its Context — to the
+		// URL below, so the row has to be named there; the cell values the
+		// user has typed since the last refresh are not included. See
+		// handleDialogFillableTableRowAction for what that rules out.
+		DisplayName: "Details",
+		Name:        cellName(row.ID, fillableDetailsColumn),
+		Type:        "action_button",
+		Optional:    true,
+		ActionButton: &model.DialogActionButton{
+			URL: fmt.Sprintf("/plugins/%s/dialog/fillable-table/row-action", manifest.Id),
+			Context: map[string]string{
+				"row_id":   row.ID,
+				"order":    row.Order,
+				"customer": row.Customer,
+			},
+		},
+	}}
+}
+
+// getDialogFillableTableRowDetails is the child dialog a row's Details button
+// opens. It stacks on top of the order queue, keyed by its own trigger ID, and
+// is fully independent of it: a plugin cannot update a dialog that is already
+// open, so this asks for something new about the row rather than editing the
+// row's own cells.
+func getDialogFillableTableRowDetails(action rowAction) model.Dialog {
+	teamOptions := make([]*model.PostActionOptions, 0, len(fulfillmentTeams))
+	for _, team := range fulfillmentTeams {
+		teamOptions = append(teamOptions, &model.PostActionOptions{Text: team, Value: team})
+	}
+
+	return model.Dialog{
+		CallbackId:     "fillabletablerowcallbackid",
+		Title:          orderTitle(action),
+		IconURL:        fillableTableIconURL,
+		SubmitLabel:    "Request team",
+		NotifyOnCancel: false,
+
+		// The row travels in State for the same reason the order queue does:
+		// the submit arrives on a fresh request with no memory of the click.
+		// The submit URL is not here but on the OpenDialogRequest that opens
+		// this dialog, the same as every other dialog in this demo.
+		State: encodeRowAction(action),
+		IntroductionText: fmt.Sprintf(
+			"**Order #:** %s  |  **Customer:** %s  |  **Row:** `%s`",
+			cellOrDash(action.Order), cellOrDash(action.Customer), action.RowID,
+		),
+		Elements: []model.DialogElement{{
+			DisplayName: "Fulfillment team",
+			Name:        "team",
+			Type:        "select",
+			Placeholder: "Assign a team...",
+			Options:     teamOptions,
+		}, {
+			DisplayName: "Note",
+			Name:        "note",
+			Type:        "textarea",
+			Placeholder: "Anything the team should know before it ships...",
+			Optional:    true,
+			MaxLength:   500,
+		}},
+	}
+}
+
 func getDialogBasic() model.Dialog {
 	return model.Dialog{
 		CallbackId:     "basiccallbackid",
@@ -1289,8 +1493,8 @@ func getDialogDateTimeTimezone() model.Dialog {
 				Type:        "datetime",
 				HelpText:    "Type time in Europe/London time: 9am, 14:30, 3:45pm - no rounding",
 				DateTimeConfig: &model.DialogDateTimeConfig{
-					LocationTimezone:     "Europe/London",
-					ManualTimeEntry: true,
+					LocationTimezone: "Europe/London",
+					ManualTimeEntry:  true,
 				},
 				Optional: true,
 			},
