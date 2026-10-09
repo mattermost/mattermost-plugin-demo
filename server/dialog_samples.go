@@ -1493,8 +1493,8 @@ func getDialogDateTimeTimezone() model.Dialog {
 				Type:        "datetime",
 				HelpText:    "Type time in Europe/London time: 9am, 14:30, 3:45pm - no rounding",
 				DateTimeConfig: &model.DialogDateTimeConfig{
-					LocationTimezone:     "Europe/London",
-					ManualTimeEntry: true,
+					LocationTimezone: "Europe/London",
+					ManualTimeEntry:  true,
 				},
 				Optional: true,
 			},
