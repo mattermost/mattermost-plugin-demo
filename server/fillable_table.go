@@ -68,7 +68,7 @@ var orderWidths = []struct {
 	Value string
 	Label string
 }{
-	{model.DialogSizeSmall, "Small - 600px (today's width)"},
+	{model.DialogSizeSmall, "Small - 600px (default width)"},
 	{model.DialogSizeMedium, "Medium - 700px"},
 	{model.DialogSizeLarge, "Large - 900px"},
 }
