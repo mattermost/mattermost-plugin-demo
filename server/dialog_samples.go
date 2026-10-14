@@ -1243,8 +1243,8 @@ func getIncidents() []incident {
 }
 
 // Dialog A: Incident Board — action buttons serve as both the listing and navigation.
-// SourceURL is called when a stacked triage dialog closes, so the board picks up
-// the saved triage changes while keeping any Shift Notes the user typed.
+// RefreshOnReturn calls SourceURL when a stacked triage dialog closes, so the board
+// picks up the saved triage changes while keeping any Shift Notes the user typed.
 func getDialogIncidentBoard() model.Dialog {
 	current := getIncidents()
 	counts := map[string]int{}
@@ -1314,6 +1314,7 @@ func getDialogIncidentBoard() model.Dialog {
 		NotifyOnCancel:   true,
 		State:            "incident_board",
 		SourceURL:        fmt.Sprintf("/plugins/%s/dialog/incident/source", manifest.Id),
+		RefreshOnReturn:  true,
 		Elements:         elements,
 	}
 }
@@ -1327,21 +1328,23 @@ func getDialogIncidentTriage(inc incident, ownerUserID string) model.Dialog {
 		owner = "@" + owner
 	}
 	timeline := getTimeline(inc.ID)
-	latest := "_none_"
-	if len(timeline) > 0 {
-		e := timeline[len(timeline)-1]
-		latest = fmt.Sprintf("%s (%s) %s", e.Time, e.Type, e.Message)
+	entries := fmt.Sprintf("%d entries", len(timeline))
+	if len(timeline) == 1 {
+		entries = "1 entry"
 	}
-	intro := fmt.Sprintf("**%s**\n\n- Severity: %s %s\n- Status: %s %s\n- Owner: %s\n- Timeline: %d entries, latest: %s",
+	intro := fmt.Sprintf("**%s**\n\n- Severity: %s %s\n- Status: %s %s\n- Owner: %s\n- Timeline: %s",
 		inc.Title,
 		severityIcon(inc.Severity), inc.Severity,
 		statusIcon(inc.Status), inc.Status,
 		owner,
-		len(timeline), latest,
+		entries,
 	)
+	for _, e := range timeline {
+		intro += fmt.Sprintf("\n  - %s, %s: %s", e.Time, e.Type, escapeMD(truncateLine(e.Message, timelineMessageMaxRunes)))
+	}
 
-	// SourceURL is called when the stacked timeline note dialog closes, so the
-	// timeline summary updates while keeping any status/severity the user picked.
+	// RefreshOnReturn calls SourceURL when the stacked timeline note dialog closes, so
+	// the timeline summary updates while keeping any status/severity the user picked.
 	return model.Dialog{
 		CallbackId:       "incident_triage_" + inc.ID,
 		Title:            inc.ID + " — Triage",
@@ -1350,6 +1353,7 @@ func getDialogIncidentTriage(inc incident, ownerUserID string) model.Dialog {
 		NotifyOnCancel:   true,
 		State:            "incident_triage",
 		SourceURL:        fmt.Sprintf("/plugins/%s/dialog/incident/source", manifest.Id),
+		RefreshOnReturn:  true,
 		Elements: []model.DialogElement{
 			{
 				DisplayName: "Status",
@@ -1517,6 +1521,20 @@ var mdEscaper = strings.NewReplacer(
 // in user-supplied text before embedding it in a bot-authored post.
 func escapeMD(s string) string {
 	return mdEscaper.Replace(s)
+}
+
+// timelineMessageMaxRunes keeps a timeline entry on one line in the triage dialog.
+const timelineMessageMaxRunes = 40
+
+// truncateLine collapses s onto a single line and shortens it to at most maxRunes
+// runes, ending with "…" when it is cut.
+func truncateLine(s string, maxRunes int) string {
+	s = strings.Join(strings.Fields(s), " ")
+	r := []rune(s)
+	if len(r) <= maxRunes {
+		return s
+	}
+	return string(r[:maxRunes-1]) + "…"
 }
 
 func getDialogWithFileUpload() model.Dialog {
