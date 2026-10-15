@@ -49,6 +49,7 @@ const (
 		"- `/dialog datetime-timezone` - Open an Interactive Dialog with timezone support and manual time entry.\n" +
 		"- `/dialog multi-select` - Open an Interactive Dialog with multi-select fields. Once submitted, user-entered input is posted back into a channel.\n" +
 		"- `/dialog collapsible` - Open an Interactive Dialog with collapsible sections grouping child fields.\n" +
+		"- `/dialog fillable-table` - Open an Interactive Dialog with a fillable table: a cell per element, per-cell errors, and rows you can add.\n" +
 		"- `/dialog error` - Open an Interactive Dialog which always returns an general error.\n" +
 		"- `/dialog error-no-elements` - Open an Interactive Dialog with no elements which always returns an general error.\n" +
 		"- `/dialog field-refresh` - Open an Interactive Dialog with field refresh functionality.\n" +
@@ -225,6 +226,10 @@ func getCommandDialogAutocompleteData() *model.AutocompleteData {
 
 	collapsible := model.NewAutocompleteData("collapsible", "", "Open an Interactive Dialog with collapsible sections.")
 	command.AddCommand(collapsible)
+
+	fillableTable := model.NewAutocompleteData("fillable-table", "", "Open an Interactive Dialog with a fillable table built from ordinary elements.")
+	command.AddCommand(fillableTable)
+
 	fileUpload := model.NewAutocompleteData("file-upload", "", "Open an Interactive Dialog with file upload fields (always fresh).")
 	command.AddCommand(fileUpload)
 
@@ -530,6 +535,12 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog:    getDialogWithCollapsibleElements(),
+		}
+	case "fillable-table":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/fillable-table", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogWithFillableTable(defaultOrderRows()),
 		}
 	case "error":
 		dialogRequest = model.OpenDialogRequest{

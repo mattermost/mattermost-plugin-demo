@@ -58,6 +58,9 @@ func (p *Plugin) initializeAPI() {
 	dialogRouter.HandleFunc("/field-refresh", p.handleDialogFieldRefresh)
 	dialogRouter.HandleFunc("/multistep", p.handleDialogMultistep)
 	dialogRouter.HandleFunc("/file-upload", p.handleDialogFileUpload)
+	dialogRouter.HandleFunc("/fillable-table", p.handleDialogFillableTable)
+	dialogRouter.HandleFunc("/fillable-table/row-action", p.handleDialogFillableTableRowAction)
+	dialogRouter.HandleFunc("/fillable-table/row-details", p.handleDialogFillableTableRowDetails)
 
 	dialogRouter.HandleFunc("/products", p.handleDynamicProducts).Methods(http.MethodPost)
 	dialogRouter.HandleFunc("/companies", p.handleDynamicCompanies).Methods(http.MethodPost)
@@ -287,6 +290,184 @@ func (p *Plugin) handleDialog3(w http.ResponseWriter, r *http.Request) {
 	}); appErr != nil {
 		p.API.LogError("Failed to post handleDialog3 message", "err", appErr.Error())
 		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+// handleDialogFillableTable handles /dialog fillable-table. Because every cell
+// is an ordinary element, this handler never decodes a bespoke grid payload:
+// cell values arrive in request.Submission like any other field, and errors go
+// back in the ordinary Errors map keyed by cell name.
+//
+//   - A refresh from "Add an order" appends a blank row and returns the
+//     form, with everything already typed in preserved as element Defaults.
+//   - A submit validates every cell. Any failure comes back as per-cell
+//     errors and the modal stays open; otherwise the order queue is posted.
+func (p *Plugin) handleDialogFillableTable(w http.ResponseWriter, r *http.Request) {
+	var request model.SubmitDialogRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		p.API.LogError("Failed to decode SubmitDialogRequest for fillable table", "err", err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	if request.Cancelled {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	state, err := decodeFillableTableState(request.State)
+	if err != nil {
+		p.API.LogWarn("Invalid fillable table dialog state", "err", err.Error())
+		p.writeJSON(w, &model.SubmitDialogResponse{Error: "The order queue could not be read. Close the dialog and run the command again."})
+		return
+	}
+
+	// Cell values round trip as ordinary fields, so folding them back into the
+	// rows is all it takes to keep half-finished input on screen. The width
+	// selector is an ordinary field too, so it folds back the same way and a
+	// refresh for any other reason keeps the width the user picked.
+	state = applySubmissionToRows(state, request.Submission)
+	state = applyWidthToState(state, request.Submission)
+
+	if request.Type == "refresh" {
+		if interfaceToString(request.Submission["selected_field"]) == fillableAddRowField {
+			state, err = addOrderRow(state)
+			if err != nil {
+				p.writeJSON(w, &model.SubmitDialogResponse{
+					Errors: map[string]string{fillableAddRowField: err.Error()},
+				})
+				return
+			}
+		}
+
+		dialog := getDialogWithFillableTable(state)
+		p.writeJSON(w, &model.SubmitDialogResponse{Type: "form", Form: &dialog})
+		return
+	}
+
+	if errs := validateOrders(state); len(errs) > 0 {
+		// Returning only Errors keeps the modal open with the user's values.
+		p.writeJSON(w, &model.SubmitDialogResponse{Errors: errs})
+		return
+	}
+
+	user, appErr := p.API.GetUser(request.UserId)
+	if appErr != nil {
+		p.API.LogError("Failed to get user for fillable table dialog", "err", appErr.Error())
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	if _, appErr = p.API.CreatePost(&model.Post{
+		UserId:    p.botID,
+		ChannelId: request.ChannelId,
+		Message:   fmt.Sprintf("@%v submitted the order queue:\n\n%s", user.Username, renderOrderTable(state)),
+	}); appErr != nil {
+		p.API.LogError("Failed to post fillable table dialog result", "err", appErr.Error())
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+// handleDialogFillableTableRowAction handles a click on a row's Details
+// button. An action_button click is a separate request from the dialog it sits
+// in — it arrives as a PostActionIntegrationRequest carrying the button's
+// Context and a fresh trigger ID, with no submission attached.
+//
+// That shapes what the button can do. The click does not carry the values
+// typed into the grid, and a plugin cannot update a dialog that is already
+// open, so this cannot edit or delete the row it belongs to; the parent
+// order queue would keep showing the old table either way. What it can do is
+// open a child dialog on top, which is what it does here. Row mutation goes
+// through the refresh path instead, the way "Add an order" does.
+func (p *Plugin) handleDialogFillableTableRowAction(w http.ResponseWriter, r *http.Request) {
+	var request model.PostActionIntegrationRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		p.API.LogError("Failed to decode PostActionIntegrationRequest for fillable table row action", "err", err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	action := rowActionFromContext(request.Context)
+	if action.RowID == "" {
+		p.API.LogWarn("Fillable table row action has no row id in its context")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	dialog := getDialogFillableTableRowDetails(action)
+	siteURL := *p.API.GetConfig().ServiceSettings.SiteURL
+	if appErr := p.API.OpenInteractiveDialog(model.OpenDialogRequest{
+		TriggerId: request.TriggerId,
+		URL:       fmt.Sprintf("%s/plugins/%s/dialog/fillable-table/row-details", siteURL, manifest.Id),
+		Dialog:    dialog,
+	}); appErr != nil {
+		p.API.LogError("Failed to open fillable table row dialog", "err", appErr.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	p.writeJSON(w, &model.PostActionIntegrationResponse{})
+}
+
+// handleDialogFillableTableRowDetails handles the child dialog's submit. The
+// row it refers to comes back in State, because the submit is a fresh request
+// that knows nothing about the click that opened the dialog.
+func (p *Plugin) handleDialogFillableTableRowDetails(w http.ResponseWriter, r *http.Request) {
+	var request model.SubmitDialogRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		p.API.LogError("Failed to decode SubmitDialogRequest for fillable table row details", "err", err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	if request.Cancelled {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	action, err := decodeRowAction(request.State)
+	if err != nil {
+		p.API.LogWarn("Invalid fillable table row action state", "err", err.Error())
+		p.writeJSON(w, &model.SubmitDialogResponse{Error: "That row could not be read. Close the dialog and try again."})
+		return
+	}
+
+	// The submission comes from the client, so the team is matched against the
+	// options the dialog offered rather than pasted into the post as typed.
+	team, ok := matchFulfillmentTeam(interfaceToString(request.Submission["team"]))
+	if !ok {
+		p.writeJSON(w, &model.SubmitDialogResponse{
+			Errors: map[string]string{"team": "Choose a fulfillment team"},
+		})
+		return
+	}
+
+	user, appErr := p.API.GetUser(request.UserId)
+	if appErr != nil {
+		p.API.LogError("Failed to get user for fillable table row details", "err", appErr.Error())
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	message := fmt.Sprintf("@%v requested **%s** for %s (row `%s`).", user.Username, team, orderLabel(action), action.RowID)
+	// Every line of the note needs its own marker, or a multi-line note falls
+	// out of the quote after the first line.
+	if note := strings.TrimSpace(interfaceToString(request.Submission["note"])); note != "" {
+		message += "\n\n> " + strings.ReplaceAll(note, "\n", "\n> ")
+	}
+
+	if _, appErr = p.API.CreatePost(&model.Post{
+		UserId:    p.botID,
+		ChannelId: request.ChannelId,
+		Message:   message,
+	}); appErr != nil {
+		p.API.LogError("Failed to post fillable table row details result", "err", appErr.Error())
 	}
 
 	w.WriteHeader(http.StatusOK)
