@@ -57,8 +57,10 @@ and a status to fill in.
 - **The row header is the row's first cell**, and it stays editable: the webapp
   renders it in a sticky `<th scope="row">` so it stays put while a wide grid
   scrolls sideways. Renaming the leftmost column means renaming that element;
-  there is no separate corner label, and the container's own `DisplayName` is
-  the section title only if the same form renders stacked.
+  there is no separate corner label. The container's own `DisplayName` is the
+  section heading above the table, and its `Collapsed` and `Borderless` work
+  the same way they do stacked: a grid container is an ordinary collapsible,
+  and only the arrangement of its children differs.
 - **Each cell's own label is visually hidden** (kept for assistive technology),
   because the column header carries the text.
 - **Submitting** validates every cell and posts the whole queue as a Markdown
