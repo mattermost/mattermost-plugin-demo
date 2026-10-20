@@ -1457,10 +1457,12 @@ func getDialogTimelineNote(incID string, pending []timelineEntry) model.Dialog {
 	} else {
 		intro = "| Time | Type | Message |\n|---|---|---|\n"
 		for _, e := range entries {
-			intro += fmt.Sprintf("| %s | %s | %s |\n", e.Time, e.Type, e.Message)
+			message := escapeMD(strings.Join(strings.Fields(e.Message), " "))
+			intro += fmt.Sprintf("| %s | %s | %s |\n", e.Time, e.Type, message)
 		}
 		for _, e := range pending {
-			intro += fmt.Sprintf("| %s | %s | \U0001f195 %s _(unsaved)_ |\n", e.Time, e.Type, e.Message)
+			message := escapeMD(strings.Join(strings.Fields(e.Message), " "))
+			intro += fmt.Sprintf("| %s | %s | \U0001f195 %s _(unsaved)_ |\n", e.Time, e.Type, message)
 		}
 	}
 
