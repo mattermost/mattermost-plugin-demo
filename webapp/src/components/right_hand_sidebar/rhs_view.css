@@ -1,0 +1,137 @@
+.demo-rhs {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+    color: var(--center-channel-color);
+}
+
+.demo-rhs__title-row {
+    padding: 16px 20px 8px;
+}
+
+.demo-rhs__tabs {
+    flex: none;
+    padding: 0 12px;
+}
+
+.demo-rhs__panel {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.demo-rhs__guide {
+    display: flex;
+    height: 100%;
+    box-sizing: border-box;
+    flex-direction: column;
+    padding: 16px 20px 24px;
+    gap: 16px;
+    overflow-y: auto;
+}
+
+.demo-rhs__header {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.demo-rhs__title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.demo-rhs__title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 24px;
+}
+
+.demo-rhs__text {
+    margin: 0;
+    color: rgba(var(--center-channel-color-rgb), 0.72);
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.demo-rhs__empty {
+    text-align: center;
+}
+
+.demo-rhs__section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.demo-rhs__section-title {
+    margin: 8px 0 0;
+    color: rgba(var(--center-channel-color-rgb), 0.64);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 16px;
+    text-transform: uppercase;
+}
+
+.demo-rhs__list {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    margin: 0;
+    gap: 4px;
+    list-style: none;
+}
+
+.demo-rhs__item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-radius: 8px;
+    gap: 12px;
+}
+
+.demo-rhs__item:hover {
+    background: rgba(var(--center-channel-color-rgb), 0.04);
+}
+
+.demo-rhs__item-text {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.demo-rhs__name {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 20px;
+}
+
+.demo-rhs__api {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: rgba(var(--center-channel-color-rgb), 0.64);
+    font-size: 12px;
+    line-height: 16px;
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+
+.demo-rhs__path {
+    font-family: monospace;
+    font-size: 12px;
+    line-height: 16px;
+    overflow-wrap: anywhere;
+}
+
+.demo-rhs__sample {
+    margin-top: 4px;
+    font-size: 14px;
+    font-style: italic;
+    line-height: 20px;
+}

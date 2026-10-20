@@ -1,3 +1,5 @@
+import '@mattermost/compass-ui/styles';
+
 import Plugin from './plugin';
 import {id as pluginId} from './manifest';
 

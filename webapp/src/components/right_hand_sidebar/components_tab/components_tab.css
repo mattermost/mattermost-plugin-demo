@@ -1,0 +1,415 @@
+.DemoCompassShowcase {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    background: var(--center-channel-bg);
+    color: var(--center-channel-color);
+}
+
+.DemoCompassShowcase__nav {
+    position: relative;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.DemoCompassShowcase__pane {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+}
+
+.DemoCompassShowcase__pane--push {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    background: var(--center-channel-bg);
+    box-shadow: -4px 0 16px rgba(var(--center-channel-color-rgb), 0.08);
+    animation: CompassShowcase-push-in var(--duration-moderate, 250ms) var(--ease-entrance, ease-out);
+}
+
+@keyframes CompassShowcase-push-in {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .DemoCompassShowcase__pane--push {
+        animation: none;
+    }
+}
+
+.DemoCompassShowcase__chrome {
+    flex: 0 0 auto;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-m, 12px);
+    padding: var(--spacing-l, 16px) var(--spacing-l, 16px) var(--spacing-xs, 8px);
+    background: var(--center-channel-bg);
+}
+
+.DemoCompassShowcase__chrome--detail {
+    padding: var(--spacing-l, 16px);
+}
+
+.DemoCompassShowcase__scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.DemoCompassShowcase__sections {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xxxl, 32px);
+    padding: var(--spacing-l, 16px);
+}
+
+.DemoCompassShowcase__section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-m, 12px);
+    min-width: 0;
+}
+
+.DemoCompassShowcase__sectionTitle {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 20px;
+    color: var(--center-channel-color);
+}
+
+.DemoCompassShowcase__grid {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 110px), 1fr));
+    gap: var(--spacing-l, 16px) var(--spacing-m, 12px);
+}
+
+.DemoCompassShowcase__card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: var(--spacing-xs, 8px);
+    width: 100%;
+    min-width: 0;
+}
+
+.DemoCompassShowcase__cardPreview {
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    overflow: clip;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    border: none;
+    border-radius: var(--radius-m, 8px);
+    background: rgba(var(--center-channel-color-rgb), 0.08);
+    text-align: left;
+    transition: background-color var(--duration-quick, 150ms) var(--ease-transition, ease-in-out);
+}
+
+.DemoCompassShowcase__card:hover .DemoCompassShowcase__cardPreview,
+.DemoCompassShowcase__card:has(:focus-visible) .DemoCompassShowcase__cardPreview {
+    background: rgba(var(--center-channel-color-rgb), 0.12);
+}
+
+.DemoCompassShowcase__cardPreview--sidebar,
+.DemoCompassShowcase__card:hover .DemoCompassShowcase__cardPreview--sidebar,
+.DemoCompassShowcase__card:has(:focus-visible) .DemoCompassShowcase__cardPreview--sidebar {
+    background: var(--sidebar-header-bg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .DemoCompassShowcase__cardPreview {
+        transition: none;
+    }
+}
+
+.DemoCompassShowcase__cardScaler {
+    overflow: clip;
+}
+
+.DemoCompassShowcase__cardStage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: max-content;
+    max-width: 280px;
+    padding: var(--spacing-m, 12px);
+    transform-origin: top left;
+    text-align: left;
+}
+
+.DemoCompassShowcase__cardStage:has(> .DemoCompassShowcase__widePreview) {
+    max-width: none;
+}
+
+.DemoCompassShowcase__cardName {
+    display: block;
+    box-sizing: border-box;
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    overflow: hidden;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+    color: var(--center-channel-color);
+    cursor: pointer;
+}
+
+.DemoCompassShowcase__cardName::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-m, 8px);
+}
+
+.DemoCompassShowcase__cardName:focus-visible {
+    outline: none;
+}
+
+.DemoCompassShowcase__cardName:focus-visible::after {
+    outline: 2px solid var(--button-bg);
+    outline-offset: 2px;
+}
+
+.DemoCompassShowcase__import {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs, 8px);
+    padding: var(--spacing-xxs, 6px) var(--spacing-xxs, 6px) var(--spacing-xxs, 6px) var(--spacing-s, 10px);
+    border-radius: var(--radius-s, 4px);
+    background: rgba(var(--center-channel-color-rgb), 0.06);
+}
+
+.DemoCompassShowcase__importCode {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--center-channel-color);
+    font-size: 11px;
+    line-height: 16px;
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+
+.DemoCompassShowcase__srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+.DemoCompassShowcase__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-l, 16px);
+    padding: var(--spacing-l, 16px);
+}
+
+.DemoCompassShowcase__body--detail {
+    gap: var(--spacing-xxl, 24px);
+    padding-top: var(--spacing-xs, 8px);
+}
+
+.DemoCompassShowcase [role='dialog'] {
+    max-width: 100%;
+}
+
+.DemoCompassShowcase__detailHeader {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-xs, 8px);
+}
+
+.DemoCompassShowcase__detailCopy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xxxs, 4px);
+    min-width: 0;
+}
+
+.DemoCompassShowcase__detailTitle {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 20px;
+}
+
+.DemoCompassShowcase__detailDescription {
+    margin: 0;
+    font-size: 12px;
+    line-height: 16px;
+    color: rgba(var(--center-channel-color-rgb), 0.72);
+}
+
+.DemoCompassShowcase__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-xs, 8px);
+}
+
+.DemoCompassShowcase__variant {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs, 8px);
+}
+
+.DemoCompassShowcase__variantLabel {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(var(--center-channel-color-rgb), 0.72);
+}
+
+.DemoCompassShowcase__variantLive {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs, 8px);
+    min-width: 0;
+}
+
+.DemoCompassShowcase__menuLayer {
+    position: fixed;
+    z-index: var(--z-tooltip);
+}
+
+.DemoCompassShowcase__note {
+    margin: 0;
+    font-size: 13px;
+    color: rgba(var(--center-channel-color-rgb), 0.72);
+}
+
+.DemoCompassShowcase__excerpt {
+    overflow: hidden;
+    max-width: 100%;
+    border: 1px solid rgba(var(--center-channel-color-rgb), 0.08);
+    border-radius: 8px;
+}
+
+.DemoCompassShowcase__widePreview {
+    box-sizing: content-box;
+    flex: 0 0 auto;
+    width: 480px;
+    max-width: 480px;
+    padding: var(--spacing-xxxxxl, 48px);
+}
+
+.DemoCompassShowcase__widePreview--padded {
+    padding: 96px;
+}
+
+.DemoCompassShowcase__newMessageBannerPreview {
+    box-sizing: content-box;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 280px;
+    max-width: 280px;
+    height: 32px;
+    padding: var(--spacing-l, 16px) var(--spacing-xl, 20px);
+}
+
+.DemoCompassShowcase__widePreview--center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.DemoCompassShowcase__tourPointPreview {
+    box-sizing: content-box;
+    padding: var(--spacing-xxxxl, 40px);
+}
+
+.DemoCompassShowcase__tourPointDetail {
+    padding: var(--spacing-xxxxl, 40px) var(--spacing-l, 16px) 0;
+    overflow: visible;
+}
+
+.DemoCompassShowcase__stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-l, 16px);
+    min-width: 0;
+}
+
+.DemoCompassShowcase__stack--hug {
+    align-items: flex-start;
+}
+
+.DemoCompassShowcase__scrollbarDemo {
+    box-sizing: border-box;
+    padding: var(--spacing-xs, 8px);
+    border-radius: var(--radius-s, 4px);
+    background: rgba(var(--center-channel-color-rgb), 0.06);
+}
+
+.DemoCompassShowcase__scrollbarPreview {
+    flex: 0 0 auto;
+    width: 64px;
+    height: 80px;
+}
+
+.DemoCompassShowcase__scrollbarPreview .simplebar-scrollbar::before {
+    opacity: 1;
+}
+
+.DemoCompassShowcase__scrollbarDemoLine {
+    display: block;
+    height: 8px;
+    margin-bottom: var(--spacing-xs, 8px);
+    border-radius: 2px;
+    background: rgba(var(--center-channel-color-rgb), 0.16);
+}
+
+.DemoCompassShowcase__scrollbarDemoLine:last-child {
+    margin-bottom: 0;
+}
+
+.DemoCompassShowcase__sidebarWell {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-xs, 8px);
+    width: fit-content;
+    max-width: 100%;
+    padding: var(--spacing-m, 12px);
+    border-radius: var(--radius-m, 8px);
+    background: var(--sidebar-header-bg);
+}
+
+.DemoCompassShowcase__stack > label,
+.DemoCompassShowcase__cardStage label {
+    font-weight: inherit;
+}
+
+.DemoCompassShowcase__linkPreview :is(p, h1, h2, h3, h4) {
+    margin: 0;
+}

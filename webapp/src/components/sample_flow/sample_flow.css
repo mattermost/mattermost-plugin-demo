@@ -1,0 +1,239 @@
+.DemoTicketList {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.DemoTicketList__item {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px 20px;
+    border: none;
+    border-radius: var(--radius-s, 4px);
+    background: none;
+    color: var(--center-channel-color);
+    gap: 8px;
+    text-align: start;
+}
+
+.DemoTicketList__item:hover {
+    background: rgba(var(--center-channel-color-rgb), 0.08);
+}
+
+.DemoTicketList__item:focus-visible {
+    box-shadow: inset 0 0 0 2px var(--button-bg);
+    outline: none;
+}
+
+.DemoTicketList__item[aria-current='true'] {
+    background: rgba(var(--button-bg-rgb), 0.08);
+}
+
+.DemoTicketList__title {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    padding-inline-end: 24px;
+    gap: 6px;
+}
+
+.DemoTicketList__title img {
+    flex: none;
+    margin: 1px;
+}
+
+.DemoTicketList__summary {
+    overflow: hidden;
+    min-width: 0;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 16px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.DemoTicketList__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.DemoTicketList__meta {
+    display: flex;
+    flex-direction: column;
+    font-size: 11px;
+    gap: 4px;
+    letter-spacing: 0.01em;
+    line-height: 16px;
+}
+
+.DemoTicketList__muted {
+    color: rgba(var(--center-channel-color-rgb), 0.64);
+}
+
+.DemoTicketForm {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.DemoTicketForm > [role='alert']:empty {
+    display: none;
+}
+
+.DemoTicketForm__group {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.DemoTicketForm__groupTitle {
+    margin: 0;
+    font-family: var(--font-family-heading, Metropolis, sans-serif);
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 24px;
+}
+
+.DemoTicketForm__field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.DemoTicketForm__choices {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    border: none;
+    margin: 0;
+    gap: 16px;
+}
+
+.DemoTicketForm__choicesTitle {
+    width: auto;
+    padding: 0;
+    border: none;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 20px;
+}
+
+.DemoTicketForm__group > label,
+.DemoTicketForm__choices > label {
+    margin-bottom: 0;
+}
+
+.DemoTicketFlow__heading {
+    margin: 0 0 8px;
+    font-family: var(--font-family-heading, Metropolis, sans-serif);
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 24px;
+}
+
+.DemoTicketFlow__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.DemoTicketFlowRhs {
+    display: flex;
+    height: 100%;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.DemoTicketFlowRhs__scroll {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+    padding: 16px 20px 24px;
+    gap: 16px;
+    overflow-y: auto;
+}
+
+.DemoTicketFlowRhs__footer {
+    flex: none;
+    padding: 16px 20px;
+    border-top: 1px solid rgba(var(--center-channel-color-rgb), 0.08);
+}
+
+.DemoTicketFlowRhs__intro {
+    margin: 0;
+    color: rgba(var(--center-channel-color-rgb), 0.72);
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.DemoTicketFlowRhs__list {
+    margin: 0 -20px;
+}
+
+.DemoTicketFlowRhs__detailHeader {
+    display: flex;
+    flex: none;
+    align-items: center;
+    padding: 12px 20px 0 12px;
+    gap: 8px;
+}
+
+.DemoTicketFlowRhs__detailTitle {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+}
+.DemoTicketFlowModal__list {
+    margin: 0 -20px;
+}
+
+.demo-page__body > .DemoTicketFlowPage {
+    max-width: none;
+}
+
+.DemoTicketFlowPage {
+    display: grid;
+    min-height: 0;
+    align-items: start;
+    gap: 32px;
+    grid-template-columns: minmax(280px, 360px) minmax(0, 600px);
+}
+
+.DemoTicketFlowPage__list {
+    margin: 0 -20px 0 0;
+}
+
+.DemoTicketFlowPage__detail {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.DemoTicketFlowPage__title {
+    margin: 0;
+    font-family: var(--font-family-heading, Metropolis, sans-serif);
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 36px;
+}
+
+.DemoTicketFlowPage__meta {
+    margin: 4px 0 0;
+    color: rgba(var(--center-channel-color-rgb), 0.64);
+    font-size: 14px;
+    line-height: 20px;
+}
+
+@media (max-width: 900px) {
+    .DemoTicketFlowPage {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

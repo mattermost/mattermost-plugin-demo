@@ -5,10 +5,10 @@ const config = {
     presets: [
         ['@babel/preset-env', {
             targets: {
-                chrome: 66,
-                firefox: 60,
-                edge: 42,
-                safari: 12,
+                chrome: 110,
+                firefox: 102,
+                edge: 110,
+                safari: '16.4',
             },
             modules: false,
             corejs: 3,
@@ -17,7 +17,7 @@ const config = {
             shippedProposals: true,
         }],
         ['@babel/preset-react', {
-            useBuiltIns: true,
+            runtime: 'automatic',
         }],
         ['@babel/typescript', {
             allExtensions: true,

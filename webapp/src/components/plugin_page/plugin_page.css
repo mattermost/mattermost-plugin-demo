@@ -1,0 +1,119 @@
+.demo-page {
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+    flex-direction: column;
+    border: 1px solid rgba(var(--center-channel-color-rgb), 0.08);
+    border-radius: var(--radius-l, 8px);
+    background: var(--center-channel-bg);
+    color: var(--center-channel-color);
+    grid-area: center;
+    overflow: hidden;
+}
+
+.demo-page__header {
+    display: flex;
+    flex-direction: column;
+    padding: 20px 32px 12px;
+    gap: 4px;
+}
+
+.demo-page__title {
+    margin: 0;
+    font-family: Metropolis, sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 28px;
+}
+
+.demo-page__description {
+    max-width: 720px;
+    margin: 0;
+    color: rgba(var(--center-channel-color-rgb), 0.72);
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.demo-page__nav {
+    padding: 0 24px;
+    border-bottom: 1px solid rgba(var(--center-channel-color-rgb), 0.08);
+}
+
+.demo-page__body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    padding: 24px 32px 32px;
+    gap: 24px;
+    overflow-y: auto;
+}
+
+.demo-page__body > * {
+    max-width: 720px;
+}
+
+.demo-page__section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.demo-page__section-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+}
+
+.demo-page__text {
+    margin: 0;
+    color: rgba(var(--center-channel-color-rgb), 0.72);
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.demo-page__facts {
+    display: grid;
+    margin: 0;
+    grid-template-columns: max-content 1fr;
+    border: 1px solid rgba(var(--center-channel-color-rgb), 0.08);
+    border-radius: var(--radius-m, 8px);
+}
+
+.demo-page__fact {
+    display: contents;
+}
+
+.demo-page__fact dt,
+.demo-page__fact dd {
+    margin: 0;
+    padding: 10px 16px;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.demo-page__fact:not(:last-child) dt,
+.demo-page__fact:not(:last-child) dd {
+    border-bottom: 1px solid rgba(var(--center-channel-color-rgb), 0.08);
+}
+
+.demo-page__fact dt {
+    color: rgba(var(--center-channel-color-rgb), 0.64);
+    font-weight: 600;
+}
+
+.demo-page__fact code {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--center-channel-color);
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+
+.demo-page__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}

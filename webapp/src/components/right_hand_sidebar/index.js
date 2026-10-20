@@ -1,8 +1,10 @@
 import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
 
-import {getCurrentTeam} from 'mattermost-redux/selectors/entities/teams';
 import {getCurrentChannel} from 'mattermost-redux/selectors/entities/channels';
+import {getCurrentTeam} from 'mattermost-redux/selectors/entities/teams';
 
+import {openRootModal} from 'actions';
 import {isEnabled} from 'selectors';
 
 import RHSView from './rhs_view';
@@ -13,4 +15,6 @@ const mapStateToProps = (state) => ({
     channel: getCurrentChannel(state),
 });
 
-export default connect(mapStateToProps)(RHSView);
+const mapDispatchToProps = (dispatch) => bindActionCreators({openRootModal}, dispatch);
+
+export default connect(mapStateToProps, mapDispatchToProps)(RHSView);

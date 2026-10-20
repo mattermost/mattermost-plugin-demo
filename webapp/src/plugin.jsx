@@ -19,6 +19,8 @@ import SecretMessageSetting from './components/admin_settings/secret_message_set
 import CustomSetting from './components/admin_settings/custom_setting';
 import FilePreviewOverride from './components/file_preview_override';
 import RouterShowcase from './components/router_showcase/router_showcase';
+import RootRoute from './components/root_route/root_route';
+import TicketFlowPage from './components/sample_flow/ticket_flow_page';
 import PostType from './components/post_type';
 import EphemeralPostType from './components/ephemeral_post_type';
 import {
@@ -222,7 +224,8 @@ export default class DemoPlugin {
         registry.registerTranslations(getTranslations);
 
         registry.registerNeedsTeamRoute('/teamtest', RouterShowcase);
-        registry.registerCustomRoute('/roottest', () => 'Demo plugin route.');
+        registry.registerNeedsTeamRoute('/tickets', TicketFlowPage);
+        registry.registerCustomRoute('/roottest', RootRoute);
 
         // Register sidebar browse/add channel menu action if available
         registry.registerSidebarBrowseOrAddChannelMenuAction(
