@@ -71,6 +71,10 @@ type configuration struct {
 	// When enabled, public link file downloads will be rejected with an error message.
 	RejectPublicLinkDownloads bool
 
+	// DialogOnlyMode turns off the demo user, the demo channels and the messages posted to them
+	// on server events. Slash commands and interactive dialogs keep working.
+	DialogOnlyMode bool
+
 	// disabled tracks whether or not the plugin has been disabled after activation. It always starts enabled.
 	disabled bool
 
@@ -106,10 +110,17 @@ func (c *configuration) Clone() *configuration {
 		RejectThumbDownloads:      c.RejectThumbDownloads,
 		RejectPreviewDownloads:    c.RejectPreviewDownloads,
 		RejectPublicLinkDownloads: c.RejectPublicLinkDownloads,
+		DialogOnlyMode:            c.DialogOnlyMode,
 		disabled:                  c.disabled,
 		demoUserID:                c.demoUserID,
 		demoChannelIDs:            demoChannelIDs,
 	}
+}
+
+// eventDemosEnabled reports whether hooks should run the demo user and demo channel behavior:
+// event messages, the read-only demo channels and the demo user mention checks.
+func (c *configuration) eventDemosEnabled() bool {
+	return !c.disabled && !c.DialogOnlyMode
 }
 
 // getConfiguration retrieves the active configuration under lock, making it safe to use
@@ -259,12 +270,6 @@ func (p *Plugin) ensureDemoUserAndChannels() error {
 		return errors.Wrap(loadConfigErr, "failed to load plugin configuration")
 	}
 
-	demoUserID, err := p.ensureDemoUser(configuration)
-	if err != nil {
-		return errors.Wrap(err, "failed to ensure demo user")
-	}
-	configuration.demoUserID = demoUserID
-
 	botID, ensureBotError := p.client.Bot.EnsureBot(&model.Bot{
 		Username:    "demoplugin",
 		DisplayName: "Demo Plugin Bot",
@@ -275,6 +280,20 @@ func (p *Plugin) ensureDemoUserAndChannels() error {
 	}
 
 	p.botID = botID
+
+	// Dialogs only need the bot. The demo user and channels touch every team on each config change.
+	if configuration.DialogOnlyMode {
+		configuration.demoUserID = ""
+		configuration.demoChannelIDs = nil
+		p.setConfiguration(configuration)
+		return nil
+	}
+
+	demoUserID, err := p.ensureDemoUser(configuration)
+	if err != nil {
+		return errors.Wrap(err, "failed to ensure demo user")
+	}
+	configuration.demoUserID = demoUserID
 
 	configuration.demoChannelIDs, err = p.ensureDemoChannels(configuration)
 	if err != nil {
@@ -317,15 +336,7 @@ func (p *Plugin) ConfigurationWillBeSaved(newCfg *model.Config) (*model.Config, 
 	if cfg.disabled {
 		return nil, nil
 	}
-
-	teams, appErr := p.API.GetTeams()
-	if appErr != nil {
-		p.API.LogError(
-			"Failed to query teams ConfigurationWillBeSaved",
-			"error", appErr.Error(),
-		)
-		return nil, nil
-	}
+	postMessages := cfg.eventDemosEnabled()
 
 	msg := "Configuration will be saved"
 
@@ -360,13 +371,25 @@ func (p *Plugin) ConfigurationWillBeSaved(newCfg *model.Config) (*model.Config, 
 		msg = "Configuration will be save, replacing Username value"
 	}
 
-	for _, team := range teams {
-		if err := p.postPluginMessage(team.Id, msg); err != nil {
+	// This runs inside every config save, so skip the per-team messages when they are off.
+	if postMessages {
+		teams, appErr := p.API.GetTeams()
+		if appErr != nil {
 			p.API.LogError(
-				"Failed to post ConfigurationWillBeSaved message",
-				"channel_id", cfg.demoChannelIDs[team.Id],
-				"error", err.Error(),
+				"Failed to query teams ConfigurationWillBeSaved",
+				"error", appErr.Error(),
 			)
+			return nil, nil
+		}
+
+		for _, team := range teams {
+			if err := p.postPluginMessage(team.Id, msg); err != nil {
+				p.API.LogError(
+					"Failed to post ConfigurationWillBeSaved message",
+					"channel_id", cfg.demoChannelIDs[team.Id],
+					"error", err.Error(),
+				)
+			}
 		}
 	}
 
@@ -453,8 +476,10 @@ func (p *Plugin) ensureDemoChannels(configuration *configuration) (map[string]st
 				Purpose:     "This channel was created by a plugin for testing.",
 			})
 
+			// Skip this team instead of leaving every team without a demo channel.
 			if err != nil {
-				return nil, err
+				p.API.LogWarn("Failed to create demo channel", "team_id", team.Id, "error", err.Error())
+				continue
 			}
 		}
 

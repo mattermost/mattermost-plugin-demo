@@ -46,6 +46,14 @@
                 "title": "User & Channel",
                 "settings": [
                     {
+                        "key": "DialogOnlyMode",
+                        "display_name": "Dialog Only Mode:",
+                        "type": "bool",
+                        "help_text": "When enabled, the plugin does not create the demo user or the demo channels, and does not post a message for each server event. Slash commands and interactive dialogs keep working. Use this on shared test servers, where those messages slow down every request.",
+                        "placeholder": "",
+                        "default": false
+                    },
+                    {
                         "key": "ChannelName",
                         "display_name": "Channel Name:",
                         "type": "text",
