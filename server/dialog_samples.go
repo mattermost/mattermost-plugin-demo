@@ -1199,7 +1199,8 @@ func findIncident(id string) (incident, bool) {
 	return incident{}, false
 }
 
-// updateIncident applies non-empty fields to the incident with the given ID.
+// updateIncident applies non-empty status and severity to the incident with the
+// given ID. Owner is always applied, so an empty owner unassigns the incident.
 func updateIncident(id, status, severity, owner string) {
 	incidentsMu.Lock()
 	defer incidentsMu.Unlock()
@@ -1213,9 +1214,7 @@ func updateIncident(id, status, severity, owner string) {
 		if severity != "" {
 			incidents[i].Severity = severity
 		}
-		if owner != "" {
-			incidents[i].Owner = owner
-		}
+		incidents[i].Owner = owner
 		return
 	}
 }
@@ -1263,12 +1262,17 @@ func getDialogIncidentBoard() model.Dialog {
 	// Incident detail lives here rather than in the button labels: DisplayName is
 	// capped at DialogElementDisplayNameMaxLength (24 bytes), which a
 	// "<id> — <title> (<status>)" label blows past.
-	intro += "\n\n| Incident | Title | Status |\n|---|---|---|\n"
+	intro += "\n\n| Incident | Title | Status | Assignee |\n|---|---|---|---|\n"
 	for _, inc := range current {
-		intro += fmt.Sprintf("| %s %s | %s | %s %s |\n",
+		assignee := "_unassigned_"
+		if inc.Owner != "" {
+			assignee = "@" + inc.Owner
+		}
+		intro += fmt.Sprintf("| %s %s | %s | %s %s | %s |\n",
 			severityIcon(inc.Severity), inc.ID,
 			inc.Title,
 			statusIcon(inc.Status), inc.Status,
+			assignee,
 		)
 	}
 	intro += "\nSelect an incident to triage."
