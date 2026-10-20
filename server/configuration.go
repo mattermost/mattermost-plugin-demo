@@ -332,7 +332,8 @@ func (p *Plugin) OnConfigurationChange() error {
 // If the Username config option is set to "replaceme" the config value will be
 // replaced with "replaced".
 func (p *Plugin) ConfigurationWillBeSaved(newCfg *model.Config) (*model.Config, error) {
-	cfg := p.getConfiguration()
+	// Cloned because the new settings are decoded into it below; the live configuration is shared.
+	cfg := p.getConfiguration().Clone()
 	if cfg.disabled {
 		return nil, nil
 	}

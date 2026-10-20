@@ -122,3 +122,17 @@ func TestEnsureDemoChannelsSkipsTeamThatFails(t *testing.T) {
 	assert.Equal(t, map[string]string{"team-2": "channel-2"}, ids)
 	api.AssertExpectations(t)
 }
+
+func TestConfigurationWillBeSavedLeavesLiveConfigurationUnchanged(t *testing.T) {
+	api := &plugintest.API{}
+	p := newHookTestPlugin(api, &configuration{DialogOnlyMode: true, Username: "demo_plugin"})
+	live := p.getConfiguration()
+
+	newCfg := &model.Config{}
+	newCfg.PluginSettings.Plugins = map[string]map[string]any{manifest.Id: {"username": "someone_else"}}
+	_, err := p.ConfigurationWillBeSaved(newCfg)
+	require.NoError(t, err)
+
+	assert.Equal(t, "demo_plugin", live.Username)
+	api.AssertExpectations(t)
+}
