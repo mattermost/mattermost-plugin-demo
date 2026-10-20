@@ -30,6 +30,7 @@ export default function TicketFlowRhs({pagePath}: Props) {
     const [selectedId, setSelectedId] = useState<string>();
     const [returnId, setReturnId] = useState<string>();
     const [modalOpen, setModalOpen] = useState(false);
+    const [modalKey, setModalKey] = useState(0);
     const selected = tickets.find((ticket) => ticket.id === selectedId);
 
     const back = () => {
@@ -92,7 +93,10 @@ export default function TicketFlowRhs({pagePath}: Props) {
                     <Button
                         emphasis='secondary'
                         size='small'
-                        onClick={() => setModalOpen(true)}
+                        onClick={() => {
+                            setModalKey((key) => key + 1);
+                            setModalOpen(true);
+                        }}
                     >
                         <FormattedMessage
                             id='ticketFlow.rhs.openModal'
@@ -128,7 +132,11 @@ export default function TicketFlowRhs({pagePath}: Props) {
                     </div>
                 </section>
             </div>
-            {modalOpen && <TicketFlowModal onClose={() => setModalOpen(false)}/>}
+            <TicketFlowModal
+                key={modalKey}
+                open={modalOpen}
+                onClose={() => setModalOpen(false)}
+            />
         </div>
     );
 }

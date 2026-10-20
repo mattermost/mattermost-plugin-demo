@@ -24,32 +24,34 @@ export function LiveModal() {
     return (
         <>
             <Button onClick={() => setOpen(true)}>{'Open live modal'}</Button>
-            {open && (
-                <ModalLayer onClose={close}>
-                    <Modal
-                        size='small'
-                        title='Rename channel'
-                        closeOnEscape={false}
-                        onClose={close}
-                        footer={(
-                            <>
-                                <Button
-                                    emphasis='tertiary'
-                                    onClick={close}
-                                >
-                                    {'Cancel'}
-                                </Button>
-                                <Button onClick={close}>{'Save'}</Button>
-                            </>
-                        )}
-                    >
-                        <TextInput
-                            label='Channel name'
-                            defaultValue='Town Square'
-                        />
-                    </Modal>
-                </ModalLayer>
-            )}
+            <ModalLayer
+                open={open}
+                onClose={close}
+            >
+                <Modal
+                    open={open}
+                    size='small'
+                    title='Rename channel'
+                    closeOnEscape={false}
+                    onClose={close}
+                    footer={(
+                        <>
+                            <Button
+                                emphasis='tertiary'
+                                onClick={close}
+                            >
+                                {'Cancel'}
+                            </Button>
+                            <Button onClick={close}>{'Save'}</Button>
+                        </>
+                    )}
+                >
+                    <TextInput
+                        label='Channel name'
+                        defaultValue='Town Square'
+                    />
+                </Modal>
+            </ModalLayer>
         </>
     );
 }

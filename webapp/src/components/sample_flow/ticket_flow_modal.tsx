@@ -17,10 +17,11 @@ import {useTickets} from './tickets';
 import './sample_flow.css';
 
 type Props = {
+    open: boolean;
     onClose: () => void;
 };
 
-export default function TicketFlowModal({onClose}: Props) {
+export default function TicketFlowModal({open, onClose}: Props) {
     const {formatMessage} = useIntl();
     const tickets = useTickets();
     const formId = useId();
@@ -34,8 +35,12 @@ export default function TicketFlowModal({onClose}: Props) {
     };
 
     return (
-        <ModalLayer onClose={onClose}>
+        <ModalLayer
+            open={open}
+            onClose={onClose}
+        >
             <Modal
+                open={open}
                 size='small'
                 title={selected ? selected.key : formatMessage(messages.tickets)}
                 subtitle={selected ? selected.project : formatMessage(messages.pickTicket)}
