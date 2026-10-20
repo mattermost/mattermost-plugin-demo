@@ -94,9 +94,9 @@
 .DemoTicketForm__groupTitle {
     margin: 0;
     font-family: var(--font-family-heading, Metropolis, sans-serif);
-    font-size: 18px;
+    font-size: var(--font-size-200, 16px);
     font-weight: 600;
-    line-height: 24px;
+    line-height: var(--line-height-200, 24px);
 }
 
 .DemoTicketForm__field {
@@ -111,21 +111,26 @@
     padding: 0;
     border: none;
     margin: 0;
-    gap: 16px;
+}
+
+.DemoTicketForm__choiceGroup {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs, 8px);
 }
 
 .DemoTicketForm__choicesTitle {
     width: auto;
     padding: 0;
     border: none;
-    margin: 0;
+    margin: 0 0 var(--spacing-m, 12px);
     font-size: 14px;
     font-weight: 600;
     line-height: 20px;
 }
 
 .DemoTicketForm__group > label,
-.DemoTicketForm__choices > label {
+.DemoTicketForm__choices label {
     margin-bottom: 0;
 }
 
@@ -177,6 +182,10 @@
     margin: 0 -20px;
 }
 
+.DemoTicketFlowRhs__list .DemoTicketList__item {
+    border-radius: 0;
+}
+
 .DemoTicketFlowRhs__detailHeader {
     display: flex;
     flex: none;
@@ -205,10 +214,6 @@
     align-items: start;
     gap: 32px;
     grid-template-columns: minmax(280px, 360px) minmax(0, 600px);
-}
-
-.DemoTicketFlowPage__list {
-    margin: 0 -20px 0 0;
 }
 
 .DemoTicketFlowPage__detail {

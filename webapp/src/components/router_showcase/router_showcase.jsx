@@ -63,6 +63,8 @@ export default function RouterShowcase() {
                     tabs={tabs}
                     activeKey={active.key}
                     onChange={(key) => history.push(base + SUBPAGES.find((page) => page.key === key).path)}
+                    appearance='underlined'
+                    className='demo-page__tabs'
                 />
             )}
         >

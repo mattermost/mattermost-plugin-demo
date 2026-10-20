@@ -53,6 +53,7 @@ export default function RHSView({enabled, team, channel, openRootModal}) {
                 tabs={tabs}
                 activeKey={activeKey}
                 onChange={setActiveKey}
+                appearance='underlined'
                 className='demo-rhs__tabs'
             />
             <div

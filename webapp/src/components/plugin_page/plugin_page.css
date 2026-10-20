@@ -11,6 +11,15 @@
     overflow: hidden;
 }
 
+/* Match #channel_view: on a wide screen the center card extends under the RHS so its rounded right corners sit behind the sidebar divider. */
+@media screen and (min-width: 1200px) {
+    .rhs-open .demo-page,
+    .rhs-open-expanded .demo-page {
+        margin-right: -20px;
+        padding-right: 20px;
+    }
+}
+
 .demo-page__header {
     display: flex;
     flex-direction: column;
@@ -34,9 +43,8 @@
     line-height: 20px;
 }
 
-.demo-page__nav {
-    padding: 0 24px;
-    border-bottom: 1px solid rgba(var(--center-channel-color-rgb), 0.08);
+.demo-page__tabs {
+    padding: 0 32px;
 }
 
 .demo-page__body {

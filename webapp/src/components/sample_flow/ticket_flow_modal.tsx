@@ -44,6 +44,7 @@ export default function TicketFlowModal({open, onClose}: Props) {
                 size='small'
                 title={selected ? selected.key : formatMessage(messages.tickets)}
                 subtitle={selected ? selected.project : formatMessage(messages.pickTicket)}
+                subtitlePlacement='beside'
                 showBackButton={Boolean(selected)}
                 onBack={back}
                 backLabel={formatMessage(messages.backToTickets)}
