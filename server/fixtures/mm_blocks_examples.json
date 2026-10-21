@@ -1,0 +1,2115 @@
+{
+    "basic": {
+        "message": "Fixture: native `mm_blocks` — text, divider, buttons.",
+        "props": {
+            "mm_blocks": [
+                {
+                    "type": "text",
+                    "text": "Hello **from** mm_blocks (canonical interactive messages)."
+                },
+                {
+                    "type": "divider"
+                },
+                {
+                    "type": "button",
+                    "text": "Primary action",
+                    "style": "primary",
+                    "action_id": "e2e_mm_blocks_primary"
+                },
+                {
+                    "type": "button",
+                    "text": "Secondary",
+                    "style": "default",
+                    "action_id": "e2e_mm_blocks_secondary"
+                }
+            ]
+        }
+    },
+    "container_image_columns": {
+        "message": "Fixture: `mm_blocks` with container, image, and column layout.",
+        "props": {
+            "mm_blocks": [
+                {
+                    "type": "container",
+                    "accent_color": "#439FE0",
+                    "border": true,
+                    "gap": "small",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Container title area",
+                            "size": "default"
+                        },
+                        {
+                            "type": "text",
+                            "text": "Muted subtitle",
+                            "is_subtle": true,
+                            "size": "small"
+                        },
+                        {
+                            "type": "image",
+                            "url": "https://mattermost.com/wp-content/uploads/2022/02/logoHorizontal.png",
+                            "alt_text": "Mattermost logo",
+                            "size": "medium"
+                        },
+                        {
+                            "type": "column_set",
+                            "columns": [
+                                {
+                                    "type": "column",
+                                    "width": "stretch",
+                                    "items": [
+                                        {
+                                            "type": "text",
+                                            "text": "Left column content."
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "column",
+                                    "width": "stretch",
+                                    "items": [
+                                        {
+                                            "type": "text",
+                                            "text": "Right column content."
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "raw_metrics": {
+        "message": "Fixture: raw metrics — bordered container with accent; three columns of bordered gray metric tiles.",
+        "props": {
+            "mm_blocks": [
+                {
+                    "type": "container",
+                    "border": true,
+                    "accent_color": "primary",
+                    "gap": "small",
+                    "content": [
+                        {
+                            "type": "column_set",
+                            "columns": [
+                                {
+                                    "type": "column",
+                                    "width": "stretch",
+                                    "items": [
+                                        {
+                                            "type": "container",
+                                            "border": true,
+                                            "background": "gray",
+                                            "gap": "small",
+                                            "content": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "**2.4k**"
+                                                },
+                                                {
+                                                    "type": "text",
+                                                    "text": "Messages today",
+                                                    "is_subtle": true,
+                                                    "size": "small"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "column",
+                                    "width": "stretch",
+                                    "items": [
+                                        {
+                                            "type": "container",
+                                            "border": true,
+                                            "background": "gray",
+                                            "gap": "small",
+                                            "content": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "**187**"
+                                                },
+                                                {
+                                                    "type": "text",
+                                                    "text": "Active members",
+                                                    "is_subtle": true,
+                                                    "size": "small"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "column",
+                                    "width": "stretch",
+                                    "items": [
+                                        {
+                                            "type": "container",
+                                            "border": true,
+                                            "background": "gray",
+                                            "gap": "small",
+                                            "content": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "**99.2%**"
+                                                },
+                                                {
+                                                    "type": "text",
+                                                    "text": "Uptime (30d)",
+                                                    "is_subtle": true,
+                                                    "size": "small"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "collapsible_select": {
+        "message": "Fixture: collapsible region and static select.",
+        "props": {
+            "mm_blocks": [
+                {
+                    "type": "collapsible",
+                    "collapsed": false,
+                    "header": [
+                        {
+                            "type": "text",
+                            "text": "**Details** (collapsible header)"
+                        }
+                    ],
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Hidden details go here until collapsed."
+                        },
+                        {
+                            "type": "static_select",
+                            "action_id": "e2e_mm_blocks_select",
+                            "placeholder": "Choose…",
+                            "options": [
+                                {
+                                    "text": "One",
+                                    "value": "1"
+                                },
+                                {
+                                    "text": "Two",
+                                    "value": "2"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "scrollable_content": {
+        "message": "Fixture: container with `max_height` preset and stacked text blocks.",
+        "props": {
+            "mm_blocks": [
+                {
+                    "type": "text",
+                    "text": "**Bounded** container demo — content overflows vertically."
+                },
+                {
+                    "type": "container",
+                    "max_height": "medium",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Line 1 — Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+                        },
+                        {
+                            "type": "text",
+                            "text": "Line 2 — Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                        },
+                        {
+                            "type": "text",
+                            "text": "Line 3 — Ut enim ad minim veniam, quis nostrud exercitation ullamco."
+                        },
+                        {
+                            "type": "text",
+                            "text": "Line 4 — Duis aute irure dolor in reprehenderit in voluptate velit esse."
+                        },
+                        {
+                            "type": "text",
+                            "text": "Line 5 — Excepteur sint occaecat cupidatat non proident, sunt in culpa."
+                        },
+                        {
+                            "type": "text",
+                            "text": "Line 6 — Nulla facilisi morbi tempus iaculis urna id volutpat lacus."
+                        },
+                        {
+                            "type": "text",
+                            "text": "Line 7 — Aenean euismod elementum nisi quis eleifend quam adipiscing."
+                        },
+                        {
+                            "type": "text",
+                            "text": "Line 8 — Pellentesque habitant morbi tristique senectus et netus."
+                        },
+                        {
+                            "type": "text",
+                            "text": "Line 9 — Vestibulum rhoncus est pellentesque elit ullamcorper dignissim."
+                        },
+                        {
+                            "type": "text",
+                            "text": "Line 10 — Integer vitae justo eget magna fermentum iaculis eu non."
+                        },
+                        {
+                            "type": "text",
+                            "text": "Line 11 — Massa tincidunt nunc pulvinar sapien et ligula ullamcorper."
+                        },
+                        {
+                            "type": "text",
+                            "text": "Line 12 — Convallis aenean et tortor at risus viverra adipiscing at in."
+                        },
+                        {
+                            "type": "text",
+                            "text": "Line 13 — Sit amet nisl suscipit adipiscing bibendum est ultricies integer."
+                        },
+                        {
+                            "type": "text",
+                            "text": "Line 14 — Quis commodo odio aenean sed adipiscing diam donec adipiscing."
+                        },
+                        {
+                            "type": "text",
+                            "text": "Line 15 — Felis donec et odio pellentesque diam volutpat commodo sed."
+                        },
+                        {
+                            "type": "text",
+                            "text": "Line 16 — Risus nullam eget felis eget nunc lobortis mattis aliquam."
+                        },
+                        {
+                            "type": "text",
+                            "text": "Line 17 — Semper auctor neque vitae tempus quam pellentesque nec nam."
+                        },
+                        {
+                            "type": "text",
+                            "text": "Line 18 — Elementum nisi quis eleifend quam adipiscing vitae proin sagittis."
+                        },
+                        {
+                            "type": "text",
+                            "text": "Line 19 — Pretium vulputate sapien nec sagittis aliquam malesuada bibendum."
+                        },
+                        {
+                            "type": "text",
+                            "text": "Line 20 — Volutpat ac tincidunt vitae semper quis lectus nulla at volutpat."
+                        },
+                        {
+                            "type": "text",
+                            "text": "Line 21 — Id interdum velit laoreet id donec ultrices tincidunt arcu non."
+                        },
+                        {
+                            "type": "text",
+                            "text": "Line 22 — Dictumst vestibulum rhoncus est pellentesque elit ullamcorper."
+                        },
+                        {
+                            "type": "text",
+                            "text": "Line 23 — Tempus egestas sed sed risus pretium quam vulputate dignissim."
+                        },
+                        {
+                            "type": "text",
+                            "text": "Line 24 — End of the scroll region — content is taller than max_height medium (240px)."
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "nested_container_backgrounds": {
+        "message": "Fixture: nested containers — mixed `background` (`gray` vs omitted / `none`).",
+        "props": {
+            "mm_blocks": [
+                {
+                    "type": "text",
+                    "text": "**Nested container backgrounds** — outer has no fill; inner blocks use `gray`, default, or explicit `none`."
+                },
+                {
+                    "type": "container",
+                    "border": true,
+                    "gap": "small",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Outer container (no `background` property)."
+                        },
+                        {
+                            "type": "container",
+                            "background": "gray",
+                            "gap": "small",
+                            "content": [
+                                {
+                                    "type": "text",
+                                    "text": "Level 2 — `background: gray`."
+                                },
+                                {
+                                    "type": "container",
+                                    "gap": "small",
+                                    "content": [
+                                        {
+                                            "type": "text",
+                                            "text": "Level 3 — inside gray parent; this container has no background (transparent over gray)."
+                                        },
+                                        {
+                                            "type": "container",
+                                            "background": "gray",
+                                            "content": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "Level 4 — `gray` again (nested tint)."
+                                                },
+                                                {
+                                                    "type": "container",
+                                                    "background": "none",
+                                                    "content": [
+                                                        {
+                                                            "type": "text",
+                                                            "text": "Level 5 — explicit `background: none` (shows parent gray through)."
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "container",
+                            "gap": "small",
+                            "content": [
+                                {
+                                    "type": "text",
+                                    "text": "Sibling branch — no background, next to the gray subtree."
+                                },
+                                {
+                                    "type": "container",
+                                    "background": "gray",
+                                    "content": [
+                                        {
+                                            "type": "text",
+                                            "text": "Leaf — `gray` only in this subtree."
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "nested_scrollable_three_levels_small": {
+        "message": "Fixture: nested scrollable containers - root, 3 mids, 3 leaves each (9 leaves); all max_height small; 9 text lines per leaf.",
+        "props": {
+            "mm_blocks": [
+                {
+                    "type": "text",
+                    "text": "**Nested scroll regions** - root to 3 mids to 3 leaves each; every container uses max_height small (160px cap)."
+                },
+                {
+                    "type": "container",
+                    "max_height": "small",
+                    "content": [
+                        {
+                            "type": "container",
+                            "max_height": "small",
+                            "content": [
+                                {
+                                    "type": "container",
+                                    "max_height": "small",
+                                    "content": [
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-1 - line 1"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-1 - line 2"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-1 - line 3"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-1 - line 4"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-1 - line 5"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-1 - line 6"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-1 - line 7"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-1 - line 8"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-1 - line 9"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "container",
+                                    "max_height": "small",
+                                    "content": [
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-2 - line 1"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-2 - line 2"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-2 - line 3"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-2 - line 4"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-2 - line 5"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-2 - line 6"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-2 - line 7"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-2 - line 8"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-2 - line 9"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "container",
+                                    "max_height": "small",
+                                    "content": [
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-3 - line 1"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-3 - line 2"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-3 - line 3"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-3 - line 4"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-3 - line 5"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-3 - line 6"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-3 - line 7"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-3 - line 8"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 1-3 - line 9"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "container",
+                            "max_height": "small",
+                            "content": [
+                                {
+                                    "type": "container",
+                                    "max_height": "small",
+                                    "content": [
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-1 - line 1"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-1 - line 2"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-1 - line 3"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-1 - line 4"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-1 - line 5"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-1 - line 6"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-1 - line 7"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-1 - line 8"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-1 - line 9"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "container",
+                                    "max_height": "small",
+                                    "content": [
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-2 - line 1"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-2 - line 2"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-2 - line 3"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-2 - line 4"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-2 - line 5"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-2 - line 6"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-2 - line 7"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-2 - line 8"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-2 - line 9"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "container",
+                                    "max_height": "small",
+                                    "content": [
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-3 - line 1"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-3 - line 2"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-3 - line 3"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-3 - line 4"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-3 - line 5"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-3 - line 6"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-3 - line 7"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-3 - line 8"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 2-3 - line 9"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "container",
+                            "max_height": "small",
+                            "content": [
+                                {
+                                    "type": "container",
+                                    "max_height": "small",
+                                    "content": [
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-1 - line 1"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-1 - line 2"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-1 - line 3"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-1 - line 4"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-1 - line 5"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-1 - line 6"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-1 - line 7"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-1 - line 8"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-1 - line 9"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "container",
+                                    "max_height": "small",
+                                    "content": [
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-2 - line 1"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-2 - line 2"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-2 - line 3"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-2 - line 4"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-2 - line 5"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-2 - line 6"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-2 - line 7"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-2 - line 8"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-2 - line 9"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "container",
+                                    "max_height": "small",
+                                    "content": [
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-3 - line 1"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-3 - line 2"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-3 - line 3"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-3 - line 4"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-3 - line 5"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-3 - line 6"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-3 - line 7"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-3 - line 8"
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": "Cell 3-3 - line 9"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "container_vertical_big_gap": {
+        "message": "Fixture: bordered container with vertical flow and large gap.",
+        "props": {
+            "mm_blocks": [
+                {
+                    "type": "container",
+                    "border": true,
+                    "accent_color": "warning",
+                    "flow": "vertical",
+                    "gap": "large",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "First row in vertical stack"
+                        },
+                        {
+                            "type": "divider"
+                        },
+                        {
+                            "type": "text",
+                            "text": "Second row after divider",
+                            "is_subtle": true,
+                            "size": "small"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "image_alignment_and_style": {
+        "message": "Fixture: image blocks — alignment, `image_style: person`, explicit max dimensions.",
+        "props": {
+            "mm_blocks": [
+                {
+                    "type": "text",
+                    "text": "Centered avatar-style image:"
+                },
+                {
+                    "type": "image",
+                    "url": "https://mattermost.com/wp-content/uploads/2022/02/logoHorizontal.png",
+                    "alt_text": "Brand mark",
+                    "size": "small",
+                    "image_style": "person",
+                    "horizontal_alignment": "center",
+                    "max_width": 120,
+                    "max_height": 120
+                },
+                {
+                    "type": "text",
+                    "text": "Left-aligned stretch banner:",
+                    "size": "small",
+                    "is_subtle": true
+                },
+                {
+                    "type": "image",
+                    "url": "https://mattermost.com/wp-content/uploads/2022/02/logoHorizontal.png",
+                    "alt_text": "Banner",
+                    "size": "stretch",
+                    "horizontal_alignment": "left"
+                }
+            ]
+        }
+    },
+    "image_size_presets": {
+        "message": "Fixture: same image at each `mm_blocks` image `size` preset — auto through stretch.",
+        "props": {
+            "mm_blocks": [
+                {
+                    "type": "text",
+                    "text": "**Image size presets** — same logo URL below; each block uses a different `size` value."
+                },
+                {
+                    "type": "text",
+                    "text": "First: **`auto`** — natural dimensions (no preset max width/height).",
+                    "size": "small"
+                },
+                {
+                    "type": "image",
+                    "url": "https://mattermost.com/wp-content/uploads/2022/02/logoHorizontal.png",
+                    "alt_text": "Mattermost logo (auto)",
+                    "size": "auto"
+                },
+                {
+                    "type": "text",
+                    "text": "Next: **`xsmall`** — capped at 108×64 px.",
+                    "size": "small"
+                },
+                {
+                    "type": "image",
+                    "url": "https://mattermost.com/wp-content/uploads/2022/02/logoHorizontal.png",
+                    "alt_text": "Mattermost logo (xsmall)",
+                    "size": "xsmall"
+                },
+                {
+                    "type": "text",
+                    "text": "Next: **`small`** — capped at 204×120 px.",
+                    "size": "small"
+                },
+                {
+                    "type": "image",
+                    "url": "https://mattermost.com/wp-content/uploads/2022/02/logoHorizontal.png",
+                    "alt_text": "Mattermost logo (small)",
+                    "size": "small"
+                },
+                {
+                    "type": "text",
+                    "text": "Next: **`medium`** — capped at 320×184 px.",
+                    "size": "small"
+                },
+                {
+                    "type": "image",
+                    "url": "https://mattermost.com/wp-content/uploads/2022/02/logoHorizontal.png",
+                    "alt_text": "Mattermost logo (medium)",
+                    "size": "medium"
+                },
+                {
+                    "type": "text",
+                    "text": "Next: **`large`** — capped at 428×240 px.",
+                    "size": "small"
+                },
+                {
+                    "type": "image",
+                    "url": "https://mattermost.com/wp-content/uploads/2022/02/logoHorizontal.png",
+                    "alt_text": "Mattermost logo (large)",
+                    "size": "large"
+                },
+                {
+                    "type": "text",
+                    "text": "Next: **`stretch`** — capped at 500×350 px (legacy attachment-style banner).",
+                    "size": "small"
+                },
+                {
+                    "type": "image",
+                    "url": "https://mattermost.com/wp-content/uploads/2022/02/logoHorizontal.png",
+                    "alt_text": "Mattermost logo (stretch)",
+                    "size": "stretch"
+                }
+            ]
+        }
+    },
+    "static_select_initial_and_query": {
+        "message": "Fixture: static select with `initial_option` and optional `query` payload.",
+        "props": {
+            "mm_blocks": [
+                {
+                    "type": "static_select",
+                    "action_id": "e2e_mm_blocks_region",
+                    "placeholder": "Region…",
+                    "initial_option": "eu",
+                    "query": {
+                        "source": "signup_form"
+                    },
+                    "options": [
+                        {
+                            "text": "US East",
+                            "value": "us"
+                        },
+                        {
+                            "text": "EU Central",
+                            "value": "eu"
+                        },
+                        {
+                            "text": "APAC",
+                            "value": "apac"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "select_users_and_channels": {
+        "message": "Fixture: dynamic selects (`data_source` users / channels) in mm_blocks.",
+        "props": {
+            "mm_blocks": [
+                {
+                    "type": "text",
+                    "text": "Assign and route:"
+                },
+                {
+                    "type": "container",
+                    "flow": "horizontal",
+                    "gap": "medium",
+                    "content": [
+                        {
+                            "type": "static_select",
+                            "action_id": "e2e_mm_blocks_users",
+                            "placeholder": "User…",
+                            "data_source": "users"
+                        },
+                        {
+                            "type": "static_select",
+                            "action_id": "e2e_mm_blocks_channels",
+                            "placeholder": "Channel…",
+                            "data_source": "channels"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "button_tooltip_disabled": {
+        "message": "Fixture: button tooltip and disabled flag.",
+        "props": {
+            "mm_blocks": [
+                {
+                    "type": "button",
+                    "text": "Runs integration",
+                    "style": "primary",
+                    "action_id": "e2e_mm_blocks_run",
+                    "tooltip": "POSTs to the configured outgoing integration"
+                },
+                {
+                    "type": "button",
+                    "text": "Unavailable",
+                    "style": "default",
+                    "action_id": "e2e_mm_blocks_na",
+                    "disabled": true,
+                    "tooltip": "This control is intentionally disabled"
+                }
+            ]
+        }
+    },
+    "button_semantic_styles": {
+        "message": "Fixture: mm_blocks button styles — default, primary, good, success, warning, danger, and hex.",
+        "props": {
+            "mm_blocks": [
+                {
+                    "type": "text",
+                    "text": "Attachment action colors ported to native mm_blocks buttons."
+                },
+                {
+                    "type": "container",
+                    "flow": "horizontal",
+                    "gap": "medium",
+                    "content": [
+                        {
+                            "type": "button",
+                            "text": "Default",
+                            "style": "default",
+                            "action_id": "e2e_btn_default"
+                        },
+                        {
+                            "type": "button",
+                            "text": "Primary",
+                            "style": "primary",
+                            "action_id": "e2e_btn_primary"
+                        },
+                        {
+                            "type": "button",
+                            "text": "Good",
+                            "style": "good",
+                            "action_id": "e2e_btn_good"
+                        },
+                        {
+                            "type": "button",
+                            "text": "Success",
+                            "style": "success",
+                            "action_id": "e2e_btn_success"
+                        },
+                        {
+                            "type": "button",
+                            "text": "Warning",
+                            "style": "warning",
+                            "action_id": "e2e_btn_warning"
+                        },
+                        {
+                            "type": "button",
+                            "text": "Danger",
+                            "style": "danger",
+                            "action_id": "e2e_btn_danger"
+                        },
+                        {
+                            "type": "button",
+                            "text": "Hex #2d81ff",
+                            "style": "#2d81ff",
+                            "action_id": "e2e_btn_hex"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "form_text_inputs_submit": {
+        "message": "Fixture: mm_blocks form — several text_input fields and a submit button.",
+        "props": {
+            "mm_blocks": [
+                {
+                    "type": "text",
+                    "text": "Fill out the form below, then click **Submit**."
+                },
+                {
+                    "type": "text_input",
+                    "name": "title",
+                    "label": "Title",
+                    "placeholder": "Short summary",
+                    "max_length": 80
+                },
+                {
+                    "type": "text_input",
+                    "name": "email",
+                    "label": "Email",
+                    "subtype": "email",
+                    "placeholder": "you@example.com",
+                    "help_text": "We'll use this for follow-up."
+                },
+                {
+                    "type": "text_input",
+                    "name": "description",
+                    "label": "Description",
+                    "multiline": true,
+                    "placeholder": "Describe the request in a few sentences.",
+                    "max_length": 500
+                },
+                {
+                    "type": "text_input",
+                    "name": "notes",
+                    "label": "Notes",
+                    "optional": true,
+                    "placeholder": "Anything else?",
+                    "help_text": "Optional free-form notes."
+                },
+                {
+                    "type": "container",
+                    "flow": "horizontal",
+                    "gap": "medium",
+                    "content": [
+                        {
+                            "type": "button",
+                            "text": "Submit",
+                            "style": "primary",
+                            "subtype": "submit",
+                            "action_id": "e2e_mm_blocks_form_submit"
+                        },
+                        {
+                            "type": "button",
+                            "text": "Cancel",
+                            "style": "default",
+                            "action_id": "e2e_mm_blocks_form_cancel"
+                        }
+                    ]
+                }
+            ],
+            "mm_blocks_actions": {
+                "e2e_mm_blocks_form_submit": {
+                    "type": "external",
+                    "url": "https://example.com/actions/mm_blocks_form_submit",
+                    "context": {
+                        "form": "ticket"
+                    }
+                },
+                "e2e_mm_blocks_form_cancel": {
+                    "type": "external",
+                    "url": "https://example.com/actions/mm_blocks_form_cancel",
+                    "context": {
+                        "form": "ticket"
+                    }
+                }
+            }
+        }
+    },
+    "form_all_inputs_submit": {
+        "message": "Fixture: mm_blocks form — text_input, bool_input, and select variants with a submit button.",
+        "props": {
+            "mm_blocks": [
+                {
+                    "type": "text",
+                    "text": "Fill out the form below (text, bool, and select variants), then click **Submit**."
+                },
+                {
+                    "type": "text",
+                    "text": "### Text inputs",
+                    "size": "small"
+                },
+                {
+                    "type": "text_input",
+                    "name": "title",
+                    "label": "Title",
+                    "placeholder": "Short summary",
+                    "max_length": 80,
+                    "initial_value": "Sample ticket"
+                },
+                {
+                    "type": "text_input",
+                    "name": "email",
+                    "label": "Email",
+                    "subtype": "email",
+                    "placeholder": "you@example.com",
+                    "help_text": "We'll use this for follow-up."
+                },
+                {
+                    "type": "text_input",
+                    "name": "description",
+                    "label": "Description",
+                    "multiline": true,
+                    "placeholder": "Describe the request in a few sentences.",
+                    "max_length": 500
+                },
+                {
+                    "type": "text_input",
+                    "name": "notes",
+                    "label": "Notes",
+                    "optional": true,
+                    "placeholder": "Anything else?",
+                    "help_text": "Optional free-form notes."
+                },
+                {
+                    "type": "text",
+                    "text": "### Boolean inputs",
+                    "size": "small"
+                },
+                {
+                    "type": "bool_input",
+                    "name": "notify_email",
+                    "label": "Email notifications",
+                    "placeholder": "Send me status updates by email",
+                    "initial_value": true
+                },
+                {
+                    "type": "bool_input",
+                    "name": "subscribe_digest",
+                    "label": "Weekly digest",
+                    "placeholder": "Include this ticket in the weekly digest",
+                    "optional": true,
+                    "help_text": "You can change this later."
+                },
+                {
+                    "type": "text",
+                    "text": "### Select inputs (compact)",
+                    "size": "small"
+                },
+                {
+                    "type": "select",
+                    "name": "priority",
+                    "label": "Priority",
+                    "placeholder": "Choose priority",
+                    "style": "compact",
+                    "initial_option": "medium",
+                    "options": [
+                        {
+                            "text": "Low",
+                            "value": "low"
+                        },
+                        {
+                            "text": "Medium",
+                            "value": "medium"
+                        },
+                        {
+                            "text": "High",
+                            "value": "high"
+                        },
+                        {
+                            "text": "Critical",
+                            "value": "critical"
+                        }
+                    ]
+                },
+                {
+                    "type": "select",
+                    "name": "labels",
+                    "label": "Labels",
+                    "placeholder": "Select one or more labels",
+                    "style": "compact",
+                    "multiselect": true,
+                    "optional": true,
+                    "initial_options": [
+                        "bug"
+                    ],
+                    "options": [
+                        {
+                            "text": "Bug",
+                            "value": "bug"
+                        },
+                        {
+                            "text": "Feature",
+                            "value": "feature"
+                        },
+                        {
+                            "text": "Docs",
+                            "value": "docs"
+                        },
+                        {
+                            "text": "Infra",
+                            "value": "infra"
+                        }
+                    ]
+                },
+                {
+                    "type": "select",
+                    "name": "component",
+                    "label": "Component",
+                    "placeholder": "Pick a component",
+                    "style": "compact",
+                    "option_groups": [
+                        {
+                            "label": "Product",
+                            "options": [
+                                {
+                                    "text": "Webapp",
+                                    "value": "webapp"
+                                },
+                                {
+                                    "text": "Server",
+                                    "value": "server"
+                                },
+                                {
+                                    "text": "Mobile",
+                                    "value": "mobile"
+                                }
+                            ]
+                        },
+                        {
+                            "label": "Platform",
+                            "options": [
+                                {
+                                    "text": "CI",
+                                    "value": "ci"
+                                },
+                                {
+                                    "text": "Observability",
+                                    "value": "observability"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "text",
+                    "text": "### Select inputs (expanded)",
+                    "size": "small"
+                },
+                {
+                    "type": "select",
+                    "name": "severity",
+                    "label": "Severity",
+                    "style": "expanded",
+                    "initial_option": "sev2",
+                    "options": [
+                        {
+                            "text": "SEV-1 — Immediate",
+                            "value": "sev1"
+                        },
+                        {
+                            "text": "SEV-2 — High",
+                            "value": "sev2"
+                        },
+                        {
+                            "text": "SEV-3 — Medium",
+                            "value": "sev3"
+                        },
+                        {
+                            "text": "SEV-4 — Low",
+                            "value": "sev4"
+                        }
+                    ]
+                },
+                {
+                    "type": "select",
+                    "name": "channels",
+                    "label": "Notify channels",
+                    "style": "expanded",
+                    "multiselect": true,
+                    "optional": true,
+                    "help_text": "Who should get pinged when this is submitted?",
+                    "initial_options": [
+                        "eng"
+                    ],
+                    "options": [
+                        {
+                            "text": "Engineering",
+                            "value": "eng"
+                        },
+                        {
+                            "text": "Support",
+                            "value": "support"
+                        },
+                        {
+                            "text": "Security",
+                            "value": "security"
+                        }
+                    ]
+                },
+                {
+                    "type": "select",
+                    "name": "owner_team",
+                    "label": "Owner team",
+                    "style": "expanded",
+                    "option_groups": [
+                        {
+                            "label": "Core",
+                            "options": [
+                                {
+                                    "text": "Channels",
+                                    "value": "channels"
+                                },
+                                {
+                                    "text": "Playbooks",
+                                    "value": "playbooks"
+                                }
+                            ]
+                        },
+                        {
+                            "label": "Growth",
+                            "options": [
+                                {
+                                    "text": "Acquisition",
+                                    "value": "acquisition"
+                                },
+                                {
+                                    "text": "Activation",
+                                    "value": "activation"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "container",
+                    "flow": "horizontal",
+                    "gap": "medium",
+                    "content": [
+                        {
+                            "type": "button",
+                            "text": "Submit",
+                            "style": "primary",
+                            "subtype": "submit",
+                            "action_id": "e2e_mm_blocks_form_all_submit"
+                        },
+                        {
+                            "type": "button",
+                            "text": "Cancel",
+                            "style": "default",
+                            "action_id": "e2e_mm_blocks_form_all_cancel"
+                        }
+                    ]
+                }
+            ],
+            "mm_blocks_actions": {
+                "e2e_mm_blocks_form_all_submit": {
+                    "type": "external",
+                    "url": "https://example.com/actions/mm_blocks_form_all_submit",
+                    "context": {
+                        "form": "all_inputs"
+                    }
+                },
+                "e2e_mm_blocks_form_all_cancel": {
+                    "type": "external",
+                    "url": "https://example.com/actions/mm_blocks_form_all_cancel",
+                    "context": {
+                        "form": "all_inputs"
+                    }
+                }
+            }
+        }
+    },
+    "incident_response": {
+        "message": "Fixture: incident response — metrics, scrollable nodes with status accents, collapsible details, restart, and resolve form.",
+        "props": {
+            "mm_blocks": [
+                {
+                    "type": "container",
+                    "border": true,
+                    "accent_color": "danger",
+                    "gap": "small",
+                    "content": [
+                        {
+                            "type": "container",
+                            "flow": "horizontal",
+                            "gap": "medium",
+                            "content": [
+                                {
+                                    "type": "text",
+                                    "text": "**INC-1842** — Elevated API error rate"
+                                },
+                                {
+                                    "type": "image",
+                                    "url": "https://mattermost.com/wp-content/uploads/2022/02/logoHorizontal.png",
+                                    "alt_text": "Service mark",
+                                    "size": "xsmall",
+                                    "max_width": 32,
+                                    "max_height": 32
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "text": "SEV-1 · started 14:02 UTC · commander @alex",
+                            "is_subtle": true,
+                            "size": "small"
+                        }
+                    ]
+                },
+                {
+                    "type": "container",
+                    "border": true,
+                    "accent_color": "primary",
+                    "gap": "small",
+                    "content": [
+                        {
+                            "type": "column_set",
+                            "columns": [
+                                {
+                                    "type": "column",
+                                    "width": "stretch",
+                                    "items": [
+                                        {
+                                            "type": "container",
+                                            "border": true,
+                                            "background": "gray",
+                                            "gap": "small",
+                                            "content": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "**7 / 10**"
+                                                },
+                                                {
+                                                    "type": "text",
+                                                    "text": "Affected nodes",
+                                                    "is_subtle": true,
+                                                    "size": "small"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "column",
+                                    "width": "stretch",
+                                    "items": [
+                                        {
+                                            "type": "container",
+                                            "border": true,
+                                            "background": "gray",
+                                            "gap": "small",
+                                            "content": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "**18.4%**"
+                                                },
+                                                {
+                                                    "type": "text",
+                                                    "text": "Error rate",
+                                                    "is_subtle": true,
+                                                    "size": "small"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "column",
+                                    "width": "stretch",
+                                    "items": [
+                                        {
+                                            "type": "container",
+                                            "border": true,
+                                            "background": "gray",
+                                            "gap": "small",
+                                            "content": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "**2.1s**"
+                                                },
+                                                {
+                                                    "type": "text",
+                                                    "text": "p99 latency",
+                                                    "is_subtle": true,
+                                                    "size": "small"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "column",
+                                    "width": "stretch",
+                                    "items": [
+                                        {
+                                            "type": "container",
+                                            "border": true,
+                                            "background": "gray",
+                                            "gap": "small",
+                                            "content": [
+                                                {
+                                                    "type": "text",
+                                                    "text": "**47m**"
+                                                },
+                                                {
+                                                    "type": "text",
+                                                    "text": "Open for",
+                                                    "is_subtle": true,
+                                                    "size": "small"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "container",
+                    "flow": "horizontal",
+                    "gap": "medium",
+                    "content": [
+                        {
+                            "type": "static_select",
+                            "action_id": "incident_filter_env",
+                            "placeholder": "Environment",
+                            "initial_option": "prod",
+                            "options": [
+                                {
+                                    "text": "Production",
+                                    "value": "prod"
+                                },
+                                {
+                                    "text": "Staging",
+                                    "value": "staging"
+                                },
+                                {
+                                    "text": "EU",
+                                    "value": "eu"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "select",
+                            "name": "commander",
+                            "label": "",
+                            "placeholder": "Incident commander…",
+                            "data_source": "users",
+                            "optional": true
+                        }
+                    ]
+                },
+                {
+                    "type": "divider"
+                },
+                {
+                    "type": "text",
+                    "text": "**Cluster nodes** — expand a row for details; accent color is node status."
+                },
+                {
+                    "type": "container",
+                    "border": true,
+                    "gap": "small",
+                    "max_height": "large",
+                    "content": [
+                        {
+                            "type": "container",
+                            "border": true,
+                            "accent_color": "danger",
+                            "content": [
+                                {
+                                    "type": "collapsible",
+                                    "collapsed": false,
+                                    "header": [
+                                        {
+                                            "type": "text",
+                                            "text": "**api-prod-2a** · Unhealthy"
+                                        },
+                                        {
+                                            "type": "button",
+                                            "text": "Restart",
+                                            "style": "danger",
+                                            "action_id": "incident_restart_api_prod_2a",
+                                            "query": {
+                                                "node": "api_prod_2a"
+                                            },
+                                            "tooltip": "Restart this node"
+                                        }
+                                    ],
+                                    "content": [
+                                        {
+                                            "type": "text",
+                                            "text": "**Role** API  ·  **Zone** `us-east-1a`  ·  **Version** `v9.11.2`\nOn-call: **Alex Rivera**\nLast error: `connection refused :8065`",
+                                            "size": "small"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "container",
+                            "border": true,
+                            "accent_color": "warning",
+                            "content": [
+                                {
+                                    "type": "collapsible",
+                                    "collapsed": true,
+                                    "header": [
+                                        {
+                                            "type": "text",
+                                            "text": "**api-prod-2b** · Degraded"
+                                        },
+                                        {
+                                            "type": "button",
+                                            "text": "Restart",
+                                            "style": "warning",
+                                            "action_id": "incident_restart_api_prod_2b",
+                                            "query": {
+                                                "node": "api_prod_2b"
+                                            },
+                                            "tooltip": "Restart this node"
+                                        }
+                                    ],
+                                    "content": [
+                                        {
+                                            "type": "text",
+                                            "text": "**Role** API  ·  **Zone** `us-east-1b`  ·  **Version** `v9.11.2`\nOn-call: **Alex Rivera**\nLast error: `upstream timeout 5.0s`",
+                                            "size": "small"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "container",
+                            "border": true,
+                            "accent_color": "good",
+                            "content": [
+                                {
+                                    "type": "collapsible",
+                                    "collapsed": true,
+                                    "header": [
+                                        {
+                                            "type": "text",
+                                            "text": "**worker-jobs-1a** · Healthy"
+                                        },
+                                        {
+                                            "type": "button",
+                                            "text": "Restart",
+                                            "style": "default",
+                                            "action_id": "incident_restart_worker_jobs_1a",
+                                            "query": {
+                                                "node": "worker_jobs_1a"
+                                            },
+                                            "tooltip": "Node is healthy",
+                                            "disabled": true
+                                        }
+                                    ],
+                                    "content": [
+                                        {
+                                            "type": "text",
+                                            "text": "**Role** Jobs  ·  **Zone** `us-east-1a`  ·  **Version** `v9.11.1`\nOn-call: **Sam Chen**\nLast error: none",
+                                            "size": "small"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "container",
+                            "border": true,
+                            "accent_color": "danger",
+                            "content": [
+                                {
+                                    "type": "collapsible",
+                                    "collapsed": true,
+                                    "header": [
+                                        {
+                                            "type": "text",
+                                            "text": "**worker-jobs-1b** · Unhealthy"
+                                        },
+                                        {
+                                            "type": "button",
+                                            "text": "Restart",
+                                            "style": "danger",
+                                            "action_id": "incident_restart_worker_jobs_1b",
+                                            "query": {
+                                                "node": "worker_jobs_1b"
+                                            },
+                                            "tooltip": "Restart this node"
+                                        }
+                                    ],
+                                    "content": [
+                                        {
+                                            "type": "text",
+                                            "text": "**Role** Jobs  ·  **Zone** `us-east-1b`  ·  **Version** `v9.11.1`\nOn-call: **Sam Chen**\nLast error: `panic: redis: nil`",
+                                            "size": "small"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "container",
+                            "border": true,
+                            "accent_color": "warning",
+                            "content": [
+                                {
+                                    "type": "collapsible",
+                                    "collapsed": true,
+                                    "header": [
+                                        {
+                                            "type": "text",
+                                            "text": "**cache-redis-1** · Degraded"
+                                        },
+                                        {
+                                            "type": "button",
+                                            "text": "Restart",
+                                            "style": "warning",
+                                            "action_id": "incident_restart_cache_redis_1",
+                                            "query": {
+                                                "node": "cache_redis_1"
+                                            },
+                                            "tooltip": "Restart this node"
+                                        }
+                                    ],
+                                    "content": [
+                                        {
+                                            "type": "text",
+                                            "text": "**Role** Cache  ·  **Zone** `us-east-1a`  ·  **Version** `7.2.4`\nOn-call: **Jordan Lee**\nLast error: `eviction storm, 92% memory`",
+                                            "size": "small"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "container",
+                            "border": true,
+                            "accent_color": "good",
+                            "content": [
+                                {
+                                    "type": "collapsible",
+                                    "collapsed": true,
+                                    "header": [
+                                        {
+                                            "type": "text",
+                                            "text": "**cache-redis-2** · Healthy"
+                                        },
+                                        {
+                                            "type": "button",
+                                            "text": "Restart",
+                                            "style": "default",
+                                            "action_id": "incident_restart_cache_redis_2",
+                                            "query": {
+                                                "node": "cache_redis_2"
+                                            },
+                                            "tooltip": "Node is healthy",
+                                            "disabled": true
+                                        }
+                                    ],
+                                    "content": [
+                                        {
+                                            "type": "text",
+                                            "text": "**Role** Cache  ·  **Zone** `us-east-1b`  ·  **Version** `7.2.4`\nOn-call: **Jordan Lee**\nLast error: none",
+                                            "size": "small"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "container",
+                            "border": true,
+                            "accent_color": "warning",
+                            "content": [
+                                {
+                                    "type": "collapsible",
+                                    "collapsed": true,
+                                    "header": [
+                                        {
+                                            "type": "text",
+                                            "text": "**db-primary** · Degraded"
+                                        },
+                                        {
+                                            "type": "button",
+                                            "text": "Restart",
+                                            "style": "warning",
+                                            "action_id": "incident_restart_db_primary",
+                                            "query": {
+                                                "node": "db_primary"
+                                            },
+                                            "tooltip": "Restart this node"
+                                        }
+                                    ],
+                                    "content": [
+                                        {
+                                            "type": "text",
+                                            "text": "**Role** Postgres  ·  **Zone** `us-east-1a`  ·  **Version** `15.6`\nOn-call: **Priya Shah**\nLast error: `replication lag 42s`",
+                                            "size": "small"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "container",
+                            "border": true,
+                            "accent_color": "good",
+                            "content": [
+                                {
+                                    "type": "collapsible",
+                                    "collapsed": true,
+                                    "header": [
+                                        {
+                                            "type": "text",
+                                            "text": "**db-replica** · Healthy"
+                                        },
+                                        {
+                                            "type": "button",
+                                            "text": "Restart",
+                                            "style": "default",
+                                            "action_id": "incident_restart_db_replica",
+                                            "query": {
+                                                "node": "db_replica"
+                                            },
+                                            "tooltip": "Node is healthy",
+                                            "disabled": true
+                                        }
+                                    ],
+                                    "content": [
+                                        {
+                                            "type": "text",
+                                            "text": "**Role** Postgres  ·  **Zone** `us-east-1c`  ·  **Version** `15.6`\nOn-call: **Priya Shah**\nLast error: none",
+                                            "size": "small"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "container",
+                            "border": true,
+                            "accent_color": "danger",
+                            "content": [
+                                {
+                                    "type": "collapsible",
+                                    "collapsed": true,
+                                    "header": [
+                                        {
+                                            "type": "text",
+                                            "text": "**edge-ingress-1** · Unhealthy"
+                                        },
+                                        {
+                                            "type": "button",
+                                            "text": "Restart",
+                                            "style": "danger",
+                                            "action_id": "incident_restart_edge_ingress_1",
+                                            "query": {
+                                                "node": "edge_ingress_1"
+                                            },
+                                            "tooltip": "Restart this node"
+                                        }
+                                    ],
+                                    "content": [
+                                        {
+                                            "type": "text",
+                                            "text": "**Role** Ingress  ·  **Zone** `us-east-1a`  ·  **Version** `v1.9.0`\nOn-call: **Morgan Diaz**\nLast error: `TLS handshake failures`",
+                                            "size": "small"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "container",
+                            "border": true,
+                            "accent_color": "good",
+                            "content": [
+                                {
+                                    "type": "collapsible",
+                                    "collapsed": true,
+                                    "header": [
+                                        {
+                                            "type": "text",
+                                            "text": "**edge-ingress-2** · Healthy"
+                                        },
+                                        {
+                                            "type": "button",
+                                            "text": "Restart",
+                                            "style": "default",
+                                            "action_id": "incident_restart_edge_ingress_2",
+                                            "query": {
+                                                "node": "edge_ingress_2"
+                                            },
+                                            "tooltip": "Node is healthy",
+                                            "disabled": true
+                                        }
+                                    ],
+                                    "content": [
+                                        {
+                                            "type": "text",
+                                            "text": "**Role** Ingress  ·  **Zone** `us-east-1b`  ·  **Version** `v1.9.0`\nOn-call: **Morgan Diaz**\nLast error: none",
+                                            "size": "small"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "divider"
+                },
+                {
+                    "type": "text",
+                    "text": "**Resolve incident**"
+                },
+                {
+                    "type": "container",
+                    "flow": "horizontal",
+                    "gap": "medium",
+                    "content": [
+                        {
+                            "type": "text_input",
+                            "name": "resolve_reason",
+                            "label": "",
+                            "placeholder": "Write the resolve reason…",
+                            "max_length": 240
+                        },
+                        {
+                            "type": "button",
+                            "text": "Resolve",
+                            "style": "primary",
+                            "subtype": "submit",
+                            "action_id": "incident_resolve"
+                        }
+                    ]
+                },
+                {
+                    "type": "collapsible",
+                    "collapsed": true,
+                    "header": [
+                        {
+                            "type": "text",
+                            "text": "**Follow-up** — resolution metadata"
+                        }
+                    ],
+                    "content": [
+                        {
+                            "type": "select",
+                            "name": "resolution",
+                            "label": "Resolution",
+                            "placeholder": "How was this resolved?",
+                            "initial_option": "mitigated",
+                            "options": [
+                                {
+                                    "text": "Mitigated",
+                                    "value": "mitigated"
+                                },
+                                {
+                                    "text": "Fully resolved",
+                                    "value": "resolved"
+                                },
+                                {
+                                    "text": "False positive",
+                                    "value": "false_positive"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "bool_input",
+                            "name": "notify_stakeholders",
+                            "label": "Notify",
+                            "placeholder": "Post a resolution notice to #incidents",
+                            "initial_value": true
+                        },
+                        {
+                            "type": "date_input",
+                            "name": "detected_on",
+                            "label": "Detected on",
+                            "placeholder": "Detection date",
+                            "initial_value": "today",
+                            "optional": true
+                        },
+                        {
+                            "type": "datetime_input",
+                            "name": "resolved_at",
+                            "label": "Resolved at",
+                            "placeholder": "Resolution time",
+                            "optional": true,
+                            "datetime_config": {
+                                "time_interval": 15
+                            }
+                        },
+                        {
+                            "type": "file_input",
+                            "name": "timeline",
+                            "label": "Timeline / RCA",
+                            "placeholder": "Attach notes or a timeline…",
+                            "optional": true,
+                            "allow_multiple": true
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}
