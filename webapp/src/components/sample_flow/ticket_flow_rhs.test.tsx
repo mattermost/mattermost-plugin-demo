@@ -16,7 +16,8 @@ describe('TicketFlowRhs', () => {
         await userEvent.click(row);
 
         const summary = screen.getByRole('textbox', {name: 'Summary'});
-        expect(screen.getByRole('heading', {name: 'MM-38512'})).toBeInTheDocument();
+        expect(screen.getByRole('heading', {name: /Screen readers skip the unread filter/})).toBeInTheDocument();
+        expect(screen.getByText(/MM-38512 • Mattermost/)).toBeInTheDocument();
 
         await userEvent.clear(summary);
         await userEvent.type(summary, 'Screen readers skip the filter');

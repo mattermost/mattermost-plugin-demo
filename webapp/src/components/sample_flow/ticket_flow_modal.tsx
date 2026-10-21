@@ -11,7 +11,7 @@ import ModalLayer from '../modal_layer/modal_layer';
 
 import messages from './messages';
 import TicketForm from './ticket_form';
-import TicketList from './ticket_list';
+import TicketList, {Reported} from './ticket_list';
 import {useTickets} from './tickets';
 
 import './sample_flow.css';
@@ -40,10 +40,18 @@ export default function TicketFlowModal({open, onClose}: Props) {
             onClose={onClose}
         >
             <Modal
+                className='DemoTicketFlowModal'
                 open={open}
                 size='small'
-                title={selected ? selected.key : formatMessage(messages.tickets)}
-                subtitle={selected ? selected.project : formatMessage(messages.pickTicket)}
+                title={selected ? (
+                    <span
+                        className='DemoTicketFlowModal__title'
+                        title={selected.title}
+                    >
+                        {selected.title}
+                    </span>
+                ) : formatMessage(messages.tickets)}
+                subtitle={selected ? undefined : formatMessage(messages.pickTicket)}
                 subtitlePlacement='beside'
                 showBackButton={Boolean(selected)}
                 onBack={back}
@@ -69,12 +77,18 @@ export default function TicketFlowModal({open, onClose}: Props) {
                 )}
             >
                 {selected ? (
-                    <TicketForm
-                        key={selected.id}
-                        ticket={selected}
-                        formId={formId}
-                        onSaved={back}
-                    />
+                    <>
+                        <p className='DemoTicketFlowModal__meta'>
+                            {`${selected.key} • ${selected.project} • `}
+                            <Reported ticket={selected}/>
+                        </p>
+                        <TicketForm
+                            key={selected.id}
+                            ticket={selected}
+                            formId={formId}
+                            onSaved={back}
+                        />
+                    </>
                 ) : (
                     <div className='DemoTicketFlowModal__list'>
                         <TicketList

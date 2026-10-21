@@ -13,15 +13,20 @@
     align-items: flex-start;
     padding: 12px 20px;
     border: none;
+    border-bottom: 1px solid rgba(var(--center-channel-color-rgb), 0.08);
     border-radius: var(--radius-s, 4px);
     background: none;
     color: var(--center-channel-color);
     gap: 8px;
     text-align: start;
+    transition:
+        background-color var(--duration-quick, 150ms) var(--ease-transition, ease),
+        border-bottom-color var(--duration-quick, 150ms) var(--ease-transition, ease);
 }
 
 .DemoTicketList__item:hover {
-    background: rgba(var(--center-channel-color-rgb), 0.08);
+    border-bottom-color: transparent;
+    background: rgba(var(--center-channel-color-rgb), 0.04);
 }
 
 .DemoTicketList__item:focus-visible {
@@ -30,6 +35,7 @@
 }
 
 .DemoTicketList__item[aria-current='true'] {
+    border-bottom-color: transparent;
     background: rgba(var(--button-bg-rgb), 0.08);
 }
 
@@ -78,7 +84,7 @@
 .DemoTicketForm {
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    gap: 24px;
 }
 
 .DemoTicketForm > [role='alert']:empty {
@@ -92,7 +98,7 @@
 }
 
 .DemoTicketForm__groupTitle {
-    margin: 0;
+    margin: 0 0 -8px;
     font-family: var(--font-family-heading, Metropolis, sans-serif);
     font-size: var(--font-size-200, 16px);
     font-weight: 600;
@@ -115,8 +121,9 @@
 
 .DemoTicketForm__choiceGroup {
     display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs, 8px);
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--spacing-xxl, 24px);
 }
 
 .DemoTicketForm__choicesTitle {
@@ -195,31 +202,105 @@
 }
 
 .DemoTicketFlowRhs__detailTitle {
+    overflow: hidden;
+    min-width: 0;
+    flex: 1 1 auto;
     margin: 0;
     font-size: 16px;
     font-weight: 600;
     line-height: 24px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.DemoTicketFlowRhs__detailMeta {
+    margin: 0 0 16px;
+    color: rgba(var(--center-channel-color-rgb), 0.64);
+    font-size: 12px;
+    line-height: 16px;
 }
 .DemoTicketFlowModal__list {
-    margin: 0 -20px;
+    margin: -20px;
+}
+
+.DemoTicketFlowModal__list .DemoTicketList__item {
+    border-radius: 0;
+}
+
+.DemoTicketFlowModal__meta {
+    margin: 0 0 16px;
+    color: rgba(var(--center-channel-color-rgb), 0.64);
+    font-size: 12px;
+    line-height: 16px;
+}
+
+.DemoTicketFlowModal h2 {
+    overflow: hidden;
+}
+
+.DemoTicketFlowModal__title {
+    display: block;
+    overflow: hidden;
+    width: 100%;
+    min-width: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .demo-page__body > .DemoTicketFlowPage {
     max-width: none;
+    width: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
 }
 
 .DemoTicketFlowPage {
     display: grid;
     min-height: 0;
-    align-items: start;
-    gap: 32px;
-    grid-template-columns: minmax(280px, 360px) minmax(0, 600px);
+    height: 100%;
+    align-items: stretch;
+    column-gap: var(--spacing-xxl, 24px);
+    row-gap: 0;
+    grid-template-columns: minmax(240px, min(400px, 50%)) auto minmax(0, 1fr);
+}
+
+/* Compass Divider is horizontal-only; reorient with the same stroke token. */
+.DemoTicketFlowPage__divider {
+    display: flex;
+    align-self: stretch;
+    justify-content: center;
+    padding: 0;
+}
+
+.DemoTicketFlowPage .DemoTicketFlowPage__divider > div {
+    display: flex;
+    width: 1px;
+    height: 100%;
+    padding: 0;
+}
+
+.DemoTicketFlowPage__divider hr {
+    flex: 1 1 auto;
+    width: 0;
+    height: auto;
+    margin: 0;
+    border: none;
+    border-left: 1px solid rgba(var(--center-channel-color-rgb), 0.12);
 }
 
 .DemoTicketFlowPage__detail {
     display: flex;
+    width: 100%;
+    max-width: 700px;
+    min-height: 0;
     flex-direction: column;
+    margin-inline: auto;
     gap: 24px;
+}
+
+.DemoTicketFlowPage__empty {
+    flex: 1 1 auto;
+    min-height: 0;
 }
 
 .DemoTicketFlowPage__title {
@@ -240,5 +321,24 @@
 @media (max-width: 900px) {
     .DemoTicketFlowPage {
         grid-template-columns: minmax(0, 1fr);
+        column-gap: 0;
+        row-gap: var(--spacing-xxl, 24px);
+    }
+
+    .DemoTicketFlowPage__divider {
+        display: block;
+        padding: 0;
+    }
+
+    .DemoTicketFlowPage__divider > * {
+        width: 100%;
+        height: auto;
+    }
+
+    .DemoTicketFlowPage__divider hr {
+        width: 100%;
+        height: 0;
+        border-left: none;
+        border-top: 1px solid rgba(var(--center-channel-color-rgb), 0.12);
     }
 }

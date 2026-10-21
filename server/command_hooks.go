@@ -350,36 +350,37 @@ func (p *Plugin) executeCommandHooks(args *model.CommandArgs) *model.CommandResp
 	configuration := p.getConfiguration()
 
 	if strings.HasSuffix(args.Command, "true") {
-		if !configuration.disabled {
-			return &model.CommandResponse{
-				ResponseType: model.CommandResponseTypeEphemeral,
-				Text:         "The demo plugin hooks are already enabled.",
-			}
+		alreadyEnabled := !configuration.disabled
+		if !alreadyEnabled {
+			p.setEnabled(true)
 		}
-
-		p.setEnabled(true)
+		// Always broadcast so the webapp can recover if Redux is out of sync.
 		p.emitStatusChange()
 
+		text := "Enabled demo plugin hooks."
+		if alreadyEnabled {
+			text = "The demo plugin hooks are already enabled."
+		}
 		return &model.CommandResponse{
 			ResponseType: model.CommandResponseTypeEphemeral,
-			Text:         "Enabled demo plugin hooks.",
+			Text:         text,
 		}
 	}
 
 	if strings.HasSuffix(args.Command, "false") {
-		if configuration.disabled {
-			return &model.CommandResponse{
-				ResponseType: model.CommandResponseTypeEphemeral,
-				Text:         "The demo plugin hooks are already disabled.",
-			}
+		alreadyDisabled := configuration.disabled
+		if !alreadyDisabled {
+			p.setEnabled(false)
 		}
-
-		p.setEnabled(false)
 		p.emitStatusChange()
 
+		text := "Disabled demo plugin hooks."
+		if alreadyDisabled {
+			text = "The demo plugin hooks are already disabled."
+		}
 		return &model.CommandResponse{
 			ResponseType: model.CommandResponseTypeEphemeral,
-			Text:         "Disabled demo plugin hooks.",
+			Text:         text,
 		}
 	}
 

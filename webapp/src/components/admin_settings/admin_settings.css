@@ -1,0 +1,123 @@
+.DemoAdminSetting {
+    margin-bottom: var(--spacing-l, 16px);
+}
+
+.DemoAdminSetting__body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-m, 12px);
+}
+
+.DemoAdminSetting__sliderBlock {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    gap: var(--spacing-xs, 8px);
+}
+
+.DemoAdminSetting__sliderValue {
+    margin: 0;
+    font-size: var(--font-size-100, 14px);
+    font-weight: 600;
+    line-height: var(--line-height-100, 20px);
+}
+
+/* Mirrors Compass ProgressBar (large): track + --button-bg fill */
+.DemoAdminSetting__slider {
+    --demo-slider-track-h: 8px;
+    --demo-slider-thumb: 20px;
+    --demo-slider-fill: linear-gradient(
+        to right,
+        var(--button-bg) 0%,
+        var(--button-bg) var(--demo-slider-pct, 0%),
+        rgba(var(--center-channel-color-rgb), 0.12) var(--demo-slider-pct, 0%),
+        rgba(var(--center-channel-color-rgb), 0.12) 100%
+    );
+
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    max-width: 320px;
+    height: var(--demo-slider-thumb);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: none;
+    box-shadow: none;
+    background: transparent;
+    accent-color: var(--button-bg);
+    cursor: pointer;
+}
+
+.DemoAdminSetting__slider:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.DemoAdminSetting__slider:focus,
+.DemoAdminSetting__slider:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
+.DemoAdminSetting__slider::-moz-focus-outer {
+    border: 0;
+}
+
+.DemoAdminSetting__slider::-webkit-slider-runnable-track {
+    -webkit-appearance: none;
+    width: 100%;
+    height: var(--demo-slider-track-h);
+    border: 0;
+    outline: none;
+    box-shadow: none;
+    border-radius: var(--radius-pill);
+    background: var(--demo-slider-fill);
+}
+
+.DemoAdminSetting__slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: var(--demo-slider-thumb);
+    height: var(--demo-slider-thumb);
+    margin-top: calc((var(--demo-slider-track-h) - var(--demo-slider-thumb)) / 2);
+    border: 1px solid rgba(var(--center-channel-color-rgb), 0.16);
+    border-radius: 50%;
+    background: var(--center-channel-bg);
+    box-shadow: var(--elevation-2);
+    cursor: pointer;
+
+    &:hover {
+        border-color: rgba(var(--center-channel-color-rgb), 0.32);
+        box-shadow: var(--elevation-3);
+    }
+}
+
+.DemoAdminSetting__slider::-moz-range-track {
+    width: 100%;
+    height: var(--demo-slider-track-h);
+    border: 0;
+    outline: none;
+    box-shadow: none;
+    border-radius: var(--radius-pill);
+    background: rgba(var(--center-channel-color-rgb), 0.16);
+}
+
+.DemoAdminSetting__slider::-moz-range-progress {
+    height: var(--demo-slider-track-h);
+    border: 0;
+    box-shadow: none;
+    border-radius: var(--radius-pill);
+    background: var(--button-bg);
+}
+
+.DemoAdminSetting__slider::-moz-range-thumb {
+    width: var(--demo-slider-thumb);
+    height: var(--demo-slider-thumb);
+    border: 1px solid rgba(var(--center-channel-color-rgb), 0.08);
+    border-radius: 50%;
+    background: var(--center-channel-bg);
+    box-shadow: var(--elevation-2);
+    cursor: pointer;
+}
