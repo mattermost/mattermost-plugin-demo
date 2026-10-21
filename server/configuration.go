@@ -117,6 +117,18 @@ func (c *configuration) Clone() *configuration {
 	}
 }
 
+// withoutSecrets returns a copy with the secret settings hidden, for content posted to channels.
+func (c *configuration) withoutSecrets() *configuration {
+	redacted := c.Clone()
+	if redacted.ServiceAPIKey != "" {
+		redacted.ServiceAPIKey = "<HIDDEN>"
+	}
+	if redacted.RandomSecret != "" {
+		redacted.RandomSecret = "<HIDDEN>"
+	}
+	return redacted
+}
+
 // eventDemosEnabled reports whether hooks should run the demo user and demo channel behavior:
 // event messages, the read-only demo channels and the demo user mention checks.
 func (c *configuration) eventDemosEnabled() bool {
@@ -224,7 +236,7 @@ func (p *Plugin) diffConfiguration(newConfiguration *configuration) {
 			continue
 		}
 
-		newConfigurationData, jsonErr := json.Marshal(newConfiguration)
+		newConfigurationData, jsonErr := json.Marshal(newConfiguration.withoutSecrets())
 		if jsonErr != nil {
 			p.API.LogWarn("Failed to marshal new configuration", "err", err)
 			return
@@ -337,7 +349,6 @@ func (p *Plugin) ConfigurationWillBeSaved(newCfg *model.Config) (*model.Config, 
 	if cfg.disabled {
 		return nil, nil
 	}
-	postMessages := cfg.eventDemosEnabled()
 
 	msg := "Configuration will be saved"
 
@@ -364,6 +375,9 @@ func (p *Plugin) ConfigurationWillBeSaved(newCfg *model.Config) (*model.Config, 
 	if cfg == nil {
 		return nil, nil
 	}
+
+	// Decided from the settings being saved, so the save that turns DialogOnlyMode on posts nothing.
+	postMessages := cfg.eventDemosEnabled()
 
 	invalidUsernameUsed := cfg.Username == "invalid"
 	replaceUsernameUsed := cfg.Username == "replaceme"

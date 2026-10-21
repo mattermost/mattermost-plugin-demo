@@ -148,3 +148,41 @@ func TestConfigurationWillBeSavedLeavesLiveConfigurationUnchanged(t *testing.T) 
 	assert.Equal(t, "demo_plugin", live.Username)
 	api.AssertExpectations(t)
 }
+
+func TestConfigurationWillBeSavedTurningOnDialogOnlyModePostsNothing(t *testing.T) {
+	api := &plugintest.API{}
+	p := newHookTestPlugin(api, &configuration{Username: "demo_plugin", demoChannelIDs: map[string]string{"team-id": "channel-id"}})
+
+	newCfg := &model.Config{}
+	newCfg.PluginSettings.Plugins = map[string]map[string]any{manifest.Id: {"dialogonlymode": true, "username": "demo_plugin"}}
+	got, err := p.ConfigurationWillBeSaved(newCfg)
+	assert.Nil(t, got)
+	assert.NoError(t, err)
+	api.AssertExpectations(t)
+}
+
+func TestDiffConfigurationLeavesSecretsOutOfAttachment(t *testing.T) {
+	api := &plugintest.API{}
+	var attachment []byte
+	api.On("GetTeams").Return([]*model.Team{{Id: "team-id"}}, nil).Once()
+	api.On("UploadFile", mock.MatchedBy(func(data []byte) bool {
+		attachment = data
+		return true
+	}), "channel-id", "configuration.json").Return(&model.FileInfo{Id: "file-id"}, nil).Once()
+	api.On("CreatePost", mock.MatchedBy(func(post *model.Post) bool {
+		return post.ChannelId == "channel-id" && post.FileIds[0] == "file-id"
+	})).Return(&model.Post{}, nil).Once()
+
+	p := newHookTestPlugin(api, &configuration{Username: "demo_plugin"})
+	p.diffConfiguration(&configuration{
+		Username:       "renamed",
+		ServiceAPIKey:  "sk-secret-value",
+		RandomSecret:   "random-secret-value",
+		demoChannelIDs: map[string]string{"team-id": "channel-id"},
+	})
+
+	assert.Contains(t, string(attachment), `"Username":"renamed"`)
+	assert.NotContains(t, string(attachment), "sk-secret-value")
+	assert.NotContains(t, string(attachment), "random-secret-value")
+	api.AssertExpectations(t)
+}
