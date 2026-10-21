@@ -1,10 +1,12 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import {fireEvent, render, screen, waitFor} from '@testing-library/react';
+import {fireEvent, screen, waitFor} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import {modalOverlayStyles} from '@mattermost/compass-ui/components/modal';
+
+import {renderWithProviders} from 'tests/render';
 
 import ModalLayer from './modal_layer';
 
@@ -22,7 +24,7 @@ const content = (
 );
 
 function renderLayer(onClose = jest.fn()) {
-    const result = render(
+    const result = renderWithProviders(
         <ModalLayer
             open={true}
             onClose={onClose}
@@ -41,12 +43,12 @@ function renderLayer(onClose = jest.fn()) {
     return {...result, onClose, close};
 }
 
-const overlay = () => document.querySelector('.DemoModalLayer') as Element;
+const overlay = () => screen.getByRole('dialog').parentElement as HTMLElement;
 const expectUnmounted = () => expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 
 describe('ModalLayer', () => {
     it('renders nothing while closed', () => {
-        render(
+        renderWithProviders(
             <ModalLayer
                 open={false}
                 onClose={jest.fn()}

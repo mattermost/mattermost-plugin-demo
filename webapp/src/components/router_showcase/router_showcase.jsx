@@ -62,7 +62,10 @@ export default function RouterShowcase() {
                 <Tabs
                     tabs={tabs}
                     activeKey={active.key}
-                    onChange={(key) => history.push(base + SUBPAGES.find((page) => page.key === key).path)}
+                    onChange={(key) => history.push({
+                        pathname: base + SUBPAGES.find((page) => page.key === key).path,
+                        search: location.search,
+                    })}
                 />
             )}
         >
@@ -83,7 +86,15 @@ export default function RouterShowcase() {
                         <div className='demo-page__row'>
                             <Toggle
                                 checked={searchEnabled}
-                                onChange={(e) => history.replace(`${base}/subpath-with-query${e.target.checked ? '?search-value=on' : ''}`)}
+                                onChange={(e) => {
+                                    const params = new URLSearchParams(location.search);
+                                    if (e.target.checked) {
+                                        params.set('search-value', 'on');
+                                    } else {
+                                        params.delete('search-value');
+                                    }
+                                    history.replace({search: params.toString()});
+                                }}
                             >
                                 {'search-value'}
                             </Toggle>
