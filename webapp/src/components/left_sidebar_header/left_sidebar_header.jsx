@@ -25,25 +25,23 @@ export default class LeftSidebarHeader extends React.PureComponent {
                 <span className='DemoLeftSidebarHeader__icon'>
                     <PlugIcon size='16'/>
                 </span>
-                <FormattedMessage
-                    id='sidebar.demo'
-                    defaultMessage='Demo Plugin:'
-                />
-                {' '}
-                {this.props.enabled ?
-                    <span>
+                <span>
+                    <FormattedMessage
+                        id='sidebar.demo'
+                        defaultMessage='Demo Plugin:'
+                    />
+                    {' '}
+                    {this.props.enabled ?
                         <FormattedMessage
                             id='sidebar.enabled'
                             defaultMessage='Enabled'
-                        />
-                    </span> :
-                    <span>
+                        /> :
                         <FormattedMessage
                             id='sidebar.disabled'
                             defaultMessage='Disabled'
                         />
-                    </span>
-                }
+                    }
+                </span>
             </div>
         );
     }

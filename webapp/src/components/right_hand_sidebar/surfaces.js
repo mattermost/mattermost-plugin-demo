@@ -87,7 +87,7 @@ export const sections = [
             },
             {
                 name: 'System Console settings',
-                api: 'registerAdminConsoleCustomSetting',
+                api: 'registerAdminConsoleCustomSection / registerAdminConsoleCustomSetting',
                 where: 'Custom Settings AdminPanel on the plugin settings page.',
                 action: 'openAdminConsole',
             },

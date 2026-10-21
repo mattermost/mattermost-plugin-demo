@@ -18,11 +18,6 @@
     padding: 0 12px 0 8px;
 }
 
-/* 1px shorter than default underlined tabs so the bar aligns with the host bookmarks row. */
-.demo-rhs .demo-rhs__tabs [role='tab'] {
-    padding-block: calc(var(--spacing-s, 12px) - 0.5px);
-}
-
 .demo-rhs__panel {
     flex: 1 1 auto;
     min-height: 0;

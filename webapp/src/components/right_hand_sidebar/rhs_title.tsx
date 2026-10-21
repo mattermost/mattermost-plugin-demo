@@ -7,7 +7,7 @@ import {useSelector} from 'react-redux';
 
 import {Tag} from '@mattermost/compass-ui/components/tag';
 
-import {isEnabled} from 'selectors';
+import {isEnabled} from '../../selectors';
 
 import './rhs_view.css';
 

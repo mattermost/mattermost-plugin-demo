@@ -2,23 +2,22 @@
 // See LICENSE.txt for license information.
 
 import React from 'react';
-import PropTypes from 'prop-types';
 
 import PowerPlugOutlineIcon from '@mattermost/compass-icons/components/power-plug-outline';
-import {Icon} from '@mattermost/compass-ui/components/icon';
+import {Icon, type IconSize} from '@mattermost/compass-ui/components/icon';
 
 import './demo_chrome.css';
 
-export const PlugIcon = ({size = '16'}) => (
+type PlugIconProps = {
+    size?: IconSize;
+};
+
+export const PlugIcon = ({size = '16'}: PlugIconProps) => (
     <Icon
         glyph={<PowerPlugOutlineIcon/>}
         size={size}
     />
 );
-
-PlugIcon.propTypes = {
-    size: PropTypes.string,
-};
 
 export const MainMenuMobileIcon = () => (
     <PlugIcon size='16'/>

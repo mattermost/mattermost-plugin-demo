@@ -234,10 +234,6 @@
     line-height: 16px;
 }
 
-.DemoTicketFlowModal h2 {
-    overflow: hidden;
-}
-
 .DemoTicketFlowModal__title {
     display: block;
     overflow: hidden;
@@ -259,33 +255,13 @@
     min-height: 0;
     height: 100%;
     align-items: stretch;
-    column-gap: var(--spacing-xxl, 24px);
+    column-gap: 0;
     row-gap: 0;
-    grid-template-columns: minmax(240px, min(400px, 50%)) auto minmax(0, 1fr);
+    grid-template-columns: minmax(240px, min(400px, 50%)) minmax(0, 1fr);
 }
 
-/* Compass Divider is horizontal-only; reorient with the same stroke token. */
-.DemoTicketFlowPage__divider {
-    display: flex;
-    align-self: stretch;
-    justify-content: center;
-    padding: 0;
-}
-
-.DemoTicketFlowPage .DemoTicketFlowPage__divider > div {
-    display: flex;
-    width: 1px;
-    height: 100%;
-    padding: 0;
-}
-
-.DemoTicketFlowPage__divider hr {
-    flex: 1 1 auto;
-    width: 0;
-    height: auto;
-    margin: 0;
-    border: none;
-    border-left: 1px solid rgba(var(--center-channel-color-rgb), 0.12);
+.DemoTicketFlowPage__list {
+    padding-right: var(--spacing-xxl, 24px);
 }
 
 .DemoTicketFlowPage__detail {
@@ -295,6 +271,8 @@
     min-height: 0;
     flex-direction: column;
     margin-inline: auto;
+    padding-left: var(--spacing-xxl, 24px);
+    border-left: 1px solid rgba(var(--center-channel-color-rgb), 0.12);
     gap: 24px;
 }
 
@@ -321,23 +299,17 @@
 @media (max-width: 900px) {
     .DemoTicketFlowPage {
         grid-template-columns: minmax(0, 1fr);
-        column-gap: 0;
-        row-gap: var(--spacing-xxl, 24px);
+        row-gap: 0;
     }
 
-    .DemoTicketFlowPage__divider {
-        display: block;
-        padding: 0;
+    .DemoTicketFlowPage__list {
+        padding-right: 0;
+        padding-bottom: var(--spacing-xxl, 24px);
     }
 
-    .DemoTicketFlowPage__divider > * {
-        width: 100%;
-        height: auto;
-    }
-
-    .DemoTicketFlowPage__divider hr {
-        width: 100%;
-        height: 0;
+    .DemoTicketFlowPage__detail {
+        padding-left: 0;
+        padding-top: var(--spacing-xxl, 24px);
         border-left: none;
         border-top: 1px solid rgba(var(--center-channel-color-rgb), 0.12);
     }

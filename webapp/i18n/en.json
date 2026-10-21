@@ -3,7 +3,7 @@
   "admin.customSettings.messageLabel": "Secret message",
   "admin.customSettings.show": "Show Secret Message",
   "admin.customSettings.sliderLabel": "Demo custom setting",
-  "admin.customSettings.subtitle": "Plugin-owned System Console controls registered with registerAdminConsoleCustomSetting, built with Compass UI.",
+  "admin.customSettings.subtitle": "Plugin-owned System Console controls registered with registerAdminConsoleCustomSection.",
   "admin.customSettings.title": "Custom Settings",
   "components.detail.back": "Back to all components",
   "components.detail.copied": "Copied",

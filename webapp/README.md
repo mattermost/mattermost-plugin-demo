@@ -140,15 +140,12 @@ This plugin registers a right-hand sidebar component, whose content is fully cus
 
 ## Admin Console Setting
 
-This plugin registers two different admin console settings that are available once the plugin is enabled:
+This plugin registers a custom System Console section (`SectionCustomSettings`) that groups two custom settings in one Compass `AdminPanel`:
 
-- `CustomSetting`: Custom setting component that fully customizes the settings area in the System Console.
+- `SecretMessage`: Show/hide the secret message field.
+- `CustomSetting`: Demo range slider that saves with the plugin config.
 
-![custom-setting](docs/admin_setting_full_screen.png)
-
-- `SecretMessage`: Inline, custom setting component shown on the right column of the System Console setting page.
-
-![secret-message-setting](docs/admin_setting_with_title.png)
+Both settings keep their own `id` / `value` / `onChange` so Save persists correctly; the section is registered with `registerAdminConsoleCustomSection`.
 
 ## Custom routes
 

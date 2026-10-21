@@ -6,7 +6,6 @@ import {FormattedMessage, defineMessages, useIntl} from 'react-intl';
 import {useHistory, useLocation, useRouteMatch} from 'react-router-dom';
 
 import {Button} from '@mattermost/compass-ui/components/button';
-import {Divider} from '@mattermost/compass-ui/components/divider';
 import {EmptyState} from '@mattermost/compass-ui/components/empty-state';
 
 import PluginPage from '../plugin_page/plugin_page';
@@ -73,12 +72,6 @@ export default function TicketFlowPage() {
                         selectedId={selected?.id}
                     />
                 </nav>
-                <div
-                    className='DemoTicketFlowPage__divider'
-                    aria-hidden={true}
-                >
-                    <Divider/>
-                </div>
                 <section
                     className='DemoTicketFlowPage__detail'
                     aria-labelledby={selected ? `${formId}-title` : undefined}

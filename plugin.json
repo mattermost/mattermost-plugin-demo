@@ -22,25 +22,32 @@
     "settings_schema": {
         "header": "Header: Configure your demo plugin settings below.",
         "footer": "Footer: The code for this demo plugin can be found [here](https://github.com/mattermost/mattermost-plugin-demo).",
-        "settings": [
-            {
-                "key": "SecretMessage",
-                "display_name": "Secret Message:",
-                "type": "custom",
-                "help_text": "The message posted by the demo plugin when the secret phrase is detected.",
-                "placeholder": "",
-                "default": "Yay! The random secret string was posted! Go to the settings page for this plugin in the System Console to generate a new random secret."
-            },
-            {
-                "key": "CustomSetting",
-                "display_name": "",
-                "type": "custom",
-                "help_text": "",
-                "placeholder": "",
-                "default": null
-            }
-        ],
+        "settings": [],
         "sections": [
+            {
+                "key": "SectionCustomSettings",
+                "title": "Custom Settings",
+                "subtitle": "Plugin-owned System Console controls registered with registerAdminConsoleCustomSection.",
+                "custom": true,
+                "settings": [
+                    {
+                        "key": "SecretMessage",
+                        "display_name": "Secret Message:",
+                        "type": "custom",
+                        "help_text": "The message posted by the demo plugin when the secret phrase is detected.",
+                        "placeholder": "",
+                        "default": "Yay! The random secret string was posted! Go to the settings page for this plugin in the System Console to generate a new random secret."
+                    },
+                    {
+                        "key": "CustomSetting",
+                        "display_name": "",
+                        "type": "custom",
+                        "help_text": "",
+                        "placeholder": "",
+                        "default": null
+                    }
+                ]
+            },
             {
                 "key": "SectionUserChannel",
                 "title": "User & Channel",
