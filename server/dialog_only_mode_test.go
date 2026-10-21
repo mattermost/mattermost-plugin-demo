@@ -123,6 +123,18 @@ func TestEnsureDemoChannelsSkipsTeamThatFails(t *testing.T) {
 	api.AssertExpectations(t)
 }
 
+func TestConfigurationWillBeSavedWithoutPluginSettingsLeavesSaveAlone(t *testing.T) {
+	api := &plugintest.API{}
+	p := newHookTestPlugin(api, &configuration{DialogOnlyMode: true, Username: "demo_plugin"})
+
+	newCfg := &model.Config{}
+	newCfg.PluginSettings.Plugins = map[string]map[string]any{}
+	got, err := p.ConfigurationWillBeSaved(newCfg)
+	require.NoError(t, err)
+	assert.Nil(t, got)
+	api.AssertExpectations(t)
+}
+
 func TestConfigurationWillBeSavedLeavesLiveConfigurationUnchanged(t *testing.T) {
 	api := &plugintest.API{}
 	p := newHookTestPlugin(api, &configuration{DialogOnlyMode: true, Username: "demo_plugin"})

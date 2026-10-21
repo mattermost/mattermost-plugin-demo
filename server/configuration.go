@@ -359,8 +359,10 @@ func (p *Plugin) ConfigurationWillBeSaved(newCfg *model.Config) (*model.Config, 
 		return nil, nil
 	}
 
+	// No settings entry for this plugin: leave the save alone. Returning newCfg sends the whole
+	// config through this plugin's model and back, which resets settings it does not know to defaults.
 	if cfg == nil {
-		return newCfg, nil
+		return nil, nil
 	}
 
 	invalidUsernameUsed := cfg.Username == "invalid"
