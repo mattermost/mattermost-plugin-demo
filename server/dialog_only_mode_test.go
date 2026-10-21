@@ -186,3 +186,16 @@ func TestDiffConfigurationLeavesSecretsOutOfAttachment(t *testing.T) {
 	assert.NotContains(t, string(attachment), "random-secret-value")
 	api.AssertExpectations(t)
 }
+
+func TestDiffConfigurationReportsDialogOnlyModeTurnedOff(t *testing.T) {
+	api := &plugintest.API{}
+	api.On("GetTeams").Return([]*model.Team{{Id: "team-id"}}, nil).Once()
+	api.On("UploadFile", mock.Anything, "channel-id", "configuration.json").Return(&model.FileInfo{Id: "file-id"}, nil).Once()
+	api.On("CreatePost", mock.MatchedBy(func(post *model.Post) bool {
+		return post.ChannelId == "channel-id" && post.GetProp("dialog_only_mode") == false
+	})).Return(&model.Post{}, nil).Once()
+
+	p := newHookTestPlugin(api, &configuration{DialogOnlyMode: true})
+	p.diffConfiguration(&configuration{demoChannelIDs: map[string]string{"team-id": "channel-id"}})
+	api.AssertExpectations(t)
+}

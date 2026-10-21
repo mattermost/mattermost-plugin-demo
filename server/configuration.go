@@ -218,6 +218,9 @@ func (p *Plugin) diffConfiguration(newConfiguration *configuration) {
 	if newConfiguration.RejectPublicLinkDownloads != oldConfiguration.RejectPublicLinkDownloads {
 		configurationDiff["reject_public_link_downloads"] = newConfiguration.RejectPublicLinkDownloads
 	}
+	if newConfiguration.DialogOnlyMode != oldConfiguration.DialogOnlyMode {
+		configurationDiff["dialog_only_mode"] = newConfiguration.DialogOnlyMode
+	}
 
 	if len(configurationDiff) == 0 {
 		return
