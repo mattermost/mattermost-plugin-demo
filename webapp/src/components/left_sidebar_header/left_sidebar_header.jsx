@@ -1,6 +1,13 @@
+// Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import {FormattedMessage} from 'react-intl';
+
+import {PlugIcon} from '../icons';
+
+import '../demo_chrome.css';
 
 // LeftSidebarHeader is a pure component, later connected to the Redux store so as to
 // show the plugin's enabled / disabled status.
@@ -10,25 +17,14 @@ export default class LeftSidebarHeader extends React.PureComponent {
     }
 
     render() {
-        const iconStyle = {
-            display: 'inline-block',
-            margin: '0 7px 0 1px',
-        };
-        const style = {
-            margin: '.5em 0 .5em',
-            padding: '0 12px 0 15px',
-            color: 'rgba(255,255,255,0.6)',
-        };
-
         return (
             <div
-                style={style}
+                className='DemoLeftSidebarHeader'
                 data-testid='demo-plugin-hook-status'
             >
-                <i
-                    className='icon fa fa-plug'
-                    style={iconStyle}
-                />
+                <span className='DemoLeftSidebarHeader__icon'>
+                    <PlugIcon size='16'/>
+                </span>
                 <FormattedMessage
                     id='sidebar.demo'
                     defaultMessage='Demo Plugin:'
