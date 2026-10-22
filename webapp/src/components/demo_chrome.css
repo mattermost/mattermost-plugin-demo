@@ -8,6 +8,12 @@
     vertical-align: middle;
 }
 
+/* vertical-align: middle sits 2px low against the host upload menu's 14px label. */
+.DemoFileUploadMethodIcon {
+    position: relative;
+    top: -2px;
+}
+
 .DemoBottomTeamSidebarIcon {
     /* Host .team-sidebar-bottom-plugin is 16px top / 6px bottom; balance the icon. */
     padding-bottom: 10px;
