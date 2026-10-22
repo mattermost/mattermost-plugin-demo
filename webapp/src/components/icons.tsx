@@ -31,5 +31,7 @@ export const ChannelHeaderButtonIcon = () => (
 );
 
 export const FileUploadMethodIcon = () => (
-    <PlugIcon size='16'/>
+    <span className='DemoFileUploadMethodIcon'>
+        <PlugIcon size='16'/>
+    </span>
 );
