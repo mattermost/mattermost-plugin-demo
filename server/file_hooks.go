@@ -19,6 +19,16 @@ func (p *Plugin) FileWillBeUploaded(c *plugin.Context, fileInfo *model.FileInfo,
 		return nil, "Configuration is disabled"
 	}
 
+	if reader.Size() == 0 {
+		p.API.LogError("Uploaded file has zero size")
+		return nil, "Upload Failed as file has zero size"
+	}
+
+	// This runs inside every upload request, so skip the per-team messages when they are off.
+	if !configuration.eventDemosEnabled() {
+		return nil, ""
+	}
+
 	teams, err := p.API.GetTeams()
 	if err != nil {
 		p.API.LogError(
@@ -26,11 +36,6 @@ func (p *Plugin) FileWillBeUploaded(c *plugin.Context, fileInfo *model.FileInfo,
 			"error", err.Error(),
 		)
 		return nil, "Failed to query teams"
-	}
-
-	if reader.Size() == 0 {
-		p.API.LogError("Uploaded file has zero size")
-		return nil, "Upload Failed as file has zero size"
 	}
 
 	for _, team := range teams {

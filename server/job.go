@@ -7,7 +7,7 @@ import (
 func (p *Plugin) BackgroundJob() {
 	configuration := p.getConfiguration()
 
-	if configuration.disabled {
+	if !configuration.eventDemosEnabled() {
 		return
 	}
 
