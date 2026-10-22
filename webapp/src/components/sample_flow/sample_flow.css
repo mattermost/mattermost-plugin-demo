@@ -13,15 +13,20 @@
     align-items: flex-start;
     padding: 12px 20px;
     border: none;
+    border-bottom: 1px solid rgba(var(--center-channel-color-rgb), 0.08);
     border-radius: var(--radius-s, 4px);
     background: none;
     color: var(--center-channel-color);
     gap: 8px;
     text-align: start;
+    transition:
+        background-color var(--duration-quick, 150ms) var(--ease-transition, ease),
+        border-bottom-color var(--duration-quick, 150ms) var(--ease-transition, ease);
 }
 
 .DemoTicketList__item:hover {
-    background: rgba(var(--center-channel-color-rgb), 0.08);
+    border-bottom-color: transparent;
+    background: rgba(var(--center-channel-color-rgb), 0.04);
 }
 
 .DemoTicketList__item:focus-visible {
@@ -30,6 +35,7 @@
 }
 
 .DemoTicketList__item[aria-current='true'] {
+    border-bottom-color: transparent;
     background: rgba(var(--button-bg-rgb), 0.08);
 }
 
@@ -78,7 +84,7 @@
 .DemoTicketForm {
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    gap: 24px;
 }
 
 .DemoTicketForm > [role='alert']:empty {
@@ -92,11 +98,11 @@
 }
 
 .DemoTicketForm__groupTitle {
-    margin: 0;
+    margin: 0 0 -8px;
     font-family: var(--font-family-heading, Metropolis, sans-serif);
-    font-size: 18px;
+    font-size: var(--font-size-200, 16px);
     font-weight: 600;
-    line-height: 24px;
+    line-height: var(--line-height-200, 24px);
 }
 
 .DemoTicketForm__field {
@@ -111,21 +117,31 @@
     padding: 0;
     border: none;
     margin: 0;
-    gap: 16px;
+}
+
+.DemoTicketForm__choiceGroup {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--spacing-xl, 20px);
+}
+
+.DemoTicketForm__choiceGroup > label {
+    width: auto;
 }
 
 .DemoTicketForm__choicesTitle {
     width: auto;
     padding: 0;
     border: none;
-    margin: 0;
+    margin: 0 0 var(--spacing-m, 12px);
     font-size: 14px;
     font-weight: 600;
     line-height: 20px;
 }
 
 .DemoTicketForm__group > label,
-.DemoTicketForm__choices > label {
+.DemoTicketForm__choices label {
     margin-bottom: 0;
 }
 
@@ -177,6 +193,10 @@
     margin: 0 -20px;
 }
 
+.DemoTicketFlowRhs__list .DemoTicketList__item {
+    border-radius: 0;
+}
+
 .DemoTicketFlowRhs__detailHeader {
     display: flex;
     flex: none;
@@ -186,35 +206,83 @@
 }
 
 .DemoTicketFlowRhs__detailTitle {
+    overflow: hidden;
+    min-width: 0;
+    flex: 1 1 auto;
     margin: 0;
     font-size: 16px;
     font-weight: 600;
     line-height: 24px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.DemoTicketFlowRhs__detailMeta {
+    margin: 0;
+    color: rgba(var(--center-channel-color-rgb), 0.64);
+    font-size: 12px;
+    line-height: 16px;
 }
 .DemoTicketFlowModal__list {
-    margin: 0 -20px;
+    margin: -20px;
+}
+
+.DemoTicketFlowModal__list .DemoTicketList__item {
+    border-radius: 0;
+}
+
+.DemoTicketFlowModal__meta {
+    margin: 0 0 16px;
+    color: rgba(var(--center-channel-color-rgb), 0.64);
+    font-size: 12px;
+    line-height: 16px;
+}
+
+.DemoTicketFlowModal__title {
+    display: block;
+    overflow: hidden;
+    width: 100%;
+    min-width: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .demo-page__body > .DemoTicketFlowPage {
     max-width: none;
+    width: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
 }
 
 .DemoTicketFlowPage {
     display: grid;
     min-height: 0;
-    align-items: start;
-    gap: 32px;
-    grid-template-columns: minmax(280px, 360px) minmax(0, 600px);
+    height: 100%;
+    align-items: stretch;
+    column-gap: 0;
+    row-gap: 0;
+    grid-template-columns: minmax(240px, min(400px, 50%)) minmax(0, 1fr);
 }
 
 .DemoTicketFlowPage__list {
-    margin: 0 -20px 0 0;
+    padding-right: var(--spacing-xxl, 24px);
+    border-right: 1px solid rgba(var(--center-channel-color-rgb), 0.12);
 }
 
 .DemoTicketFlowPage__detail {
     display: flex;
+    width: 100%;
+    max-width: 700px;
+    min-height: 0;
     flex-direction: column;
+    margin-inline: auto;
+    padding-left: var(--spacing-xxl, 24px);
     gap: 24px;
+}
+
+.DemoTicketFlowPage__empty {
+    flex: 1 1 auto;
+    min-height: 0;
 }
 
 .DemoTicketFlowPage__title {
@@ -235,5 +303,18 @@
 @media (max-width: 900px) {
     .DemoTicketFlowPage {
         grid-template-columns: minmax(0, 1fr);
+        row-gap: 0;
+    }
+
+    .DemoTicketFlowPage__list {
+        padding-right: 0;
+        padding-bottom: var(--spacing-xxl, 24px);
+        border-right: none;
+        border-bottom: 1px solid rgba(var(--center-channel-color-rgb), 0.12);
+    }
+
+    .DemoTicketFlowPage__detail {
+        padding-left: 0;
+        padding-top: var(--spacing-xxl, 24px);
     }
 }

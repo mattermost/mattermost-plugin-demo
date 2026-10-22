@@ -66,6 +66,8 @@ export default function RouterShowcase() {
                         pathname: base + SUBPAGES.find((page) => page.key === key).path,
                         search: location.search,
                     })}
+                    appearance='underlined'
+                    className='demo-page__tabs'
                 />
             )}
         >

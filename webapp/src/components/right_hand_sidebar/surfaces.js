@@ -87,8 +87,8 @@ export const sections = [
             },
             {
                 name: 'System Console settings',
-                api: 'registerAdminConsoleCustomSetting',
-                where: 'Custom setting components on the plugin settings page.',
+                api: 'registerAdminConsoleCustomSection / registerAdminConsoleCustomSetting',
+                where: 'Custom Settings AdminPanel on the plugin settings page.',
                 action: 'openAdminConsole',
             },
         ],
@@ -146,7 +146,7 @@ export const sections = [
             {
                 name: 'WebSocket events',
                 api: 'registerWebSocketEventHandler',
-                where: 'Updates the hooks status above when /demo_plugin is run.',
+                where: 'Updates the hooks status in the RHS header when /demo_plugin is run.',
             },
             {
                 name: 'Redux reducer',

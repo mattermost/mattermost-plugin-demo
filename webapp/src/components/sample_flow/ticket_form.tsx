@@ -141,17 +141,19 @@ export default function TicketForm({ticket, formId, onSaved}: Props) {
                             defaultMessage='Priority'
                         />
                     </legend>
-                    {PRIORITY_OPTIONS.map((option) => (
-                        <Radio
-                            key={option.value}
-                            name={`${formId}-priority`}
-                            value={option.value}
-                            checked={draft.priority === option.value}
-                            onChange={() => update({priority: option.value})}
-                        >
-                            <FormattedMessage {...option.label}/>
-                        </Radio>
-                    ))}
+                    <div className='DemoTicketForm__choiceGroup'>
+                        {PRIORITY_OPTIONS.map((option) => (
+                            <Radio
+                                key={option.value}
+                                name={`${formId}-priority`}
+                                value={option.value}
+                                checked={draft.priority === option.value}
+                                onChange={() => update({priority: option.value})}
+                            >
+                                <FormattedMessage {...option.label}/>
+                            </Radio>
+                        ))}
+                    </div>
                 </fieldset>
                 <Switch
                     checked={draft.notifyWatchers}

@@ -6,13 +6,16 @@
     color: var(--center-channel-color);
 }
 
-.demo-rhs__title-row {
-    padding: 16px 20px 8px;
+/* Host .sidebar--right__title is already flex; sit beside the plugin name. */
+.demo-rhs__header-tag {
+    flex: none;
+    margin-left: 8px;
 }
 
+/* Underlined tabs add --spacing-xs (8px) per tab; 8px left lines “Guide” with the 16px host title inset. */
 .demo-rhs__tabs {
     flex: none;
-    padding: 0 12px;
+    padding: 0 12px 0 8px;
 }
 
 .demo-rhs__panel {
@@ -34,19 +37,6 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-}
-
-.demo-rhs__title-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.demo-rhs__title {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 24px;
 }
 
 .demo-rhs__text {
@@ -80,7 +70,7 @@
     display: flex;
     flex-direction: column;
     padding: 0;
-    margin: 0;
+    margin: 0 -20px;
     gap: 4px;
     list-style: none;
 }
@@ -89,8 +79,8 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    padding: 8px 12px;
-    border-radius: 8px;
+    padding: 8px 20px;
+    border-radius: 0;
     gap: 12px;
 }
 

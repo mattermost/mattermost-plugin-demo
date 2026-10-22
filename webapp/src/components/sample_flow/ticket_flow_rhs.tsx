@@ -13,7 +13,7 @@ import {IconButton} from '@mattermost/compass-ui/components/icon-button';
 import messages from './messages';
 import TicketFlowModal from './ticket_flow_modal';
 import TicketForm from './ticket_form';
-import TicketList from './ticket_list';
+import TicketList, {Reported} from './ticket_list';
 import {useTickets} from './tickets';
 
 import './sample_flow.css';
@@ -52,9 +52,18 @@ export default function TicketFlowRhs({pagePath}: Props) {
                         )}
                         onClick={back}
                     />
-                    <h3 className='DemoTicketFlowRhs__detailTitle'>{selected.key}</h3>
+                    <h3
+                        className='DemoTicketFlowRhs__detailTitle'
+                        title={selected.title}
+                    >
+                        {selected.title}
+                    </h3>
                 </div>
                 <div className='DemoTicketFlowRhs__scroll'>
+                    <p className='DemoTicketFlowRhs__detailMeta'>
+                        {`${selected.key} • ${selected.project} • `}
+                        <Reported ticket={selected}/>
+                    </p>
                     <TicketForm
                         key={selected.id}
                         ticket={selected}
@@ -91,7 +100,7 @@ export default function TicketFlowRhs({pagePath}: Props) {
                 </p>
                 <div className='DemoTicketFlow__actions'>
                     <Button
-                        emphasis='secondary'
+                        emphasis='tertiary'
                         size='small'
                         onClick={() => {
                             setModalKey((key) => key + 1);
@@ -105,7 +114,7 @@ export default function TicketFlowRhs({pagePath}: Props) {
                     </Button>
                     {pagePath && (
                         <Button
-                            emphasis='secondary'
+                            emphasis='tertiary'
                             size='small'
                             onClick={() => history.push(pagePath)}
                         >

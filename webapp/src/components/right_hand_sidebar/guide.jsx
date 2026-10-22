@@ -77,14 +77,8 @@ export default function Guide({team, channel, openRootModal}) {
             <header className='demo-rhs__header'>
                 <p className='demo-rhs__text'>
                     <FormattedMessage
-                        id='rhs.triggered'
-                        defaultMessage='You have triggered the right-hand sidebar component of the demo plugin.'
-                    />
-                </p>
-                <p className='demo-rhs__text'>
-                    <FormattedMessage
                         id='rhs.guide.intro'
-                        defaultMessage='Everything this plugin adds to Mattermost, and where to find it.'
+                        defaultMessage='Below is a list of everything this plugin adds to Mattermost, and where to find it.'
                     />
                 </p>
                 <SearchInput

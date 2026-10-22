@@ -1,7 +1,7 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import React, {useId, useRef} from 'react';
+import React, {useEffect, useId, useRef} from 'react';
 import {FormattedMessage, defineMessages, useIntl} from 'react-intl';
 import {useHistory, useLocation, useRouteMatch} from 'react-router-dom';
 
@@ -35,6 +35,19 @@ export default function TicketFlowPage() {
     const selected = tickets.find((ticket) => ticket.id === selectedId);
 
     const listRef = useRef<HTMLElement>(null);
+    const didAutoSelect = useRef(false);
+
+    // First visit with no ?ticket= selects the first item; Cancel can still clear selection.
+    useEffect(() => {
+        if (didAutoSelect.current) {
+            return;
+        }
+        didAutoSelect.current = true;
+        if (selectedId || !tickets[0]) {
+            return;
+        }
+        history.replace(`${url}?ticket=${tickets[0].id}`);
+    }, [history, selectedId, tickets, url]);
 
     const open = (id: string) => history.push(`${url}?ticket=${id}`);
     const close = () => {
@@ -71,10 +84,10 @@ export default function TicketFlowPage() {
                                     id={`${formId}-title`}
                                     className='DemoTicketFlowPage__title'
                                 >
-                                    {selected.key}
+                                    {selected.title}
                                 </h2>
                                 <p className='DemoTicketFlowPage__meta'>
-                                    {`${selected.project} • `}
+                                    {`${selected.key} • ${selected.project} • `}
                                     <Reported ticket={selected}/>
                                 </p>
                             </header>
@@ -101,6 +114,7 @@ export default function TicketFlowPage() {
                         </>
                     ) : (
                         <EmptyState
+                            className='DemoTicketFlowPage__empty'
                             title={formatMessage(messages.emptyTitle)}
                             description={formatMessage(messages.emptyDescription)}
                         />

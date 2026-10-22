@@ -43,12 +43,21 @@ export const getPluginServerRoute = (state) => {
 };
 
 export const getStatus = () => async (dispatch, getState) => {
-    fetch(getPluginServerRoute(getState()) + '/status').then((r) => r.json()).then((r) => {
+    try {
+        const response = await fetch(getPluginServerRoute(getState()) + '/status', {
+            credentials: 'same-origin',
+        });
+        if (!response.ok) {
+            return;
+        }
+        const data = await response.json();
         dispatch({
             type: STATUS_CHANGE,
-            data: r.enabled,
+            data: Boolean(data.enabled),
         });
-    });
+    } catch {
+        // Keep the last known status if the request fails.
+    }
 };
 
 export const websocketStatusChange = (message) => (dispatch) => dispatch({
