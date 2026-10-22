@@ -1,4 +1,4 @@
-import type {CatalogEntry} from './types';
+import {CATEGORY_LABELS, type CatalogEntry} from './types';
 
 export function filterCatalog(entries: CatalogEntry[], query: string): CatalogEntry[] {
     const q = query.trim().toLowerCase();
@@ -8,6 +8,7 @@ export function filterCatalog(entries: CatalogEntry[], query: string): CatalogEn
     return entries.filter((entry) => (
         entry.name.toLowerCase().includes(q) ||
         entry.category.toLowerCase().includes(q) ||
+        CATEGORY_LABELS[entry.category].toLowerCase().includes(q) ||
         entry.description.toLowerCase().includes(q)
     ));
 }

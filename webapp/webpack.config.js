@@ -54,6 +54,7 @@ module.exports = {
         'react/jsx-runtime': 'ReactJSXRuntime',
         'react/jsx-dev-runtime': 'ReactJSXDevRuntime',
         'react-dom': 'ReactDOM',
+        'react-dom/client': 'ReactDOM',
         redux: 'Redux',
         'react-redux': 'ReactRedux',
         'prop-types': 'PropTypes',
