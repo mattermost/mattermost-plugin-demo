@@ -1,0 +1,60 @@
+.DemoChannelHeaderButtonIcon,
+.DemoFileUploadMethodIcon,
+.DemoBottomTeamSidebarIcon,
+.DemoLeftSidebarHeader__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+}
+
+/* vertical-align: middle sits 2px low against the host upload menu's 14px label. */
+.DemoFileUploadMethodIcon {
+    position: relative;
+    top: -2px;
+}
+
+.DemoBottomTeamSidebarIcon {
+    /* Host .team-sidebar-bottom-plugin is 16px top / 6px bottom; balance the icon. */
+    padding-bottom: 10px;
+    color: var(--sidebar-header-text-color, #fff);
+}
+
+/* Match #SidebarContainer .SidebarLink (Threads, channels). */
+.DemoLeftSidebarHeader {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    height: 32px;
+    margin: 0;
+    padding: 7px 16px 7px 19px;
+    gap: 6px;
+    color: rgba(var(--sidebar-text-rgb), 0.64);
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.DemoLeftSidebarHeader__icon {
+    flex: none;
+    margin: 0;
+}
+
+.DemoUserActions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.DemoFilePreviewOverride {
+    padding: 10px 0;
+    background: var(--center-channel-bg);
+    color: var(--center-channel-color);
+}
+
+.DemoFilePreviewOverride__title {
+    margin: 0 0 12px;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 24px;
+}

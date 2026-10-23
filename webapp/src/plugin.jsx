@@ -15,10 +15,14 @@ import LinkTooltip from './components/link_tooltip';
 import UserAttributes from './components/user_attributes';
 import UserActions from './components/user_actions';
 import RHSView from './components/right_hand_sidebar';
-import SecretMessageSetting from './components/admin_settings/secret_message_setting';
+import RHSTitle from './components/right_hand_sidebar/rhs_title';
 import CustomSetting from './components/admin_settings/custom_setting';
+import CustomSettingsSection from './components/admin_settings/custom_settings_section';
+import SecretMessageSetting from './components/admin_settings/secret_message_setting';
 import FilePreviewOverride from './components/file_preview_override';
 import RouterShowcase from './components/router_showcase/router_showcase';
+import RootRoute from './components/root_route/root_route';
+import TicketFlowPage from './components/sample_flow/ticket_flow_page';
 import PostType from './components/post_type';
 import EphemeralPostType from './components/ephemeral_post_type';
 import {
@@ -60,10 +64,8 @@ export default class DemoPlugin {
         );
         const {toggleRHSPlugin} = registry.registerRightHandSidebarComponent(
             RHSView,
-            <FormattedMessage
-                id='plugin.name'
-                defaultMessage='Demo Plugin'
-            />);
+            RHSTitle,
+        );
 
         registry.registerChannelHeaderButtonAction(
             <ChannelHeaderButtonIcon/>,
@@ -204,8 +206,9 @@ export default class DemoPlugin {
             },
         );
 
-        registry.registerAdminConsoleCustomSetting('SecretMessage', SecretMessageSetting, {showTitle: true});
-        registry.registerAdminConsoleCustomSetting('CustomSetting', CustomSetting);
+        registry.registerAdminConsoleCustomSection('SectionCustomSettings', CustomSettingsSection);
+        registry.registerAdminConsoleCustomSetting('SecretMessage', SecretMessageSetting, {showTitle: false});
+        registry.registerAdminConsoleCustomSetting('CustomSetting', CustomSetting, {showTitle: false});
 
         registry.registerFilePreviewComponent((fileInfo) => fileInfo.extension === 'demo', FilePreviewOverride);
 
@@ -222,7 +225,8 @@ export default class DemoPlugin {
         registry.registerTranslations(getTranslations);
 
         registry.registerNeedsTeamRoute('/teamtest', RouterShowcase);
-        registry.registerCustomRoute('/roottest', () => 'Demo plugin route.');
+        registry.registerNeedsTeamRoute('/tickets', TicketFlowPage);
+        registry.registerCustomRoute('/roottest', RootRoute);
 
         // Register sidebar browse/add channel menu action if available
         registry.registerSidebarBrowseOrAddChannelMenuAction(

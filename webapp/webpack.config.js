@@ -26,11 +26,35 @@ module.exports = {
                     },
                 },
             },
+            {
+                test: /\.m?js$/,
+                include: /node_modules[\\/]@mattermost[\\/]compass-ui/,
+                resolve: {
+                    fullySpecified: false,
+                },
+            },
+            {
+                test: /\.css$/,
+                use: [
+                    'style-loader',
+                    {
+                        loader: 'css-loader',
+                        options: {modules: false},
+                    },
+                ],
+            },
+            {
+                test: /\.svg$/,
+                type: 'asset/inline',
+            },
         ],
     },
     externals: {
         react: 'React',
+        'react/jsx-runtime': 'ReactJSXRuntime',
+        'react/jsx-dev-runtime': 'ReactJSXDevRuntime',
         'react-dom': 'ReactDOM',
+        'react-dom/client': 'ReactDOM',
         redux: 'Redux',
         'react-redux': 'ReactRedux',
         'prop-types': 'PropTypes',

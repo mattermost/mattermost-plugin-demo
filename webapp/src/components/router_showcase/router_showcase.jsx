@@ -1,49 +1,134 @@
 import React from 'react';
+import {FormattedMessage, defineMessages, useIntl} from 'react-intl';
 import {
     Switch,
     Route,
+    useHistory,
     useLocation,
+    useParams,
+    useRouteMatch,
 } from 'react-router-dom';
-import {getCurrentTeam} from 'mattermost-redux/selectors/entities/teams';
-import {useSelector} from 'react-redux';
 
-import {id} from 'src/manifest';
+import {Switch as Toggle} from '@mattermost/compass-ui/components/switch';
+import {Tabs} from '@mattermost/compass-ui/components/tabs';
+import {Tag} from '@mattermost/compass-ui/components/tag';
+
+import PluginPage, {Facts} from '../plugin_page/plugin_page';
+
+const messages = defineMessages({
+    title: {id: 'teamRoute.title', defaultMessage: 'Team route'},
+    description: {id: 'teamRoute.description', defaultMessage: 'Registered with registerNeedsTeamRoute. It renders in the center of a team, so team context is available, and it can own nested routes below its base path.'},
+    overview: {id: 'teamRoute.tab.overview', defaultMessage: 'Overview'},
+    subpath: {id: 'teamRoute.tab.subpath', defaultMessage: 'Subpath'},
+    query: {id: 'teamRoute.tab.query', defaultMessage: 'Query string'},
+    on: {id: 'teamRoute.query.on', defaultMessage: 'on'},
+    off: {id: 'teamRoute.query.off', defaultMessage: 'off'},
+    empty: {id: 'teamRoute.query.empty', defaultMessage: '(empty)'},
+    team: {id: 'teamRoute.fact.team', defaultMessage: 'Team'},
+    basePath: {id: 'teamRoute.fact.basePath', defaultMessage: 'Base path'},
+    matchedRoute: {id: 'teamRoute.fact.matchedRoute', defaultMessage: 'Matched route'},
+    currentPath: {id: 'route.currentPath', defaultMessage: 'Current path'},
+});
+
+const SUBPAGES = [
+    {key: 'overview', path: ''},
+    {key: 'subpath', path: '/subpath'},
+    {key: 'query', path: '/subpath-with-query'},
+];
 
 export default function RouterShowcase() {
-    const currentTeam = useSelector(getCurrentTeam);
-    const query = useQuery();
+    const {formatMessage} = useIntl();
+    const {team} = useParams();
+    const {url} = useRouteMatch();
+    const history = useHistory();
+    const location = useLocation();
 
-    function pushTeamUrlPath(path) {
-        return window.WebappUtils.browserHistory.push(teamUrlPath(path));
-    }
+    const base = url.replace(/\/$/, '');
+    const active = [...SUBPAGES].reverse().find((page) => location.pathname.startsWith(base + page.path));
+    const searchEnabled = new URLSearchParams(location.search).get('search-value') === 'on';
 
-    function teamUrlPath(path) {
-        return `/${currentTeam.name}/${id}/teamtest/${path}`;
-    }
+    const tabs = SUBPAGES.map((page) => ({
+        key: page.key,
+        label: formatMessage(messages[page.key]),
+        id: `demo-route-tab-${page.key}`,
+        panelId: 'demo-route-panel',
+    }));
 
     return (
-        <Switch>
-            <Route path={teamUrlPath('subpath')}>
-                <h3>{'Hello, Subpath Component!'}</h3>
-            </Route>
-            <Route path={teamUrlPath('subpath-with-query')}>
-                <h3>{'Hello, Subpath with Query!'}</h3>
-                <p>{`The search-value in the query string is ${query.get('search-value') === 'on' ? 'enabled' : 'disabled'}.`}</p>
-            </Route>
-            <Route>
-                <h3>{'Custom SubRoutes:'}</h3>
-                <li>
-                    <a onClick={() => pushTeamUrlPath('subpath')}>{'Subpath'}</a>
-                </li>
-                <li>
-                    <a onClick={() => pushTeamUrlPath('subpath-with-query?search-value=on')}>{'Subpath with Query'}</a>
-                </li>
-            </Route>
-        </Switch>
+        <PluginPage
+            title={formatMessage(messages.title)}
+            description={formatMessage(messages.description)}
+            nav={(
+                <Tabs
+                    tabs={tabs}
+                    activeKey={active.key}
+                    onChange={(key) => history.push({
+                        pathname: base + SUBPAGES.find((page) => page.key === key).path,
+                        search: location.search,
+                    })}
+                    appearance='underlined'
+                    className='demo-page__tabs'
+                />
+            )}
+        >
+            <div
+                id='demo-route-panel'
+                role='tabpanel'
+                aria-labelledby={`demo-route-tab-${active.key}`}
+                className='demo-page__section'
+            >
+                <Switch>
+                    <Route path={`${base}/subpath-with-query`}>
+                        <p className='demo-page__text'>
+                            <FormattedMessage
+                                id='teamRoute.query.text'
+                                defaultMessage='Query parameters survive navigation. Toggle the switch to rewrite the URL with history.replace and read it back with useLocation.'
+                            />
+                        </p>
+                        <div className='demo-page__row'>
+                            <Toggle
+                                checked={searchEnabled}
+                                onChange={(e) => {
+                                    const params = new URLSearchParams(location.search);
+                                    if (e.target.checked) {
+                                        params.set('search-value', 'on');
+                                    } else {
+                                        params.delete('search-value');
+                                    }
+                                    history.replace({search: params.toString()});
+                                }}
+                            >
+                                {'search-value'}
+                            </Toggle>
+                            <Tag
+                                label={formatMessage(searchEnabled ? messages.on : messages.off)}
+                                type={searchEnabled ? 'success' : 'default'}
+                                size='small'
+                            />
+                        </div>
+                        <Facts items={[{label: formatMessage(messages.query), value: location.search || formatMessage(messages.empty)}]}/>
+                    </Route>
+                    <Route path={`${base}/subpath`}>
+                        <p className='demo-page__text'>
+                            <FormattedMessage
+                                id='teamRoute.subpath.text'
+                                defaultMessage='This view comes from a nested {route} inside the plugin component. The host only matches the base path; everything after it belongs to the plugin.'
+                                values={{route: <code key='route'>{'<Route>'}</code>}}
+                            />
+                        </p>
+                        <Facts items={[{label: formatMessage(messages.matchedRoute), value: `${base}/subpath`}]}/>
+                    </Route>
+                    <Route>
+                        <Facts
+                            items={[
+                                {label: formatMessage(messages.team), value: team},
+                                {label: formatMessage(messages.basePath), value: base},
+                                {label: formatMessage(messages.currentPath), value: location.pathname},
+                            ]}
+                        />
+                    </Route>
+                </Switch>
+            </div>
+        </PluginPage>
     );
-}
-
-// A custom hook that builds on useLocation to parse the query string for you
-function useQuery() {
-    return new URLSearchParams(useLocation().search);
 }
