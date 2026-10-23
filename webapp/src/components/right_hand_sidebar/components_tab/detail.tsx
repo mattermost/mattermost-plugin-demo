@@ -33,7 +33,7 @@ export default function Detail({entry, onBack}: Props) {
     const snippet = importSnippet(entry);
 
     useEffect(() => {
-        backRef.current?.focus();
+        backRef.current?.focus({preventScroll: true});
     }, []);
 
     useEffect(() => {

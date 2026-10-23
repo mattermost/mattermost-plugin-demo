@@ -20,14 +20,25 @@
     min-height: 0;
 }
 
+.DemoCompassShowcase__pane--base {
+    transition: transform var(--duration-moderate, 300ms) var(--ease-transition, ease-in-out);
+}
+
+.DemoCompassShowcase__pane--pushed {
+    transform: translateX(-100%);
+}
+
 .DemoCompassShowcase__pane--push {
     position: absolute;
     inset: 0;
-    z-index: 1;
     overflow: hidden;
     background: var(--center-channel-bg);
-    box-shadow: -4px 0 16px rgba(var(--center-channel-color-rgb), 0.08);
-    animation: CompassShowcase-push-in var(--duration-moderate, 250ms) var(--ease-entrance, ease-out);
+    will-change: transform;
+    animation: CompassShowcase-push-in var(--duration-moderate, 300ms) var(--ease-transition, ease-in-out);
+}
+
+.DemoCompassShowcase__pane--exiting {
+    animation: CompassShowcase-push-out var(--duration-moderate, 300ms) var(--ease-transition, ease-in-out) forwards;
 }
 
 @keyframes CompassShowcase-push-in {
@@ -40,7 +51,21 @@
     }
 }
 
+@keyframes CompassShowcase-push-out {
+    from {
+        transform: none;
+    }
+
+    to {
+        transform: translateX(100%);
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
+    .DemoCompassShowcase__pane--base {
+        transition: none;
+    }
+
     .DemoCompassShowcase__pane--push {
         animation: none;
     }

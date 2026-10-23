@@ -1,10 +1,17 @@
 .DemoChannelHeaderButtonIcon,
+.DemoFileUploadMethodIcon,
 .DemoBottomTeamSidebarIcon,
 .DemoLeftSidebarHeader__icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     vertical-align: middle;
+}
+
+/* vertical-align: middle sits 2px low against the host upload menu's 14px label. */
+.DemoFileUploadMethodIcon {
+    position: relative;
+    top: -2px;
 }
 
 .DemoBottomTeamSidebarIcon {
