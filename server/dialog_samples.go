@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 	"strconv"
+	"strings"
+	"sync"
+	"time"
 
 	"github.com/mattermost/mattermost/server/public/model"
 )
@@ -1119,6 +1122,427 @@ func getDialogWithMultiSelectElements() model.Dialog {
 	}
 }
 
+type incident struct {
+	ID       string
+	Title    string
+	Severity string // "critical", "high", "medium", "low"
+	Status   string // "investigating", "identified", "monitoring", "resolved"
+	Owner    string
+}
+
+type timelineEntry struct {
+	Time    string
+	Type    string // "update", "root_cause", "mitigation", "escalation"
+	Message string
+}
+
+var incidents = []incident{
+	{ID: "INC-301", Title: "Database replication lag", Severity: "critical", Status: "investigating", Owner: "alice"},
+	{ID: "INC-302", Title: "CDN cache miss rate spike", Severity: "high", Status: "monitoring", Owner: "bob"},
+	{ID: "INC-303", Title: "Login 2FA timeout errors", Severity: "medium", Status: "identified", Owner: ""},
+}
+
+var incidentTimelines = map[string][]timelineEntry{
+	"INC-301": {
+		{Time: "14:32 UTC", Type: "update", Message: "Replica lag detected on db-replica-03, exceeding 30s threshold."},
+		{Time: "14:45 UTC", Type: "escalation", Message: "Paged on-call DBA team."},
+	},
+	"INC-302": {
+		{Time: "09:15 UTC", Type: "update", Message: "Cache miss rate jumped from 2% to 38% after CDN config deploy."},
+	},
+	"INC-303": {
+		{Time: "11:00 UTC", Type: "root_cause", Message: "2FA provider timeout increased from 2s to 15s after their maintenance window."},
+		{Time: "11:20 UTC", Type: "mitigation", Message: "Increased client-side timeout to 30s as temporary workaround."},
+	},
+}
+
+func severityIcon(s string) string {
+	switch s {
+	case "critical":
+		return "\U0001f534" // red circle
+	case "high":
+		return "\U0001f7e0" // orange circle
+	case "medium":
+		return "\U0001f7e1" // yellow circle
+	default:
+		return "\U0001f7e2" // green circle
+	}
+}
+
+func statusIcon(s string) string {
+	switch s {
+	case "investigating":
+		return "\U0001f50d" // magnifying glass
+	case "identified":
+		return "\U0001f3af" // target
+	case "monitoring":
+		return "\U0001f4c8" // chart increasing
+	case "resolved":
+		return "\u2705" // green check
+	default:
+		return "\u2b1c" // white square
+	}
+}
+
+// incidentsMu guards incidents and incidentTimelines, which triage and timeline
+// note submissions update so the refreshed parent dialogs reflect the change.
+var incidentsMu sync.Mutex
+
+func findIncident(id string) (incident, bool) {
+	incidentsMu.Lock()
+	defer incidentsMu.Unlock()
+	for _, inc := range incidents {
+		if inc.ID == id {
+			return inc, true
+		}
+	}
+	return incident{}, false
+}
+
+// updateIncident applies non-empty status and severity to the incident with the
+// given ID. Owner is always applied, so an empty owner unassigns the incident.
+func updateIncident(id, status, severity, owner string) {
+	incidentsMu.Lock()
+	defer incidentsMu.Unlock()
+	for i := range incidents {
+		if incidents[i].ID != id {
+			continue
+		}
+		if status != "" {
+			incidents[i].Status = status
+		}
+		if severity != "" {
+			incidents[i].Severity = severity
+		}
+		incidents[i].Owner = owner
+		return
+	}
+}
+
+func addTimelineEntry(incID, noteType, message string) {
+	incidentsMu.Lock()
+	defer incidentsMu.Unlock()
+	incidentTimelines[incID] = append(incidentTimelines[incID], timelineEntry{
+		Time:    time.Now().UTC().Format("15:04 UTC"),
+		Type:    noteType,
+		Message: message,
+	})
+}
+
+func getTimeline(incID string) []timelineEntry {
+	incidentsMu.Lock()
+	defer incidentsMu.Unlock()
+	return append([]timelineEntry(nil), incidentTimelines[incID]...)
+}
+
+func getIncidents() []incident {
+	incidentsMu.Lock()
+	defer incidentsMu.Unlock()
+	return append([]incident(nil), incidents...)
+}
+
+// Dialog A: Incident Board — action buttons serve as both the listing and navigation.
+// RefreshOnReturn calls SourceURL when a stacked triage dialog closes, so the board
+// picks up the saved triage changes while keeping any Shift Notes the user typed.
+func getDialogIncidentBoard() model.Dialog {
+	current := getIncidents()
+	counts := map[string]int{}
+	for _, inc := range current {
+		counts[inc.Severity]++
+	}
+	intro := fmt.Sprintf("**%d Active Incidents** — ", len(current))
+	parts := []string{}
+	for _, sev := range []string{"critical", "high", "medium", "low"} {
+		if c, ok := counts[sev]; ok && c > 0 {
+			parts = append(parts, fmt.Sprintf("%d %s", c, sev))
+		}
+	}
+	intro += strings.Join(parts, ", ")
+
+	// Incident detail lives here rather than in the button labels: DisplayName is
+	// capped at DialogElementDisplayNameMaxLength (24 bytes), which a
+	// "<id> — <title> (<status>)" label blows past.
+	intro += "\n\n| Incident | Title | Status | Assignee |\n|---|---|---|---|\n"
+	for _, inc := range current {
+		assignee := "_unassigned_"
+		if inc.Owner != "" {
+			assignee = "@" + inc.Owner
+		}
+		intro += fmt.Sprintf("| %s %s | %s | %s %s | %s |\n",
+			severityIcon(inc.Severity), inc.ID,
+			inc.Title,
+			statusIcon(inc.Status), inc.Status,
+			assignee,
+		)
+	}
+	intro += "\nSelect an incident to triage."
+
+	elements := make([]model.DialogElement, 0, len(current)+2)
+	elements = append(elements, model.DialogElement{
+		DisplayName: "Shift Notes",
+		Name:        "shift_notes",
+		Type:        "text",
+		Placeholder: "Kept when a triage dialog closes",
+		Optional:    true,
+	})
+	for _, inc := range current {
+		elements = append(elements, model.DialogElement{
+			DisplayName: fmt.Sprintf("%s %s", severityIcon(inc.Severity), inc.ID),
+			Name:        "btn_" + inc.ID,
+			Type:        "action_button",
+			ActionButton: &model.DialogActionButton{
+				URL: fmt.Sprintf("/plugins/%s/dialog/incident/triage", manifest.Id),
+				Context: map[string]string{
+					"incident_id": inc.ID,
+				},
+			},
+		})
+	}
+
+	// Always-failing action button so the error state can be exercised without
+	// opening a child dialog.
+	elements = append(elements, model.DialogElement{
+		DisplayName: "⚠️ Escalate (fails)",
+		Name:        "btn_escalate_fail",
+		Type:        "action_button",
+		ActionButton: &model.DialogActionButton{
+			URL: fmt.Sprintf("/plugins/%s/dialog/incident/fail", manifest.Id),
+		},
+	})
+
+	return model.Dialog{
+		CallbackId:       "incident_board",
+		Title:            "Incident Response Board",
+		IntroductionText: intro,
+		SubmitLabel:      "Dismiss",
+		NotifyOnCancel:   true,
+		State:            "incident_board",
+		SourceURL:        fmt.Sprintf("/plugins/%s/dialog/incident/source", manifest.Id),
+		RefreshOnReturn:  true,
+		Elements:         elements,
+	}
+}
+
+// Dialog B: Incident Triage — shows incident details and allows updating status/severity/owner.
+func getDialogIncidentTriage(inc incident, ownerUserID string) model.Dialog {
+	owner := inc.Owner
+	if owner == "" {
+		owner = "_unassigned_"
+	} else {
+		owner = "@" + owner
+	}
+	timeline := getTimeline(inc.ID)
+	entries := fmt.Sprintf("%d entries", len(timeline))
+	if len(timeline) == 1 {
+		entries = "1 entry"
+	}
+	intro := fmt.Sprintf("**%s**\n\n- Severity: %s %s\n- Status: %s %s\n- Owner: %s\n- Timeline: %s",
+		inc.Title,
+		severityIcon(inc.Severity), inc.Severity,
+		statusIcon(inc.Status), inc.Status,
+		owner,
+		entries,
+	)
+	for _, e := range timeline {
+		intro += fmt.Sprintf("\n  - %s, %s: %s", e.Time, e.Type, escapeMD(truncateLine(e.Message, timelineMessageMaxRunes)))
+	}
+
+	// RefreshOnReturn calls SourceURL when the stacked timeline note dialog closes, so
+	// the timeline summary updates while keeping any status/severity the user picked.
+	return model.Dialog{
+		CallbackId:       "incident_triage_" + inc.ID,
+		Title:            inc.ID + " — Triage",
+		IntroductionText: intro,
+		SubmitLabel:      "Update Incident",
+		NotifyOnCancel:   true,
+		State:            "incident_triage",
+		SourceURL:        fmt.Sprintf("/plugins/%s/dialog/incident/source", manifest.Id),
+		RefreshOnReturn:  true,
+		Elements: []model.DialogElement{
+			{
+				DisplayName: "Status",
+				Name:        "status",
+				Type:        "select",
+				Default:     inc.Status,
+				Options: []*model.PostActionOptions{
+					{Text: "\U0001f50d investigating", Value: "investigating"},
+					{Text: "\U0001f3af identified", Value: "identified"},
+					{Text: "\U0001f4c8 monitoring", Value: "monitoring"},
+					{Text: "\u2705 resolved", Value: "resolved"},
+				},
+			},
+			{
+				DisplayName: "Severity",
+				Name:        "severity",
+				Type:        "select",
+				Default:     inc.Severity,
+				Options: []*model.PostActionOptions{
+					{Text: "\U0001f534 critical", Value: "critical"},
+					{Text: "\U0001f7e0 high", Value: "high"},
+					{Text: "\U0001f7e1 medium", Value: "medium"},
+					{Text: "\U0001f7e2 low", Value: "low"},
+				},
+			},
+			{
+				DisplayName: "Assignee",
+				Name:        "owner",
+				Type:        "select",
+				Default:     ownerUserID,
+				Placeholder: "Select a user...",
+				DataSource:  "users",
+				Optional:    true,
+			},
+			{
+				DisplayName: "Add Timeline Note",
+				Name:        "btn_add_note",
+				Type:        "action_button",
+				ActionButton: &model.DialogActionButton{
+					URL: fmt.Sprintf("/plugins/%s/dialog/incident/note", manifest.Id),
+					Context: map[string]string{
+						"incident_id": inc.ID,
+					},
+				},
+			},
+		},
+	}
+}
+
+// Name of the hidden select whose options render as the Timeline Note dialog's
+// submit buttons (Dialog.SubmitButtons).
+const timelineNoteActionField = "note_action"
+
+const (
+	timelineNoteActionAdd   = "add"
+	timelineNoteActionClose = "close"
+)
+
+// pendingNotes holds notes added with "Add Note" but not yet saved with
+// "Save & Close", keyed by pendingNotesKey. Guarded by incidentsMu.
+var pendingNotes = map[string][]timelineEntry{}
+
+func pendingNotesKey(userID, incID string) string {
+	return userID + ":" + incID
+}
+
+func addPendingNote(userID, incID, noteType, message string) []timelineEntry {
+	incidentsMu.Lock()
+	defer incidentsMu.Unlock()
+	key := pendingNotesKey(userID, incID)
+	pendingNotes[key] = append(pendingNotes[key], timelineEntry{
+		Time:    time.Now().UTC().Format("15:04 UTC"),
+		Type:    noteType,
+		Message: message,
+	})
+	return append([]timelineEntry(nil), pendingNotes[key]...)
+}
+
+// takePendingNotes removes and returns the user's pending notes for an incident.
+func takePendingNotes(userID, incID string) []timelineEntry {
+	incidentsMu.Lock()
+	defer incidentsMu.Unlock()
+	key := pendingNotesKey(userID, incID)
+	notes := pendingNotes[key]
+	delete(pendingNotes, key)
+	return notes
+}
+
+// Dialog C: Timeline Note — shows the timeline plus any pending notes. "Add Note"
+// stages a note and keeps the dialog open; "Save & Close" saves them and closes.
+func getDialogTimelineNote(incID string, pending []timelineEntry) model.Dialog {
+	entries := getTimeline(incID)
+
+	var intro string
+	if len(entries) == 0 && len(pending) == 0 {
+		intro = "No timeline entries yet."
+	} else {
+		intro = "| Time | Type | Message |\n|---|---|---|\n"
+		for _, e := range entries {
+			message := escapeMD(strings.Join(strings.Fields(e.Message), " "))
+			intro += fmt.Sprintf("| %s | %s | %s |\n", e.Time, e.Type, message)
+		}
+		for _, e := range pending {
+			message := escapeMD(strings.Join(strings.Fields(e.Message), " "))
+			intro += fmt.Sprintf("| %s | %s | \U0001f195 %s _(unsaved)_ |\n", e.Time, e.Type, message)
+		}
+	}
+
+	return model.Dialog{
+		CallbackId:       "timeline_note_" + incID,
+		Title:            incID + " — Add Note",
+		IntroductionText: intro,
+		NotifyOnCancel:   true,
+		State:            "timeline_note",
+		SubmitButtons:    timelineNoteActionField,
+		Elements: []model.DialogElement{
+			{
+				DisplayName: "Note Type",
+				Name:        "note_type",
+				Type:        "select",
+				Default:     "update",
+				Optional:    true,
+				Options: []*model.PostActionOptions{
+					{Text: "Update", Value: "update"},
+					{Text: "Root Cause", Value: "root_cause"},
+					{Text: "Mitigation", Value: "mitigation"},
+					{Text: "Escalation", Value: "escalation"},
+				},
+			},
+			{
+				// Optional so "Save & Close" works with an empty message; "Add Note"
+				// requires one and is validated by the submit handler.
+				DisplayName: "Message",
+				Name:        "message",
+				Type:        "textarea",
+				Placeholder: "Describe what happened, what was found, or what action was taken...",
+				MaxLength:   1000,
+				Optional:    true,
+			},
+			{
+				// Not rendered: its options become the dialog's submit buttons.
+				DisplayName: "Action",
+				Name:        timelineNoteActionField,
+				Type:        "select",
+				Optional:    true,
+				Options: []*model.PostActionOptions{
+					{Text: "Add Note", Value: timelineNoteActionAdd},
+					{Text: "Save & Close", Value: timelineNoteActionClose},
+				},
+			},
+		},
+	}
+}
+
+var mdEscaper = strings.NewReplacer(
+	`\`, `\\`,
+	"`", "\\`",
+	"*", `\*`,
+	"_", `\_`,
+	"~", `\~`,
+	"[", `\[`,
+	"|", `\|`,
+	"@", `\@`,
+)
+
+// escapeMD escapes Markdown special characters and neutralizes @mention markers
+// in user-supplied text before embedding it in a bot-authored post.
+func escapeMD(s string) string {
+	return mdEscaper.Replace(s)
+}
+
+// timelineMessageMaxRunes keeps a timeline entry on one line in the triage dialog.
+const timelineMessageMaxRunes = 40
+
+// truncateLine collapses s onto a single line and shortens it to at most maxRunes
+// runes, ending with "…" when it is cut.
+func truncateLine(s string, maxRunes int) string {
+	s = strings.Join(strings.Fields(s), " ")
+	r := []rune(s)
+	if len(r) <= maxRunes {
+		return s
+	}
+	return string(r[:maxRunes-1]) + "…"
+}
+
 func getDialogWithFileUpload() model.Dialog {
 	return model.Dialog{
 		CallbackId: "file_upload_demo",
@@ -1289,8 +1713,8 @@ func getDialogDateTimeTimezone() model.Dialog {
 				Type:        "datetime",
 				HelpText:    "Type time in Europe/London time: 9am, 14:30, 3:45pm - no rounding",
 				DateTimeConfig: &model.DialogDateTimeConfig{
-					LocationTimezone:     "Europe/London",
-					ManualTimeEntry: true,
+					LocationTimezone: "Europe/London",
+					ManualTimeEntry:  true,
 				},
 				Optional: true,
 			},
@@ -1300,5 +1724,150 @@ func getDialogDateTimeTimezone() model.Dialog {
 		State:          "datetime_timezone",
 		IntroductionText: "**Timezone & Manual Entry Demo**\n\n" +
 			"This dialog demonstrates timezone support and manual time entry features.",
+	}
+}
+
+// ============================================================================
+// checkbox_group / checkbox_matrix Dialogs
+// Covers: MM-T5115 - MM-T5122
+// ============================================================================
+
+// Dialog: checkbox_group elements plus a radio field for the optional "Clear
+// selection" affordance. Field names are stable — the e2e spec keys off them.
+func getDialogCheckboxGroup() model.Dialog {
+	return model.Dialog{
+		CallbackId:  "checkbox_group",
+		Title:       "Checkbox Group Demo",
+		SubmitLabel: "Submit",
+		State:       "checkbox_group",
+
+		// Keep this as ordinary dialog copy. Do not repeat the title here: the title
+		// already renders in the modal header, and a second copy makes
+		// by.text(<title>) match twice, which fails Detox with "multiple elements
+		// matched".
+		IntroductionText: "Select the services affected by this incident, then adjust regions, notifications, and priority as needed.",
+		Elements: []model.DialogElement{
+			{
+				DisplayName: "Affected Services",
+				Name:        "services",
+				Type:        "checkbox_group",
+				HelpText:    "Select at least one service.",
+				Options: []*model.PostActionOptions{
+					{Text: "API", Value: "api"},
+					{Text: "Web", Value: "web"},
+					{Text: "Database", Value: "db"},
+					{Text: "Cache", Value: "cache"},
+				},
+			},
+			{
+				DisplayName: "Regions",
+				Name:        "regions",
+				Type:        "checkbox_group",
+				Optional:    true,
+				Default:     "us,apac",
+				HelpText:    "Defaults to US and APAC.",
+				Options: []*model.PostActionOptions{
+					{Text: "US", Value: "us"},
+					{Text: "EU", Value: "eu"},
+					{Text: "APAC", Value: "apac"},
+				},
+			},
+			{
+				DisplayName:   "Notify (label before)",
+				Name:          "notify_before",
+				Type:          "checkbox_group",
+				Optional:      true,
+				LabelPosition: "before",
+				Options: []*model.PostActionOptions{
+					{Text: "Email", Value: "email"},
+					{Text: "Push", Value: "push"},
+				},
+			},
+			{
+				DisplayName:   "Notify (label after)",
+				Name:          "notify_after",
+				Type:          "checkbox_group",
+				Optional:      true,
+				LabelPosition: "after",
+				Options: []*model.PostActionOptions{
+					{Text: "Email", Value: "email"},
+					{Text: "Push", Value: "push"},
+				},
+			},
+			{
+				DisplayName: "Priority",
+				Name:        "priority",
+				Type:        "radio",
+				Optional:    true,
+				HelpText:    "Optional — you can clear your selection.",
+				Options: []*model.PostActionOptions{
+					{Text: "P1", Value: "p1"},
+					{Text: "P2", Value: "p2"},
+					{Text: "P3", Value: "p3"},
+				},
+			},
+		},
+	}
+}
+
+// Dialog: checkbox_matrix in both row_selection modes. `permissions` uses seven
+// columns so the grid must scroll horizontally while row labels stay pinned.
+func getDialogCheckboxMatrix() model.Dialog {
+	return model.Dialog{
+		CallbackId:  "checkbox_matrix",
+		Title:       "Checkbox Matrix Demo",
+		SubmitLabel: "Submit",
+		State:       "checkbox_matrix",
+
+		// Ordinary dialog copy, and deliberately not repeating the title — see the
+		// note in getDialogCheckboxGroup.
+		IntroductionText: "Grant permissions for each resource, then choose a single owner per environment.",
+		Elements: []model.DialogElement{
+			{
+				DisplayName: "Permissions",
+				Name:        "permissions",
+				Type:        "checkbox_matrix",
+				Optional:    true,
+				Default:     "posts:view,edit",
+				HelpText:    "Scroll right to see more columns.",
+				MatrixConfig: &model.DialogMatrixConfig{
+					RowSelection: "multiple",
+					Rows: []*model.PostActionOptions{
+						{Text: "Posts", Value: "posts"},
+						{Text: "Files", Value: "files"},
+						{Text: "Channels", Value: "channels"},
+					},
+					Columns: []*model.PostActionOptions{
+						{Text: "View", Value: "view"},
+						{Text: "Edit", Value: "edit"},
+						{Text: "Delete", Value: "delete"},
+						{Text: "Share", Value: "share"},
+						{Text: "Export", Value: "export"},
+						{Text: "Archive", Value: "archive"},
+						{Text: "Restore", Value: "restore"},
+					},
+				},
+			},
+			{
+				DisplayName: "Environment Owner",
+				Name:        "environment_owner",
+				Type:        "checkbox_matrix",
+				Optional:    true,
+				HelpText:    "One owner per environment.",
+				MatrixConfig: &model.DialogMatrixConfig{
+					RowSelection: "single",
+					Rows: []*model.PostActionOptions{
+						{Text: "Dev", Value: "dev"},
+						{Text: "Staging", Value: "staging"},
+						{Text: "Prod", Value: "prod"},
+					},
+					Columns: []*model.PostActionOptions{
+						{Text: "Alice", Value: "alice"},
+						{Text: "Bob", Value: "bob"},
+						{Text: "Carol", Value: "carol"},
+					},
+				},
+			},
+		},
 	}
 }

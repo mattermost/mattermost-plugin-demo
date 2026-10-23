@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html"
 	"net/http"
+	"sort"
 	"strings"
 	"time"
 
@@ -57,6 +58,11 @@ func (p *Plugin) initializeAPI() {
 	dialogRouter.HandleFunc("/error", p.handleDialogWithError)
 	dialogRouter.HandleFunc("/field-refresh", p.handleDialogFieldRefresh)
 	dialogRouter.HandleFunc("/multistep", p.handleDialogMultistep)
+	dialogRouter.HandleFunc("/incident/triage", p.handleIncidentTriage)
+	dialogRouter.HandleFunc("/incident/note", p.handleIncidentNote)
+	dialogRouter.HandleFunc("/incident/fail", p.handleIncidentFail)
+	dialogRouter.HandleFunc("/incident/source", p.handleIncidentSource)
+	dialogRouter.HandleFunc("/checkboxes", p.handleDialogCheckboxes)
 	dialogRouter.HandleFunc("/file-upload", p.handleDialogFileUpload)
 
 	dialogRouter.HandleFunc("/products", p.handleDynamicProducts).Methods(http.MethodPost)
@@ -265,10 +271,91 @@ func (p *Plugin) handleDialog3(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
+	user, appErr := p.API.GetUser(request.UserId)
+	if appErr != nil {
+		p.API.LogError("Failed to get user for dialog3", "err", appErr.Error())
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	var message string
-	if request.Cancelled {
+	switch {
+	// Must precede the CallbackId cases: every incident dialog sets
+	// NotifyOnCancel, and a cancelled request carries an empty Submission, so
+	// falling into those cases would report a cancel as a successful update.
+	case request.Cancelled:
+		if strings.HasPrefix(request.CallbackId, "timeline_note_") {
+			// Cancel discards notes added with "Add Note" but not saved.
+			takePendingNotes(request.UserId, strings.TrimPrefix(request.CallbackId, "timeline_note_"))
+		}
 		message = "Dialog cancelled"
-	} else {
+
+	case request.CallbackId == "incident_board":
+		message = fmt.Sprintf("Incident board dismissed by @%s.", user.Username)
+
+	case strings.HasPrefix(request.CallbackId, "incident_triage_"):
+		incID := strings.TrimPrefix(request.CallbackId, "incident_triage_")
+		status := interfaceToString(request.Submission["status"])
+		severity := interfaceToString(request.Submission["severity"])
+		owner := interfaceToString(request.Submission["owner"])
+		if owner != "" {
+			// The users data source submits a user ID; store the username.
+			if ownerUser, err := p.API.GetUser(owner); err == nil {
+				owner = ownerUser.Username
+			}
+		}
+		updateIncident(incID, status, severity, owner)
+		if owner == "" {
+			owner = "unassigned"
+		} else {
+			owner = "@" + owner
+		}
+		message = fmt.Sprintf("**%s — Triage Updated**\n- Status: %s %s\n- Severity: %s %s\n- Assignee: %s\n\nUpdated by @%s",
+			incID,
+			statusIcon(status), status,
+			severityIcon(severity), severity,
+			owner,
+			user.Username,
+		)
+
+	case strings.HasPrefix(request.CallbackId, "timeline_note_"):
+		incID := strings.TrimPrefix(request.CallbackId, "timeline_note_")
+		noteType := interfaceToString(request.Submission["note_type"])
+		if noteType == "" {
+			noteType = "update"
+		}
+		noteMessage := strings.TrimSpace(interfaceToString(request.Submission["message"]))
+
+		// "Add Note": stage the note and return the form so the dialog stays open.
+		if interfaceToString(request.Submission[timelineNoteActionField]) == timelineNoteActionAdd {
+			if noteMessage == "" {
+				p.writeJSON(w, &model.SubmitDialogResponse{
+					Errors: map[string]string{"message": "Enter a note to add."},
+				})
+				return
+			}
+			pending := addPendingNote(request.UserId, incID, noteType, noteMessage)
+			form := getDialogTimelineNote(incID, pending)
+			p.writeJSON(w, &model.SubmitDialogResponse{Type: "form", Form: &form})
+			return
+		}
+
+		// "Save & Close": save the pending notes, plus the typed note if any.
+		if noteMessage != "" {
+			addPendingNote(request.UserId, incID, noteType, noteMessage)
+		}
+		notes := takePendingNotes(request.UserId, incID)
+		if len(notes) == 0 {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		message = fmt.Sprintf("**%s — %d Timeline Note(s) Added** by @%s", incID, len(notes), user.Username)
+		for _, n := range notes {
+			addTimelineEntry(incID, n.Type, n.Message)
+			message += fmt.Sprintf("\n- %s: %s", n.Type, escapeMD(n.Message))
+		}
+
+	default:
 		submission := request.Submission
 
 		// Generic approach - format submission data as structured lines
@@ -504,6 +591,48 @@ func (p *Plugin) handleInteractiveAction(w http.ResponseWriter, r *http.Request)
 	p.writeJSON(w, resp)
 }
 
+// handleDialogCheckboxes echoes the submission of the checkbox_group /
+// checkbox_matrix dialogs back as readable message text so e2e tests can assert
+// the exact wire encoding (post Props, used by handleDialog1, isn't visible
+// on screen).
+func (p *Plugin) handleDialogCheckboxes(w http.ResponseWriter, r *http.Request) {
+	var request model.SubmitDialogRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		p.API.LogError("Failed to decode checkbox SubmitDialogRequest", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	if request.Cancelled {
+		p.writeJSON(w, &model.SubmitDialogResponse{})
+		return
+	}
+
+	names := make([]string, 0, len(request.Submission))
+	for name := range request.Submission {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+
+	lines := make([]string, 0, len(names))
+	for _, name := range names {
+		lines = append(lines, fmt.Sprintf("%s=%s", name, formatCheckboxValue(request.Submission[name])))
+	}
+
+	if _, appErr := p.API.CreatePost(&model.Post{
+		UserId:    p.botID,
+		ChannelId: request.ChannelId,
+		Message:   "Checkboxes Submitted:\n" + strings.Join(lines, "\n"),
+	}); appErr != nil {
+		p.API.LogError("Failed to post checkbox submission", "err", appErr.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	p.writeJSON(w, &model.SubmitDialogResponse{})
+}
+
 func (p *Plugin) handleInlineActionTriage(w http.ResponseWriter, r *http.Request) {
 	var request model.PostActionIntegrationRequest
 	err := json.NewDecoder(r.Body).Decode(&request)
@@ -580,6 +709,185 @@ func (p *Plugin) handleInlineActionTriage(w http.ResponseWriter, r *http.Request
 
 	resp := &model.PostActionIntegrationResponse{}
 	p.writeJSON(w, resp)
+}
+
+// handleIncidentTriage handles action button clicks from Dialog A (Incident Board).
+// Opens Dialog B showing the triage form for the selected incident.
+func (p *Plugin) handleIncidentTriage(w http.ResponseWriter, r *http.Request) {
+	var request model.PostActionIntegrationRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		p.API.LogError("Failed to decode incident triage request", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	incidentID, _ := request.Context["incident_id"].(string)
+	inc, ok := findIncident(incidentID)
+	if !ok {
+		p.API.LogError("Incident not found", "incident_id", incidentID)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	serverConfig := p.API.GetConfig()
+	dialogRequest := model.OpenDialogRequest{
+		TriggerId: request.TriggerId,
+		URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+		Dialog:    getDialogIncidentTriage(inc, p.incidentOwnerUserID(inc)),
+	}
+
+	if appErr := p.API.OpenInteractiveDialog(dialogRequest); appErr != nil {
+		p.API.LogError("Failed to open incident triage dialog", "err", appErr.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	p.writeJSON(w, &model.PostActionIntegrationResponse{})
+}
+
+// incidentOwnerUserID returns the user ID of the incident's owner, used as the
+// default of the triage dialog's Assignee user select.
+func (p *Plugin) incidentOwnerUserID(inc incident) string {
+	if inc.Owner == "" {
+		return ""
+	}
+	u, appErr := p.API.GetUserByUsername(inc.Owner)
+	if appErr != nil {
+		return ""
+	}
+	return u.Id
+}
+
+// handleIncidentNote handles action button clicks from Dialog B (Incident Triage).
+// Opens Dialog C showing the timeline note form for the selected incident.
+func (p *Plugin) handleIncidentNote(w http.ResponseWriter, r *http.Request) {
+	var request model.PostActionIntegrationRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		p.API.LogError("Failed to decode incident note request", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	incidentID, _ := request.Context["incident_id"].(string)
+	inc, ok := findIncident(incidentID)
+	if !ok {
+		p.API.LogError("Incident not found", "incident_id", incidentID)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	// Start fresh: drop notes left pending by a dialog that was never closed normally.
+	takePendingNotes(request.UserId, inc.ID)
+
+	serverConfig := p.API.GetConfig()
+	dialogRequest := model.OpenDialogRequest{
+		TriggerId: request.TriggerId,
+		URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+		Dialog:    getDialogTimelineNote(inc.ID, nil),
+	}
+
+	if appErr := p.API.OpenInteractiveDialog(dialogRequest); appErr != nil {
+		p.API.LogError("Failed to open timeline note dialog", "err", appErr.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	p.writeJSON(w, &model.PostActionIntegrationResponse{})
+}
+
+// handleIncidentSource is the SourceURL for the board and triage dialogs. The
+// webapp calls it (Type "refresh", no selected_field) when a child dialog stacked
+// on top of one of them closes, and redraws that dialog from the returned form.
+func (p *Plugin) handleIncidentSource(w http.ResponseWriter, r *http.Request) {
+	var request model.SubmitDialogRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		p.API.LogError("Failed to decode incident source request", "err", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	var dialog model.Dialog
+	switch {
+	case request.CallbackId == "incident_board":
+		dialog = getDialogIncidentBoard()
+	case strings.HasPrefix(request.CallbackId, "incident_triage_"):
+		inc, ok := findIncident(strings.TrimPrefix(request.CallbackId, "incident_triage_"))
+		if !ok {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		dialog = getDialogIncidentTriage(inc, p.incidentOwnerUserID(inc))
+	default:
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	p.writeJSON(w, &model.SubmitDialogResponse{Type: "form", Form: &dialog})
+}
+
+// handleIncidentFail always fails, exercising the action button's error state
+// without opening a child dialog.
+func (p *Plugin) handleIncidentFail(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	p.API.LogDebug("Incident escalation deliberately failed for action button error testing")
+	w.WriteHeader(http.StatusInternalServerError)
+}
+
+// formatCheckboxValue renders a submission value canonically. checkbox_group and
+// checkbox_matrix both arrive as JSON arrays of strings.
+//
+// Entries are sorted deliberately: neither the group's selection order nor the
+// matrix's row order is semantically meaningful, and asserting on either would
+// make e2e expectations depend on the order the test happened to tap cells in.
+// The row/column *structure* is still asserted verbatim.
+func formatCheckboxValue(value any) string {
+	switch v := value.(type) {
+	case []any:
+		if len(v) == 0 {
+			return "(none)"
+		}
+		parts := make([]string, 0, len(v))
+		isMatrix := false
+		for _, item := range v {
+			entry := canonicalMatrixEntry(fmt.Sprintf("%v", item))
+			if strings.Contains(entry, ":") {
+				isMatrix = true
+			}
+			parts = append(parts, entry)
+		}
+		sort.Strings(parts)
+
+		// Matrix entries already contain "," between columns, so they are joined
+		// with ";" to keep the two nesting levels distinguishable.
+		if isMatrix {
+			return strings.Join(parts, ";")
+		}
+		return strings.Join(parts, ",")
+	case nil:
+		return "(none)"
+	default:
+		if s := fmt.Sprintf("%v", v); s != "" {
+			return s
+		}
+		return "(none)"
+	}
+}
+
+// canonicalMatrixEntry sorts the column list inside a single "row:col1,col2" entry.
+func canonicalMatrixEntry(entry string) string {
+	rowValue, columnsPart, ok := strings.Cut(entry, ":")
+	if !ok {
+		return entry
+	}
+	columns := strings.Split(columnsPart, ",")
+	for i := range columns {
+		columns[i] = strings.TrimSpace(columns[i])
+	}
+	sort.Strings(columns)
+	return rowValue + ":" + strings.Join(columns, ",")
 }
 
 func formatJSON(v any) string {

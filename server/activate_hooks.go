@@ -49,21 +49,23 @@ func (p *Plugin) onActivateCore() error {
 		return errors.Wrap(err, "failed to register commands")
 	}
 
-	teams, err := p.API.GetTeams()
-	if err != nil {
-		return errors.Wrap(err, "failed to query teams OnActivate")
-	}
-
-	for _, team := range teams {
-		_, ok := configuration.demoChannelIDs[team.Id]
-		if !ok {
-			p.API.LogWarn("No demo channel id for team", "team", team.Id)
-			continue
+	if configuration.eventDemosEnabled() {
+		teams, err := p.API.GetTeams()
+		if err != nil {
+			return errors.Wrap(err, "failed to query teams OnActivate")
 		}
 
-		msg := fmt.Sprintf("OnActivate: %s", manifest.Id)
-		if err := p.postPluginMessage(team.Id, msg); err != nil {
-			return errors.Wrap(err, "failed to post OnActivate message")
+		for _, team := range teams {
+			_, ok := configuration.demoChannelIDs[team.Id]
+			if !ok {
+				p.API.LogWarn("No demo channel id for team", "team", team.Id)
+				continue
+			}
+
+			msg := fmt.Sprintf("OnActivate: %s", manifest.Id)
+			if err := p.postPluginMessage(team.Id, msg); err != nil {
+				return errors.Wrap(err, "failed to post OnActivate message")
+			}
 		}
 	}
 
@@ -97,6 +99,10 @@ func (p *Plugin) onDeactivateCore() error {
 		if err := p.backgroundJob.Close(); err != nil {
 			p.API.LogError("Failed to close background job", "err", err)
 		}
+	}
+
+	if !configuration.eventDemosEnabled() {
+		return nil
 	}
 
 	teams, err := p.API.GetTeams()

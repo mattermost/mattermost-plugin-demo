@@ -53,6 +53,9 @@ const (
 		"- `/dialog error-no-elements` - Open an Interactive Dialog with no elements which always returns an general error.\n" +
 		"- `/dialog field-refresh` - Open an Interactive Dialog with field refresh functionality.\n" +
 		"- `/dialog multistep` - Open a multi-step Interactive Dialog demonstrating form refresh on submit.\n" +
+		"- `/dialog action-buttons` - Open an Interactive Dialog demonstrating an incident response board with triage and timeline notes.\n" +
+		"- `/dialog checkbox-group` - Open an Interactive Dialog with checkbox_group fields and label_position variants.\n" +
+		"- `/dialog checkbox-matrix` - Open an Interactive Dialog with checkbox_matrix fields in both row_selection modes.\n" +
 		"- `/dialog file-upload` - Open an Interactive Dialog with file upload fields (single and multiple), always starting fresh.\n" +
 		"- `/dialog file-upload-prefill` - Open an Interactive Dialog with file upload fields pre-populated from the last submission (via either file-upload command).\n" +
 		"- `/dialog help` - Show this help text"
@@ -222,6 +225,15 @@ func getCommandDialogAutocompleteData() *model.AutocompleteData {
 
 	multiSelect := model.NewAutocompleteData("multi-select", "", "Open an Interactive Dialog with multi-select fields.")
 	command.AddCommand(multiSelect)
+
+	actionButtons := model.NewAutocompleteData("action-buttons", "", "Open an Interactive Dialog demonstrating an incident response board with triage and timeline notes.")
+	command.AddCommand(actionButtons)
+
+	checkboxGroup := model.NewAutocompleteData("checkbox-group", "", "Open an Interactive Dialog with checkbox_group fields and label_position variants.")
+	command.AddCommand(checkboxGroup)
+
+	checkboxMatrix := model.NewAutocompleteData("checkbox-matrix", "", "Open an Interactive Dialog with checkbox_matrix fields in both row_selection modes.")
+	command.AddCommand(checkboxMatrix)
 
 	collapsible := model.NewAutocompleteData("collapsible", "", "Open an Interactive Dialog with collapsible sections.")
 	command.AddCommand(collapsible)
@@ -555,6 +567,24 @@ func (p *Plugin) executeCommandDialog(args *model.CommandArgs) *model.CommandRes
 			TriggerId: args.TriggerId,
 			URL:       fmt.Sprintf("%s/plugins/%s/dialog/multistep", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
 			Dialog:    getDialogStep1(),
+		}
+	case "action-buttons":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/3", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogIncidentBoard(),
+		}
+	case "checkbox-group":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/checkboxes", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogCheckboxGroup(),
+		}
+	case "checkbox-matrix":
+		dialogRequest = model.OpenDialogRequest{
+			TriggerId: args.TriggerId,
+			URL:       fmt.Sprintf("%s/plugins/%s/dialog/checkboxes", *serverConfig.ServiceSettings.SiteURL, manifest.Id),
+			Dialog:    getDialogCheckboxMatrix(),
 		}
 	case "file-upload":
 		dialogRequest = model.OpenDialogRequest{
