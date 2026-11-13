@@ -13,8 +13,8 @@ carrying `SubType: "grid"`, which is what asks the webapp to lay them out as a
 table.
 
 The webapp side of that layout — and `Dialog.Size`, the width tier the sample's
-selector drives — is [mattermost/mattermost#39082][core-pr]. This sample is the
-plugin-side demonstration of it.
+selector drives — is [mattermost/mattermost#39082][core-pr], merged for v12.2.
+This sample is the plugin-side demonstration of it.
 
 [core-pr]: https://github.com/mattermost/mattermost/pull/39082
 
@@ -121,11 +121,16 @@ works end to end but renders as a checkbox.
 
 ## Limits worth knowing
 
-- **Mobile does not render this yet.** The mobile app converts dialogs with its
-  own `app/utils/dialog_conversion.ts`, which has no `collapsible` case at all,
-  so a collapsible — grid or not — falls through to a plain text field and its
-  children never appear. Grid support on mobile is a change to that converter,
-  not to this plugin.
+- **Mobile does not render the grid yet.** No released mobile app (2.45 and
+  earlier) has a `collapsible` case in its dialog converter
+  (`app/utils/dialog_conversion.ts`), so a collapsible — grid or not — falls
+  through to a plain text field and its children never appear. Collapsible
+  support landed in [mattermost/mattermost-mobile#10189][mobile-pr] for 2.47.
+  The converter there does not carry `subtype`, so the rows render as stacked
+  sections rather than a table, and the Details `action_button` shows as a text
+  field because mobile has no button element. A grid layout on mobile is a
+  change to the app, not to this plugin.
+
 - A `number` subtype is a whole number in the browser, whatever the server
   accepts: `widgets/settings/text_setting.tsx` reads the input with `parseInt`,
   so a typed `7.5` reaches the plugin as `7` with nothing said. That is true of
@@ -156,3 +161,5 @@ works end to end but renders as a checkbox.
 | `server/http_hooks.go` | `/dialog/fillable-table` and `handleDialogFillableTable`; `/row-action` and `/row-details` for the per-row Details button |
 | `server/command_hooks.go` | The `fillable-table` case, help line, autocomplete entry |
 | `server/fillable_table_test.go` | Unit tests for the row logic and the dialogs, and handler tests for the refresh, submit and button round trips |
+
+[mobile-pr]: https://github.com/mattermost/mattermost-mobile/pull/10189

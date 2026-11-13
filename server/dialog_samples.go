@@ -235,7 +235,7 @@ func getDialogWithFillableTable(state fillableTableState) model.Dialog {
 			DisplayName: "Orders",
 			Name:        "order_grid",
 			Type:        "collapsible",
-			SubType:     "grid",
+			SubType:     model.DialogCollapsibleSubTypeGrid,
 			CollapsibleConfig: &model.DialogElementCollapsibleConfig{
 				Collapsed:  false,
 				Borderless: true,
