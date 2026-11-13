@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -190,8 +191,8 @@ func decodeRowAction(raw string) (rowAction, error) {
 	if err := json.Unmarshal([]byte(raw), &action); err != nil {
 		return action, fmt.Errorf("failed to decode row action state: %w", err)
 	}
-	if action.RowID == "" {
-		return action, fmt.Errorf("row action state has no row id")
+	if _, ok := parseRowID(action.RowID); !ok {
+		return action, fmt.Errorf("row action state has an invalid row id")
 	}
 
 	return action, nil
@@ -229,6 +230,28 @@ func orderTitle(action rowAction) string {
 	return "New order"
 }
 
+// parseRowID accepts only the ids addOrderRow mints: "r" followed by digits.
+// A row id ends up in element names and, inside backticks, in the row details
+// intro and the bot's post, so anything else — a backtick, a newline, a pipe —
+// is refused rather than escaped. The length cap keeps the number in an int.
+func parseRowID(id string) (int, bool) {
+	digits, ok := strings.CutPrefix(id, "r")
+	if !ok || digits == "" || len(digits) > 9 {
+		return 0, false
+	}
+	for _, c := range digits {
+		if c < '0' || c > '9' {
+			return 0, false
+		}
+	}
+	n, err := strconv.Atoi(digits)
+	if err != nil {
+		return 0, false
+	}
+
+	return n, true
+}
+
 func encodeFillableTableState(state fillableTableState) string {
 	b, err := json.Marshal(state)
 	if err != nil {
@@ -250,10 +273,23 @@ func decodeFillableTableState(raw string) (fillableTableState, error) {
 	if len(state.Rows) > maxOrderRows {
 		return state, fmt.Errorf("dialog state has %d rows, more than the limit of %d", len(state.Rows), maxOrderRows)
 	}
+	// Cell names are built from row ids, so two rows sharing an id would share
+	// cells, and values and errors would land in the wrong one. NextID has to
+	// be past every id for the same reason: addOrderRow would otherwise mint
+	// an id that is already taken.
+	seen := make(map[int]bool, len(state.Rows))
 	for _, row := range state.Rows {
-		if row.ID == "" {
-			return state, fmt.Errorf("dialog state has a row with no id")
+		n, ok := parseRowID(row.ID)
+		if !ok {
+			return state, fmt.Errorf("dialog state has an invalid row id")
 		}
+		if seen[n] {
+			return state, fmt.Errorf("dialog state has a duplicate row id")
+		}
+		if n >= state.NextID {
+			return state, fmt.Errorf("dialog state has a row id at or past its next id")
+		}
+		seen[n] = true
 	}
 	state.Size = validOrderWidth(state.Size)
 
@@ -314,7 +350,10 @@ func validateOrders(state fillableTableState) map[string]string {
 
 		if row.Weight == "" {
 			errs[cellName(row.ID, "weight")] = "A weight is required"
-		} else if weight, err := strconv.ParseFloat(row.Weight, 64); err != nil || weight < 0 {
+		} else if weight, err := strconv.ParseFloat(row.Weight, 64); err != nil || math.IsNaN(weight) || math.IsInf(weight, 0) || weight < 0 {
+			// ParseFloat accepts "NaN" and "Inf", and NaN < 0 is false, so a
+			// client that skips the number subtype could otherwise get them
+			// into the posted table.
 			errs[cellName(row.ID, "weight")] = "Enter a weight of 0 or more"
 		}
 

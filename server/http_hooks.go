@@ -393,8 +393,8 @@ func (p *Plugin) handleDialogFillableTableRowAction(w http.ResponseWriter, r *ht
 	defer r.Body.Close()
 
 	action := rowActionFromContext(request.Context)
-	if action.RowID == "" {
-		p.API.LogWarn("Fillable table row action has no row id in its context")
+	if _, ok := parseRowID(action.RowID); !ok {
+		p.API.LogWarn("Fillable table row action has no valid row id in its context")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

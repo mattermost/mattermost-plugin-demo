@@ -49,6 +49,19 @@ func TestFillableTableState(t *testing.T) {
 	_, err = decodeFillableTableState(`{"rows":[{"id":""}]}`)
 	assert.Error(t, err, "a row with no id is rejected, because cell names are built from it")
 
+	for name, raw := range map[string]string{
+		"not r<digits>":            `{"rows":[{"id":"x1"}],"next_id":2}`,
+		"a backtick":               "{\"rows\":[{\"id\":\"r1`\"}],\"next_id\":2}",
+		"a newline":                `{"rows":[{"id":"r1\n"}],"next_id":2}`,
+		"a sign":                   `{"rows":[{"id":"r+1"}],"next_id":2}`,
+		"a duplicate":              `{"rows":[{"id":"r1"},{"id":"r1"}],"next_id":2}`,
+		"next_id not past the ids": `{"rows":[{"id":"r1"},{"id":"r4"}],"next_id":4}`,
+		"next_id missing":          `{"rows":[{"id":"r1"}]}`,
+	} {
+		_, err = decodeFillableTableState(raw)
+		assert.Error(t, err, "state with %s is rejected", name)
+	}
+
 	over := original
 	over.Rows = make([]orderRow, maxOrderRows+1)
 	for i := range over.Rows {
@@ -124,6 +137,12 @@ func TestValidateOrders(t *testing.T) {
 		cellName("r3", "order"):  "An order number is required",
 	}, errs)
 
+	// ParseFloat accepts these, and NaN < 0 is false.
+	for _, weight := range []string{"NaN", "Inf", "+Inf", "-Inf"} {
+		state.Rows[1].Weight = weight
+		assert.Equal(t, "Enter a weight of 0 or more", validateOrders(state)[cellName("r2", "weight")], weight)
+	}
+
 	// Cases is optional, so blank is fine but nonsense is not.
 	state.Rows[1].Weight = "0"
 	state.Rows[1].Cases = ""
@@ -153,6 +172,9 @@ func TestRowAction(t *testing.T) {
 
 	_, err = decodeRowAction(`{"order":"SO-1042"}`)
 	assert.Error(t, err, "a row action with no row id is rejected")
+
+	_, err = decodeRowAction("{\"row_id\":\"r1`\"}")
+	assert.Error(t, err, "a row id that could break the Markdown it is quoted in is rejected")
 }
 
 func TestOrderLabelAndTitle(t *testing.T) {
