@@ -1,39 +1,28 @@
+// Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
+
 import React from 'react';
 
+import {Button} from '@mattermost/compass-ui/components/button';
 import {FileInfo} from '@mattermost/types/files';
-import {Theme} from 'mattermost-redux/selectors/entities/preferences';
+
+import '../demo_chrome.css';
 
 type Props = {
     fileInfo: FileInfo;
     onModalDismissed: () => void;
-    theme: Theme;
 };
 
-export default function FilePreviewOverride(props: Props) {
-    const {theme} = props;
-
-    const style = {
-        backgroundColor: theme.centerChannelBg,
-        color: theme.centerChannelColor,
-        paddingTop: '10px',
-        paddingBottom: '10px',
-    };
-
-    const buttonStyle = {
-        backgroundColor: theme.buttonBg,
-        color: theme.buttonColor,
-    };
-
+export default function FilePreviewOverride({fileInfo, onModalDismissed}: Props) {
     return (
-        <div style={style}>
-            <h3>{props.fileInfo.name}</h3>
-            <button
-                className={'save-button btn'}
-                style={buttonStyle}
-                onClick={props.onModalDismissed}
+        <div className='DemoFilePreviewOverride'>
+            <h3 className='DemoFilePreviewOverride__title'>{fileInfo.name}</h3>
+            <Button
+                emphasis='primary'
+                onClick={onModalDismissed}
             >
                 {'Close'}
-            </button>
+            </Button>
         </div>
     );
 }

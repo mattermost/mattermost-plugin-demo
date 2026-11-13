@@ -1,12 +1,4 @@
-import {connect} from 'react-redux';
+// Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
 
-import {GlobalState} from '@mattermost/types/store';
-import {getTheme} from 'mattermost-redux/selectors/entities/preferences';
-
-import FilePreviewOverride from './file_preview_override';
-
-const mapStateToProps = (state: GlobalState) => ({
-    theme: getTheme(state),
-});
-
-export default connect(mapStateToProps)(FilePreviewOverride);
+export {default} from './file_preview_override';

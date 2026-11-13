@@ -13,7 +13,7 @@ import (
 func (p *Plugin) ChannelHasBeenCreated(c *plugin.Context, channel *model.Channel) {
 	configuration := p.getConfiguration()
 
-	if configuration.disabled {
+	if !configuration.eventDemosEnabled() {
 		return
 	}
 
@@ -34,7 +34,7 @@ func (p *Plugin) ChannelHasBeenCreated(c *plugin.Context, channel *model.Channel
 func (p *Plugin) UserHasJoinedChannel(c *plugin.Context, channelMember *model.ChannelMember, actor *model.User) {
 	configuration := p.getConfiguration()
 
-	if configuration.disabled {
+	if !configuration.eventDemosEnabled() {
 		return
 	}
 
@@ -76,7 +76,7 @@ func (p *Plugin) UserHasJoinedChannel(c *plugin.Context, channelMember *model.Ch
 func (p *Plugin) UserHasLeftChannel(c *plugin.Context, channelMember *model.ChannelMember, actor *model.User) {
 	configuration := p.getConfiguration()
 
-	if configuration.disabled {
+	if !configuration.eventDemosEnabled() {
 		return
 	}
 

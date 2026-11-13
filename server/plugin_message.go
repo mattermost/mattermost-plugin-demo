@@ -12,7 +12,7 @@ import (
 func (p *Plugin) postPluginMessage(teamID, msg string) *model.AppError {
 	configuration := p.getConfiguration()
 
-	if configuration.disabled {
+	if !configuration.eventDemosEnabled() {
 		return nil
 	}
 
@@ -22,9 +22,15 @@ func (p *Plugin) postPluginMessage(teamID, msg string) *model.AppError {
 	msg = fmt.Sprintf("%s%s%s", configuration.TextStyle, msg, configuration.TextStyle)
 
 	if teamID != "" {
+		// An empty channel id would only fail a channel lookup on every event.
+		channelID := configuration.demoChannelIDs[teamID]
+		if channelID == "" {
+			return nil
+		}
+
 		_, err := p.API.CreatePost(&model.Post{
 			UserId:    p.botID,
-			ChannelId: configuration.demoChannelIDs[teamID],
+			ChannelId: channelID,
 			Message:   msg,
 		})
 		return err

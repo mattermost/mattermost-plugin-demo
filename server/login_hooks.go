@@ -27,6 +27,10 @@ func (p *Plugin) UserWillLogIn(c *plugin.Context, user *model.User) string {
 func (p *Plugin) UserHasLoggedIn(c *plugin.Context, user *model.User) {
 	configuration := p.getConfiguration()
 
+	if !configuration.eventDemosEnabled() {
+		return
+	}
+
 	teams, err := p.API.GetTeams()
 	if err != nil {
 		p.API.LogError(

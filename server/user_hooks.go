@@ -14,7 +14,7 @@ import (
 func (p *Plugin) UserHasBeenCreated(c *plugin.Context, user *model.User) {
 	configuration := p.getConfiguration()
 
-	if configuration.disabled {
+	if !configuration.eventDemosEnabled() {
 		return
 	}
 
@@ -46,7 +46,7 @@ func (p *Plugin) UserHasBeenCreated(c *plugin.Context, user *model.User) {
 func (p *Plugin) UserHasBeenDeactivated(c *plugin.Context, user *model.User) {
 	configuration := p.getConfiguration()
 
-	if configuration.disabled {
+	if !configuration.eventDemosEnabled() {
 		return
 	}
 

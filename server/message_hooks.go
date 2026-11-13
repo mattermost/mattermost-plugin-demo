@@ -22,7 +22,7 @@ import (
 func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*model.Post, string) {
 	configuration := p.getConfiguration()
 
-	if configuration.disabled {
+	if !configuration.eventDemosEnabled() {
 		return post, ""
 	}
 
@@ -73,7 +73,7 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 func (p *Plugin) MessageWillBeUpdated(c *plugin.Context, newPost, oldPost *model.Post) (*model.Post, string) {
 	configuration := p.getConfiguration()
 
-	if configuration.disabled {
+	if !configuration.eventDemosEnabled() {
 		return newPost, ""
 	}
 
@@ -101,7 +101,7 @@ func (p *Plugin) MessageWillBeUpdated(c *plugin.Context, newPost, oldPost *model
 func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 	configuration := p.getConfiguration()
 
-	if configuration.disabled {
+	if !configuration.eventDemosEnabled() {
 		return
 	}
 
@@ -178,7 +178,7 @@ func (p *Plugin) MessageHasBeenPosted(c *plugin.Context, post *model.Post) {
 func (p *Plugin) MessageHasBeenUpdated(c *plugin.Context, newPost, oldPost *model.Post) {
 	configuration := p.getConfiguration()
 
-	if configuration.disabled {
+	if !configuration.eventDemosEnabled() {
 		return
 	}
 
@@ -242,7 +242,7 @@ func (p *Plugin) MessageHasBeenUpdated(c *plugin.Context, newPost, oldPost *mode
 func (p *Plugin) MessageHasBeenDeleted(c *plugin.Context, post *model.Post) {
 	configuration := p.getConfiguration()
 
-	if configuration.disabled {
+	if !configuration.eventDemosEnabled() {
 		return
 	}
 

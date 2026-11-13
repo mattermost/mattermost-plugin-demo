@@ -136,7 +136,7 @@
     "global-require": 2,
     "guard-for-in": 2,
     "id-blacklist": 0,
-    "import/no-unresolved": 2,
+    "import/no-unresolved": [2, {"ignore": ["^@mattermost/compass-ui/", "^@testing-library/jest-dom$"]}],
     "import/order": [
       "error",
       {
@@ -656,7 +656,20 @@
           {
             "extensions": [".jsx", ".tsx"]
           }
-        ]
+        ],
+        "no-undefined": 0
+      }
+    },
+    {
+      "files": ["src/components/right_hand_sidebar/components_tab/specimens/*.tsx"],
+      "rules": {
+        "no-magic-numbers": 0
+      }
+    },
+    {
+      "files": ["src/components/right_hand_sidebar/components_tab/catalog.ts"],
+      "rules": {
+        "max-lines": 0
       }
     }
   ]
