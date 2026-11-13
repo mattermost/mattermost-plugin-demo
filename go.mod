@@ -5,7 +5,7 @@ go 1.26.7
 require (
 	github.com/gorilla/mux v1.8.1
 	github.com/mattermost/mattermost-plugin-agents v1.14.1-0.20260519141957-379b06b188d9
-	github.com/mattermost/mattermost/server/public v0.5.1-0.20261020214916-926f347bd52f
+	github.com/mattermost/mattermost/server/public v0.5.1-0.20261021151848-79e7448565b4
 	github.com/modelcontextprotocol/go-sdk v1.4.1
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.12.1

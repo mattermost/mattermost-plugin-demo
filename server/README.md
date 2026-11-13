@@ -72,7 +72,7 @@ The `/ephemeral_override` command demonstrates the override of ephemeral posts i
 
 The `/crash` command demonstrates crashing the plugin (and the server recovering/restarting the plugin).
 
-The `/dialog` command demonstrates [Interactive Dialogs](https://docs.mattermost.com/developer/interactive-dialogs.html). Use `/dialog help` for its usage in this demo plugin.
+The `/dialog` command demonstrates [Interactive Dialogs](https://docs.mattermost.com/developer/interactive-dialogs.html). Use `/dialog help` for its usage in this demo plugin. [`docs/fillable-table.md`](docs/fillable-table.md) covers `/dialog fillable-table`, which builds a fillable table out of ordinary dialog elements.
 
 The `/interactive` command demonstrates the usage of interactive message buttons.
 
